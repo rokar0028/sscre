@@ -52,13 +52,13 @@ and test them.
 
 ### Milestone 2 — Query preprocessing
 
-- [ ] Define the query request and response models
-- [ ] Normalize whitespace
-- [ ] Validate empty and oversized queries
-- [ ] Hash normalized queries with SHA-256
-- [ ] Add unit tests for normalization
-- [ ] Add unit tests for hash stability
-- [ ] Document normalization trade-offs
+- [x] Define the query request and response models
+- [x] Normalize whitespace
+- [x] Validate empty and oversized queries
+- [x] Hash normalized queries with SHA-256
+- [x] Add unit tests for normalization
+- [x] Add unit tests for hash stability
+- [x] Document normalization trade-offs
 
 ### Milestone 3 — Exact-match cache
 

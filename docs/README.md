@@ -83,13 +83,13 @@ SSCRE_PLAN.md
 
 ## Current next task
 
-Continue with Milestone 2 in `SSCRE_LEARNING_AND_EXECUTION_GUIDE.md`:
+Continue with Milestone 3 in `SSCRE_LEARNING_AND_EXECUTION_GUIDE.md`:
 
-- [ ] Define query request and response models
-- [ ] Normalize and validate queries
-- [ ] Hash normalized queries with SHA-256
+- [ ] Define a cache entry model
+- [ ] Implement exact-cache `get` and `put`
+- [ ] Add a mock LLM client
 
-Complete the learning items for Milestones 0 and 1 before moving on.
+Complete the learning items for Milestones 0, 1, and 2 before moving on.
 
 ## How to update documents
 
