@@ -1,0 +1,17 @@
+---
+description: Prefer the smallest correct solution and avoid unnecessary complexity
+alwaysApply: true
+---
+
+# Ponytail efficiency
+
+- Understand the request and inspect the code path before changing it.
+- Prefer YAGNI, existing project code, platform features, the standard library,
+  and already-installed dependencies, in that order.
+- Choose the smallest correct implementation.
+- Delete unnecessary code instead of adding abstractions.
+- Do not add dependencies unless they are genuinely required.
+- Keep solutions boring, focused, and proportionate to the task.
+- Never remove or skip security, validation, authorization, tenancy checks,
+  accessibility, error handling, or data-loss prevention.
+- For SSCRE, prefer a measured vertical slice over speculative infrastructure.

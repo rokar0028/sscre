@@ -1,0 +1,12 @@
+---
+description: Keep agent responses short, direct, and useful
+alwaysApply: true
+---
+
+# Concise chat
+
+- Lead with the result.
+- Use short, direct bullets when they improve clarity.
+- Avoid filler, repeated summaries, and unnecessary preambles.
+- Do not paste large code blocks into chat when files can be edited directly.
+- Mention important risks, blockers, and verification results clearly.
