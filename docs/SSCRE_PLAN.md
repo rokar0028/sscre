@@ -670,18 +670,18 @@ Drop-in proxy for any client currently calling an LLM API directly.
 
 #### Foundation
 
-- [ ] Create `src/sscre/` package
-- [ ] Create unit and integration test directories
-- [ ] Add `pyproject.toml` and development dependencies
+- [x] Create `src/sscre/` package
+- [x] Create unit and integration test directories
+- [x] Add `pyproject.toml` and development dependencies
 - [ ] Add application configuration
-- [ ] Add `GET /health`
-- [ ] Add a repeatable local test command
+- [x] Add `GET /health`
+- [x] Add a repeatable local test command
 
 #### Exact-cache vertical slice
 
-- [ ] Define query and response schemas
-- [ ] Normalize query input
-- [ ] Compute query hashes
+- [x] Define query and response schemas
+- [x] Normalize query input
+- [x] Compute query hashes
 - [ ] Implement in-memory exact lookup
 - [ ] Implement mock LLM fallback
 - [ ] Implement `POST /v1/query`
