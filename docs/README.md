@@ -19,8 +19,8 @@ SSCRE
 └── experiment results
 ```
 
-The current repository contains the project documentation and design only. The
-implementation will be created under:
+The repository contains the project documentation and the initial
+implementation. Ongoing implementation belongs under:
 
 ```text
 src/sscre/
@@ -73,8 +73,8 @@ SSCRE_PLAN.md
 - [x] Initial architecture documented
 - [x] Risks and design corrections documented
 - [x] Learning and implementation order documented
-- [ ] Python project scaffold created
-- [ ] First FastAPI endpoint working
+- [x] Python project scaffold created
+- [x] First FastAPI endpoint working
 - [ ] Exact-match vertical slice working
 - [ ] Evaluation baseline working
 - [ ] Semantic retrieval working
@@ -83,14 +83,13 @@ SSCRE_PLAN.md
 
 ## Current next task
 
-Start with Milestone 0 in `SSCRE_LEARNING_AND_EXECUTION_GUIDE.md`:
+Continue with Milestone 2 in `SSCRE_LEARNING_AND_EXECUTION_GUIDE.md`:
 
-- [ ] Create the Python package layout
-- [ ] Create the test layout
-- [ ] Add project configuration
-- [ ] Run one test successfully
+- [ ] Define query request and response models
+- [ ] Normalize and validate queries
+- [ ] Hash normalized queries with SHA-256
 
-Then complete Milestone 1 before reading deeper system-design sections.
+Complete the learning items for Milestones 0 and 1 before moving on.
 
 ## How to update documents
 
