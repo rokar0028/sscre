@@ -23,3 +23,17 @@ SSCRE instead of calling the provider directly.
 
 The important invariant is conservative behavior: an uncertain cache decision
 must fall back to generation rather than risk returning an incompatible answer.
+
+Each request also receives a UUID and records total latency. Generated responses
+include mock input/output token counts and model latency; cache hits report zero
+LLM tokens. The application keeps in-memory hit, miss, and generation-failure
+counters for the current process.
+
+Generation failures are failure-closed: the failed answer is not cached, a
+controlled `502` response is returned, and a structured decision log records
+the request ID, decision, and latency without logging the answer.
+
+When `SSCRE_DATABASE_URL` is configured, the exact-cache lookup and insert use
+PostgreSQL. A generated answer is committed to `cache_entries`, and a later API
+process can retrieve it by the same query hash. Without that setting,
+`create_app()` uses the in-memory repository for isolated unit tests.

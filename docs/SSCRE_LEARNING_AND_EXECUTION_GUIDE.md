@@ -62,38 +62,38 @@ and test them.
 
 ### Milestone 3 — Exact-match cache
 
-- [ ] Define a cache entry model
-- [ ] Implement `get`
-- [ ] Implement `put`
-- [ ] Implement cache hit and miss behavior
-- [ ] Add a mock LLM client
-- [ ] Implement `POST /v1/query`
-- [ ] Return `source = generated` on a miss
-- [ ] Return `source = cache` on a hit
-- [ ] Test repeated requests
-- [ ] Test that different queries do not collide
+- [x] Define a cache entry model
+- [x] Implement `get`
+- [x] Implement `put`
+- [x] Implement cache hit and miss behavior
+- [x] Add a mock LLM client
+- [x] Implement `POST /v1/query`
+- [x] Return `source = generated` on a miss
+- [x] Return `source = cache` on a hit
+- [x] Test repeated requests
+- [x] Test that different queries do not collide
 
 ### Milestone 4 — Metrics and reliability
 
-- [ ] Generate a request ID
-- [ ] Measure total request latency
-- [ ] Record generated token counts
-- [ ] Count hits and misses
-- [ ] Add structured decision logs
-- [ ] Handle mock-generation errors
-- [ ] Write the request sequence in a short design note
+- [x] Generate a request ID
+- [x] Measure total request latency
+- [x] Record generated token counts
+- [x] Count hits and misses
+- [x] Add structured decision logs
+- [x] Handle mock-generation errors
+- [x] Write the request sequence in a short design note
 
 ### Milestone 5 — PostgreSQL persistence
 
 - [ ] Learn tables, constraints, indexes, and transactions
-- [ ] Start PostgreSQL locally
-- [ ] Create a database migration
-- [ ] Implement a repository interface
-- [ ] Implement PostgreSQL exact lookup
-- [ ] Implement PostgreSQL insert
-- [ ] Add parameterized queries
-- [ ] Add repository integration tests
-- [ ] Verify behavior after restarting the API
+- [x] Start PostgreSQL locally
+- [x] Create a database migration
+- [x] Implement a repository interface
+- [x] Implement PostgreSQL exact lookup
+- [x] Implement PostgreSQL insert
+- [x] Add parameterized queries
+- [x] Add repository integration tests
+- [x] Verify behavior across new API instances
 
 ### Milestone 6 — Evaluation baseline
 
