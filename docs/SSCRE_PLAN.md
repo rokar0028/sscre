@@ -682,18 +682,18 @@ Drop-in proxy for any client currently calling an LLM API directly.
 - [x] Define query and response schemas
 - [x] Normalize query input
 - [x] Compute query hashes
-- [ ] Implement in-memory exact lookup
-- [ ] Implement mock LLM fallback
-- [ ] Implement `POST /v1/query`
-- [ ] Return cache/generated source
-- [ ] Add request IDs and latency metrics
-- [ ] Test hit, miss, invalid input, and generation failure
+- [x] Implement in-memory exact lookup
+- [x] Implement mock LLM fallback
+- [x] Implement `POST /v1/query`
+- [x] Return cache/generated source
+- [x] Add request IDs and latency metrics
+- [x] Test hit, miss, invalid input, and generation failure
 
 #### Persistence and evaluation
 
-- [ ] Add PostgreSQL migration
-- [ ] Implement cache repository interface
-- [ ] Implement exact-match PostgreSQL repository
+- [x] Add PostgreSQL migration
+- [x] Implement cache repository interface
+- [x] Implement exact-match PostgreSQL repository
 - [ ] Define benchmark JSONL schema
 - [ ] Create benchmark v1 with ≥100 reviewed pairs
 - [ ] Implement no-cache baseline

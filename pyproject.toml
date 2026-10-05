@@ -9,6 +9,7 @@ description = "Safe Semantic LLM Response Reuse"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115",
+    "psycopg[binary]>=3.2",
     "uvicorn[standard]>=0.30",
 ]
 

@@ -75,7 +75,9 @@ SSCRE_PLAN.md
 - [x] Learning and implementation order documented
 - [x] Python project scaffold created
 - [x] First FastAPI endpoint working
-- [ ] Exact-match vertical slice working
+- [x] Exact-match vertical slice working
+- [x] Request metrics and reliability basics working
+- [x] PostgreSQL persistence working
 - [ ] Evaluation baseline working
 - [ ] Semantic retrieval working
 - [ ] Compatibility-aware safety engine working
@@ -83,13 +85,13 @@ SSCRE_PLAN.md
 
 ## Current next task
 
-Continue with Milestone 3 in `SSCRE_LEARNING_AND_EXECUTION_GUIDE.md`:
+Continue with Milestone 6 in `SSCRE_LEARNING_AND_EXECUTION_GUIDE.md`:
 
-- [ ] Define a cache entry model
-- [ ] Implement exact-cache `get` and `put`
-- [ ] Add a mock LLM client
+- [ ] Define the JSONL benchmark format
+- [ ] Create at least 20 manually reviewed query pairs
+- [ ] Implement no-cache and exact-cache baselines
 
-Complete the learning items for Milestones 0, 1, and 2 before moving on.
+Complete the learning items for Milestones 0 through 5 before moving on.
 
 ## How to update documents
 
