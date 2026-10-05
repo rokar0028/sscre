@@ -1,0 +1,15 @@
+---
+description: Require actionable checklists in project Markdown plans
+alwaysApply: true
+---
+
+# Planning documents
+
+- When creating or substantially updating an implementation plan or project
+  Markdown document, include actionable Markdown checkboxes (`- [ ]`).
+- Use unchecked boxes for work that is not verified and checked boxes only for
+  work completed with evidence.
+- Keep the checklist close to the relevant steps so it can be updated as work
+  progresses.
+- Do not commit or push planning-document changes without explicit user
+  approval.
