@@ -97,51 +97,56 @@ and test them.
 
 ### Milestone 6 — Evaluation baseline
 
-- [ ] Define the JSONL benchmark format
-- [ ] Create at least 20 manually reviewed pairs
-- [ ] Label exact, reusable, and non-reusable relationships
-- [ ] Implement the no-cache baseline
-- [ ] Implement the exact-cache baseline
-- [ ] Calculate hit rate and reuse coverage
-- [ ] Calculate tokens saved
-- [ ] Save results as JSON
-- [ ] Make runs reproducible from a config file
+- [x] Define the JSONL benchmark format
+- [x] Create at least 20 manually reviewed pairs
+- [x] Label exact, reusable, and non-reusable relationships
+- [x] Implement the no-cache baseline
+- [x] Implement the exact-cache baseline
+- [x] Calculate hit rate and reuse coverage
+- [x] Calculate tokens saved
+- [x] Save results as JSON
+- [x] Make runs reproducible from a config file
 
 ### Milestone 7 — Embedding retrieval
 
 - [ ] Learn embeddings and cosine similarity
-- [ ] Add an embedding client interface
-- [ ] Add a deterministic fake embedding client for tests
-- [ ] Enable pgvector
-- [ ] Store embeddings
-- [ ] Implement top-K retrieval
-- [ ] Implement Strategy B
-- [ ] Sweep similarity thresholds
-- [ ] Measure embedding-only false positives
+- [x] Add an embedding client interface
+- [x] Add a deterministic fake embedding client for tests
+- [x] Enable pgvector
+- [x] Store embeddings
+- [x] Implement top-K retrieval
+- [x] Implement Strategy B
+- [x] Sweep similarity thresholds
+- [x] Measure embedding-only false positives
 
 ### Milestone 8 — Compatibility-aware safety
 
-- [ ] Define `SAFE`, `UNSAFE`, and `UNCERTAIN`
-- [ ] Extract intent
-- [ ] Extract language and other constraints
-- [ ] Extract entities
-- [ ] Extract output format
-- [ ] Classify temporal freshness
-- [ ] Implement Strategy C
-- [ ] Record candidate decision traces
-- [ ] Create a failure gallery
-- [ ] Compare Strategy B and Strategy C on held-out data
+- [x] Define `SAFE`, `UNSAFE`, and `UNCERTAIN`
+- [x] Extract intent
+- [x] Extract language and other constraints
+- [x] Extract entities
+- [x] Extract output format
+- [x] Classify temporal freshness
+- [x] Implement Strategy C
+- [x] Record candidate decision traces
+- [x] Create a failure gallery
+- [x] Compare Strategy B and Strategy C on held-out data
 
 ### Milestone 9 — Cache controls
 
-- [ ] Add stable, semi-dynamic, and dynamic freshness classes
-- [ ] Apply TTL to exact and semantic hits
-- [ ] Reject dynamic entries by default
-- [ ] Add answer deduplication
-- [ ] Add a canonical-answer data model
-- [ ] Add a maximum answer size
-- [ ] Add LRU eviction
-- [ ] Add a storage-cap test
+- [x] Add stable, semi-dynamic, and dynamic freshness classes
+- [x] Apply TTL to exact and semantic hits
+- [x] Reject dynamic entries by default
+- [x] Add answer deduplication
+- [x] Add a canonical-answer data model
+- [x] Add a maximum answer size
+- [x] Add LRU eviction
+- [x] Add a storage-cap test
+
+Milestone 9 implementation is covered by
+`docs/MILESTONE_9_IMPLEMENTATION_PLAN.md`. Storage-control evaluation is
+available through `sscre-storage-evaluate`; PostgreSQL-specific verification,
+concurrency evaluation, and held-out storage comparisons remain open.
 
 ### Milestone 10 — Production and interview readiness
 

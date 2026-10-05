@@ -703,17 +703,17 @@ Drop-in proxy for any client currently calling an LLM API directly.
 
 #### Semantic MVP
 
-- [ ] Enable pgvector
-- [ ] Add embedding client interface
-- [ ] Add deterministic fake embeddings for tests
-- [ ] Implement top-K vector retrieval
-- [ ] Implement similarity-only Strategy B
-- [ ] Implement minimal rule-based Strategy C
-- [ ] Add single-model fallback
-- [ ] Add answer deduplication
-- [ ] Add freshness classification
-- [ ] Add TTL checks before every cache hit
-- [ ] Add storage cap and LRU eviction
+- [x] Enable pgvector
+- [x] Add embedding client interface
+- [x] Add deterministic fake embeddings for tests
+- [x] Implement top-K vector retrieval
+- [x] Implement similarity-only Strategy B
+- [x] Implement minimal rule-based Strategy C
+- [x] Add single-model fallback
+- [x] Add answer deduplication
+- [x] Add freshness classification
+- [x] Add TTL checks before every cache hit
+- [x] Add storage cap and LRU eviction
 
 ### Phase 2 — Depth (Weeks 7–10)
 
@@ -721,7 +721,7 @@ Drop-in proxy for any client currently calling an LLM API directly.
 - [ ] Add candidate-level decision traces
 - [ ] Expand benchmark to ≥500 reviewed pairs
 - [ ] Create development and held-out test splits
-- [ ] Add threshold sweep configuration
+- [x] Add threshold sweep configuration
 - [ ] Generate Pareto plots
 - [ ] Add confidence intervals
 - [ ] Add human correctness labels

@@ -49,11 +49,13 @@ TTL, eviction, and benchmark evaluation remain later milestones.
 ```sql
 CREATE TABLE cache_entries (
     id UUID PRIMARY KEY,
-    query_hash CHAR(64) NOT NULL UNIQUE,
+    query_hash VARCHAR(64) NOT NULL,
     normalized_query TEXT NOT NULL,
     answer TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    last_accessed_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    last_accessed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT cache_entries_query_hash_length CHECK (length(query_hash) = 64),
+    CONSTRAINT cache_entries_query_hash_unique UNIQUE (query_hash)
 );
 ```
 
@@ -76,6 +78,7 @@ Define clear behavior for:
 - [x] existing hash is not overwritten
 - [x] database connection failure uses `CacheRepositoryError`
 - [x] duplicate insert raises `DuplicateCacheEntryError`
+- [x] API returns controlled HTTP 503 responses for repository failures
 
 All SQL must use bound parameters.
 
@@ -124,13 +127,13 @@ Tests must be isolated and clean up their data.
 - [x] PostgreSQL starts locally
 - [x] Migration applies successfully
 - [x] Unit tests pass with the in-memory repository
-- [x] Integration tests pass against PostgreSQL
+- [x] Integration tests pass against PostgreSQL (`.venv\Scripts\python.exe -m pytest -q tests/test_postgres_integration.py`; 6 passed with `SSCRE_DATABASE_URL` set)
 - [x] `POST /v1/query` returns a generated answer on the first request
 - [x] A new API instance returns `source = "cache"` for the same request
 - [x] Failed generation is not persisted
 - [x] No credentials are committed
 - [x] No SQL is built through string concatenation
-- [x] Linter reports no errors
+- [ ] Linter reports no errors (no linter is currently configured)
 
 ## Completion criteria
 

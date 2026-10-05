@@ -350,6 +350,30 @@ ORDER BY embedding <=> $1::vector
 LIMIT $2;
 ```
 
+The current Milestone 7 implementation uses cosine distance from pgvector:
+`embedding <=> query_vector`. The reported similarity is `1 - distance`, so
+larger values are more similar. Retrieval validates a positive `top_k`, applies
+the configured maximum, and rejects incompatible query dimensions before
+search when a repository dimension is configured. The MVP intentionally has no
+vector index yet; index selection follows
+measured retrieval behavior.
+
+Strategy B is embedding-only retrieval. Its similarity threshold is a routing
+signal, not a compatibility or safety decision. High similarity can still hide
+different intent, entities, constraints, output formats, or freshness
+requirements. Strategy C applies the rule-based compatibility validator after
+retrieval and serves only candidates classified as `SAFE`; `UNSAFE`,
+`UNCERTAIN`, missing metadata, and validator errors fall back to generation.
+
+Cache metadata is stored as bounded JSON and is required for semantic Strategy
+C reuse. Exact Strategy C hits also pass through the validator. Strategies A
+and B remain selectable baselines and intentionally preserve their simpler
+reuse semantics for comparison.
+
+Embedding-provider failures and missing pgvector fail closed for reuse: the
+request does not serve a semantic candidate. A generated answer may be
+returned, but it is not cached unless a valid embedding is available.
+
 ---
 
 ### 4.5 Cache Writer (Insert Pipeline)
@@ -1005,7 +1029,7 @@ services:
     ports: ["8000:8000"]
     env_file: .env
     depends_on: [postgres]
-    command: uvicorn sscre.main:app --host 0.0.0.0 --port 8000
+    command: uvicorn sscre.app:app --host 0.0.0.0 --port 8000
 
   postgres:
     image: pgvector/pgvector:pg16
@@ -1015,7 +1039,10 @@ services:
       POSTGRES_DB: sscre
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./scripts/migrate.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./migrations/001_create_cache_entries.sql:/docker-entrypoint-initdb.d/001_create_cache_entries.sql:ro
+      - ./migrations/002_enable_pgvector.sql:/docker-entrypoint-initdb.d/002_enable_pgvector.sql:ro
+      - ./migrations/003_store_cache_embeddings.sql:/docker-entrypoint-initdb.d/003_store_cache_embeddings.sql:ro
+      - ./migrations/004_store_cache_metadata.sql:/docker-entrypoint-initdb.d/004_store_cache_metadata.sql:ro
     ports: ["5432:5432"]
 
   # Phase 2
@@ -1145,12 +1172,13 @@ flowchart TB
 
 | Failure | Behavior |
 |---------|----------|
-| Embedding API down | Return 503; do not serve stale unsafe cache |
-| LLM API down | Return 503 with partial trace; log miss reason |
-| DB down | Return 503; optional degrade: passthrough to LLM without cache (config flag) |
+| Embedding API down | Generate; do not serve or cache a semantic candidate |
+| LLM API down | Return 502; log miss reason |
+| DB exact lookup down | Return 503 with request ID |
+| DB/vector search failure | Treat as a miss and generate; do not serve cache |
 | Vector search timeout | Treat as miss → generate |
 | Storage cap reached | Evict LRU then retry insert once |
-| Safety engine exception | Fail closed → UNCERTAIN → generate |
+| Safety engine exception | Fail closed → `UNCERTAIN` → generate |
 
 **Fail-closed principle:** when in doubt, generate. Never serve cache on infrastructure errors.
 
@@ -1205,4 +1233,13 @@ flowchart LR
 
 Build the **evaluation harness** in parallel with the live path — the project's value is proven through measured trade-offs, not through UI complexity.
 
-**Next implementation step:** scaffold `src/sscre/` per module structure, run `migrate.sql`, implement Strategy A+C with mock LLM, then wire real providers.
+**Current implementation status:** Milestone 9 adds freshness-aware TTL checks,
+content-addressed canonical answers, bounded answer/metadata/query sizes,
+deterministic LRU eviction, PostgreSQL access and storage accounting, and
+`GET /v1/cache/stats`. Query metadata remains entry-specific even when answer
+bodies are deduplicated. Generated responses remain available when an answer
+is rejected from storage.
+
+**Next implementation step:** complete PostgreSQL-specific lifecycle
+verification and the remaining storage-control experiments before adding
+production-scale infrastructure.

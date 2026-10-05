@@ -78,18 +78,18 @@ SSCRE_PLAN.md
 - [x] Exact-match vertical slice working
 - [x] Request metrics and reliability basics working
 - [x] PostgreSQL persistence working
-- [ ] Evaluation baseline working
+- [x] Evaluation baseline working
 - [ ] Semantic retrieval working
 - [ ] Compatibility-aware safety engine working
 - [ ] Final experiments completed
 
 ## Current next task
 
-Continue with Milestone 6 in `SSCRE_LEARNING_AND_EXECUTION_GUIDE.md`:
+Begin Milestone 8 in `SSCRE_LEARNING_AND_EXECUTION_GUIDE.md`:
 
-- [ ] Define the JSONL benchmark format
-- [ ] Create at least 20 manually reviewed query pairs
-- [ ] Implement no-cache and exact-cache baselines
+- [ ] Define `SAFE`, `UNSAFE`, and `UNCERTAIN`
+- [ ] Extract compatibility constraints
+- [ ] Implement the first compatibility-aware safety decision
 
 Complete the learning items for Milestones 0 through 5 before moving on.
 
