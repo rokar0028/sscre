@@ -1,7 +1,10 @@
 import hashlib
 import re
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
+
+from sscre.metrics import RequestMetrics
 
 MAX_QUERY_LENGTH = 8000
 
@@ -31,6 +34,12 @@ class QueryRequest(BaseModel):
 class QueryPreprocessResponse(BaseModel):
     normalized_query: str
     query_hash: str
+
+
+class QueryResponse(BaseModel):
+    answer: str
+    source: Literal["cache", "generated"]
+    metrics: RequestMetrics
 
 
 def preprocess_query(request: QueryRequest) -> QueryPreprocessResponse:
