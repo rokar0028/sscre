@@ -18,7 +18,11 @@ from sscre.llm import LLMResult, MockLLMClient
 from sscre.compatibility import evaluate_candidate
 from sscre.metadata import extract_metadata
 from sscre.query import hash_query, normalize_query
-from sscre.safety import QueryMetadata
+from sscre.safety import (
+    QueryMetadata,
+    is_reusable_decision,
+    resolve_candidate_traces,
+)
 
 
 class BaselineLLMClient(Protocol):
@@ -643,14 +647,15 @@ def run_compatibility_cache_baseline(
             request_count += 1
 
             safe_candidate = None
-            candidate_trace = None
+            evaluated_traces = []
             for candidate in candidates:
                 candidate_trace = evaluate_candidate(
                     query_metadata,
                     candidate,
                     similarity_threshold=threshold,
                 )
-                if candidate_trace.decision == "SAFE":
+                evaluated_traces.append(candidate_trace)
+                if is_reusable_decision(candidate_trace.decision):
                     safe_candidate = candidate
                     break
 
@@ -689,12 +694,21 @@ def run_compatibility_cache_baseline(
 
             cache_misses += 1
             if candidates:
-                decision = candidate_trace.decision if candidate_trace else "UNCERTAIN"
+                if evaluated_traces:
+                    aggregate = resolve_candidate_traces(
+                        tuple(evaluated_traces),
+                        strategy="C",
+                    )
+                    decision = aggregate.decision
+                    reason = aggregate.reason
+                else:
+                    decision = "UNCERTAIN"
+                    reason = "no_decision"
                 decision_counts[decision] = decision_counts.get(decision, 0) + 1
                 record_breakdown(query_metadata, decision)
                 if decision == "UNCERTAIN":
                     uncertain_decisions += 1
-                reason = candidate_trace.reason if candidate_trace else "no_decision"
+                candidate_trace = evaluated_traces[-1] if evaluated_traces else None
                 category = reason.split(":", 1)[0]
                 failure_categories[category] = (
                     failure_categories.get(category, 0) + 1

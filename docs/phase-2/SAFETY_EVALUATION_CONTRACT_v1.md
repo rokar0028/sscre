@@ -22,8 +22,9 @@ are defined in Workstream 1 step 3.
 | `UNSAFE` | Known incompatibility (constraint, entity, dynamic query/candidate, similarity below threshold, explicit mismatch) | No — generate |
 | `UNCERTAIN` | Reuse cannot be established safely (missing metadata, incomplete evidence, dependency/validator failure, temporal mismatch) | No — generate |
 
-Legacy API value `EXACT_HIT` (Strategy A exact cache, no compatibility pass) remains
-distinct from this vocabulary until step 2 unifies response mapping.
+Strategy A exact-hash hits without a compatibility pass use `SAFE` with reason
+`exact_query_hash_match`. The public API exposes only `SAFE`, `UNSAFE`, and
+`UNCERTAIN`.
 
 ## Core types
 

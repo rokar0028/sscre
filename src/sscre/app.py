@@ -33,7 +33,13 @@ from sscre.llm import MockLLMClient, validate_llm_result
 from sscre.metrics import MetricsCollector
 from sscre.postgres_cache import PostgresExactCacheRepository
 from sscre.query import QueryRequest, QueryResponse, preprocess_query
-from sscre.safety import CandidateTrace, SafetyResult
+from sscre.safety import (
+    CandidateTrace,
+    SafetyDecision,
+    SafetyResult,
+    is_reusable_decision,
+    resolve_candidate_traces,
+)
 
 logger = logging.getLogger("sscre")
 MAX_TRACE_CANDIDATES = 100
@@ -347,10 +353,12 @@ def create_app(
         def cached_response(
             entry: CacheEntry,
             *,
-            decision: str = "EXACT_HIT",
-            reason: str | None = None,
+            decision: SafetyDecision = "SAFE",
+            reason: str | None = "exact_query_hash_match",
             traces: tuple[CandidateTrace, ...] = (),
         ) -> QueryResponse:
+            if not is_reusable_decision(decision):
+                raise ValueError("cache responses require a reusable SAFE decision")
             ensure_request_budget()
             record_cache_hit(entry.query_hash)
             metrics.record_exact_hit()
@@ -363,8 +371,7 @@ def create_app(
                     {
                         "event": "cache_decision",
                         "request_id": str(request_id),
-                        "decision": "HIT" if decision == "EXACT_HIT" else decision,
-                        "safety_decision": decision,
+                        "decision": decision,
                         "outcome": "cache_reused",
                         "source": "cache",
                         "strategy": "C" if traces else "A",
@@ -401,6 +408,10 @@ def create_app(
             safety_result: SafetyResult | None = None,
             traces: tuple[CandidateTrace, ...] = (),
         ) -> QueryResponse:
+            if safety_result is not None and not is_reusable_decision(
+                safety_result.decision
+            ):
+                raise ValueError("semantic cache responses require a SAFE decision")
             ensure_request_budget()
             record_cache_hit(candidate.query_hash)
             metrics.record_semantic_hit()
@@ -531,7 +542,7 @@ def create_app(
             if semantic_strategy == "C":
                 decision_traces = (evaluate_exact_entry(cached_entry),)
                 exact_safety = decision_traces[0]
-                if exact_safety.decision == "SAFE":
+                if is_reusable_decision(exact_safety.decision):
                     return cached_response(
                         cached_entry,
                         decision=exact_safety.decision,
@@ -594,27 +605,20 @@ def create_app(
                             for index, candidate in enumerate(evaluated_candidates)
                         )
                         decision_traces = traces
-                        safe_index = next(
-                            (
+                        safety_result = resolve_candidate_traces(
+                            traces,
+                            strategy="C",
+                        )
+                        if is_reusable_decision(safety_result.decision):
+                            safe_index = next(
                                 index
                                 for index, trace in enumerate(traces)
-                                if trace.decision == "SAFE"
-                            ),
-                            None,
-                        )
-                        if safe_index is not None:
+                                if trace.candidate_query_hash
+                                == safety_result.selected_candidate_query_hash
+                            )
                             return semantic_cached_response(
                                 candidates[safe_index],
-                                SafetyResult(
-                                    decision="SAFE",
-                                    strategy="C",
-                                    reason=traces[safe_index].reason,
-                                    similarity=traces[safe_index].similarity,
-                                    selected_candidate_query_hash=(
-                                        traces[safe_index].candidate_query_hash
-                                    ),
-                                    candidate_traces=traces,
-                                ),
+                                safety_result,
                                 traces=traces,
                             )
                     elif (
@@ -699,7 +703,7 @@ def create_app(
                     return cached_response(cached_entry)
                 exact_safety = evaluate_exact_entry(cached_entry)
                 decision_traces = (exact_safety,)
-                if exact_safety.decision == "SAFE":
+                if is_reusable_decision(exact_safety.decision):
                     return cached_response(
                         cached_entry,
                         decision=exact_safety.decision,
@@ -880,7 +884,7 @@ def create_app(
                     ):
                         return cached_response(cached_entry)
                     duplicate_safety = evaluate_exact_entry(cached_entry)
-                    if duplicate_safety.decision == "SAFE":
+                    if is_reusable_decision(duplicate_safety.decision):
                         return cached_response(
                             cached_entry,
                             decision=duplicate_safety.decision,
@@ -906,19 +910,32 @@ def create_app(
             llm_input_tokens=result.input_tokens,
             llm_output_tokens=result.output_tokens,
         )
+        if decision_traces:
+            fallback_safety = resolve_candidate_traces(
+                decision_traces,
+                strategy=semantic_strategy if semantic_enabled else "A",
+            )
+            generated_decision = fallback_safety.decision
+            generated_reason = fallback_safety.reason
+        else:
+            generated_decision = "UNCERTAIN"
+            generated_reason = "cache candidate was not safely reusable"
+        if cache_skip_reason is not None:
+            generated_reason = cache_skip_reason
+
         logger.info(
             json.dumps(
                 {
                     "event": "cache_decision",
                     "request_id": str(request_id),
-                    "decision": "GENERATED",
-                        "outcome": "generated",
+                    "decision": generated_decision,
+                    "outcome": "generated",
                     "source": "generated",
-                        "strategy": semantic_strategy if semantic_enabled else "A",
+                    "strategy": semantic_strategy if semantic_enabled else "A",
                     "cache_skip_reason": cache_skip_reason,
-                        "candidate_traces": [
-                            asdict(trace) for trace in decision_traces
-                        ],
+                    "candidate_traces": [
+                        asdict(trace) for trace in decision_traces
+                    ],
                     "latency_ms": response_metrics.total_latency_ms,
                     "llm_input_tokens": result.input_tokens,
                     "llm_output_tokens": result.output_tokens,
@@ -930,11 +947,8 @@ def create_app(
             answer=result.text,
             source="generated",
             strategy="generated",
-            decision="UNCERTAIN",
-            reason=(
-                cache_skip_reason
-                or "cache candidate was not safely reusable"
-            ),
+            decision=generated_decision,
+            reason=generated_reason,
             freshness_class=processed.metadata.temporal_class,
             cache_control_reason=cache_skip_reason or "fresh",
             metrics=response_metrics,

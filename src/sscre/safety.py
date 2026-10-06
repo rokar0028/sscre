@@ -15,7 +15,13 @@ from typing import Literal
 SAFETY_EVALUATION_CONTRACT_VERSION = "1.0.0"
 
 SafetyDecision = Literal["SAFE", "UNSAFE", "UNCERTAIN"]
+SAFETY_DECISIONS: tuple[SafetyDecision, ...] = ("SAFE", "UNSAFE", "UNCERTAIN")
 TraceStage = Literal["retrieval", "compatibility"]
+
+
+def is_reusable_decision(decision: SafetyDecision) -> bool:
+    """Return True only when a cache candidate may be served."""
+    return decision == "SAFE"
 QueryIntent = Literal[
     "explain",
     "code",
@@ -203,7 +209,7 @@ def resolve_candidate_traces(
         raise ValueError("strategy must not be empty")
 
     for trace in traces:
-        if trace.decision == "SAFE":
+        if is_reusable_decision(trace.decision):
             return SafetyResult(
                 decision="SAFE",
                 strategy=strategy,

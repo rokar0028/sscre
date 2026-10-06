@@ -40,7 +40,7 @@ def test_decision_log_is_structured_and_does_not_include_answer(
     assert response.status_code == 200
     log = json.loads(next(record.message for record in caplog.records))
     assert log["event"] == "cache_decision"
-    assert log["decision"] == "GENERATED"
+    assert log["decision"] == "UNCERTAIN"
     assert log["request_id"] == response.json()["metrics"]["request_id"]
     assert log["source"] == "generated"
     assert log["llm_input_tokens"] > 0
@@ -57,7 +57,7 @@ def test_cache_hit_decision_log_is_structured(caplog) -> None:
     response = client.post("/v1/query", json={"query": "Explain hit logs"})
 
     logs = [json.loads(record.message) for record in caplog.records]
-    log = next(entry for entry in logs if entry["decision"] == "HIT")
+    log = next(entry for entry in logs if entry["decision"] == "SAFE")
     assert log["source"] == "cache"
     assert log["request_id"] == response.json()["metrics"]["request_id"]
     assert log["llm_input_tokens"] == 0

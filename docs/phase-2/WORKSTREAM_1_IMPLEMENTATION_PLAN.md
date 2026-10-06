@@ -96,10 +96,13 @@ Step 1 audit record (producers, consumers, gaps, test matrix):
 
 Recorded gaps to address in later steps:
 
-- `app.py` selects the first `SAFE` candidate inline; it does not call
-  `resolve_candidate_traces()` (behavior matches tests today).
-- Strategy A / B paths omit full compatibility traces or use `EXACT_HIT` /
-  retrieval-only `SAFE` in the API.
+- ~~`app.py` selects the first `SAFE` candidate inline~~ (step 2: uses
+  `resolve_candidate_traces()` for Strategy C semantic aggregation and generated
+  fallback decisions).
+- ~~Strategy A uses `EXACT_HIT` in the API~~ (step 2: Strategy A exact hits use
+  `SAFE` / `exact_query_hash_match`).
+- Strategy B paths still use retrieval-only traces and implicit `SAFE` at the
+  similarity threshold (experiment baseline; not the Strategy C contract path).
 - `QueryResponse` does not expose `candidate_traces`; traces are log-only.
 - Benchmark artifacts record aggregate decisions, not full trace tuples.
 
@@ -128,31 +131,36 @@ borderline result.
 
 #### Required invariants
 
-- [ ] Only `SAFE` can select a candidate query hash.
-- [ ] Only `SAFE` can expose a reusable cache-hit source.
-- [ ] `UNSAFE` always falls back to generation or a controlled error.
-- [ ] `UNCERTAIN` always falls back to generation or a controlled error.
-- [ ] Empty candidates resolve to a non-`SAFE` result.
-- [ ] Dependency failure cannot be converted into `SAFE`.
-- [ ] Expired candidates cannot be converted into `SAFE`.
-- [ ] Dynamic queries cannot be served from the cache.
+- [x] Only `SAFE` can select a candidate query hash (`SafetyResult.__post_init__`,
+  `cached_response` / `semantic_cached_response` guards).
+- [x] Only `SAFE` can expose a reusable cache-hit source (`is_reusable_decision`
+  at cache response boundaries).
+- [x] `UNSAFE` always falls back to generation or a controlled error (`app.py`
+  generated path preserves `UNSAFE`).
+- [x] `UNCERTAIN` always falls back to generation or a controlled error.
+- [x] Empty candidates resolve to a non-`SAFE` result (`resolve_candidate_traces`).
+- [x] Dependency failure cannot be converted into `SAFE` (existing 503/502 paths;
+  no change in step 2).
+- [x] Expired candidates cannot be converted into `SAFE` (`cache_entry_is_reusable`;
+  no change in step 2).
+- [x] Dynamic queries cannot be served from the cache (`evaluate_candidate`;
+  no change in step 2).
 
 #### Implementation tasks
 
-- [ ] Keep `SafetyDecision` as the single source of truth for decision values.
-- [ ] Audit all string comparisons and response mappings for exact use of the
-  canonical values.
-- [ ] Add a shared helper or assertion for “reusable means SAFE” if multiple
-  callers currently duplicate this rule.
-- [ ] Ensure API, metrics, and evaluation outputs preserve the decision value
-  rather than collapsing `UNSAFE` and `UNCERTAIN`.
-- [ ] Document the contract near the public response model.
+- [x] Keep `SafetyDecision` as the single source of truth for decision values.
+- [x] Audit string comparisons and response mappings; removed `EXACT_HIT` from
+  `QueryResponse`.
+- [x] Added `is_reusable_decision()` shared helper (`safety.py`).
+- [x] API and generated decision logs preserve `UNSAFE` vs `UNCERTAIN` via
+  `resolve_candidate_traces()` on `decision_traces`.
+- [x] Document the contract on `QueryResponse` (`query.py`).
 
-- [ ] Confirm all decision producers and consumers use the canonical
-  `SafetyDecision` type.
-- [ ] Confirm exact-cache, semantic-cache, and failure paths use the same
-  failure-closed behavior.
-- [ ] Record any existing contract gaps before changing implementation.
+- [x] Producers/consumers use canonical values (`app.py`, `baseline.py`).
+- [x] Strategy C semantic and generated paths use `resolve_candidate_traces()`.
+- [x] Remaining gap: Strategy B retrieval-only path (documented above).
+
+**Verification (2026-10-06):** `python -m pytest -q` → 184 passed, 13 skipped.
 
 ### 3. Define independent evaluation labels
 
@@ -386,7 +394,8 @@ decision without exposing sensitive data.
 
 1. [x] Audit current decision, label, and trace producers and consumers
    ([WORKSTREAM_1_STEP1_AUDIT.md](./WORKSTREAM_1_STEP1_AUDIT.md)).
-2. [ ] Freeze the canonical decision and reason contracts.
+2. [x] Freeze the canonical decision and reason contracts (step 2 code + contract
+   doc update).
 3. [ ] Define the independent evaluation-label schema.
 4. [ ] Standardize trace serialization and bounds.
 5. [ ] Add unit and integration contract tests.

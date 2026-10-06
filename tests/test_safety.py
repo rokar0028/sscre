@@ -6,8 +6,15 @@ from sscre.safety import (
     CandidateTrace,
     QueryMetadata,
     SafetyResult,
+    is_reusable_decision,
     resolve_candidate_traces,
 )
+
+
+def test_only_safe_is_reusable() -> None:
+    assert is_reusable_decision("SAFE")
+    assert not is_reusable_decision("UNSAFE")
+    assert not is_reusable_decision("UNCERTAIN")
 
 
 def test_query_metadata_round_trips_through_storage_shape() -> None:

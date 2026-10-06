@@ -40,10 +40,18 @@ class QueryPreprocessResponse(BaseModel):
 
 
 class QueryResponse(BaseModel):
+    """Public query outcome.
+
+    ``decision`` uses the safety vocabulary only: ``SAFE`` means the cached
+    answer was served; ``UNSAFE`` and ``UNCERTAIN`` mean generation was used
+    instead. Only ``SAFE`` responses include ``selected_candidate_query_hash``.
+    See ``docs/phase-2/SAFETY_EVALUATION_CONTRACT_v1.md``.
+    """
+
     answer: str
     source: Literal["cache", "generated"]
     strategy: Literal["exact", "semantic", "generated"]
-    decision: Literal["SAFE", "UNSAFE", "UNCERTAIN", "EXACT_HIT"]
+    decision: Literal["SAFE", "UNSAFE", "UNCERTAIN"]
     similarity: float | None = Field(default=None, ge=-1, le=1)
     selected_candidate_query_hash: str | None = None
     reason: str | None = None
