@@ -336,6 +336,14 @@ def test_compatibility_baseline_reports_safety_and_abstention_metrics() -> None:
     assert report.compatibility_label_counts["incompatible"] == 1
     assert "intent" in report.decision_breakdowns
     assert "constraint" in report.decision_breakdowns
+    assert set(report.label_sections) == {
+        "compatibility",
+        "correctness",
+        "preference",
+    }
+    assert "compatible" in report.label_sections["compatibility"]
+    assert "correct" in report.label_sections["correctness"]
+    assert "not_collected" in report.label_sections["preference"]
 
 
 def test_embedding_threshold_sweep_selects_dev_threshold() -> None:

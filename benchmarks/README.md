@@ -10,8 +10,12 @@
 - Non-reusable pairs: language, format, entity, audience, length, numeric,
   dietary, operation, and other constraint changes
 
-Every non-reusable record includes a short decision reason. Validate the file
-before evaluation:
+Every non-reusable record includes a short decision reason.
+
+Evaluation label contract (compatibility vs correctness vs preference):
+[EVALUATION_LABEL_CONTRACT_v1.md](./EVALUATION_LABEL_CONTRACT_v1.md).
+
+Validate the file before evaluation:
 
 ```python
 from sscre.benchmark import load_benchmark_jsonl

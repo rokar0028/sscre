@@ -4,8 +4,13 @@ import json
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
+from sscre.evaluation_labels import (
+    AdjudicationStatus,
+    BenchmarkPreferenceLabel,
+    reject_preference_as_correctness,
+)
 from sscre.query import MAX_QUERY_LENGTH, normalize_query
 
 BENCHMARK_SCHEMA_VERSION = "1.0"
@@ -23,6 +28,14 @@ class BenchmarkRecord(BaseModel):
     correctness_label: Literal["correct", "incorrect"]
     compatibility_label: Literal["compatible", "incompatible"]
     reason: str | None = None
+    preference_label: BenchmarkPreferenceLabel | None = None
+    annotation_source: str | None = None
+    adjudication_status: AdjudicationStatus | None = None
+
+    @field_validator("correctness_label")
+    @classmethod
+    def correctness_is_not_preference(cls, value: str) -> str:
+        return reject_preference_as_correctness(value)
 
     @model_validator(mode="after")
     def validate_record(self) -> "BenchmarkRecord":
@@ -34,6 +47,8 @@ class BenchmarkRecord(BaseModel):
             raise ValueError("reason is required when reusable is false")
         if self.reason is not None and not self.reason.strip():
             raise ValueError("reason must not be blank")
+        if self.annotation_source is not None and not self.annotation_source.strip():
+            raise ValueError("annotation_source must not be blank")
         return self
 
 

@@ -32,6 +32,10 @@ changes.
 `correctness_label` and `compatibility_label` are intentionally separate from
 `reusable`; evaluation must not infer one label from another.
 
+Run-level evaluation artifacts use the nested label block defined in
+[benchmarks/EVALUATION_LABEL_CONTRACT_v1.md](../benchmarks/EVALUATION_LABEL_CONTRACT_v1.md)
+(`sscre.evaluation_labels`).
+
 ## Validation
 
 Use `sscre.benchmark.load_benchmark_jsonl(path)` before evaluation. It validates

@@ -18,8 +18,15 @@ from sscre.llm import LLMResult, MockLLMClient
 from sscre.compatibility import evaluate_candidate
 from sscre.metadata import extract_metadata
 from sscre.query import hash_query, normalize_query
+from sscre.evaluation_labels import (
+    build_evaluation_labels,
+    build_label_sections,
+    correctness_metrics_bucket,
+    expected_compatibility_decision,
+)
 from sscre.safety import (
     QueryMetadata,
+    SafetyDecision,
     is_reusable_decision,
     resolve_candidate_traces,
 )
@@ -189,6 +196,8 @@ class CompatibilityCacheReport:
     failure_examples: list[dict[str, object]]
     correctness_label_counts: dict[str, int]
     compatibility_label_counts: dict[str, int]
+    preference_label_counts: dict[str, int]
+    label_sections: dict[str, dict[str, int]]
     false_positive_examples: list[dict[str, object]]
 
 
@@ -598,6 +607,30 @@ def run_compatibility_cache_baseline(
     failure_examples: list[dict[str, object]] = []
     correctness_label_counts: dict[str, int] = {}
     compatibility_label_counts: dict[str, int] = {}
+    preference_label_counts: dict[str, int] = {}
+    compatibility_agreement_counts: dict[str, int] = {}
+
+    def record_compatibility_agreement(
+        record: BenchmarkRecord,
+        observed: SafetyDecision,
+    ) -> None:
+        expected = expected_compatibility_decision(record)
+        bucket = "match" if observed == expected else "mismatch"
+        compatibility_agreement_counts[bucket] = (
+            compatibility_agreement_counts.get(bucket, 0) + 1
+        )
+
+    def example_with_labels(
+        example: dict[str, object],
+        record: BenchmarkRecord,
+        observed: SafetyDecision,
+    ) -> dict[str, object]:
+        enriched = dict(example)
+        enriched["evaluation_labels"] = build_evaluation_labels(
+            record=record,
+            observed_decision=observed,
+        ).to_artifact_dict()
+        return enriched
 
     def record_breakdown(query_metadata: QueryMetadata, outcome: str) -> None:
         dimensions = {
@@ -625,11 +658,22 @@ def run_compatibility_cache_baseline(
                 labels[label] = labels.get(label, 0) + 1
 
     for record in records:
-        correctness_label_counts[record.correctness_label] = (
-            correctness_label_counts.get(record.correctness_label, 0) + 1
-        )
         compatibility_label_counts[record.compatibility_label] = (
             compatibility_label_counts.get(record.compatibility_label, 0) + 1
+        )
+        preference_bucket = (
+            record.preference_label
+            if record.preference_label is not None
+            else "not_collected"
+        )
+        preference_label_counts[preference_bucket] = (
+            preference_label_counts.get(preference_bucket, 0) + 1
+        )
+        correctness_bucket = correctness_metrics_bucket(
+            record.correctness_label  # type: ignore[arg-type]
+        )
+        correctness_label_counts[correctness_bucket] = (
+            correctness_label_counts.get(correctness_bucket, 0) + 1
         )
         for direction, query in (
             ("a_to_b", record.query_a),
@@ -666,22 +710,27 @@ def run_compatibility_cache_baseline(
                 tokens_saved += len(normalized_query.split())
                 tokens_saved += len(safe_candidate.answer.split())
                 if direction == "b_to_a":
+                    record_compatibility_agreement(record, "SAFE")
                     if record.reusable:
                         safe_reuse_hits += 1
                     else:
                         unsafe_reuse_hits += 1
-                        example = {
-                            "id": record.id,
-                            "direction": direction,
-                            "query_a": record.query_a,
-                            "query_b": record.query_b,
-                            "similarity": safe_candidate.similarity,
-                            "predicted_decision": "SAFE",
-                            "expected_reusable": record.reusable,
-                            "expected_compatibility": record.compatibility_label,
-                            "reason": record.reason,
-                            "failure_category": "false_positive",
-                        }
+                        example = example_with_labels(
+                            {
+                                "id": record.id,
+                                "direction": direction,
+                                "query_a": record.query_a,
+                                "query_b": record.query_b,
+                                "similarity": safe_candidate.similarity,
+                                "predicted_decision": "SAFE",
+                                "expected_reusable": record.reusable,
+                                "expected_compatibility": record.compatibility_label,
+                                "reason": record.reason,
+                                "failure_category": "false_positive",
+                            },
+                            record,
+                            "SAFE",
+                        )
                         false_positive_examples.append(example)
                         failure_examples.append(example)
                 request_latency_ms = (
@@ -714,6 +763,7 @@ def run_compatibility_cache_baseline(
                     failure_categories.get(category, 0) + 1
                 )
                 if direction == "b_to_a":
+                    record_compatibility_agreement(record, decision)
                     failure_category = None
                     if record.reusable:
                         failure_category = "false_negative"
@@ -721,24 +771,28 @@ def run_compatibility_cache_baseline(
                         failure_category = "unnecessary_abstention"
                     if failure_category is not None:
                         failure_examples.append(
-                            {
-                                "id": record.id,
-                                "direction": direction,
-                                "query_a": record.query_a,
-                                "query_b": record.query_b,
-                                "similarity": (
-                                    candidate_trace.similarity
-                                    if candidate_trace is not None
-                                    else None
-                                ),
-                                "predicted_decision": decision,
-                                "expected_reusable": record.reusable,
-                                "expected_compatibility": (
-                                    record.compatibility_label
-                                ),
-                                "reason": reason,
-                                "failure_category": failure_category,
-                            }
+                            example_with_labels(
+                                {
+                                    "id": record.id,
+                                    "direction": direction,
+                                    "query_a": record.query_a,
+                                    "query_b": record.query_b,
+                                    "similarity": (
+                                        candidate_trace.similarity
+                                        if candidate_trace is not None
+                                        else None
+                                    ),
+                                    "predicted_decision": decision,
+                                    "expected_reusable": record.reusable,
+                                    "expected_compatibility": (
+                                        record.compatibility_label
+                                    ),
+                                    "reason": reason,
+                                    "failure_category": failure_category,
+                                },
+                                record,
+                                decision,
+                            )
                         )
             else:
                 decision_counts["MISS"] = decision_counts.get("MISS", 0) + 1
@@ -854,6 +908,14 @@ def run_compatibility_cache_baseline(
         failure_examples=failure_examples,
         correctness_label_counts=correctness_label_counts,
         compatibility_label_counts=compatibility_label_counts,
+        preference_label_counts=preference_label_counts,
+        label_sections=build_label_sections(
+            compatibility_label_counts=compatibility_label_counts,
+            correctness_label_counts=correctness_label_counts,
+            preference_label_counts=preference_label_counts,
+            compatibility_agreement_counts=compatibility_agreement_counts,
+            decision_counts=decision_counts,
+        ),
         false_positive_examples=false_positive_examples,
     )
 

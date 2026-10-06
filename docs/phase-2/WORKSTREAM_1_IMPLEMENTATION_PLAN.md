@@ -209,16 +209,22 @@ converted to a negative label.
 
 #### Implementation tasks
 
-- [ ] Document the label schema under `benchmarks/` or the evaluation
-  contract documentation.
-- [ ] Use separate fields for expected compatibility and observed decision.
-- [ ] Reject records that place preference in the correctness field.
-- [ ] Define allowed values and nullability for every label.
-- [ ] Record annotation source and adjudication status independently from the
-  label value.
-- [ ] Ensure reports calculate compatibility, correctness, and preference
-  metrics in separate sections.
-- [ ] Add tests proving that missing correctness does not imply incorrectness.
+- [x] Document the label schema under `benchmarks/` or the evaluation
+  contract documentation (`benchmarks/EVALUATION_LABEL_CONTRACT_v1.md`).
+- [x] Use separate fields for expected compatibility and observed decision
+  (`evaluation_labels.build_evaluation_labels`, failure example payloads).
+- [x] Reject records that place preference in the correctness field
+  (`benchmark.BenchmarkRecord` validator).
+- [x] Define allowed values and nullability for every label (contract doc +
+  `evaluation_labels.py` models).
+- [x] Record annotation source and adjudication status independently from the
+  label value (optional benchmark fields + `AnnotationProvenance`).
+- [x] Ensure reports calculate compatibility, correctness, and preference
+  metrics in separate sections (`CompatibilityCacheReport.label_sections`).
+- [x] Add tests proving that missing correctness does not imply incorrectness
+  (`tests/test_evaluation_labels.py`).
+
+**Verification (2026-10-06):** `python -m pytest -q` → 188 passed, 13 skipped.
 
 ### 4. Define the candidate-level trace contract
 
@@ -396,7 +402,7 @@ decision without exposing sensitive data.
    ([WORKSTREAM_1_STEP1_AUDIT.md](./WORKSTREAM_1_STEP1_AUDIT.md)).
 2. [x] Freeze the canonical decision and reason contracts (step 2 code + contract
    doc update).
-3. [ ] Define the independent evaluation-label schema.
+3. [x] Define the independent evaluation-label schema.
 4. [ ] Standardize trace serialization and bounds.
 5. [ ] Add unit and integration contract tests.
 6. [ ] Run the existing full suite and targeted contract tests.
