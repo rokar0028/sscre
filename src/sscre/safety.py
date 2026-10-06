@@ -78,6 +78,9 @@ def bound_trace_metadata(metadata: Mapping[str, object]) -> dict[str, object]:
     """Return bounded metadata safe for operational trace serialization."""
     if not metadata:
         return {}
+    raw = json.dumps(dict(metadata), sort_keys=True, separators=(",", ":"))
+    if len(raw.encode("utf-8")) > MAX_TRACE_METADATA_JSON_BYTES:
+        raise ValueError("trace metadata exceeds serialized size limit")
     bounded = QueryMetadata.from_dict(metadata).to_dict()
     payload = json.dumps(bounded, sort_keys=True, separators=(",", ":"))
     if len(payload.encode("utf-8")) > MAX_TRACE_METADATA_JSON_BYTES:

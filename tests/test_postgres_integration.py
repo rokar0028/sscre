@@ -179,7 +179,7 @@ def test_api_reads_persisted_entry_across_app_instances(
     cache_entry: CacheEntry,
 ) -> None:
     settings = Settings(database_url=DATABASE_URL)
-    query = cache_entry.normalized_query
+    query = f"Write Python code for binary search {uuid4()}"
     first_client = TestClient(create_app(settings=settings))
     second_client = TestClient(create_app(settings=settings))
 

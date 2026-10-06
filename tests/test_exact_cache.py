@@ -49,8 +49,14 @@ def test_first_query_generates_and_repeated_query_uses_cache() -> None:
     model = CountingMockLLMClient()
     client = TestClient(create_app(model))
 
-    first = client.post("/v1/query", json={"query": "  What is caching?  "})
-    second = client.post("/v1/query", json={"query": "What   is caching?"})
+    first = client.post(
+        "/v1/query",
+        json={"query": "  Write Python code for binary search  "},
+    )
+    second = client.post(
+        "/v1/query",
+        json={"query": "Write   Python code for binary search"},
+    )
 
     assert first.status_code == 200
     assert first.json()["source"] == "generated"
@@ -138,6 +144,7 @@ def test_semantic_candidate_is_reused_after_exact_miss() -> None:
             llm_client=model,
             repository=cache,
             embedding_client=embedding_client,
+            semantic_strategy="B",
             semantic_similarity_threshold=0.9,
         )
     )
@@ -151,6 +158,44 @@ def test_semantic_candidate_is_reused_after_exact_miss() -> None:
     assert response.json()["source"] == "cache"
     assert response.json()["answer"] == "cached semantic answer"
     assert model.calls == 0
+
+
+def test_default_strategy_does_not_reuse_metadata_less_semantic_candidate() -> None:
+    cache = InMemoryExactCache(embedding_dimension=2)
+    cached_query = "explain vector search"
+    cache.insert(
+        CacheEntry(
+            query_hash=hashlib.sha256(cached_query.encode()).hexdigest(),
+            normalized_query=cached_query,
+            answer="cached semantic answer",
+            embedding=(1.0, 0.0),
+            embedding_model="test-embedding",
+            embedding_dimension=2,
+        )
+    )
+    model = CountingMockLLMClient()
+    client = TestClient(
+        create_app(
+            llm_client=model,
+            repository=cache,
+            embedding_client=FakeEmbeddingClient(
+                config=EmbeddingConfig(model_name="test-embedding", dimension=2),
+                vectors={"new wording for vector search": (1.0, 0.0)},
+            ),
+            semantic_similarity_threshold=0.9,
+        )
+    )
+
+    response = client.post(
+        "/v1/query",
+        json={"query": "new wording for vector search"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["source"] == "generated"
+    assert response.json()["decision"] == "UNCERTAIN"
+    assert response.json()["answer"] != "cached semantic answer"
+    assert model.calls == 1
 
 
 def test_exact_hit_bypasses_embedding_lookup() -> None:
@@ -167,6 +212,7 @@ def test_exact_hit_bypasses_embedding_lookup() -> None:
         create_app(
             repository=cache,
             embedding_client=FakeEmbeddingClient(should_fail=True),
+            semantic_strategy="B",
         )
     )
 
@@ -200,6 +246,7 @@ def test_semantic_candidate_below_threshold_generates_response() -> None:
             llm_client=model,
             repository=cache,
             embedding_client=embedding_client,
+            semantic_strategy="B",
             semantic_similarity_threshold=0.9,
         )
     )
@@ -496,7 +543,7 @@ def test_cache_repository_failure_returns_503_with_request_id() -> None:
     assert response.headers["X-Request-ID"]
 
 
-def test_generation_timeout_returns_controlled_502() -> None:
+def test_generation_timeout_returns_controlled_502(caplog) -> None:
     class SlowLLMClient(MockLLMClient):
         def generate(self, query: str) -> LLMResult:
             time.sleep(1.1)
@@ -509,11 +556,27 @@ def test_generation_timeout_returns_controlled_502() -> None:
         )
     )
 
+    caplog.set_level(logging.INFO, logger="sscre")
     response = client.post("/v1/query", json={"query": "slow generation"})
 
     assert response.status_code == 502
     assert response.json() == {"detail": "response generation failed"}
     assert response.headers["X-Request-ID"]
+    event = json.loads(
+        next(
+            record.message
+            for record in caplog.records
+            if "generation_failed" in record.message
+        )
+    )
+    event_text = json.dumps(event)
+    assert event["decision"] == "UNCERTAIN"
+    assert event["reason"] == "generation_failed"
+    assert event["outcome"] == "generation_failed"
+    assert event["candidate_traces"] is None
+    assert "answer" not in event
+    assert "authorization" not in event
+    assert "slow generation" not in event_text
 
 
 def test_malformed_generation_result_returns_controlled_502() -> None:

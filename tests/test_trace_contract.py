@@ -69,6 +69,17 @@ def test_validate_trace_reason_normalizes_whitespace() -> None:
     assert validate_trace_reason("  compatible_metadata  ") == "compatible_metadata"
 
 
+def test_trace_metadata_rejects_oversized_raw_payload() -> None:
+    with pytest.raises(ValueError, match="trace metadata exceeds"):
+        CandidateTrace(
+            "hash-1",
+            0.5,
+            "UNSAFE",
+            "entity_mismatch",
+            query_metadata={"note": "x" * 9000},
+        )
+
+
 def test_invalid_similarity_is_rejected() -> None:
     with pytest.raises(ValueError, match="similarity"):
         CandidateTrace("hash-1", 1.5, "UNSAFE", "entity_mismatch")

@@ -19,24 +19,50 @@ from sscre.query import QueryResponse
 from sscre.serialization import BOUNDARY_SERIALIZATION_VERSION
 
 
+def _response_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "answer": "ok",
+        "source": "generated",
+        "strategy": "generated",
+        "decision": "UNCERTAIN",
+        "metrics": {
+            "request_id": "00000000-0000-4000-8000-000000000001",
+            "total_latency_ms": 1,
+            "cache_hits": 0,
+            "cache_misses": 1,
+            "generation_failures": 0,
+        },
+    }
+    payload.update(overrides)
+    return payload
+
+
 def test_query_response_accepts_canonical_decisions() -> None:
-    for decision in ("SAFE", "UNSAFE", "UNCERTAIN"):
-        response = QueryResponse.model_validate(
-            {
-                "answer": "ok",
-                "source": "generated",
-                "strategy": "generated",
-                "decision": decision,
-                "metrics": {
-                    "request_id": "00000000-0000-4000-8000-000000000001",
-                    "total_latency_ms": 1,
-                    "cache_hits": 0,
-                    "cache_misses": 1,
-                    "generation_failures": 0,
-                },
-            }
+    safe = QueryResponse.model_validate(
+        _response_payload(
+            source="cache",
+            strategy="exact",
+            decision="SAFE",
+            similarity=1.0,
+            selected_candidate_query_hash="a" * 64,
         )
+    )
+    assert safe.decision == "SAFE"
+    for decision in ("UNSAFE", "UNCERTAIN"):
+        response = QueryResponse.model_validate(_response_payload(decision=decision))
         assert response.decision == decision
+
+
+def test_query_response_rejects_safe_without_selection() -> None:
+    with pytest.raises(ValidationError):
+        QueryResponse.model_validate(_response_payload(decision="SAFE"))
+
+
+def test_query_response_rejects_similarity_on_non_safe_decision() -> None:
+    with pytest.raises(ValidationError):
+        QueryResponse.model_validate(
+            _response_payload(decision="UNSAFE", similarity=0.9)
+        )
 
 
 def test_query_response_rejects_invalid_decision() -> None:
@@ -73,7 +99,7 @@ def test_query_cache_decision_log_includes_schema_version(caplog) -> None:
 def test_safe_exact_hit_trace_is_bounded_without_secrets(caplog) -> None:
     caplog.set_level(logging.INFO, logger="sscre")
     client = TestClient(create_app())
-    query = "bounded trace secret check sk-test-SECRETVALUE"
+    query = "Write Python code for binary search sk-test-SECRETVALUE"
     first = client.post("/v1/query", json={"query": query})
     second = client.post("/v1/query", json={"query": query})
 

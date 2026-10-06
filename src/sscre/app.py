@@ -148,20 +148,23 @@ def create_app(
     )
     dependency_slots = BoundedSemaphore(8)
 
-    def cache_entry_is_reusable(entry: CacheEntry | CacheCandidate) -> bool:
+    def cache_control_for(entry: CacheEntry | CacheCandidate):
         # Rows loaded from storage without TTL metadata fail closed. New
         # in-memory entries receive a default TTL in CacheEntry.__post_init__.
-        if entry.ttl_expires_at is None:
-            return False
+        temporal_class = (
+            entry.metadata.temporal_class
+            if entry.metadata is not None
+            else "stable"
+        )
+        expires_at = entry.ttl_expires_at
         return evaluate_cache_control(
-            (
-                entry.metadata.temporal_class
-                if entry.metadata is not None
-                else "stable"
-            ),
-            entry.ttl_expires_at,
+            temporal_class,
+            expires_at if isinstance(expires_at, datetime) else None,
             policy=cache_policy,
-        ).reusable
+        )
+
+    def cache_entry_is_reusable(entry: CacheEntry | CacheCandidate) -> bool:
+        return cache_control_for(entry).reusable
 
     def record_cache_hit(query_hash: str) -> None:
         record_hit = getattr(cache, "record_hit", None)
@@ -174,11 +177,11 @@ def create_app(
                     "cache access accounting",
                     dependency_slots,
                 )
-            except (CacheRepositoryError, DependencyTimeoutError):
+            except (CacheRepositoryError, DependencyTimeoutError) as exc:
                 logger.warning(
-                    "cache access accounting unavailable query_hash=%s",
+                    "cache access accounting unavailable query_hash=%s error_type=%s",
                     query_hash,
-                    exc_info=True,
+                    type(exc).__name__,
                 )
 
     def require_admin(
@@ -318,6 +321,7 @@ def create_app(
         processed = preprocess_query(request)
         decision_traces: tuple[CandidateTrace, ...] = ()
         cache_skip_reason: str | None = None
+        reuse_block_reason: str | None = None
 
         def dependency_budget(configured_seconds: int) -> float:
             remaining = runtime_settings.request_timeout_seconds - (
@@ -395,6 +399,7 @@ def create_app(
                 source="cache",
                 strategy="exact",
                 decision=decision,
+                similarity=1.0,
                 selected_candidate_query_hash=entry.query_hash,
                 reason=reason,
                 candidate_traces=serialized_traces,
@@ -589,19 +594,23 @@ def create_app(
                 detail="cache unavailable",
                 headers={"X-Request-ID": str(request_id)},
             ) from exc
-        if cached_entry is not None and cache_entry_is_reusable(cached_entry):
-            if semantic_strategy == "C":
-                decision_traces = (evaluate_exact_entry(cached_entry),)
-                exact_safety = decision_traces[0]
-                if is_reusable_decision(exact_safety.decision):
-                    return cached_response(
-                        cached_entry,
-                        decision=exact_safety.decision,
-                        reason=exact_safety.reason,
-                        traces=decision_traces,
-                    )
-            else:
-                return cached_response(cached_entry)
+        if cached_entry is not None:
+            exact_control = cache_control_for(cached_entry)
+            if exact_control.reusable:
+                if semantic_strategy == "C":
+                    decision_traces = (evaluate_exact_entry(cached_entry),)
+                    exact_safety = decision_traces[0]
+                    if is_reusable_decision(exact_safety.decision):
+                        return cached_response(
+                            cached_entry,
+                            decision=exact_safety.decision,
+                            reason=exact_safety.reason,
+                            traces=decision_traces,
+                        )
+                else:
+                    return cached_response(cached_entry)
+            elif reuse_block_reason is None:
+                reuse_block_reason = exact_control.reason
 
         embedding_result = None
         if semantic_enabled:
@@ -732,9 +741,9 @@ def create_app(
                 embedding_result = None
                 metrics.record_cache_rejection("semantic_lookup_unavailable")
                 logger.warning(
-                    "semantic lookup unavailable; generating response request_id=%s",
+                    "semantic lookup unavailable; generating response request_id=%s error_type=%s",
                     request_id,
-                    exc_info=exc,
+                    type(exc).__name__,
                 )
 
         metrics.record_miss()
@@ -759,18 +768,22 @@ def create_app(
                     detail="cache unavailable",
                     headers={"X-Request-ID": str(request_id)},
                 ) from exc
-            if cached_entry is not None and cache_entry_is_reusable(cached_entry):
-                if semantic_strategy != "C":
-                    return cached_response(cached_entry)
-                exact_safety = evaluate_exact_entry(cached_entry)
-                decision_traces = (exact_safety,)
-                if is_reusable_decision(exact_safety.decision):
-                    return cached_response(
-                        cached_entry,
-                        decision=exact_safety.decision,
-                        reason=exact_safety.reason,
-                        traces=decision_traces,
-                    )
+            if cached_entry is not None:
+                exact_control = cache_control_for(cached_entry)
+                if exact_control.reusable:
+                    if semantic_strategy != "C":
+                        return cached_response(cached_entry)
+                    exact_safety = evaluate_exact_entry(cached_entry)
+                    decision_traces = (exact_safety,)
+                    if is_reusable_decision(exact_safety.decision):
+                        return cached_response(
+                            cached_entry,
+                            decision=exact_safety.decision,
+                            reason=exact_safety.reason,
+                            traces=decision_traces,
+                        )
+                elif reuse_block_reason is None:
+                    reuse_block_reason = exact_control.reason
 
             try:
                 result = run_with_timeout(
@@ -789,7 +802,9 @@ def create_app(
                         {
                             "event": "cache_decision",
                             "request_id": str(request_id),
-                            "decision": "GENERATION_FAILED",
+                            "decision": "UNCERTAIN",
+                            "reason": "generation_failed",
+                            "outcome": "generation_failed",
                             "source": "error",
                             "candidate_traces": None,
                             "latency_ms": latency_ms,
@@ -824,9 +839,9 @@ def create_app(
                     cache_skip_reason = "embedding_unavailable"
                     metrics.record_cache_rejection("embedding_unavailable")
                     logger.warning(
-                        "embedding unavailable; skipping cache insert request_id=%s",
+                        "embedding unavailable; skipping cache insert request_id=%s error_type=%s",
                         request_id,
-                        exc_info=exc,
+                        type(exc).__name__,
                     )
 
             ttl = cache_policy.ttl_for(processed.metadata.temporal_class)
@@ -906,11 +921,11 @@ def create_app(
                                     "cache eviction",
                                     dependency_slots,
                                 )
-                            except (CacheRepositoryError, DependencyTimeoutError):
+                            except (CacheRepositoryError, DependencyTimeoutError) as exc:
                                 logger.warning(
-                                    "cache eviction unavailable request_id=%s",
+                                    "cache eviction unavailable request_id=%s error_type=%s",
                                     request_id,
-                                    exc_info=True,
+                                    type(exc).__name__,
                                 )
                 except DuplicateCacheEntryError:
                     # Another process may have filled a shared repository while
@@ -939,25 +954,75 @@ def create_app(
                             detail="cache write conflict",
                             headers={"X-Request-ID": str(request_id)},
                         )
-                    if (
-                        semantic_strategy != "C"
-                        and cache_entry_is_reusable(cached_entry)
-                    ):
-                        return cached_response(cached_entry)
-                    duplicate_safety = evaluate_exact_entry(cached_entry)
-                    if is_reusable_decision(duplicate_safety.decision):
-                        return cached_response(
-                            cached_entry,
-                            decision=duplicate_safety.decision,
-                            reason=duplicate_safety.reason,
-                            traces=(duplicate_safety,),
+                    duplicate_control = cache_control_for(cached_entry)
+                    if duplicate_control.reusable:
+                        if semantic_strategy != "C":
+                            return cached_response(cached_entry)
+                        duplicate_safety = evaluate_exact_entry(cached_entry)
+                        if is_reusable_decision(duplicate_safety.decision):
+                            return cached_response(
+                                cached_entry,
+                                decision=duplicate_safety.decision,
+                                reason=duplicate_safety.reason,
+                                traces=(duplicate_safety,),
+                            )
+                    else:
+                        delete_entry = getattr(
+                            cache, "delete_by_query_hash", None
                         )
+                        if callable(delete_entry):
+                            try:
+                                run_with_timeout(
+                                    dependency_executor,
+                                    lambda: delete_entry(processed.query_hash),
+                                    dependency_budget(
+                                        runtime_settings.repository_timeout_seconds
+                                    ),
+                                    "cache replacement",
+                                    dependency_slots,
+                                )
+                                if callable(insert_and_evict):
+                                    run_with_timeout(
+                                        dependency_executor,
+                                        lambda: insert_and_evict(
+                                            entry,
+                                            max_cache_entries,
+                                            max_cache_bytes,
+                                        ),
+                                        dependency_budget(
+                                            runtime_settings.repository_timeout_seconds
+                                        ),
+                                        "cache insert and eviction",
+                                        dependency_slots,
+                                    )
+                                else:
+                                    run_with_timeout(
+                                        dependency_executor,
+                                        lambda: cache.insert(entry),
+                                        dependency_budget(
+                                            runtime_settings.repository_timeout_seconds
+                                        ),
+                                        "cache insert",
+                                        dependency_slots,
+                                    )
+                            except (
+                                CacheRepositoryError,
+                                DependencyTimeoutError,
+                                DuplicateCacheEntryError,
+                            ) as exc:
+                                logger.warning(
+                                    "cache replacement unavailable "
+                                    "request_id=%s error_type=%s",
+                                    request_id,
+                                    type(exc).__name__,
+                                )
+                                cache_skip_reason = "cache_write_unavailable"
                 except (CacheRepositoryError, DependencyTimeoutError) as exc:
                     logger.warning(
                         "cache write unavailable; returning generated response "
-                        "request_id=%s",
+                        "request_id=%s error_type=%s",
                         request_id,
-                        exc_info=exc,
+                        type(exc).__name__,
                     )
                     cache_skip_reason = "cache_write_unavailable"
 
@@ -978,11 +1043,19 @@ def create_app(
             )
             generated_decision = fallback_safety.decision
             generated_reason = fallback_safety.reason
-        else:
+        elif reuse_block_reason is not None:
             generated_decision = "UNCERTAIN"
-            generated_reason = "cache candidate was not safely reusable"
-        if cache_skip_reason is not None:
+            generated_reason = reuse_block_reason
+        elif cache_skip_reason is not None:
+            generated_decision = "UNCERTAIN"
             generated_reason = cache_skip_reason
+        else:
+            empty_result = resolve_candidate_traces(
+                (),
+                strategy=semantic_strategy if semantic_enabled else "A",
+            )
+            generated_decision = empty_result.decision
+            generated_reason = empty_result.reason
 
         serialized_traces = boundary_candidate_traces(decision_traces)
         logger.info(
@@ -991,6 +1064,7 @@ def create_app(
                     "event": "cache_decision",
                     "request_id": str(request_id),
                     "decision": generated_decision,
+                    "reason": generated_reason,
                     "outcome": "generated",
                     "source": "generated",
                     "strategy": semantic_strategy if semantic_enabled else "A",
@@ -1009,7 +1083,9 @@ def create_app(
             decision=generated_decision,
             reason=generated_reason,
             freshness_class=processed.metadata.temporal_class,
-            cache_control_reason=cache_skip_reason or "fresh",
+            cache_control_reason=(
+                cache_skip_reason or reuse_block_reason or "fresh"
+            ),
             candidate_traces=serialized_traces,
             metrics=response_metrics,
         )

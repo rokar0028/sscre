@@ -309,6 +309,20 @@ class InMemoryExactCache:
                 evictions=self._eviction_count,
             )
 
+    def delete_by_query_hash(self, query_hash: str) -> None:
+        with self._lock:
+            entry = self._entries.pop(query_hash, None)
+            if entry is None:
+                return
+            self._access_order.pop(query_hash, None)
+            self._hit_counts.pop(query_hash, None)
+            canonical_hash = entry.canonical_answer_hash
+            if canonical_hash and not any(
+                other.canonical_answer_hash == canonical_hash
+                for other in self._entries.values()
+            ):
+                self._canonical_answers.pop(canonical_hash, None)
+
     def cleanup_expired(self, limit: int = 100) -> int:
         if limit <= 0:
             raise ValueError("cleanup limit must be positive")

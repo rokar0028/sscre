@@ -13,7 +13,7 @@ from sscre.safety import SafetyDecision
 EVALUATION_LABEL_CONTRACT_VERSION = "1.0.0"
 
 CorrectnessLabel = Literal["correct", "incorrect", "uncertain"]
-CompatibilityGroundLabel = Literal["compatible", "incompatible"]
+CompatibilityGroundLabel = Literal["compatible", "incompatible", "uncertain"]
 PreferenceWinner = Literal["cached", "generated", "tie"]
 BenchmarkPreferenceLabel = Literal["A", "B", "tie"]
 AdjudicationStatus = Literal["final", "draft", "disputed"]
@@ -55,6 +55,8 @@ def correctness_metrics_bucket(label: CorrectnessLabel | None) -> str:
 
 def expected_compatibility_decision(record: _BenchmarkGroundTruth) -> SafetyDecision:
     """Map reviewed benchmark ground truth to an expected safety decision."""
+    if record.compatibility_label == "uncertain":
+        return "UNCERTAIN"
     if record.reusable and record.compatibility_label == "compatible":
         return "SAFE"
     if not record.reusable or record.compatibility_label == "incompatible":

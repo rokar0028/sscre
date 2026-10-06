@@ -7,6 +7,8 @@ from sscre.app import create_app
 from sscre.cache import CacheEntry, InMemoryExactCache
 from sscre.config import Settings
 from sscre.llm import LLMResult
+from sscre.metadata import extract_metadata
+from sscre.query import hash_query
 from sscre.safety import QueryMetadata
 
 
@@ -42,9 +44,46 @@ def test_expired_exact_entry_is_not_reused() -> None:
     body = response.json()
     assert body["source"] == "generated"
     assert body["decision"] == "UNCERTAIN"
-    assert body["reason"] == "cache candidate was not safely reusable"
+    assert body["reason"] == "expired"
     assert body["candidate_traces"] is None
     assert body["answer"] != "expired answer"
+    stored = cache.get_by_query_hash(
+        hashlib.sha256(query.encode()).hexdigest()
+    )
+    assert stored is not None
+    assert stored.answer == body["answer"]
+
+
+def test_expired_compatible_entry_is_not_served_on_replacement() -> None:
+    query = "Write Python code for binary search"
+    cache = InMemoryExactCache()
+    cache.insert(
+        CacheEntry(
+            query_hash=hash_query(query),
+            normalized_query=query,
+            answer="expired answer",
+            metadata=extract_metadata(query),
+            ttl_expires_at=datetime.now(timezone.utc) - timedelta(seconds=1),
+        )
+    )
+
+    response = TestClient(
+        create_app(
+            repository=cache,
+            semantic_strategy="C",
+            semantic_enabled=False,
+        )
+    ).post("/v1/query", json={"query": query})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["source"] == "generated"
+    assert body["decision"] == "UNCERTAIN"
+    assert body["reason"] == "expired"
+    assert body["answer"] != "expired answer"
+    stored = cache.get_by_query_hash(hash_query(query))
+    assert stored is not None
+    assert stored.answer == body["answer"]
 
 
 def test_missing_ttl_metadata_is_not_reused() -> None:

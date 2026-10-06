@@ -69,7 +69,7 @@ def test_concurrent_same_query_generates_once_and_reuses_safely() -> None:
             executor.map(
                 lambda _: client.post(
                     "/v1/query",
-                    json={"query": "concurrent integration query"},
+                    json={"query": "Write Python code for concurrent reuse"},
                 ),
                 range(2),
             )

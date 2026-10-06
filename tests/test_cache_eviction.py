@@ -95,8 +95,14 @@ def test_cache_stats_endpoint_reports_bounded_storage_metrics() -> None:
             settings=Settings(admin_token="test-admin-token"),
         )
     )
-    client.post("/v1/query", json={"query": "stats query"})
-    client.post("/v1/query", json={"query": "stats query"})
+    client.post(
+        "/v1/query",
+        json={"query": "Write Python code for cache stats"},
+    )
+    client.post(
+        "/v1/query",
+        json={"query": "Write Python code for cache stats"},
+    )
 
     response = client.get(
         "/v1/cache/stats",

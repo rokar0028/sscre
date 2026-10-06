@@ -32,7 +32,7 @@ class Settings:
     runtime_profile: Literal["test", "development", "production"] = "development"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     semantic_enabled: bool = True
-    semantic_strategy: Literal["B", "C"] = "B"
+    semantic_strategy: Literal["B", "C"] = "C"
     semantic_top_k: int = 5
     semantic_similarity_threshold: float = 0.95
     stable_ttl_seconds: int = 30 * 24 * 60 * 60
@@ -152,7 +152,7 @@ class Settings:
             runtime_profile=os.getenv("SSCRE_RUNTIME_PROFILE", "development"),
             log_level=os.getenv("SSCRE_LOG_LEVEL", "INFO").upper(),
             semantic_enabled=raw_enabled == "true",
-            semantic_strategy=os.getenv("SSCRE_SEMANTIC_STRATEGY", "B"),
+            semantic_strategy=os.getenv("SSCRE_SEMANTIC_STRATEGY", "C"),
             semantic_top_k=int(os.getenv("SSCRE_SEMANTIC_TOP_K", "5")),
             semantic_similarity_threshold=float(
                 os.getenv("SSCRE_SEMANTIC_SIMILARITY_THRESHOLD", "0.95")

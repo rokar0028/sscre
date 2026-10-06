@@ -329,6 +329,29 @@ class PostgresExactCacheRepository(ExactCacheRepository):
             evictions=row[6],
         )
 
+    def delete_by_query_hash(self, query_hash: str) -> None:
+        try:
+            with psycopg.connect(self._database_url) as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "DELETE FROM cache_entries WHERE query_hash = %s",
+                        (query_hash,),
+                    )
+                    cursor.execute(
+                        """
+                        DELETE FROM canonical_answers AS ca
+                        WHERE NOT EXISTS (
+                            SELECT 1
+                            FROM cache_entries
+                            WHERE canonical_answer_hash = ca.answer_hash
+                        )
+                        """
+                    )
+        except psycopg.Error as exc:
+            raise CacheRepositoryError(
+                "failed to delete PostgreSQL cache entry"
+            ) from exc
+
     def cleanup_expired(self, limit: int = 100) -> int:
         if limit <= 0:
             raise ValueError("cleanup limit must be positive")

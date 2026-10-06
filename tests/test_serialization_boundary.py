@@ -7,6 +7,7 @@ from sscre.serialization import (
     build_cache_decision_log,
     boundary_candidate_traces,
     dumps_cache_decision_log,
+    redact_operational_evaluation_report,
     serialize_safety_result_for_boundary,
 )
 from sscre.safety import CandidateTrace, SafetyResult, resolve_candidate_traces
@@ -28,12 +29,13 @@ def test_cache_decision_log_includes_schema_version() -> None:
     assert payload["candidate_traces"] is None
 
 
-def test_cache_decision_log_rejects_sensitive_fields() -> None:
+@pytest.mark.parametrize("field", ["answer", "authorization", "api_key"])
+def test_cache_decision_log_rejects_sensitive_fields(field: str) -> None:
     with pytest.raises(ValueError, match="must not include"):
         build_cache_decision_log(
             {
                 "event": "cache_decision",
-                "answer": "secret body",
+                field: "secret body",
                 "candidate_traces": None,
             }
         )
@@ -50,6 +52,17 @@ def test_safety_result_boundary_serialization() -> None:
     again = json.dumps(serialize_safety_result_for_boundary(result), sort_keys=True)
     assert encoded == again
     assert list(json.loads(encoded)) == sorted(json.loads(encoded))
+
+
+def test_cache_decision_log_rejects_unknown_decision() -> None:
+    with pytest.raises(ValueError, match="decision must be SAFE"):
+        build_cache_decision_log(
+            {
+                "event": "cache_decision",
+                "decision": "GENERATION_FAILED",
+                "candidate_traces": None,
+            }
+        )
 
 
 def test_boundary_rejects_oversized_trace_payload() -> None:
@@ -79,3 +92,26 @@ def test_dumps_cache_decision_log_is_sorted_json() -> None:
     )
     parsed = json.loads(raw)
     assert list(parsed.keys()) == sorted(parsed.keys())
+
+
+def test_redact_operational_evaluation_report_removes_query_text() -> None:
+    payload = redact_operational_evaluation_report(
+        {
+            "failure_examples": [
+                {
+                    "id": "pair-0001",
+                    "direction": "b_to_a",
+                    "query_a": "secret a",
+                    "query_b": "secret b",
+                    "predicted_decision": "SAFE",
+                }
+            ],
+            "failure_gallery": {
+                "strategy_c_failures": [
+                    {"id": "pair-0002", "query_a": "x", "query_b": "y"}
+                ]
+            },
+        }
+    )
+    assert "query_a" not in json.dumps(payload)
+    assert payload["failure_examples"][0]["id"] == "pair-0001"

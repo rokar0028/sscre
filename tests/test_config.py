@@ -15,6 +15,13 @@ def test_database_url_is_read_from_environment(monkeypatch) -> None:
     )
 
 
+def test_default_semantic_strategy_is_compatibility(monkeypatch) -> None:
+    monkeypatch.delenv("SSCRE_SEMANTIC_STRATEGY", raising=False)
+
+    assert Settings().semantic_strategy == "C"
+    assert Settings.from_environment().semantic_strategy == "C"
+
+
 def test_semantic_cache_settings_are_read_from_environment(monkeypatch) -> None:
     monkeypatch.setenv("SSCRE_SEMANTIC_ENABLED", "false")
     monkeypatch.setenv("SSCRE_SEMANTIC_STRATEGY", "C")

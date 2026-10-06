@@ -11,8 +11,14 @@ from sscre.llm import MockLLMClient
 def test_response_contains_request_metrics_and_cumulative_counters() -> None:
     client = TestClient(create_app())
 
-    generated = client.post("/v1/query", json={"query": "Explain metrics"})
-    cached = client.post("/v1/query", json={"query": "Explain metrics"})
+    generated = client.post(
+        "/v1/query",
+        json={"query": "Write Python code for metrics"},
+    )
+    cached = client.post(
+        "/v1/query",
+        json={"query": "Write Python code for metrics"},
+    )
 
     generated_metrics = generated.json()["metrics"]
     cached_metrics = cached.json()["metrics"]
@@ -40,7 +46,10 @@ def test_decision_log_is_structured_and_does_not_include_answer(
     assert response.status_code == 200
     log = json.loads(next(record.message for record in caplog.records))
     assert log["event"] == "cache_decision"
-    assert log["decision"] == "UNCERTAIN"
+    assert log["decision"] == "UNSAFE"
+    assert log["reason"] == "no candidates were retrieved"
+    assert response.json()["decision"] == "UNSAFE"
+    assert response.json()["reason"] == "no candidates were retrieved"
     assert log["request_id"] == response.json()["metrics"]["request_id"]
     assert log["source"] == "generated"
     assert log["llm_input_tokens"] > 0
@@ -53,8 +62,11 @@ def test_cache_hit_decision_log_is_structured(caplog) -> None:
     caplog.set_level("INFO", logger="sscre")
     client = TestClient(create_app())
 
-    client.post("/v1/query", json={"query": "Explain hit logs"})
-    response = client.post("/v1/query", json={"query": "Explain hit logs"})
+    client.post("/v1/query", json={"query": "Write Python code for binary search"})
+    response = client.post(
+        "/v1/query",
+        json={"query": "Write Python code for binary search"},
+    )
 
     logs = [json.loads(record.message) for record in caplog.records]
     log = next(entry for entry in logs if entry["decision"] == "SAFE")
@@ -90,6 +102,7 @@ def test_semantic_hit_reports_strategy_similarity_and_counters() -> None:
         create_app(
             repository=cache,
             embedding_client=embedding_client,
+            semantic_strategy="B",
             semantic_similarity_threshold=0.9,
         )
     )
@@ -210,7 +223,7 @@ def test_generation_failure_returns_502_and_is_not_cached(caplog) -> None:
         next(
             record.message
             for record in caplog.records
-            if "GENERATION_FAILED" in record.message
+            if "generation_failed" in record.message
         )
     )
     assert failure_log["source"] == "error"

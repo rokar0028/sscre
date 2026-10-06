@@ -2,7 +2,7 @@ import hashlib
 import re
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from sscre.metadata import extract_metadata
 from sscre.metrics import RequestMetrics
@@ -62,6 +62,20 @@ class QueryResponse(BaseModel):
     cache_control_reason: str | None = None
     candidate_traces: list[dict[str, object]] | None = None
     metrics: RequestMetrics
+
+    @model_validator(mode="after")
+    def selection_matches_decision(self) -> "QueryResponse":
+        if self.decision == "SAFE":
+            if self.selected_candidate_query_hash is None:
+                raise ValueError("SAFE response requires a selected candidate")
+            if self.similarity is None:
+                raise ValueError("SAFE response requires a similarity")
+        else:
+            if self.selected_candidate_query_hash is not None:
+                raise ValueError("non-SAFE response cannot select a candidate")
+            if self.similarity is not None:
+                raise ValueError("non-SAFE response cannot include a similarity")
+        return self
 
 
 def preprocess_query(request: QueryRequest) -> QueryPreprocessResponse:
