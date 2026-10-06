@@ -3,11 +3,16 @@
 Embedding similarity from Strategy B is only a retrieval signal. A SAFE result
 from this contract represents a later compatibility decision, not similarity
 alone.
+
+See ``docs/phase-2/SAFETY_EVALUATION_CONTRACT_v1.md`` for the versioned
+evaluation artifact specification.
 """
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Literal
+
+SAFETY_EVALUATION_CONTRACT_VERSION = "1.0.0"
 
 SafetyDecision = Literal["SAFE", "UNSAFE", "UNCERTAIN"]
 TraceStage = Literal["retrieval", "compatibility"]
