@@ -56,6 +56,7 @@ and reports. Metadata is re-validated through `QueryMetadata` and limited to
 | `temporal_class_mismatch` | `UNCERTAIN` |
 | `compatible_metadata` | `SAFE` |
 | `safety_validator_error` | `UNCERTAIN` |
+| `exact_query_hash_match` | `SAFE` (Strategy A exact-hash boundary trace) |
 
 Aggregate resolver reasons (on `SafetyResult`, not candidate traces):
 

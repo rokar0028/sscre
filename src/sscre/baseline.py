@@ -18,6 +18,10 @@ from sscre.llm import LLMResult, MockLLMClient
 from sscre.compatibility import evaluate_candidate
 from sscre.metadata import extract_metadata
 from sscre.query import hash_query, normalize_query
+from sscre.serialization import (
+    attach_evaluation_report_schema,
+    boundary_candidate_traces,
+)
 from sscre.evaluation_labels import (
     build_evaluation_labels,
     build_label_sections,
@@ -727,6 +731,9 @@ def run_compatibility_cache_baseline(
                                 "expected_compatibility": record.compatibility_label,
                                 "reason": record.reason,
                                 "failure_category": "false_positive",
+                                "candidate_traces": boundary_candidate_traces(
+                                    tuple(evaluated_traces)
+                                ),
                             },
                             record,
                             "SAFE",
@@ -789,6 +796,9 @@ def run_compatibility_cache_baseline(
                                     ),
                                     "reason": reason,
                                     "failure_category": failure_category,
+                                    "candidate_traces": boundary_candidate_traces(
+                                        tuple(evaluated_traces)
+                                    ),
                                 },
                                 record,
                                 decision,
@@ -1018,7 +1028,7 @@ def _save_report(
     path: str | Path,
     metadata: Mapping[str, object] | None,
 ) -> None:
-    payload = asdict(report)
+    payload = attach_evaluation_report_schema(asdict(report))
     if metadata:
         payload.update(metadata)
     report_path = Path(path)

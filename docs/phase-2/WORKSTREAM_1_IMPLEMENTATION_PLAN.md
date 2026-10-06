@@ -299,16 +299,26 @@ reason where the evaluator needs to identify the failed safety condition.
 
 #### Implementation tasks
 
-- [ ] Identify every API, metric, persistence, and evaluation path that
-  serializes `SafetyResult` or `CandidateTrace`.
-- [ ] Define one JSON-compatible representation for decisions and traces.
-- [ ] Preserve `null` for optional fields instead of omitting meaning.
-- [ ] Cap trace count and serialized metadata size at the boundary.
-- [ ] Ensure response serialization cannot expose internal exceptions or
-  provider credentials.
-- [ ] Keep compatibility traces usable when the request ultimately generates
-  a new answer.
-- [ ] Version the contract if a breaking field or semantic change is needed.
+- [x] Identify every API, metric, persistence, and evaluation path that
+  serializes `SafetyResult` or `CandidateTrace`
+  (`sscre.serialization.SERIALIZATION_EMITTERS` + boundary doc).
+- [x] Define one JSON-compatible representation for decisions and traces
+  (`boundary_candidate_traces`, `serialize_safety_result_for_boundary`,
+  `QueryResponse.candidate_traces`).
+- [x] Preserve `null` for optional fields instead of omitting meaning
+  (empty traces → `null` in API and logs).
+- [x] Cap trace count and serialized metadata size at the boundary
+  (existing caps + `MAX_BOUNDARY_TRACE_JSON_BYTES`).
+- [x] Ensure response serialization cannot expose internal exceptions or
+  provider credentials (`build_cache_decision_log` forbidden-key guard).
+- [x] Keep compatibility traces usable when the request ultimately generates
+  a new answer (`candidate_traces` on generated `QueryResponse`).
+- [x] Version the contract if a breaking field or semantic change is needed
+  (`BOUNDARY_SERIALIZATION_VERSION`, report `schema_version`).
+
+Doc: [SERIALIZATION_BOUNDARY_v1.md](./SERIALIZATION_BOUNDARY_v1.md).
+
+**Verification (2026-10-06):** `python -m pytest -q` → 199 passed, 13 skipped.
 
 Likely integration points:
 
@@ -408,10 +418,11 @@ decision without exposing sensitive data.
 3. [x] Define the independent evaluation-label schema.
 4. [x] Define the candidate-level trace contract (step 4 — trace doc, validation,
    serialization helpers, app log integration).
-5. [ ] Add unit and integration contract tests.
-6. [ ] Run the existing full suite and targeted contract tests.
-7. [ ] Record evidence and mark only verified checklist items complete.
-8. [ ] Hand the frozen contracts to Workstreams 2–9.
+5. [x] Standardize trace serialization and API boundaries (step 5).
+6. [ ] Add unit and integration contract tests.
+7. [ ] Run the existing full suite and targeted contract tests.
+8. [ ] Record evidence and mark only verified checklist items complete.
+9. [ ] Hand the frozen contracts to Workstreams 2–9.
 
 ## Acceptance criteria
 

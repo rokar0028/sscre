@@ -48,6 +48,7 @@ _DOCUMENTED_CANDIDATE_REASONS = frozenset(
         "compatible_metadata",
         "safety_validator_error",
         "similarity_threshold_met",
+        "exact_query_hash_match",
     }
 )
 _MISSING_EVIDENCE_REASON = re.compile(r"^missing_[a-z_]+_evidence$")

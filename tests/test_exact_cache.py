@@ -306,6 +306,7 @@ def test_strategy_c_generates_for_an_incompatible_semantic_candidate() -> None:
     assert response.status_code == 200
     assert response.json()["source"] == "generated"
     assert response.json()["decision"] == "UNSAFE"
+    assert response.json()["candidate_traces"] is not None
     assert model.calls == 1
 
 

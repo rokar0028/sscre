@@ -46,6 +46,9 @@ class QueryResponse(BaseModel):
     answer was served; ``UNSAFE`` and ``UNCERTAIN`` mean generation was used
     instead. Only ``SAFE`` responses include ``selected_candidate_query_hash``.
     See ``docs/phase-2/SAFETY_EVALUATION_CONTRACT_v1.md``.
+
+    ``candidate_traces`` uses the boundary serializer (``null`` when no traces
+    were collected). See ``docs/phase-2/SERIALIZATION_BOUNDARY_v1.md``.
     """
 
     answer: str
@@ -57,6 +60,7 @@ class QueryResponse(BaseModel):
     reason: str | None = None
     freshness_class: Literal["stable", "semi_dynamic", "dynamic"] | None = None
     cache_control_reason: str | None = None
+    candidate_traces: list[dict[str, object]] | None = None
     metrics: RequestMetrics
 
 

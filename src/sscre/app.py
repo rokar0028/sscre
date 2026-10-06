@@ -33,6 +33,10 @@ from sscre.llm import MockLLMClient, validate_llm_result
 from sscre.metrics import MetricsCollector
 from sscre.postgres_cache import PostgresExactCacheRepository
 from sscre.query import QueryRequest, QueryResponse, preprocess_query
+from sscre.serialization import (
+    boundary_candidate_traces,
+    dumps_cache_decision_log,
+)
 from sscre.safety import (
     MAX_CANDIDATE_TRACES,
     CandidateTrace,
@@ -40,7 +44,6 @@ from sscre.safety import (
     SafetyResult,
     is_reusable_decision,
     resolve_candidate_traces,
-    serialize_candidate_traces,
 )
 
 logger = logging.getLogger("sscre")
@@ -367,8 +370,12 @@ def create_app(
                 request_id=request_id,
                 total_latency_ms=int((perf_counter() - started_at) * 1000),
             )
+            effective_traces = traces or (
+                exact_entry_boundary_trace(entry),
+            )
+            serialized_traces = boundary_candidate_traces(effective_traces)
             logger.info(
-                json.dumps(
+                dumps_cache_decision_log(
                     {
                         "event": "cache_decision",
                         "request_id": str(request_id),
@@ -376,12 +383,11 @@ def create_app(
                         "outcome": "cache_reused",
                         "source": "cache",
                         "strategy": "C" if traces else "A",
-                        "candidate_traces": serialize_candidate_traces(traces),
+                        "candidate_traces": serialized_traces,
                         "latency_ms": response_metrics.total_latency_ms,
                         "llm_input_tokens": 0,
                         "llm_output_tokens": 0,
-                    },
-                    sort_keys=True,
+                    }
                 )
             )
             return QueryResponse(
@@ -391,6 +397,7 @@ def create_app(
                 decision=decision,
                 selected_candidate_query_hash=entry.query_hash,
                 reason=reason,
+                candidate_traces=serialized_traces,
                 freshness_class=(
                     entry.metadata.temporal_class
                     if entry.metadata is not None
@@ -418,8 +425,9 @@ def create_app(
                 request_id=request_id,
                 total_latency_ms=int((perf_counter() - started_at) * 1000),
             )
+            serialized_traces = boundary_candidate_traces(traces)
             logger.info(
-                json.dumps(
+                dumps_cache_decision_log(
                     {
                         "event": "cache_decision",
                         "request_id": str(request_id),
@@ -432,12 +440,11 @@ def create_app(
                         "source": "cache",
                         "strategy": "C" if safety_result is not None else "B",
                         "similarity": candidate.similarity,
-                        "candidate_traces": serialize_candidate_traces(traces),
+                        "candidate_traces": serialized_traces,
                         "latency_ms": response_metrics.total_latency_ms,
                         "llm_input_tokens": 0,
                         "llm_output_tokens": 0,
-                    },
-                    sort_keys=True,
+                    }
                 )
             )
             return QueryResponse(
@@ -456,6 +463,7 @@ def create_app(
                     if safety_result is not None
                     else "similarity_threshold_met"
                 ),
+                candidate_traces=serialized_traces,
                 freshness_class=(
                     candidate.metadata.temporal_class
                     if candidate.metadata is not None
@@ -508,6 +516,28 @@ def create_app(
                     else {}
                 ),
                 freshness_class=temporal_class,
+                cache_control_outcome=cache_control_outcome,
+            )
+
+        def exact_entry_boundary_trace(entry: CacheEntry) -> CandidateTrace:
+            candidate = exact_candidate(entry)
+            temporal_class, cache_control_outcome = candidate_freshness_fields(
+                candidate
+            )
+            return CandidateTrace(
+                candidate_query_hash=entry.query_hash,
+                similarity=1.0,
+                decision="SAFE",
+                reason="exact_query_hash_match",
+                candidate_order=1,
+                stage="compatibility",
+                query_metadata=processed.metadata.to_dict(),
+                candidate_metadata=(
+                    candidate.metadata.to_dict()
+                    if candidate.metadata is not None
+                    else {}
+                ),
+                freshness_class=temporal_class,  # type: ignore[arg-type]
                 cache_control_outcome=cache_control_outcome,
             )
 
@@ -755,17 +785,17 @@ def create_app(
                 metrics.record_generation_failure()
                 latency_ms = int((perf_counter() - started_at) * 1000)
                 logger.info(
-                    json.dumps(
+                    dumps_cache_decision_log(
                         {
                             "event": "cache_decision",
                             "request_id": str(request_id),
                             "decision": "GENERATION_FAILED",
                             "source": "error",
+                            "candidate_traces": None,
                             "latency_ms": latency_ms,
                             "llm_input_tokens": 0,
                             "llm_output_tokens": 0,
-                        },
-                        sort_keys=True,
+                        }
                     )
                 )
                 raise HTTPException(
@@ -954,8 +984,9 @@ def create_app(
         if cache_skip_reason is not None:
             generated_reason = cache_skip_reason
 
+        serialized_traces = boundary_candidate_traces(decision_traces)
         logger.info(
-            json.dumps(
+            dumps_cache_decision_log(
                 {
                     "event": "cache_decision",
                     "request_id": str(request_id),
@@ -964,14 +995,11 @@ def create_app(
                     "source": "generated",
                     "strategy": semantic_strategy if semantic_enabled else "A",
                     "cache_skip_reason": cache_skip_reason,
-                    "candidate_traces": serialize_candidate_traces(
-                        decision_traces
-                    ),
+                    "candidate_traces": serialized_traces,
                     "latency_ms": response_metrics.total_latency_ms,
                     "llm_input_tokens": result.input_tokens,
                     "llm_output_tokens": result.output_tokens,
-                },
-                sort_keys=True,
+                }
             )
         )
         return QueryResponse(
@@ -982,6 +1010,7 @@ def create_app(
             reason=generated_reason,
             freshness_class=processed.metadata.temporal_class,
             cache_control_reason=cache_skip_reason or "fresh",
+            candidate_traces=serialized_traces,
             metrics=response_metrics,
         )
 

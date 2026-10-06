@@ -111,8 +111,8 @@ Additional operational reasons (not from pure evaluator):
 | `baseline.run_*` | Benchmark compatibility decisions; stores `predicted_decision` / reasons |
 | `QueryResponse` | Exposes aggregate `decision`, `reason`, optional similarity/hash — **not** full traces |
 
-Operational trace emission: structured `cache_decision` logs in `app.py` only
-(bounded metadata; no raw prompts or full answers in trace payloads).
+Operational trace emission: structured `cache_decision` logs in `app.py` and
+optional `candidate_traces` on `QueryResponse` (`sscre.serialization` boundary).
 
 ## Serialization
 
