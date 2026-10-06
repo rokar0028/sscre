@@ -157,3 +157,13 @@ latencies; otherwise reports explicitly label whitespace token counts and
 configured synthetic generation latency. Synthetic latency is not a remote
 provider measurement. PostgreSQL-specific verification requires
 `SSCRE_DATABASE_URL`.
+
+## Milestone 10 production-readiness limitations
+
+The final report in `docs/MILESTONE_10_FINAL_EXPERIMENT_AND_INTERVIEW_REPORT.md`
+consolidates local container, failure-path, baseline, and load evidence.
+Its latency results use in-process deterministic clients and in-memory storage;
+they do not represent remote provider or PostgreSQL capacity. The held-out
+workload produced no cache hits for the evaluated baselines, so that result is
+reported as observed coverage for that split rather than generalized evidence
+that semantic reuse has zero recall.

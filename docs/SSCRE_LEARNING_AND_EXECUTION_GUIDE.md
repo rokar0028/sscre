@@ -150,15 +150,16 @@ concurrency evaluation, and held-out storage comparisons remain open.
 
 ### Milestone 10 — Production and interview readiness
 
-- [ ] Add Docker Compose
-- [ ] Add database health checks
-- [ ] Add timeouts and controlled dependency failures
-- [ ] Add admin authentication
-- [ ] Add integration tests for failure paths
-- [ ] Run a load test
-- [ ] Measure p50, p95, and p99 latency
-- [ ] Write the final experiment report
-- [ ] Prepare answers to the interview questions in this guide
+- [x] Add Docker Compose
+- [x] Add database health checks
+- [x] Add timeouts and controlled dependency failures
+- [x] Add admin authentication
+- [x] Add integration tests for failure paths
+- [x] Run a load test
+- [x] Measure p50, p95, and p99 latency
+- [x] Write the final experiment report
+- [x] Prepare answers to the interview questions in
+  `docs/MILESTONE_10_FINAL_EXPERIMENT_AND_INTERVIEW_REPORT.md`
 
 Do not start with dual-model comparison, cross-encoders, adaptive thresholds, or
 production-scale infrastructure. Add them only after a measured hypothesis

@@ -1240,6 +1240,15 @@ deterministic LRU eviction, PostgreSQL access and storage accounting, and
 bodies are deduplicated. Generated responses remain available when an answer
 is rejected from storage.
 
-**Next implementation step:** complete PostgreSQL-specific lifecycle
-verification and the remaining storage-control experiments before adding
-production-scale infrastructure.
+**Milestone 10 production boundary:** Docker Compose coordinates PostgreSQL,
+ordered migrations, and the API. `/health` is liveness; `/ready` validates
+PostgreSQL and migration readiness. Dependency calls have bounded timeouts,
+admin statistics require a bearer token, and repository/provider failures
+remain failure-closed for cache reuse. The production profile rejects default
+fake providers.
+
+**Measured evidence:** the final experiment and interview report compares
+no-cache, exact-cache, embedding-only, and compatibility-aware paths, reports
+cold/warm p50/p95/p99 latency, and records wrapper overhead as the first
+measured bottleneck in the synthetic in-process workload. Real provider and
+PostgreSQL capacity remain unmeasured.

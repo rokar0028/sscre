@@ -48,6 +48,15 @@ decision, source, zero token counts, and latency without logging the answer.
 Application-scoped metrics counters are synchronized so concurrent requests
 cannot produce inconsistent hit, miss, or failure totals.
 
+## Milestone 10 operational behavior
+
+`/health` is a public liveness probe; `/ready` is the dependency and migration
+readiness probe. Query dependency calls have bounded budgets. Repository and
+validator failures cannot produce a cache hit, embedding failures fall back to
+generation without caching, and cache-write failures preserve a valid
+generated response when possible. Administrative statistics require a bearer
+token and return bounded summaries only.
+
 When `SSCRE_DATABASE_URL` is configured, the exact-cache lookup and insert use
 PostgreSQL. A generated answer is committed to `cache_entries`, and a later API
 process can retrieve it by the same query hash. Without that setting,

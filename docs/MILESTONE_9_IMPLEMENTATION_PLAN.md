@@ -34,17 +34,17 @@ adaptive thresholds, or production-scale infrastructure.
 
 ## Learning objectives
 
-- [x] Stable, semi-dynamic, and dynamic freshness policies
-- [x] TTL semantics and expiration checks
-- [x] Cache invalidation and delete behavior
-- [x] Content-addressable answer deduplication
-- [x] Canonical answers and metadata merging
-- [x] Maximum answer-size validation
-- [x] LRU eviction and access accounting
-- [x] Storage-cap enforcement and byte accounting
-- [x] Atomic cache mutations under concurrent requests
-- [x] Storage growth, deduplication, and eviction evaluation
-- [x] Failure-closed behavior when cache-control operations fail
+- [ ] Stable, semi-dynamic, and dynamic freshness policies
+- [ ] TTL semantics and expiration checks
+- [ ] Cache invalidation and delete behavior
+- [ ] Content-addressable answer deduplication
+- [ ] Canonical answers and metadata merging
+- [ ] Maximum answer-size validation
+- [ ] LRU eviction and access accounting
+- [ ] Storage-cap enforcement and byte accounting
+- [ ] Atomic cache mutations under concurrent requests
+- [ ] Storage growth, deduplication, and eviction evaluation
+- [ ] Failure-closed behavior when cache-control operations fail
 
 ## Implementation steps
 
