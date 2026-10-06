@@ -154,7 +154,6 @@ Covered and tested:
 Unavailable or synthetic:
 
 - real remote LLM and embedding latency, pricing, rate limits, and drift;
-- clean PostgreSQL container startup against a fresh local volume;
 - PostgreSQL restart/load behavior in this environment;
 - multi-process or distributed lock behavior;
 - production hardware capacity;
@@ -162,8 +161,11 @@ Unavailable or synthetic:
   benchmark.
 
 The local PostgreSQL integration suite was skipped where
-`SSCRE_DATABASE_URL` was unavailable. The existing local volume was not
-destroyed to force a clean startup.
+`SSCRE_DATABASE_URL` was unavailable. A disposable fresh-volume Compose smoke
+test was later completed with PostgreSQL migrations `000` through `011`,
+`/health`, `/ready`, and `POST /v1/query`; the existing local volume was not
+destroyed. This smoke test does not establish restart, load, or multi-process
+capacity behavior.
 
 ## Interview answers
 

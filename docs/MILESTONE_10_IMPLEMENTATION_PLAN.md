@@ -85,7 +85,7 @@ steps.
 - [x] Add a small `.env.example` covering required database and application
   settings without real credentials.
 - [x] Document startup, shutdown, logs, reset, and migration commands.
-- [ ] Verify that a clean checkout can start the service using documented
+- [x] Verify that a clean checkout can start the service using documented
   commands.
 
 Evidence: `Dockerfile`, `.dockerignore`, `requirements-docker.txt`, updated
@@ -292,7 +292,7 @@ measurements and synthetic fallbacks explicitly.
 
 ## Verification checklist
 
-- [ ] A clean checkout can start the documented Docker Compose environment.
+- [x] A clean checkout can start the documented Docker Compose environment.
 - [ ] The database reports ready only after connectivity and schema validation.
 - [x] Liveness remains distinct from dependency readiness.
 - [x] Missing or invalid production configuration fails safely at startup.

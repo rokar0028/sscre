@@ -680,7 +680,7 @@ Drop-in proxy for any client currently calling an LLM API directly.
 - [x] Create `src/sscre/` package
 - [x] Create unit and integration test directories
 - [x] Add `pyproject.toml` and development dependencies
-- [ ] Add application configuration
+- [x] Add application configuration
 - [x] Add `GET /health`
 - [x] Add a repeatable local test command
 
@@ -701,11 +701,11 @@ Drop-in proxy for any client currently calling an LLM API directly.
 - [x] Add PostgreSQL migration
 - [x] Implement cache repository interface
 - [x] Implement exact-match PostgreSQL repository
-- [ ] Define benchmark JSONL schema
+- [x] Define benchmark JSONL schema
 - [ ] Create benchmark v1 with ≥100 reviewed pairs
-- [ ] Implement no-cache baseline
-- [ ] Implement exact-match baseline
-- [ ] Add `evaluate` CLI command
+- [x] Implement no-cache baseline
+- [x] Implement exact-match baseline
+- [x] Add `evaluate` CLI command
 - [ ] Report hit rate, reuse coverage, tokens, cost, and latency
 
 #### Semantic MVP
@@ -721,6 +721,12 @@ Drop-in proxy for any client currently calling an LLM API directly.
 - [x] Add freshness classification
 - [x] Add TTL checks before every cache hit
 - [x] Add storage cap and LRU eviction
+
+Evidence for the completed configuration, benchmark schema, baselines, and
+evaluation CLI is in `src/sscre/config.py`, `benchmarks/README.md`,
+`src/sscre/baseline.py`, `src/sscre/evaluate.py`, and the Milestone 10
+evaluation reports. The benchmark remains below the planned 100 reviewed-pair
+minimum and is intentionally still unchecked above.
 
 ### Phase 2 — Depth (Weeks 7–10)
 

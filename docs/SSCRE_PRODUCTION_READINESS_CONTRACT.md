@@ -249,11 +249,11 @@ Production-like behavior additionally requires:
 
 | Contract area | Current evidence | Remaining implementation |
 |---|---|---|
-| API and request behavior | `src/sscre/app.py`, existing API tests | Clean-container startup |
+| API and request behavior | `src/sscre/app.py`, existing API tests, disposable Compose smoke test | Production-profile exercise |
 | Configuration | `src/sscre/config.py`, `.env.example`, config tests | Production-profile exercise |
-| Migration integrity | `src/sscre/migrate.py`, `src/sscre/postgres_cache.py`, `/ready`, `tests/test_migrate.py`, `tests/test_health.py` | Clean-container startup with a fresh database volume |
+| Migration integrity | `src/sscre/migrate.py`, `src/sscre/postgres_cache.py`, `/ready`, `tests/test_migrate.py`, `tests/test_health.py`, disposable fresh-volume smoke test | Restart and migration-recovery exercise |
 | Cache safety and bounds | cache-control, eviction, and integration tests | Failure-path and load evidence |
-| Local database service | `docker-compose.yml`, `Dockerfile`, `.dockerignore`, `requirements-docker.txt` | Clean-stack startup and runtime exercise |
+| Local database service | `docker-compose.yml`, `Dockerfile`, `.dockerignore`, `requirements-docker.txt`, disposable Compose smoke test | Restart, load, and multi-process exercise |
 
 Steps 1–5 are represented by this contract when the documented behavior is
 reviewed. Runtime enforcement and tests are evidence for the corresponding
