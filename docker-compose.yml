@@ -3,7 +3,7 @@ services:
     image: pgvector/pgvector:pg16
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "${SSCRE_POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-sscre}
       POSTGRES_USER: ${POSTGRES_USER:-sscre}
