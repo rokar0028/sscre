@@ -64,6 +64,39 @@ def test_similarity_below_threshold_is_unsafe() -> None:
     assert result.reason == "similarity_below_threshold"
 
 
+def test_incomplete_constraint_evidence_is_uncertain() -> None:
+    result = evaluate_candidate(
+        metadata(constraints=(("language", "python"),)),
+        candidate(metadata(constraints=())),
+        similarity_threshold=0.95,
+    )
+
+    assert result.decision == "UNCERTAIN"
+    assert result.reason == "incomplete_constraint_evidence"
+
+
+def test_incomplete_entity_evidence_is_uncertain() -> None:
+    result = evaluate_candidate(
+        metadata(entities=("binary search",)),
+        candidate(metadata(entities=())),
+        similarity_threshold=0.95,
+    )
+
+    assert result.decision == "UNCERTAIN"
+    assert result.reason == "incomplete_entity_evidence"
+
+
+def test_dynamic_candidate_is_unsafe() -> None:
+    result = evaluate_candidate(
+        metadata(),
+        candidate(metadata(temporal_class="dynamic")),
+        similarity_threshold=0.95,
+    )
+
+    assert result.decision == "UNSAFE"
+    assert result.reason == "candidate_is_dynamic"
+
+
 def test_missing_candidate_metadata_is_uncertain() -> None:
     result = evaluate_candidate(
         metadata(),
@@ -129,6 +162,25 @@ def test_dynamic_query_is_not_reusable() -> None:
 
     assert result.decision == "UNSAFE"
     assert result.reason == "dynamic_query_not_reusable"
+
+
+@pytest.mark.parametrize(
+    ("field", "reason"),
+    [
+        ("intent", "missing_intent_evidence"),
+        ("domain", "missing_domain_evidence"),
+        ("output_format", "missing_output_format_evidence"),
+    ],
+)
+def test_missing_field_evidence_is_uncertain(field: str, reason: str) -> None:
+    result = evaluate_candidate(
+        metadata(**{field: "unknown"}),
+        candidate(metadata()),
+        similarity_threshold=0.95,
+    )
+
+    assert result.decision == "UNCERTAIN"
+    assert result.reason == reason
 
 
 def test_missing_metadata_is_uncertain_instead_of_safe() -> None:

@@ -304,9 +304,14 @@ def test_strategy_c_generates_for_an_incompatible_semantic_candidate() -> None:
     )
 
     assert response.status_code == 200
-    assert response.json()["source"] == "generated"
-    assert response.json()["decision"] == "UNSAFE"
-    assert response.json()["candidate_traces"] is not None
+    body = response.json()
+    assert body["source"] == "generated"
+    assert body["decision"] == "UNSAFE"
+    assert body["reason"] == "all candidates were incompatible"
+    assert body["selected_candidate_query_hash"] is None
+    assert body["answer"] != "Java cached answer"
+    assert body["candidate_traces"][0]["decision"] == "UNSAFE"
+    assert body["candidate_traces"][0]["reason"] == "constraint_mismatch:language"
     assert model.calls == 1
 
 
@@ -326,13 +331,20 @@ def test_strategy_c_does_not_reuse_exact_entry_without_metadata() -> None:
             llm_client=model,
             repository=cache,
             semantic_strategy="C",
+            semantic_enabled=False,
         )
     )
 
     response = client.post("/v1/query", json={"query": query})
 
     assert response.status_code == 200
-    assert response.json()["source"] == "generated"
+    body = response.json()
+    assert body["source"] == "generated"
+    assert body["decision"] == "UNCERTAIN"
+    assert body["reason"] == "no candidate had sufficient compatibility evidence"
+    assert body["selected_candidate_query_hash"] is None
+    assert body["answer"] != "legacy answer"
+    assert body["candidate_traces"][0]["reason"] == "candidate_metadata_missing"
     assert model.calls == 1
 
 
@@ -364,7 +376,12 @@ def test_strategy_c_does_not_reuse_dynamic_exact_entry() -> None:
     response = client.post("/v1/query", json={"query": query})
 
     assert response.status_code == 200
-    assert response.json()["source"] == "generated"
+    body = response.json()
+    assert body["source"] == "generated"
+    assert body["decision"] == "UNCERTAIN"
+    assert body["reason"] == "dynamic_entries_disabled"
+    assert body["candidate_traces"] is None
+    assert body["answer"] != "stale price answer"
     assert model.calls == 1
 
 
@@ -413,7 +430,7 @@ def test_strategy_c_logs_bounded_candidate_decision_trace(caplog) -> None:
         CacheEntry(
             query_hash=hashlib.sha256(cached_query.encode()).hexdigest(),
             normalized_query=cached_query,
-            answer="compatible cached answer",
+            answer="compatible cached answer sk-test-SECRETVALUE",
             embedding=(1.0, 0.0),
             embedding_model="test-embedding",
             embedding_dimension=2,
@@ -442,6 +459,14 @@ def test_strategy_c_logs_bounded_candidate_decision_trace(caplog) -> None:
         )
 
     assert response.status_code == 200
+    secret = "sk-test-SECRETVALUE"
+    cached_answer = f"compatible cached answer {secret}"
+    body = response.json()
+    assert body["answer"] == cached_answer
+    encoded_traces = json.dumps(body["candidate_traces"])
+    assert secret not in encoded_traces
+    assert cached_answer not in encoded_traces
+    assert cached_query not in encoded_traces
     event = json.loads(
         next(
             record.message
@@ -449,6 +474,10 @@ def test_strategy_c_logs_bounded_candidate_decision_trace(caplog) -> None:
             if "cache_decision" in record.message
         )
     )
+    event_text = json.dumps(event)
+    assert secret not in event_text
+    assert cached_answer not in event_text
+    assert cached_query not in event_text
     trace = event["candidate_traces"][0]
     assert event["outcome"] == "cache_reused"
     assert trace["candidate_order"] == 1

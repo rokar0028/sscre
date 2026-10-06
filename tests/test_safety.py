@@ -72,13 +72,34 @@ def test_safe_result_requires_selected_candidate_and_similarity() -> None:
         )
 
 
-def test_non_safe_result_cannot_select_candidate() -> None:
+@pytest.mark.parametrize("decision", ["UNSAFE", "UNCERTAIN"])
+def test_non_safe_result_cannot_select_candidate(decision: str) -> None:
     with pytest.raises(ValueError, match="non-SAFE"):
         SafetyResult(
-            decision="UNCERTAIN",
+            decision=decision,  # type: ignore[arg-type]
             strategy="C",
             reason="insufficient evidence",
             selected_candidate_query_hash="candidate-1",
+        )
+
+
+@pytest.mark.parametrize("decision", ["UNSAFE", "UNCERTAIN"])
+def test_non_safe_result_cannot_include_similarity(decision: str) -> None:
+    with pytest.raises(ValueError, match="cannot include a similarity"):
+        SafetyResult(
+            decision=decision,  # type: ignore[arg-type]
+            strategy="C",
+            reason="insufficient evidence",
+            similarity=0.9,
+        )
+
+
+def test_safety_result_rejects_invalid_decision() -> None:
+    with pytest.raises(ValueError, match="decision must be SAFE, UNSAFE, or UNCERTAIN"):
+        SafetyResult(
+            decision="EXACT_HIT",  # type: ignore[arg-type]
+            strategy="C",
+            reason="compatible",
         )
 
 

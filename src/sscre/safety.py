@@ -222,6 +222,8 @@ class CandidateTrace:
     cache_control_outcome: str | None = None
 
     def __post_init__(self) -> None:
+        if self.decision not in SAFETY_DECISIONS:
+            raise ValueError("decision must be SAFE, UNSAFE, or UNCERTAIN")
         if not self.candidate_query_hash:
             raise ValueError("candidate_query_hash must not be empty")
         if not -1.0 <= self.similarity <= 1.0:
@@ -269,6 +271,8 @@ class SafetyResult:
     candidate_traces: tuple[CandidateTrace, ...] = ()
 
     def __post_init__(self) -> None:
+        if self.decision not in SAFETY_DECISIONS:
+            raise ValueError("decision must be SAFE, UNSAFE, or UNCERTAIN")
         if not self.strategy.strip():
             raise ValueError("strategy must not be empty")
         if not self.reason.strip():
@@ -280,8 +284,11 @@ class SafetyResult:
                 raise ValueError("SAFE result requires a selected candidate")
             if self.similarity is None:
                 raise ValueError("SAFE result requires a similarity")
-        elif self.selected_candidate_query_hash is not None:
-            raise ValueError("non-SAFE result cannot select a candidate")
+        else:
+            if self.selected_candidate_query_hash is not None:
+                raise ValueError("non-SAFE result cannot select a candidate")
+            if self.similarity is not None:
+                raise ValueError("non-SAFE result cannot include a similarity")
 
     def to_log_dict(self) -> dict[str, object]:
         return {

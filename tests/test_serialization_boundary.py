@@ -46,7 +46,31 @@ def test_safety_result_boundary_serialization() -> None:
     payload = serialize_safety_result_for_boundary(result)
     assert payload["decision"] == "UNSAFE"
     assert payload["trace_contract_version"]
-    assert json.dumps(payload, sort_keys=True)
+    encoded = json.dumps(payload, sort_keys=True)
+    again = json.dumps(serialize_safety_result_for_boundary(result), sort_keys=True)
+    assert encoded == again
+    assert list(json.loads(encoded)) == sorted(json.loads(encoded))
+
+
+def test_boundary_rejects_oversized_trace_payload() -> None:
+    traces = [
+        {"candidate_query_hash": "x" * 100_000, "decision": "UNSAFE"}
+        for _ in range(20)
+    ]
+    with pytest.raises(ValueError, match="boundary size limit"):
+        build_cache_decision_log(
+            {"event": "cache_decision", "candidate_traces": traces}
+        )
+
+
+def test_trace_objects_reject_answer_field() -> None:
+    with pytest.raises(ValueError, match="must not include"):
+        build_cache_decision_log(
+            {
+                "event": "cache_decision",
+                "candidate_traces": [{"answer": "secret body", "decision": "SAFE"}],
+            }
+        )
 
 
 def test_dumps_cache_decision_log_is_sorted_json() -> None:

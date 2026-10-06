@@ -27,13 +27,24 @@ def test_expired_exact_entry_is_not_reused() -> None:
         )
     )
 
-    response = TestClient(create_app(repository=cache)).post(
+    response = TestClient(
+        create_app(
+            repository=cache,
+            semantic_strategy="C",
+            semantic_enabled=False,
+        )
+    ).post(
         "/v1/query",
         json={"query": query},
     )
 
     assert response.status_code == 200
-    assert response.json()["source"] == "generated"
+    body = response.json()
+    assert body["source"] == "generated"
+    assert body["decision"] == "UNCERTAIN"
+    assert body["reason"] == "cache candidate was not safely reusable"
+    assert body["candidate_traces"] is None
+    assert body["answer"] != "expired answer"
 
 
 def test_missing_ttl_metadata_is_not_reused() -> None:
