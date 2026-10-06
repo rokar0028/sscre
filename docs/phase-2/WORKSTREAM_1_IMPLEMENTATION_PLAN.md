@@ -333,68 +333,126 @@ Likely integration points:
 
 #### Unit tests
 
-- [ ] Validate all three decision values.
-- [ ] Reject invalid decision values.
-- [ ] Validate `SAFE` requires a selected candidate and similarity.
-- [ ] Validate non-`SAFE` results cannot select a candidate.
-- [ ] Validate empty traces resolve conservatively.
-- [ ] Validate `SAFE` precedence when a later candidate is safe.
-- [ ] Validate `UNCERTAIN` precedence over all-`UNSAFE` candidates.
-- [ ] Validate similarity, rank, reason, and metadata bounds.
-- [ ] Validate deterministic serialization.
+- [x] Validate all three decision values (`tests/test_workstream1_contract.py`,
+  `tests/test_safety.py`).
+- [x] Reject invalid decision values (`test_query_response_rejects_invalid_decision`,
+  `test_safety_result_rejects_invalid_decision`,
+  `test_candidate_trace_rejects_invalid_decision`).
+- [x] Validate `SAFE` requires a selected candidate and similarity
+  (`test_safe_result_requires_selected_candidate_and_similarity`).
+- [x] Validate non-`SAFE` results cannot select a candidate or carry a similarity
+  (`test_non_safe_result_cannot_select_candidate`,
+  `test_non_safe_result_cannot_include_similarity`). `SafetyResult.__post_init__`
+  enforces both.
+- [x] Validate empty traces resolve conservatively
+  (`test_empty_candidates_fail_closed_without_selection`).
+- [x] Validate `SAFE` precedence when a later candidate is safe
+  (`test_first_safe_candidate_wins_in_retrieval_order`).
+- [x] Validate `UNCERTAIN` precedence over all-`UNSAFE` candidates
+  (`test_uncertain_takes_precedence_over_all_unsafe_candidates`).
+- [x] Validate similarity, rank, reason, and metadata bounds
+  (`tests/test_trace_contract.py`, `tests/test_safety.py` metadata caps,
+  `test_boundary_rejects_oversized_trace_payload`).
+- [x] Validate deterministic serialization
+  (`test_safety_result_boundary_serialization` compares two sorted dumps).
 
 #### Compatibility tests
 
-- [ ] Known constraint mismatch returns `UNSAFE`.
-- [ ] Missing constraint evidence returns `UNCERTAIN`.
-- [ ] Dynamic query returns `UNSAFE`.
-- [ ] Dynamic candidate returns `UNSAFE`.
-- [ ] Missing metadata returns `UNCERTAIN`.
-- [ ] Entity mismatch returns `UNSAFE`.
-- [ ] Missing entity evidence returns `UNCERTAIN`.
-- [ ] Unknown intent, domain, or format remains conservative.
-- [ ] Matching metadata returns `SAFE`.
+- [x] Known constraint mismatch returns `UNSAFE`
+  (`test_explicit_incompatibility_is_unsafe` / constraint case).
+- [x] Missing constraint evidence returns `UNCERTAIN`
+  (`test_incomplete_constraint_evidence_is_uncertain`).
+- [x] Dynamic query returns `UNSAFE` (`test_dynamic_query_is_not_reusable`).
+- [x] Dynamic candidate returns `UNSAFE` (`test_dynamic_candidate_is_unsafe`).
+- [x] Missing metadata returns `UNCERTAIN`
+  (`test_missing_candidate_metadata_is_uncertain`,
+  `test_missing_metadata_is_uncertain_instead_of_safe`).
+- [x] Entity mismatch returns `UNSAFE` (parametrized incompatibility / entity).
+- [x] Missing entity evidence returns `UNCERTAIN`
+  (`test_incomplete_entity_evidence_is_uncertain`).
+- [x] Unknown intent, domain, or format remains conservative
+  (mismatch → `UNSAFE` in `test_explicit_incompatibility_is_unsafe`;
+  missing evidence → `UNCERTAIN` in `test_missing_field_evidence_is_uncertain`).
+- [x] Matching metadata returns `SAFE` (`test_compatible_candidate_is_safe`).
 
 #### Integration tests
 
-- [ ] `SAFE` serves the selected cache entry.
-- [ ] `UNSAFE` generates and does not serve the candidate.
-- [ ] `UNCERTAIN` generates and does not serve the candidate.
-- [ ] Repository failure cannot produce a cache hit.
-- [ ] Expiry failure cannot produce a cache hit.
-- [ ] API output preserves the final decision and fallback reason.
-- [ ] Trace output is bounded and contains no secrets.
+- [x] `SAFE` serves the selected cache entry (`tests/test_exact_cache.py` strategy C
+  reuse paths).
+- [x] `UNSAFE` generates and does not serve the candidate
+  (`test_strategy_c_generates_for_an_incompatible_semantic_candidate`:
+  decision `UNSAFE`, reason `all candidates were incompatible`, trace
+  `constraint_mismatch:language`, cached answer not returned).
+- [x] `UNCERTAIN` generates and does not serve the candidate
+  (`test_strategy_c_does_not_reuse_exact_entry_without_metadata`: reason
+  `no candidate had sufficient compatibility evidence`, trace
+  `candidate_metadata_missing`).
+- [x] Dynamic exact entries are skipped by cache control before compatibility
+  (`test_strategy_c_does_not_reuse_dynamic_exact_entry`: decision `UNCERTAIN`,
+  reason `dynamic_entries_disabled`, `candidate_traces` null). Dynamic query
+  and dynamic candidate remain `UNSAFE` in `tests/test_compatibility.py`.
+- [x] Repository failure cannot produce a cache hit
+  (`test_cache_repository_failure_returns_503_with_request_id`,
+  `test_repository_timeout_fails_closed_with_503`).
+- [x] Expiry failure cannot produce a cache hit
+  (`test_expired_exact_entry_is_not_reused`: decision `UNCERTAIN`, reason
+  `cache candidate was not safely reusable`, expired answer not returned).
+- [x] API output preserves the final decision and fallback reason
+  (assertions above + `test_query_cache_decision_log_includes_schema_version`).
+- [x] Trace output is bounded and contains no secrets
+  (`test_safe_exact_hit_trace_is_bounded_without_secrets`,
+  `test_strategy_c_logs_bounded_candidate_decision_trace` omit
+  `sk-test-SECRETVALUE` and the cached answer;
+  `test_trace_objects_reject_answer_field`).
+
+**Verification (2026-10-06):**
+
+```bash
+python -m pytest -q tests/test_safety.py tests/test_compatibility.py tests/test_trace_contract.py tests/test_serialization_boundary.py tests/test_workstream1_contract.py tests/test_exact_cache.py tests/test_cache_ttl_integration.py
+```
+
+→ 79 passed.
+
+```bash
+python -m pytest -q
+```
+
+→ 218 passed, 13 skipped. Skips are `tests/test_postgres_integration.py` because `SSCRE_DATABASE_URL` is unset. Linter diagnostics on the changed Python files: none.
 
 ### 7. Record evidence and hand off the contracts
 
-- [ ] Run targeted safety and compatibility tests.
-- [ ] Run the full test suite when the environment permits.
-- [ ] Inspect linter diagnostics for changed Python files.
-- [ ] Record test commands, result counts, and skipped dependencies.
-- [ ] Update this plan only with evidence-backed completion marks.
+- [x] Run targeted safety and compatibility tests (2026-10-06, 79 passed on
+  the step 6 files listed above, including `tests/test_safety.py` and
+  `tests/test_compatibility.py`).
+- [x] Run the full test suite when the environment permits
+  (`python -m pytest -q` → 218 passed, 13 skipped).
+- [x] Inspect linter diagnostics for changed Python files (none).
+- [x] Record test commands, result counts, and skipped dependencies
+  (step 6 verification).
+- [x] Update this plan only with evidence-backed completion marks.
 - [ ] Make the frozen contract available to benchmark, provider, and
   evaluation workstreams.
 
 ## Verification checklist
 
-- [ ] `SAFE`, `UNSAFE`, and `UNCERTAIN` have documented semantics.
-- [ ] Only `SAFE` can select and serve a cache candidate.
-- [ ] `UNSAFE` and `UNCERTAIN` remain distinguishable in traces and reports.
-- [ ] Missing metadata and dependency failures cannot produce a cache hit.
-- [ ] Compatibility, correctness, and preference are independent fields.
-- [ ] Candidate traces explain the decision and reason for every evaluated
+- [x] `SAFE`, `UNSAFE`, and `UNCERTAIN` have documented semantics.
+- [x] Only `SAFE` can select and serve a cache candidate.
+- [x] `UNSAFE` and `UNCERTAIN` remain distinguishable in traces and reports.
+- [x] Missing metadata and dependency failures cannot produce a cache hit.
+- [x] Compatibility, correctness, and preference are independent fields.
+- [x] Candidate traces explain the decision and reason for every evaluated
   candidate.
-- [ ] Trace count, metadata, reason, and similarity values are bounded.
-- [ ] Operational traces do not contain credentials, authorization headers,
+- [x] Trace count, metadata, reason, and similarity values are bounded.
+- [x] Operational traces do not contain credentials, authorization headers,
   unrestricted prompts, or full answers.
-- [ ] Serialization is deterministic and compatible with report tooling.
-- [ ] Targeted tests pass:
+- [x] Serialization is deterministic and compatible with report tooling.
+- [x] Targeted tests pass (2026-10-06, included in the 79-passed step 6 run):
 
 ```bash
 python -m pytest -q tests/test_safety.py tests/test_compatibility.py
 ```
 
-- [ ] Full suite passes:
+- [x] Full suite passes (2026-10-06: 218 passed, 13 skipped):
 
 ```bash
 python -m pytest -q
@@ -419,26 +477,30 @@ decision without exposing sensitive data.
 4. [x] Define the candidate-level trace contract (step 4 — trace doc, validation,
    serialization helpers, app log integration).
 5. [x] Standardize trace serialization and API boundaries (step 5).
-6. [ ] Add unit and integration contract tests.
-7. [ ] Run the existing full suite and targeted contract tests.
-8. [ ] Record evidence and mark only verified checklist items complete.
+6. [x] Add unit and integration contract tests (step 6 — `tests/test_workstream1_contract.py`
+   plus extensions in compatibility, trace, exact-cache tests).
+7. [x] Run the existing full suite and targeted contract tests (2026-10-06:
+   79 passed targeted, 218 passed / 13 skipped full suite).
+8. [x] Record evidence and mark only verified checklist items complete.
 9. [ ] Hand the frozen contracts to Workstreams 2–9.
 
 ## Acceptance criteria
 
 - [ ] One canonical decision vocabulary is used throughout the codebase.
-- [ ] `SAFE` is the only decision that can serve a cache candidate.
-- [ ] `UNSAFE` and `UNCERTAIN` are distinguishable in traces and reports.
-- [ ] Compatibility, correctness, and preference are independent fields.
-- [ ] Candidate traces explain why each candidate was accepted or rejected.
-- [ ] Trace output is bounded, deterministic, and non-sensitive.
-- [ ] Contract tests pass with:
+  Strategy B still serves from similarity alone (`similarity_threshold_met`);
+  see the step 1 gap. Strategy C uses `SAFE` / `UNSAFE` / `UNCERTAIN`.
+- [x] `SAFE` is the only decision that can serve a cache candidate.
+- [x] `UNSAFE` and `UNCERTAIN` are distinguishable in traces and reports.
+- [x] Compatibility, correctness, and preference are independent fields.
+- [x] Candidate traces explain why each candidate was accepted or rejected.
+- [x] Trace output is bounded, deterministic, and non-sensitive.
+- [x] Contract tests pass (2026-10-06, included in the 79-passed step 6 run):
 
 ```bash
 python -m pytest -q tests/test_safety.py tests/test_compatibility.py
 ```
 
-- [ ] Full verification passes with:
+- [x] Full verification passes (2026-10-06: 218 passed, 13 skipped):
 
 ```bash
 python -m pytest -q
