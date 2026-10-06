@@ -25,8 +25,10 @@ changes.
 - `query_a`, `query_b`: the original non-empty query text. Whitespace is
   validated using the same normalization rules as request preprocessing.
 - `reusable`: ground-truth label for whether the answer may safely be reused.
-- `correctness_label`: whether the proposed reuse judgment is correct.
-- `compatibility_label`: whether the query pair is compatible for reuse.
+- `correctness_label`: optional judgment of the recorded reuse decision
+  (`correct`, `incorrect`, or `uncertain`). Omitted or null means not
+  collected.
+- `compatibility_label`: `compatible`, `incompatible`, or `uncertain`.
 - `reason`: required for non-reusable pairs and briefly explains the decision.
 
 `correctness_label` and `compatibility_label` are intentionally separate from

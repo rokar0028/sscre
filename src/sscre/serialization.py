@@ -9,6 +9,7 @@ from sscre.safety import (
     CANDIDATE_TRACE_CONTRACT_VERSION,
     MAX_CANDIDATE_TRACES,
     MAX_TRACE_METADATA_JSON_BYTES,
+    SAFETY_DECISIONS,
     SAFETY_EVALUATION_CONTRACT_VERSION,
     CandidateTrace,
     SafetyResult,
@@ -76,10 +77,68 @@ def attach_evaluation_report_schema(payload: Mapping[str, object]) -> dict[str, 
     }
 
 
+_OPERATIONAL_QUERY_TEXT_KEYS = frozenset({"query_a", "query_b"})
+_FAILURE_EXAMPLE_LIST_KEYS = frozenset(
+    {
+        "false_positive_examples",
+        "failure_examples",
+    }
+)
+
+
+def _redact_query_text_from_examples(examples: object) -> object:
+    if not isinstance(examples, list):
+        return examples
+    redacted: list[object] = []
+    for item in examples:
+        if isinstance(item, dict):
+            redacted.append(
+                {
+                    key: value
+                    for key, value in item.items()
+                    if key not in _OPERATIONAL_QUERY_TEXT_KEYS
+                }
+            )
+        else:
+            redacted.append(item)
+    return redacted
+
+
+def redact_operational_evaluation_report(
+    payload: Mapping[str, object],
+) -> dict[str, object]:
+    """Remove reviewed query text from saved evaluation failure galleries."""
+    result = dict(payload)
+    for key in _FAILURE_EXAMPLE_LIST_KEYS:
+        if key in result:
+            result[key] = _redact_query_text_from_examples(result[key])
+
+    baselines = result.get("baselines")
+    if isinstance(baselines, dict):
+        result["baselines"] = {
+            name: redact_operational_evaluation_report(baseline)
+            if isinstance(baseline, dict)
+            else baseline
+            for name, baseline in baselines.items()
+        }
+
+    gallery = result.get("failure_gallery")
+    if isinstance(gallery, dict):
+        result["failure_gallery"] = {
+            key: _redact_query_text_from_examples(value)
+            for key, value in gallery.items()
+        }
+
+    return result
+
+
 def build_cache_decision_log(event: Mapping[str, object]) -> dict[str, object]:
     """Validate and normalize structured cache decision logs."""
     _reject_forbidden_keys(event)
     normalized = dict(event)
+    decision = normalized.get("decision")
+    if decision is not None and decision not in SAFETY_DECISIONS:
+        raise ValueError("decision must be SAFE, UNSAFE, or UNCERTAIN")
     traces = normalized.get("candidate_traces")
     if traces is None:
         normalized["candidate_traces"] = None

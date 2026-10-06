@@ -2,8 +2,8 @@
 
 import json
 import math
+from dataclasses import asdict, dataclass, field, replace
 from time import perf_counter
-from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Mapping, Protocol
 
@@ -20,6 +20,7 @@ from sscre.metadata import extract_metadata
 from sscre.query import hash_query, normalize_query
 from sscre.serialization import (
     attach_evaluation_report_schema,
+    redact_operational_evaluation_report,
     boundary_candidate_traces,
 )
 from sscre.evaluation_labels import (
@@ -696,11 +697,14 @@ def run_compatibility_cache_baseline(
 
             safe_candidate = None
             evaluated_traces = []
-            for candidate in candidates:
-                candidate_trace = evaluate_candidate(
-                    query_metadata,
-                    candidate,
-                    similarity_threshold=threshold,
+            for index, candidate in enumerate(candidates):
+                candidate_trace = replace(
+                    evaluate_candidate(
+                        query_metadata,
+                        candidate,
+                        similarity_threshold=threshold,
+                    ),
+                    candidate_order=index + 1,
                 )
                 evaluated_traces.append(candidate_trace)
                 if is_reusable_decision(candidate_trace.decision):
@@ -1028,7 +1032,9 @@ def _save_report(
     path: str | Path,
     metadata: Mapping[str, object] | None,
 ) -> None:
-    payload = attach_evaluation_report_schema(asdict(report))
+    payload = redact_operational_evaluation_report(
+        attach_evaluation_report_schema(asdict(report))
+    )
     if metadata:
         payload.update(metadata)
     report_path = Path(path)

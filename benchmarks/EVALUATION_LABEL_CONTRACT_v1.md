@@ -1,5 +1,6 @@
 # Evaluation label contract (v1.0.0)
 
+**Status:** frozen for Phase 2 Workstreams 2–9  
 **Related:** [SAFETY_EVALUATION_CONTRACT_v1.md](../docs/phase-2/SAFETY_EVALUATION_CONTRACT_v1.md),
 [SSCRE_BENCHMARK_FORMAT.md](../docs/SSCRE_BENCHMARK_FORMAT.md)
 
@@ -68,8 +69,9 @@ Implementation: `sscre.evaluation_labels.EvaluationLabelRecord`.
 
 Flat fields remain for reviewed pairs:
 
-- `compatibility_label`: `compatible` | `incompatible`
-- `correctness_label`: `correct` | `incorrect` (not preference values)
+- `compatibility_label`: `compatible` | `incompatible` | `uncertain`
+- `correctness_label`: optional `correct` | `incorrect` | `uncertain`;
+  omitted or null means not collected
 - `preference_label`: optional `A` | `B` | `tie`
 - `annotation_source`, `adjudication_status`: optional provenance
 

@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from sscre.benchmark import BenchmarkRecord, BENCHMARK_SCHEMA_VERSION
+from sscre.benchmark import BenchmarkRecord
 from sscre.evaluation_labels import (
     EvaluationLabelRecordValidator,
     build_evaluation_labels,
@@ -14,7 +14,7 @@ from sscre.evaluation_labels import (
 
 def _record(**overrides: object) -> BenchmarkRecord:
     payload = {
-        "schema_version": BENCHMARK_SCHEMA_VERSION,
+        "schema_version": "1.0",
         "id": "pair-test",
         "query_a": "query a",
         "query_b": "query b",
@@ -40,7 +40,7 @@ def test_reject_preference_tokens_in_correctness_field() -> None:
     with pytest.raises(ValidationError):
         BenchmarkRecord.model_validate(
             {
-                "schema_version": BENCHMARK_SCHEMA_VERSION,
+                "schema_version": "1.0",
                 "id": "pair-bad",
                 "query_a": "a",
                 "query_b": "b",
@@ -60,6 +60,18 @@ def test_expected_compatibility_decision_from_benchmark() -> None:
         )
         == "UNSAFE"
     )
+
+
+def test_uncertain_ground_truth_maps_to_uncertain_decision() -> None:
+    record = _record(
+        reusable=False,
+        compatibility_label="uncertain",
+        correctness_label=None,
+        reason="evidence was not collected",
+    )
+
+    assert record.correctness_label is None
+    assert expected_compatibility_decision(record) == "UNCERTAIN"
 
 
 def test_evaluation_artifact_keeps_labels_separate() -> None:

@@ -22,8 +22,17 @@ from sscre.baseline import (
     save_compatibility_cache_report,
     save_no_cache_report,
 )
-from sscre.benchmark import load_benchmark_jsonl
+from sscre.benchmark import BenchmarkValidationError, load_benchmark_jsonl
+from sscre.benchmark_annotation import validate_review_policy
+from sscre.benchmark_splits import (
+    build_benchmark_report_metadata,
+    validate_benchmark_dataset,
+)
 from sscre import __version__
+from sscre.serialization import (
+    attach_evaluation_report_schema,
+    redact_operational_evaluation_report,
+)
 
 _COST_FIELDS = (
     "input_cost_per_1k_tokens",
@@ -137,7 +146,10 @@ def _validate_split(
     split: str,
     dataset_version: str,
     records: list,
-) -> None:
+    *,
+    validate_full_dataset: bool = True,
+    production: bool = False,
+) -> dict[str, Any]:
     expected_filename = _SPLIT_FILENAMES[split]
     if benchmark_path.name != expected_filename:
         raise ValueError(
@@ -173,10 +185,21 @@ def _validate_split(
     full_path = data_dir / "reviewed_query_pairs.jsonl"
     other_split = "held-out" if split == "development" else "development"
     other_path = data_dir / _SPLIT_FILENAMES[other_split]
-    full_ids = {record.id for record in load_benchmark_jsonl(full_path)}
+    load_final = production or split == "held-out"
+    full_ids = {
+        record.id
+        for record in load_benchmark_jsonl(
+            full_path,
+            require_final_review=load_final,
+        )
+    }
     selected_ids = {record.id for record in records}
     other_ids = {
-        record.id for record in load_benchmark_jsonl(other_path)
+        record.id
+        for record in load_benchmark_jsonl(
+            other_path,
+            require_final_review=load_final,
+        )
     }
     if not selected_ids <= full_ids:
         raise ValueError(f"{split!r} split contains IDs outside the reviewed dataset")
@@ -184,8 +207,15 @@ def _validate_split(
         raise ValueError("development and held-out split IDs overlap")
     if selected_ids | other_ids != full_ids:
         raise ValueError("development and held-out splits do not cover the reviewed dataset")
-    if selected_ids | other_ids != full_ids:
-        raise ValueError("development and held-out splits do not cover the reviewed dataset")
+
+    try:
+        validate_review_policy(records, split=split)
+        if validate_full_dataset:
+            validate_benchmark_dataset(benchmark_path.parent, production=production)
+    except BenchmarkValidationError as exc:
+        raise ValueError(str(exc)) from exc
+
+    return manifest
 
 
 def _select_development_threshold(
@@ -199,6 +229,7 @@ def _select_development_threshold(
         "development",
         config["dataset_version"],
         development_records,
+        validate_full_dataset=False,
     )
     return run_embedding_threshold_sweep(
         development_records,
@@ -237,6 +268,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Declared benchmark split; held-out evaluation must be explicit.",
     )
     parser.add_argument("--output", required=True, help="Output report JSON path.")
+    parser.add_argument(
+        "--production",
+        action="store_true",
+        help="Require final review status on every source record.",
+    )
     return parser
 
 
@@ -246,19 +282,25 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         benchmark_path = Path(args.benchmark)
-        records = load_benchmark_jsonl(benchmark_path)
+        require_final_review = args.production or args.split == "held-out"
+        records = load_benchmark_jsonl(
+            benchmark_path,
+            require_final_review=require_final_review,
+        )
         config = _load_config(args.config)
-        _validate_split(
+        manifest = _validate_split(
             benchmark_path,
             args.split,
             config["dataset_version"],
             records,
+            production=args.production,
         )
         common_options = {
             "dataset_version": config["dataset_version"],
             "input_cost_per_1k_tokens": config["input_cost_per_1k_tokens"],
             "output_cost_per_1k_tokens": config["output_cost_per_1k_tokens"],
         }
+        manifest_path = benchmark_path.parent / "split_manifest.json"
         metadata = {
             "config_version": config["config_version"],
             "execution_timestamp": datetime.now(timezone.utc).isoformat(),
@@ -266,6 +308,12 @@ def main(argv: list[str] | None = None) -> int:
             "git_commit": _git_commit(),
             "git_worktree_dirty": _git_worktree_dirty(),
             "evaluation_split": args.split,
+            "benchmark_artifact": build_benchmark_report_metadata(
+                manifest,
+                split=args.split,
+                records=records,
+                manifest_path=manifest_path,
+            ),
         }
         if args.baseline == "all":
             selection = _select_development_threshold(benchmark_path, config)
@@ -308,26 +356,32 @@ def main(argv: list[str] | None = None) -> int:
                 if (example["id"], example["direction"])
                 not in compatibility_false_positive_keys
             ]
-            payload = {
-                **metadata,
-                "baseline": "comparison",
-                "threshold_selection": asdict(selection),
-                "baselines": {
-                    "no-cache": asdict(no_cache_report),
-                    "exact-cache": asdict(exact_cache_report),
-                    "embedding-cache": asdict(embedding_report),
-                    "compatibility-cache": asdict(compatibility_report),
-                },
-                "failure_gallery": {
-                    "embedding_only_false_positives": (
-                        embedding_report.false_positive_examples
-                    ),
-                    "embedding_only_false_positives_caught_by_strategy_c": (
-                        caught_embedding_false_positives
-                    ),
-                    "strategy_c_failures": compatibility_report.failure_examples,
-                },
-            }
+            payload = redact_operational_evaluation_report(
+                attach_evaluation_report_schema(
+                    {
+                        **metadata,
+                        "baseline": "comparison",
+                        "threshold_selection": asdict(selection),
+                        "baselines": {
+                            "no-cache": asdict(no_cache_report),
+                            "exact-cache": asdict(exact_cache_report),
+                            "embedding-cache": asdict(embedding_report),
+                            "compatibility-cache": asdict(compatibility_report),
+                        },
+                        "failure_gallery": {
+                            "embedding_only_false_positives": (
+                                embedding_report.false_positive_examples
+                            ),
+                            "embedding_only_false_positives_caught_by_strategy_c": (
+                                caught_embedding_false_positives
+                            ),
+                            "strategy_c_failures": (
+                                compatibility_report.failure_examples
+                            ),
+                        },
+                    }
+                )
+            )
             output_path = Path(args.output)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(

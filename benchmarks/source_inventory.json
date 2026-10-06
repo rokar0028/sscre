@@ -1,0 +1,23 @@
+{
+  "inventory_version": "1.0.0",
+  "approved_source_families": [
+    {
+      "id": "hand_authored_v1",
+      "description": "Repository-authored query pairs written for SSCRE evaluation.",
+      "license": "project-owned",
+      "redaction_required": true
+    },
+    {
+      "id": "controlled_template_v1",
+      "description": "Small template families with fixed slots filled by reviewers.",
+      "license": "project-owned",
+      "redaction_required": true
+    }
+  ],
+  "prohibited_content": [
+    "credentials and api keys",
+    "production user prompts",
+    "unapproved third-party datasets",
+    "personal data"
+  ]
+}

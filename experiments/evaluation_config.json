@@ -1,6 +1,6 @@
 {
   "config_version": "evaluation-config-1.0",
-  "dataset_version": "reviewed-query-pairs-1.0",
+  "dataset_version": "reviewed-query-pairs-1.1",
   "input_cost_per_1k_tokens": 0.0,
   "output_cost_per_1k_tokens": 0.0,
   "embedding_cost_per_1k_tokens": 0.0,
