@@ -34,15 +34,16 @@ from sscre.metrics import MetricsCollector
 from sscre.postgres_cache import PostgresExactCacheRepository
 from sscre.query import QueryRequest, QueryResponse, preprocess_query
 from sscre.safety import (
+    MAX_CANDIDATE_TRACES,
     CandidateTrace,
     SafetyDecision,
     SafetyResult,
     is_reusable_decision,
     resolve_candidate_traces,
+    serialize_candidate_traces,
 )
 
 logger = logging.getLogger("sscre")
-MAX_TRACE_CANDIDATES = 100
 
 
 class DependencyTimeoutError(RuntimeError):
@@ -375,9 +376,7 @@ def create_app(
                         "outcome": "cache_reused",
                         "source": "cache",
                         "strategy": "C" if traces else "A",
-                        "candidate_traces": [
-                            asdict(trace) for trace in traces
-                        ],
+                        "candidate_traces": serialize_candidate_traces(traces),
                         "latency_ms": response_metrics.total_latency_ms,
                         "llm_input_tokens": 0,
                         "llm_output_tokens": 0,
@@ -433,9 +432,7 @@ def create_app(
                         "source": "cache",
                         "strategy": "C" if safety_result is not None else "B",
                         "similarity": candidate.similarity,
-                        "candidate_traces": [
-                            asdict(trace) for trace in traces
-                        ],
+                        "candidate_traces": serialize_candidate_traces(traces),
                         "latency_ms": response_metrics.total_latency_ms,
                         "llm_input_tokens": 0,
                         "llm_output_tokens": 0,
@@ -470,11 +467,33 @@ def create_app(
                 metrics=response_metrics,
             )
 
+        def candidate_freshness_fields(
+            candidate: CacheCandidate,
+        ) -> tuple[str, str]:
+            temporal_class = (
+                candidate.metadata.temporal_class
+                if candidate.metadata is not None
+                else "stable"
+            )
+            if candidate.ttl_expires_at is None:
+                return temporal_class, "missing_expiration"
+            return (
+                temporal_class,
+                evaluate_cache_control(
+                    temporal_class,
+                    candidate.ttl_expires_at,
+                    policy=cache_policy,
+                ).reason,
+            )
+
         def trace_with_context(
             trace: CandidateTrace,
             candidate: CacheCandidate,
             order: int,
         ) -> CandidateTrace:
+            temporal_class, cache_control_outcome = candidate_freshness_fields(
+                candidate
+            )
             return CandidateTrace(
                 candidate_query_hash=trace.candidate_query_hash,
                 similarity=trace.similarity,
@@ -488,6 +507,8 @@ def create_app(
                     if candidate.metadata is not None
                     else {}
                 ),
+                freshness_class=temporal_class,
+                cache_control_outcome=cache_control_outcome,
             )
 
         def exact_candidate(entry: CacheEntry) -> CacheCandidate:
@@ -589,7 +610,7 @@ def create_app(
                         if cache_entry_is_reusable(candidate)
                     )
                     if candidates and semantic_strategy == "C":
-                        evaluated_candidates = candidates[:MAX_TRACE_CANDIDATES]
+                        evaluated_candidates = candidates[:MAX_CANDIDATE_TRACES]
                         traces = tuple(
                             trace_with_context(
                                 evaluate_candidate(
@@ -626,6 +647,9 @@ def create_app(
                         and candidates[0].similarity
                         >= semantic_similarity_threshold
                     ):
+                        freshness_class, cache_control_outcome = (
+                            candidate_freshness_fields(candidates[0])
+                        )
                         decision_traces = (
                             CandidateTrace(
                                 candidate_query_hash=candidates[0].query_hash,
@@ -640,6 +664,8 @@ def create_app(
                                     if candidates[0].metadata is not None
                                     else {}
                                 ),
+                                freshness_class=freshness_class,  # type: ignore[arg-type]
+                                cache_control_outcome=cache_control_outcome,
                             ),
                         )
                         return semantic_cached_response(
@@ -647,6 +673,9 @@ def create_app(
                             traces=decision_traces,
                         )
                     elif candidates:
+                        freshness_class, cache_control_outcome = (
+                            candidate_freshness_fields(candidates[0])
+                        )
                         decision_traces = (
                             CandidateTrace(
                                 candidate_query_hash=candidates[0].query_hash,
@@ -661,6 +690,8 @@ def create_app(
                                     if candidates[0].metadata is not None
                                     else {}
                                 ),
+                                freshness_class=freshness_class,  # type: ignore[arg-type]
+                                cache_control_outcome=cache_control_outcome,
                             ),
                         )
                     if candidates:
@@ -933,9 +964,9 @@ def create_app(
                     "source": "generated",
                     "strategy": semantic_strategy if semantic_enabled else "A",
                     "cache_skip_reason": cache_skip_reason,
-                    "candidate_traces": [
-                        asdict(trace) for trace in decision_traces
-                    ],
+                    "candidate_traces": serialize_candidate_traces(
+                        decision_traces
+                    ),
                     "latency_ms": response_metrics.total_latency_ms,
                     "llm_input_tokens": result.input_tokens,
                     "llm_output_tokens": result.output_tokens,

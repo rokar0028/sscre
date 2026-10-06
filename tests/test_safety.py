@@ -84,9 +84,14 @@ def test_non_safe_result_cannot_select_candidate() -> None:
 
 def test_first_safe_candidate_wins_in_retrieval_order() -> None:
     traces = (
-        CandidateTrace("candidate-1", 0.99, "UNCERTAIN", "missing constraint"),
-        CandidateTrace("candidate-2", 0.96, "SAFE", "constraints match"),
-        CandidateTrace("candidate-3", 0.94, "SAFE", "also compatible"),
+        CandidateTrace(
+            "candidate-1",
+            0.99,
+            "UNCERTAIN",
+            "incomplete_constraint_evidence",
+        ),
+        CandidateTrace("candidate-2", 0.96, "SAFE", "compatible_metadata"),
+        CandidateTrace("candidate-3", 0.94, "SAFE", "compatible_metadata"),
     )
 
     result = resolve_candidate_traces(traces)
@@ -100,8 +105,13 @@ def test_first_safe_candidate_wins_in_retrieval_order() -> None:
 def test_uncertain_takes_precedence_over_all_unsafe_candidates() -> None:
     result = resolve_candidate_traces(
         (
-            CandidateTrace("candidate-1", 0.95, "UNSAFE", "language mismatch"),
-            CandidateTrace("candidate-2", 0.91, "UNCERTAIN", "unknown format"),
+            CandidateTrace("candidate-1", 0.95, "UNSAFE", "intent_mismatch"),
+            CandidateTrace(
+                "candidate-2",
+                0.91,
+                "UNCERTAIN",
+                "missing_output_format_evidence",
+            ),
         )
     )
 
@@ -112,11 +122,24 @@ def test_uncertain_takes_precedence_over_all_unsafe_candidates() -> None:
 
 def test_all_unsafe_candidates_are_rejected() -> None:
     result = resolve_candidate_traces(
-        (CandidateTrace("candidate-1", 0.95, "UNSAFE", "entity mismatch"),)
+        (CandidateTrace("candidate-1", 0.95, "UNSAFE", "entity_mismatch"),)
     )
 
     assert result.decision == "UNSAFE"
     assert result.reason == "all candidates were incompatible"
+
+
+def test_safety_result_trace_serialization_excludes_selection_on_miss() -> None:
+    traces = (
+        CandidateTrace("candidate-1", 0.95, "UNSAFE", "entity_mismatch"),
+    )
+    result = resolve_candidate_traces(traces)
+    payload = result.to_log_dict()
+
+    assert payload["decision"] == "UNSAFE"
+    assert payload["selected_candidate_query_hash"] is None
+    assert len(payload["candidate_traces"]) == 1
+    assert payload["candidate_traces"][0]["reason"] == "entity_mismatch"
 
 
 def test_empty_candidates_fail_closed_without_selection() -> None:

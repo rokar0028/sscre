@@ -6,13 +6,21 @@ alone.
 
 See ``docs/phase-2/SAFETY_EVALUATION_CONTRACT_v1.md`` for the versioned
 evaluation artifact specification.
+
+Candidate trace shape and reason taxonomy:
+``docs/phase-2/CANDIDATE_TRACE_CONTRACT_v1.md``.
 """
 
+import json
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Literal
 
 SAFETY_EVALUATION_CONTRACT_VERSION = "1.0.0"
+CANDIDATE_TRACE_CONTRACT_VERSION = "1.0.0"
+MAX_CANDIDATE_TRACES = 100
+MAX_TRACE_METADATA_JSON_BYTES = 8 * 1024
 
 SafetyDecision = Literal["SAFE", "UNSAFE", "UNCERTAIN"]
 SAFETY_DECISIONS: tuple[SafetyDecision, ...] = ("SAFE", "UNSAFE", "UNCERTAIN")
@@ -22,6 +30,60 @@ TraceStage = Literal["retrieval", "compatibility"]
 def is_reusable_decision(decision: SafetyDecision) -> bool:
     """Return True only when a cache candidate may be served."""
     return decision == "SAFE"
+
+
+_DOCUMENTED_CANDIDATE_REASONS = frozenset(
+    {
+        "similarity_below_threshold",
+        "dynamic_query_not_reusable",
+        "candidate_metadata_missing",
+        "candidate_is_dynamic",
+        "incomplete_constraint_evidence",
+        "entity_mismatch",
+        "incomplete_entity_evidence",
+        "intent_mismatch",
+        "domain_mismatch",
+        "format_mismatch",
+        "temporal_class_mismatch",
+        "compatible_metadata",
+        "safety_validator_error",
+        "similarity_threshold_met",
+    }
+)
+_MISSING_EVIDENCE_REASON = re.compile(r"^missing_[a-z_]+_evidence$")
+_CONSTRAINT_MISMATCH_REASON = re.compile(r"^constraint_mismatch:[a-zA-Z0-9_-]+$")
+
+
+def is_documented_trace_reason(reason: str) -> bool:
+    """Return True when ``reason`` follows the candidate trace taxonomy."""
+    if reason in _DOCUMENTED_CANDIDATE_REASONS:
+        return True
+    if _CONSTRAINT_MISMATCH_REASON.fullmatch(reason):
+        return True
+    return _MISSING_EVIDENCE_REASON.fullmatch(reason) is not None
+
+
+def validate_trace_reason(reason: str) -> str:
+    """Require a non-empty, taxonomy-aligned candidate trace reason."""
+    normalized = reason.strip()
+    if not normalized:
+        raise ValueError("reason must not be empty")
+    if not is_documented_trace_reason(normalized):
+        raise ValueError(f"unsupported trace reason: {normalized}")
+    return normalized
+
+
+def bound_trace_metadata(metadata: Mapping[str, object]) -> dict[str, object]:
+    """Return bounded metadata safe for operational trace serialization."""
+    if not metadata:
+        return {}
+    bounded = QueryMetadata.from_dict(metadata).to_dict()
+    payload = json.dumps(bounded, sort_keys=True, separators=(",", ":"))
+    if len(payload.encode("utf-8")) > MAX_TRACE_METADATA_JSON_BYTES:
+        raise ValueError("trace metadata exceeds serialized size limit")
+    return bounded
+
+
 QueryIntent = Literal[
     "explain",
     "code",
@@ -155,16 +217,43 @@ class CandidateTrace:
     stage: TraceStage = "compatibility"
     query_metadata: dict[str, object] = field(default_factory=dict)
     candidate_metadata: dict[str, object] = field(default_factory=dict)
+    freshness_class: TemporalClass | None = None
+    cache_control_outcome: str | None = None
 
     def __post_init__(self) -> None:
         if not self.candidate_query_hash:
             raise ValueError("candidate_query_hash must not be empty")
         if not -1.0 <= self.similarity <= 1.0:
             raise ValueError("similarity must be between -1 and 1")
-        if not self.reason.strip():
-            raise ValueError("reason must not be empty")
+        object.__setattr__(self, "reason", validate_trace_reason(self.reason))
         if self.candidate_order < 0:
             raise ValueError("candidate_order must not be negative")
+        object.__setattr__(
+            self,
+            "query_metadata",
+            bound_trace_metadata(self.query_metadata),
+        )
+        object.__setattr__(
+            self,
+            "candidate_metadata",
+            bound_trace_metadata(self.candidate_metadata),
+        )
+
+    def to_log_dict(self) -> dict[str, object]:
+        """Stable JSON-compatible trace without prompts, answers, or secrets."""
+        payload: dict[str, object] = {
+            "cache_control_outcome": self.cache_control_outcome,
+            "candidate_metadata": self.candidate_metadata,
+            "candidate_order": self.candidate_order,
+            "candidate_query_hash": self.candidate_query_hash,
+            "decision": self.decision,
+            "freshness_class": self.freshness_class,
+            "query_metadata": self.query_metadata,
+            "reason": self.reason,
+            "similarity": self.similarity,
+            "stage": self.stage,
+        }
+        return payload
 
 
 @dataclass(frozen=True)
@@ -193,6 +282,35 @@ class SafetyResult:
         elif self.selected_candidate_query_hash is not None:
             raise ValueError("non-SAFE result cannot select a candidate")
 
+    def to_log_dict(self) -> dict[str, object]:
+        return {
+            "candidate_traces": serialize_candidate_traces(self.candidate_traces),
+            "decision": self.decision,
+            "reason": self.reason,
+            "selected_candidate_query_hash": self.selected_candidate_query_hash,
+            "similarity": self.similarity,
+            "strategy": self.strategy,
+        }
+
+
+def cap_candidate_traces(
+    traces: tuple[CandidateTrace, ...],
+    *,
+    limit: int = MAX_CANDIDATE_TRACES,
+) -> tuple[CandidateTrace, ...]:
+    if limit <= 0:
+        raise ValueError("trace limit must be positive")
+    return traces[:limit]
+
+
+def serialize_candidate_traces(
+    traces: tuple[CandidateTrace, ...],
+    *,
+    limit: int = MAX_CANDIDATE_TRACES,
+) -> list[dict[str, object]]:
+    """Serialize traces in deterministic retrieval order with a bounded count."""
+    return [trace.to_log_dict() for trace in cap_candidate_traces(traces, limit=limit)]
+
 
 def resolve_candidate_traces(
     traces: tuple[CandidateTrace, ...],
@@ -216,7 +334,7 @@ def resolve_candidate_traces(
                 reason=trace.reason,
                 similarity=trace.similarity,
                 selected_candidate_query_hash=trace.candidate_query_hash,
-                candidate_traces=traces,
+                candidate_traces=cap_candidate_traces(traces),
             )
 
     if any(trace.decision == "UNCERTAIN" for trace in traces):
@@ -230,5 +348,5 @@ def resolve_candidate_traces(
         decision=decision,
         strategy=strategy,
         reason=reason if traces else "no candidates were retrieved",
-        candidate_traces=traces,
+        candidate_traces=cap_candidate_traces(traces),
     )

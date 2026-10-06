@@ -224,8 +224,6 @@ converted to a negative label.
 - [x] Add tests proving that missing correctness does not imply incorrectness
   (`tests/test_evaluation_labels.py`).
 
-**Verification (2026-10-06):** `python -m pytest -q` → 188 passed, 13 skipped.
-
 ### 4. Define the candidate-level trace contract
 
 #### Required fields
@@ -260,15 +258,18 @@ The final `SafetyResult` must contain:
 
 #### Trace rules
 
-- [ ] Candidate order is deterministic.
-- [ ] Similarity is bounded to `[-1.0, 1.0]`.
-- [ ] Candidate count is capped by the existing trace limit.
-- [ ] Reason strings are non-empty and from a documented reason taxonomy or
-  clearly namespaced rule format.
-- [ ] Metadata is bounded before serialization.
-- [ ] Raw prompts and full answers are not emitted in operational logs.
-- [ ] Credentials, authorization headers, and provider secrets never appear.
-- [ ] Trace serialization is stable enough for report tooling.
+- [x] Candidate order is deterministic (similarity-ranked search + fixed cap order).
+- [x] Similarity is bounded to `[-1.0, 1.0]` (`CandidateTrace.__post_init__`).
+- [x] Candidate count is capped (`MAX_CANDIDATE_TRACES`, `cap_candidate_traces`,
+  `serialize_candidate_traces`).
+- [x] Reason strings use documented taxonomy (`validate_trace_reason`).
+- [x] Metadata is bounded before serialization (`bound_trace_metadata`).
+- [x] Raw prompts and full answers are not emitted in operational logs
+  (hash + bounded metadata only).
+- [x] Credentials and secrets are not trace fields (by schema design).
+- [x] Trace serialization is stable (`to_log_dict` sorted keys).
+
+Contract doc: [CANDIDATE_TRACE_CONTRACT_v1.md](./CANDIDATE_TRACE_CONTRACT_v1.md).
 
 #### Reason taxonomy
 
@@ -291,6 +292,8 @@ Document the current reasons and their semantics, including:
 
 Add a new reason only when it improves failure analysis. Avoid using a generic
 reason where the evaluator needs to identify the failed safety condition.
+
+**Verification (2026-10-06):** `python -m pytest -q` → 194 passed, 13 skipped.
 
 ### 5. Standardize serialization and API boundaries
 
@@ -403,7 +406,8 @@ decision without exposing sensitive data.
 2. [x] Freeze the canonical decision and reason contracts (step 2 code + contract
    doc update).
 3. [x] Define the independent evaluation-label schema.
-4. [ ] Standardize trace serialization and bounds.
+4. [x] Define the candidate-level trace contract (step 4 — trace doc, validation,
+   serialization helpers, app log integration).
 5. [ ] Add unit and integration contract tests.
 6. [ ] Run the existing full suite and targeted contract tests.
 7. [ ] Record evidence and mark only verified checklist items complete.

@@ -107,7 +107,7 @@ Additional operational reasons (not from pure evaluator):
 |---|---|
 | `compatibility.evaluate_candidate` | Pure trace producer |
 | `safety.resolve_candidate_traces` | Aggregate resolver (tests; not yet wired in `app.py`) |
-| `app.query` | Evaluates candidates, selects first `SAFE`, logs `asdict(trace)` |
+| `app.query` | Evaluates candidates, selects first `SAFE`, logs `serialize_candidate_traces()` |
 | `baseline.run_*` | Benchmark compatibility decisions; stores `predicted_decision` / reasons |
 | `QueryResponse` | Exposes aggregate `decision`, `reason`, optional similarity/hash — **not** full traces |
 
@@ -117,5 +117,5 @@ Operational trace emission: structured `cache_decision` logs in `app.py` only
 ## Serialization
 
 - Metadata: `QueryMetadata.to_dict()` (stable key order not guaranteed; log JSON uses `sort_keys=True`).
-- Traces in logs: `dataclasses.asdict(CandidateTrace)`.
+- Traces in logs: `CandidateTrace.to_log_dict()` via `serialize_candidate_traces()`.
 - API: Pydantic `QueryResponse` validates decision literals and similarity bounds.
