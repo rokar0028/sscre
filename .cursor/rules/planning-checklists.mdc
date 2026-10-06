@@ -9,6 +9,12 @@ alwaysApply: true
   Markdown document, include actionable Markdown checkboxes (`- [ ]`).
 - Use unchecked boxes for work that is not verified and checked boxes only for
   work completed with evidence.
+- For verification checkboxes, record or link the command and result when the
+  evidence is not obvious from the changed files.
+- Do not mark full-suite, integration, or lint checks complete when they were
+  not run successfully; distinguish unavailable tooling from a clean result.
+- Recheck broad verification claims after later milestones change the codebase,
+  and uncheck or annotate them when newer evidence invalidates the claim.
 - Keep the checklist close to the relevant steps so it can be updated as work
   progresses.
 - Do not commit or push planning-document changes without explicit user

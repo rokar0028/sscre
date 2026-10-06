@@ -1,0 +1,32 @@
+---
+description: Preserve concurrency safety and reliability in SSCRE request paths
+globs:
+  - src/sscre/**/*.py
+  - tests/**/*.py
+alwaysApply: false
+---
+
+# SSCRE cache concurrency
+
+- Protect cache check–generate–insert flows from duplicate generation during
+  concurrent misses.
+- Recheck the cache after waiting for coordination before calling the model.
+- Handle duplicate writes from shared or multi-process repositories without
+  returning an avoidable server error; under Strategy C, re-run the safety
+  validator before returning the raced entry.
+- Treat missing cached compatibility metadata as `UNCERTAIN`; never substitute
+  current-request metadata for missing entry metadata.
+- Synchronize application-scoped metric updates and snapshots.
+- Keep structured decision-log schemas consistent across hit, generated, and
+  failure paths, using zero values when upstream metrics are unavailable.
+- Include a client-visible correlation ID on controlled error responses.
+- Validate embedding model and dimension compatibility before semantic reuse.
+- When semantic retrieval is disabled, do not call the embedding provider or
+  store vector metadata.
+- Validate custom embedding results at the API boundary and fail closed without
+  caching invalid vectors.
+- Add deterministic tests for repeated generation counts and cache isolation;
+  add concurrency and failure-observability coverage when changing those
+  behaviors, including semantic retrieval changes.
+- Keep coordination bounded and document any intentional serialization or
+  distributed-coordination limitation.

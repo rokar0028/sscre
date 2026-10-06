@@ -4,7 +4,9 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+from sscre.metadata import extract_metadata
 from sscre.metrics import RequestMetrics
+from sscre.safety import QueryMetadata
 
 MAX_QUERY_LENGTH = 8000
 
@@ -34,11 +36,19 @@ class QueryRequest(BaseModel):
 class QueryPreprocessResponse(BaseModel):
     normalized_query: str
     query_hash: str
+    metadata: QueryMetadata = QueryMetadata()
 
 
 class QueryResponse(BaseModel):
     answer: str
     source: Literal["cache", "generated"]
+    strategy: Literal["exact", "semantic", "generated"]
+    decision: Literal["SAFE", "UNSAFE", "UNCERTAIN", "EXACT_HIT"]
+    similarity: float | None = Field(default=None, ge=-1, le=1)
+    selected_candidate_query_hash: str | None = None
+    reason: str | None = None
+    freshness_class: Literal["stable", "semi_dynamic", "dynamic"] | None = None
+    cache_control_reason: str | None = None
     metrics: RequestMetrics
 
 
@@ -46,4 +56,5 @@ def preprocess_query(request: QueryRequest) -> QueryPreprocessResponse:
     return QueryPreprocessResponse(
         normalized_query=request.query,
         query_hash=hash_query(request.query),
+        metadata=extract_metadata(request.query),
     )

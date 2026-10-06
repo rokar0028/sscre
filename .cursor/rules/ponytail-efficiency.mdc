@@ -15,3 +15,6 @@ alwaysApply: true
 - Never remove or skip security, validation, authorization, tenancy checks,
   accessibility, error handling, or data-loss prevention.
 - For SSCRE, prefer a measured vertical slice over speculative infrastructure.
+- Before finalizing substantive Python changes, ensure declared development
+  dependencies are installed and run the full test suite when the environment
+  permits; report any skipped or unavailable verification explicitly.

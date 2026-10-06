@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     restart: unless-stopped
     ports:
       - "5432:5432"
@@ -10,6 +10,19 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./migrations/000_schema_migrations.sql:/docker-entrypoint-initdb.d/000_schema_migrations.sql:ro
+      - ./migrations/001_create_cache_entries.sql:/docker-entrypoint-initdb.d/001_create_cache_entries.sql:ro
+      - ./migrations/002_enable_pgvector.sql:/docker-entrypoint-initdb.d/002_enable_pgvector.sql:ro
+      - ./migrations/003_store_cache_embeddings.sql:/docker-entrypoint-initdb.d/003_store_cache_embeddings.sql:ro
+      - ./migrations/004_store_cache_metadata.sql:/docker-entrypoint-initdb.d/004_store_cache_metadata.sql:ro
+      - ./migrations/005_store_cache_ttl.sql:/docker-entrypoint-initdb.d/005_store_cache_ttl.sql:ro
+      - ./migrations/006_store_canonical_answers.sql:/docker-entrypoint-initdb.d/006_store_canonical_answers.sql:ro
+      - ./migrations/007_cache_access_counters.sql:/docker-entrypoint-initdb.d/007_cache_access_counters.sql:ro
+      - ./migrations/008_store_cache_sizes.sql:/docker-entrypoint-initdb.d/008_store_cache_sizes.sql:ro
+      - ./migrations/009_backfill_legacy_ttl.sql:/docker-entrypoint-initdb.d/009_backfill_legacy_ttl.sql:ro
+      - ./migrations/010_cache_lifecycle_counters.sql:/docker-entrypoint-initdb.d/010_cache_lifecycle_counters.sql:ro
+      - ./migrations/011_validate_sha256_hashes.sql:/docker-entrypoint-initdb.d/011_validate_sha256_hashes.sql:ro
+      - ./migrations:/migrations:ro
     healthcheck:
       test:
         [
