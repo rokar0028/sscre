@@ -1,0 +1,16 @@
+{
+  "config_version": "evaluation-config-1.0",
+  "dataset_version": "reviewed-query-pairs-1.0",
+  "input_cost_per_1k_tokens": 0.0,
+  "output_cost_per_1k_tokens": 0.0,
+  "embedding_cost_per_1k_tokens": 0.0,
+  "cache_lookup_cost_usd": 0.0,
+  "preprocessing_cost_usd": 0.0,
+  "embedding_thresholds": [
+    0.8,
+    0.9,
+    0.95
+  ],
+  "embedding_top_k": 5,
+  "max_false_positive_rate": 0.0
+}

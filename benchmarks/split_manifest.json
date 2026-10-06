@@ -1,0 +1,22 @@
+{
+  "dataset_version": "reviewed-query-pairs-1.0",
+  "schema_version": "1.0",
+  "development": {
+    "path": "benchmarks/development.jsonl",
+    "purpose": "configuration and threshold decisions",
+    "record_count": 16
+  },
+  "held_out_test": {
+    "path": "benchmarks/held_out_test.jsonl",
+    "purpose": "final evaluation only",
+    "record_count": 8
+  },
+  "evaluation_directions": [
+    "a_to_b",
+    "b_to_a"
+  ],
+  "label_policy": {
+    "development_labels_available_for_configuration": true,
+    "held_out_test_labels_available_for_configuration": false
+  }
+}

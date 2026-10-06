@@ -1,0 +1,22 @@
+[
+  {
+    "query": "What is caching?",
+    "answer": "Caching stores reusable results.",
+    "ttl_seconds": 3600
+  },
+  {
+    "query": "Explain caching",
+    "answer": "Caching stores reusable results.",
+    "ttl_seconds": 3600
+  },
+  {
+    "query": "What is caching?",
+    "answer": "Caching stores reusable results.",
+    "ttl_seconds": 3600
+  },
+  {
+    "query": "What is the current stock price now?",
+    "answer": "A time-sensitive generated answer.",
+    "ttl_seconds": -1
+  }
+]

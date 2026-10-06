@@ -13,6 +13,11 @@ dependencies = [
     "uvicorn[standard]>=0.30",
 ]
 
+[project.scripts]
+sscre-evaluate = "sscre.evaluate:main"
+sscre-storage-evaluate = "sscre.storage_evaluation:main"
+sscre-migrate = "sscre.migrate:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",

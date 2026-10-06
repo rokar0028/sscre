@@ -1,0 +1,32 @@
+{
+  "average_latency_ms": 0.0,
+  "baseline": "exact-cache",
+  "cache_hits": 4,
+  "cache_lookup_cost_usd": 0.0,
+  "cache_miss_categories": {
+    "not_cached": 28
+  },
+  "cache_misses": 28,
+  "config_version": "evaluation-config-1.0",
+  "dataset_version": "reviewed-query-pairs-1.0",
+  "estimated_cost_usd": 0.0,
+  "execution_timestamp": "2026-10-05T08:01:35.204406+00:00",
+  "failure_categories": {},
+  "generated_requests": 28,
+  "git_commit": "98263ea895afe157e36f40e77d0fce46f166b014",
+  "hit_rate": 0.125,
+  "input_cost_per_1k_tokens": 0.0,
+  "input_tokens": 187,
+  "input_tokens_saved": 24,
+  "output_cost_per_1k_tokens": 0.0,
+  "output_tokens": 271,
+  "output_tokens_saved": 36,
+  "preprocessing_cost_usd": 0.0,
+  "request_count": 32,
+  "reusable_opportunities": 8,
+  "safe_reuse_coverage": 0.5,
+  "safe_reuse_hits": 4,
+  "software_version": "0.1.0",
+  "tokens_saved": 60,
+  "total_latency_ms": 0
+}
