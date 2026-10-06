@@ -2,6 +2,7 @@
 
 import argparse
 import hashlib
+import os
 from pathlib import Path
 import re
 
@@ -9,6 +10,13 @@ import psycopg
 
 
 _MIGRATION_NAME = re.compile(r"^(?P<version>\d{3})_[^/]+\.sql$")
+
+
+def default_migrations_dir() -> Path:
+    configured = os.getenv("SSCRE_MIGRATIONS_DIR")
+    if configured:
+        return Path(configured)
+    return Path(__file__).resolve().parents[2] / "migrations"
 
 
 def _migration_files(migrations_dir: str | Path) -> tuple[Path, ...]:
@@ -36,13 +44,16 @@ def migration_checksum(migration: Path) -> str:
 def _migration_state(
     cursor: object,
     migrations: tuple[Path, ...],
+    *,
+    ensure_checksum_column: bool = True,
 ) -> dict[str, str | None]:
-    cursor.execute(
-        """
-        ALTER TABLE schema_migrations
-        ADD COLUMN IF NOT EXISTS checksum CHAR(64)
-        """
-    )
+    if ensure_checksum_column:
+        cursor.execute(
+            """
+            ALTER TABLE schema_migrations
+            ADD COLUMN IF NOT EXISTS checksum CHAR(64)
+            """
+        )
     cursor.execute("SELECT version, checksum FROM schema_migrations")
     return {row[0]: row[1] for row in cursor.fetchall()}
 
@@ -50,6 +61,9 @@ def _migration_state(
 def validate_migration_state(
     database_url: str,
     migrations_dir: str | Path,
+    *,
+    connect_timeout: int | None = None,
+    read_only: bool = False,
 ) -> None:
     """Require every checked-in migration to be applied and unchanged."""
 
@@ -58,9 +72,18 @@ def validate_migration_state(
         migration.stem.split("_", 1)[0]: migration_checksum(migration)
         for migration in migrations
     }
-    with psycopg.connect(database_url) as connection:
+    connection_kwargs = (
+        {"connect_timeout": connect_timeout}
+        if connect_timeout is not None
+        else {}
+    )
+    with psycopg.connect(database_url, **connection_kwargs) as connection:
         with connection.cursor() as cursor:
-            applied = _migration_state(cursor, migrations)
+            applied = _migration_state(
+                cursor,
+                migrations,
+                ensure_checksum_column=not read_only,
+            )
             unknown = set(applied) - set(expected)
             if unknown:
                 raise RuntimeError(
@@ -145,7 +168,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--database-url", required=True)
     parser.add_argument(
         "--migrations-dir",
-        default=str(Path(__file__).resolve().parents[2] / "migrations"),
+        default=str(default_migrations_dir()),
     )
     args = parser.parse_args(argv)
     applied = apply_migrations(args.database_url, args.migrations_dir)

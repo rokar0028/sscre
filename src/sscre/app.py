@@ -1,12 +1,16 @@
 import json
 import logging
+import hmac
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+from collections.abc import Callable
+from contextlib import contextmanager
 from dataclasses import asdict
 from datetime import datetime, timezone
-from threading import Lock
+from threading import BoundedSemaphore, Lock
 from time import perf_counter
 from uuid import uuid4
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Header
 from fastapi import HTTPException
 
 from sscre.cache_controls import evaluate_cache_control
@@ -25,7 +29,7 @@ from sscre.embedding import (
     FakeEmbeddingClient,
     validate_embedding_result,
 )
-from sscre.llm import MockLLMClient
+from sscre.llm import MockLLMClient, validate_llm_result
 from sscre.metrics import MetricsCollector
 from sscre.postgres_cache import PostgresExactCacheRepository
 from sscre.query import QueryRequest, QueryResponse, preprocess_query
@@ -33,6 +37,31 @@ from sscre.safety import CandidateTrace, SafetyResult
 
 logger = logging.getLogger("sscre")
 MAX_TRACE_CANDIDATES = 100
+
+
+class DependencyTimeoutError(RuntimeError):
+    """Raised when a bounded dependency operation exceeds its budget."""
+
+
+def run_with_timeout(
+    executor: ThreadPoolExecutor,
+    operation: Callable[[], object],
+    timeout_seconds: float,
+    operation_name: str,
+    slots: BoundedSemaphore | None = None,
+) -> object:
+    if timeout_seconds <= 0:
+        raise DependencyTimeoutError(f"{operation_name} timed out")
+    if slots is not None and not slots.acquire(timeout=timeout_seconds):
+        raise DependencyTimeoutError(f"{operation_name} capacity exhausted")
+    future = executor.submit(operation)
+    if slots is not None:
+        future.add_done_callback(lambda _: slots.release())
+    try:
+        return future.result(timeout=timeout_seconds)
+    except FutureTimeoutError as exc:
+        future.cancel()
+        raise DependencyTimeoutError(f"{operation_name} timed out") from exc
 
 
 def create_app(
@@ -46,6 +75,7 @@ def create_app(
     semantic_similarity_threshold: float | None = None,
 ) -> FastAPI:
     runtime_settings = settings or Settings.from_environment()
+    logger.setLevel(getattr(logging, runtime_settings.log_level))
     semantic_enabled = (
         runtime_settings.semantic_enabled
         if semantic_enabled is None
@@ -72,6 +102,13 @@ def create_app(
         raise ValueError("semantic_top_k must be positive")
     if not -1.0 <= semantic_similarity_threshold <= 1.0:
         raise ValueError("semantic_similarity_threshold must be between -1 and 1")
+    if runtime_settings.runtime_profile == "production" and (
+        llm_client is None
+        or (semantic_enabled and embedding_client is None)
+    ):
+        raise ValueError(
+            "production profile requires explicitly configured provider clients"
+        )
     cache_policy = runtime_settings.cache_control_policy()
     cache_size_limits = runtime_settings.cache_size_limits()
     max_cache_entries = runtime_settings.max_cache_entries
@@ -86,8 +123,20 @@ def create_app(
         cache = InMemoryExactCache()
     model_client = llm_client or MockLLMClient()
     vector_client = embedding_client or FakeEmbeddingClient()
+    if runtime_settings.runtime_profile == "production" and (
+        type(model_client) is MockLLMClient
+        or (semantic_enabled and type(vector_client) is FakeEmbeddingClient)
+    ):
+        raise ValueError(
+            "development fake providers are unavailable in production profile"
+        )
     metrics = MetricsCollector()
     generation_lock = Lock()
+    dependency_executor = ThreadPoolExecutor(
+        max_workers=8,
+        thread_name_prefix="sscre-dependency",
+    )
+    dependency_slots = BoundedSemaphore(8)
 
     def cache_entry_is_reusable(entry: CacheEntry | CacheCandidate) -> bool:
         # Rows loaded from storage without TTL metadata fail closed. New
@@ -108,20 +157,119 @@ def create_app(
         record_hit = getattr(cache, "record_hit", None)
         if callable(record_hit):
             try:
-                record_hit(query_hash)
-            except CacheRepositoryError:
+                run_with_timeout(
+                    dependency_executor,
+                    lambda: record_hit(query_hash),
+                    runtime_settings.repository_timeout_seconds,
+                    "cache access accounting",
+                    dependency_slots,
+                )
+            except (CacheRepositoryError, DependencyTimeoutError):
                 logger.warning(
                     "cache access accounting unavailable query_hash=%s",
                     query_hash,
                     exc_info=True,
                 )
 
+    def require_admin(
+        authorization: str | None,
+        required_scope: str,
+    ) -> None:
+        if (
+            runtime_settings.admin_token is None
+            and runtime_settings.admin_read_token is None
+        ):
+            raise HTTPException(
+                status_code=503,
+                detail="admin authentication unavailable",
+            )
+        if authorization is None:
+            raise HTTPException(
+                status_code=401,
+                detail="authentication required",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        scheme, separator, presented_token = authorization.partition(" ")
+        if (
+            not separator
+            or scheme.lower() != "bearer"
+            or not presented_token
+            or " " in presented_token
+        ):
+            raise HTTPException(
+                status_code=401,
+                detail="invalid authentication",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        credentials = (
+            (
+                "admin",
+                runtime_settings.admin_token,
+                runtime_settings.admin_token_expires_at,
+                {"cache:read", "cache:write"},
+            ),
+            (
+                "read_only",
+                runtime_settings.admin_read_token,
+                runtime_settings.admin_read_token_expires_at,
+                {"cache:read"},
+            ),
+        )
+        role = None
+        permissions: set[str] = set()
+        for candidate_role, configured_token, expires_at, candidate_permissions in (
+            credentials
+        ):
+            if (
+                configured_token is not None
+                and hmac.compare_digest(presented_token, configured_token)
+            ):
+                if expires_at is not None and datetime.now(timezone.utc) >= expires_at:
+                    raise HTTPException(
+                        status_code=401,
+                        detail="authentication expired",
+                        headers={"WWW-Authenticate": "Bearer"},
+                    )
+                role = candidate_role
+                permissions = candidate_permissions
+                break
+        if role is None:
+            raise HTTPException(
+                status_code=401,
+                detail="invalid authentication",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        if required_scope not in permissions:
+            raise HTTPException(
+                status_code=403,
+                detail="insufficient privileges",
+            )
+
     @app.get("/health")
     def health() -> dict[str, str]:
         return {"status": "ok"}
 
+    @app.get("/ready")
+    def ready() -> dict[str, str]:
+        check_ready = getattr(cache, "check_ready", None)
+        if callable(check_ready):
+            try:
+                check_ready(
+                    timeout_seconds=runtime_settings.health_timeout_seconds
+                )
+            except (CacheRepositoryError, ValueError) as exc:
+                raise HTTPException(
+                    status_code=503,
+                    detail="service not ready",
+                ) from exc
+            return {"status": "ready", "repository": "postgres"}
+        return {"status": "ready", "repository": "memory"}
+
     @app.get("/v1/cache/stats")
-    def cache_stats() -> dict[str, object]:
+    def cache_stats(
+        authorization: str | None = Header(default=None),
+    ) -> dict[str, object]:
+        require_admin(authorization, "cache:read")
         stats_method = getattr(cache, "storage_stats", None)
         if not callable(stats_method):
             raise HTTPException(
@@ -129,8 +277,14 @@ def create_app(
                 detail="cache statistics unavailable",
             )
         try:
-            stats = stats_method()
-        except CacheRepositoryError as exc:
+            stats = run_with_timeout(
+                dependency_executor,
+                stats_method,
+                runtime_settings.admin_timeout_seconds,
+                "cache statistics",
+                dependency_slots,
+            )
+        except (CacheRepositoryError, DependencyTimeoutError) as exc:
             raise HTTPException(
                 status_code=503,
                 detail="cache statistics unavailable",
@@ -155,6 +309,41 @@ def create_app(
         decision_traces: tuple[CandidateTrace, ...] = ()
         cache_skip_reason: str | None = None
 
+        def dependency_budget(configured_seconds: int) -> float:
+            remaining = runtime_settings.request_timeout_seconds - (
+                perf_counter() - started_at
+            )
+            if remaining <= 0:
+                raise DependencyTimeoutError("request timeout exceeded")
+            return min(float(configured_seconds), remaining)
+
+        def ensure_request_budget() -> None:
+            if (
+                perf_counter() - started_at
+                > runtime_settings.request_timeout_seconds
+            ):
+                raise HTTPException(
+                    status_code=504,
+                    detail="request timed out",
+                    headers={"X-Request-ID": str(request_id)},
+                )
+
+        ensure_request_budget()
+
+        @contextmanager
+        def generation_guard() -> object:
+            acquired = generation_lock.acquire(
+                timeout=dependency_budget(
+                    runtime_settings.generation_timeout_seconds
+                )
+            )
+            if not acquired:
+                raise DependencyTimeoutError("generation lock timed out")
+            try:
+                yield
+            finally:
+                generation_lock.release()
+
         def cached_response(
             entry: CacheEntry,
             *,
@@ -162,6 +351,7 @@ def create_app(
             reason: str | None = None,
             traces: tuple[CandidateTrace, ...] = (),
         ) -> QueryResponse:
+            ensure_request_budget()
             record_cache_hit(entry.query_hash)
             metrics.record_exact_hit()
             response_metrics = metrics.snapshot(
@@ -211,6 +401,7 @@ def create_app(
             safety_result: SafetyResult | None = None,
             traces: tuple[CandidateTrace, ...] = (),
         ) -> QueryResponse:
+            ensure_request_budget()
             record_cache_hit(candidate.query_hash)
             metrics.record_semantic_hit()
             response_metrics = metrics.snapshot(
@@ -319,8 +510,14 @@ def create_app(
             return trace_with_context(trace, candidate, 1)
 
         try:
-            cached_entry = cache.get_by_query_hash(processed.query_hash)
-        except CacheRepositoryError as exc:
+            cached_entry = run_with_timeout(
+                dependency_executor,
+                lambda: cache.get_by_query_hash(processed.query_hash),
+                dependency_budget(runtime_settings.repository_timeout_seconds),
+                "cache lookup",
+                dependency_slots,
+            )
+        except (CacheRepositoryError, DependencyTimeoutError) as exc:
             logger.warning(
                 "cache unavailable request_id=%s",
                 request_id,
@@ -347,19 +544,33 @@ def create_app(
         embedding_result = None
         if semantic_enabled:
             try:
-                embedding_result = vector_client.embed(
-                    processed.normalized_query
+                embedding_result = run_with_timeout(
+                    dependency_executor,
+                    lambda: vector_client.embed(processed.normalized_query),
+                    dependency_budget(runtime_settings.embedding_timeout_seconds),
+                    "embedding",
+                    dependency_slots,
                 )
+                if not hasattr(embedding_result, "vector"):
+                    raise ValueError("embedding provider returned an invalid result")
                 validate_embedding_result(
                     embedding_result,
                     vector_client.config,
                 )
                 search = getattr(cache, "search_by_embedding", None)
                 if callable(search):
-                    candidates = search(
-                        embedding_result.vector,
-                        semantic_top_k,
-                        embedding_model=embedding_result.model_name,
+                    candidates = run_with_timeout(
+                            dependency_executor,
+                            lambda: search(
+                                embedding_result.vector,
+                                semantic_top_k,
+                                embedding_model=embedding_result.model_name,
+                            ),
+                            dependency_budget(
+                                runtime_settings.repository_timeout_seconds
+                            ),
+                            "semantic cache search",
+                            dependency_slots,
                     )
                     candidates = tuple(
                         candidate
@@ -454,6 +665,7 @@ def create_app(
                         metrics.record_semantic_miss()
             except Exception as exc:
                 embedding_result = None
+                metrics.record_cache_rejection("semantic_lookup_unavailable")
                 logger.warning(
                     "semantic lookup unavailable; generating response request_id=%s",
                     request_id,
@@ -461,12 +673,18 @@ def create_app(
                 )
 
         metrics.record_miss()
-        with generation_lock:
+        with generation_guard():
             # Recheck after waiting so concurrent requests do not generate the
             # same uncached query more than once in this process.
             try:
-                cached_entry = cache.get_by_query_hash(processed.query_hash)
-            except CacheRepositoryError as exc:
+                cached_entry = run_with_timeout(
+                    dependency_executor,
+                    lambda: cache.get_by_query_hash(processed.query_hash),
+                    dependency_budget(runtime_settings.repository_timeout_seconds),
+                    "cache lookup",
+                    dependency_slots,
+                )
+            except (CacheRepositoryError, DependencyTimeoutError) as exc:
                 logger.warning(
                     "cache unavailable request_id=%s",
                     request_id,
@@ -490,7 +708,14 @@ def create_app(
                     )
 
             try:
-                result = model_client.generate(processed.normalized_query)
+                result = run_with_timeout(
+                    dependency_executor,
+                    lambda: model_client.generate(processed.normalized_query),
+                    dependency_budget(runtime_settings.generation_timeout_seconds),
+                    "generation",
+                    dependency_slots,
+                )
+                result = validate_llm_result(result)
             except Exception as exc:
                 metrics.record_generation_failure()
                 latency_ms = int((perf_counter() - started_at) * 1000)
@@ -516,8 +741,12 @@ def create_app(
 
             if embedding_result is None and semantic_enabled:
                 try:
-                    embedding_result = vector_client.embed(
-                        processed.normalized_query
+                    embedding_result = run_with_timeout(
+                        dependency_executor,
+                        lambda: vector_client.embed(processed.normalized_query),
+                        dependency_budget(runtime_settings.embedding_timeout_seconds),
+                        "embedding",
+                        dependency_slots,
                     )
                     validate_embedding_result(
                         embedding_result,
@@ -527,6 +756,8 @@ def create_app(
                     # A generated answer remains usable for this response, but
                     # an answer without a valid embedding must not enter cache.
                     embedding_result = None
+                    cache_skip_reason = "embedding_unavailable"
+                    metrics.record_cache_rejection("embedding_unavailable")
                     logger.warning(
                         "embedding unavailable; skipping cache insert request_id=%s",
                         request_id,
@@ -534,14 +765,15 @@ def create_app(
                     )
 
             ttl = cache_policy.ttl_for(processed.metadata.temporal_class)
-            if ttl is None:
-                cache_skip_reason = "dynamic_entries_disabled"
-            else:
-                cache_skip_reason = cache_size_limits.rejection_reason(
-                    answer=result.text,
-                    normalized_query=processed.normalized_query,
-                    metadata=processed.metadata,
-                )
+            if cache_skip_reason is None:
+                if ttl is None:
+                    cache_skip_reason = "dynamic_entries_disabled"
+                else:
+                    cache_skip_reason = cache_size_limits.rejection_reason(
+                        answer=result.text,
+                        normalized_query=processed.normalized_query,
+                        metadata=processed.metadata,
+                    )
             if (
                 (embedding_result is not None or not semantic_enabled)
                 and cache_skip_reason is None
@@ -571,18 +803,45 @@ def create_app(
                     )
                     insert_and_evict = getattr(cache, "insert_and_evict", None)
                     if callable(insert_and_evict):
-                        insert_and_evict(
-                            entry,
-                            max_cache_entries,
-                            max_cache_bytes,
+                        run_with_timeout(
+                            dependency_executor,
+                            lambda: insert_and_evict(
+                                entry,
+                                max_cache_entries,
+                                max_cache_bytes,
+                            ),
+                            dependency_budget(
+                                runtime_settings.repository_timeout_seconds
+                            ),
+                            "cache insert and eviction",
+                            dependency_slots,
                         )
                     else:
-                        cache.insert(entry)
+                        run_with_timeout(
+                            dependency_executor,
+                            lambda: cache.insert(entry),
+                            dependency_budget(
+                                runtime_settings.repository_timeout_seconds
+                            ),
+                            "cache insert",
+                            dependency_slots,
+                        )
                         evict = getattr(cache, "evict_to_limits", None)
                         if callable(evict):
                             try:
-                                evict(max_cache_entries, max_cache_bytes)
-                            except CacheRepositoryError:
+                                run_with_timeout(
+                                    dependency_executor,
+                                    lambda: evict(
+                                        max_cache_entries,
+                                        max_cache_bytes,
+                                    ),
+                                    dependency_budget(
+                                        runtime_settings.repository_timeout_seconds
+                                    ),
+                                    "cache eviction",
+                                    dependency_slots,
+                                )
+                            except (CacheRepositoryError, DependencyTimeoutError):
                                 logger.warning(
                                     "cache eviction unavailable request_id=%s",
                                     request_id,
@@ -592,10 +851,18 @@ def create_app(
                     # Another process may have filled a shared repository while
                     # this request was generating.
                     try:
-                        cached_entry = cache.get_by_query_hash(
-                            processed.query_hash
+                        cached_entry = run_with_timeout(
+                            dependency_executor,
+                            lambda: cache.get_by_query_hash(
+                                processed.query_hash
+                            ),
+                            dependency_budget(
+                                runtime_settings.repository_timeout_seconds
+                            ),
+                            "cache lookup",
+                            dependency_slots,
                         )
-                    except CacheRepositoryError as exc:
+                    except (CacheRepositoryError, DependencyTimeoutError) as exc:
                         raise HTTPException(
                             status_code=503,
                             detail="cache unavailable",
@@ -620,16 +887,14 @@ def create_app(
                             reason=duplicate_safety.reason,
                             traces=(duplicate_safety,),
                         )
-                except CacheRepositoryError as exc:
+                except (CacheRepositoryError, DependencyTimeoutError) as exc:
                     logger.warning(
-                        "cache unavailable request_id=%s",
+                        "cache write unavailable; returning generated response "
+                        "request_id=%s",
                         request_id,
+                        exc_info=exc,
                     )
-                    raise HTTPException(
-                        status_code=503,
-                        detail="cache unavailable",
-                        headers={"X-Request-ID": str(request_id)},
-                    ) from exc
+                    cache_skip_reason = "cache_write_unavailable"
 
             if cache_skip_reason is not None:
                 metrics.record_cache_rejection(cache_skip_reason)

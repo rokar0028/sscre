@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from sscre.app import create_app
 from sscre.cache import CacheEntry, InMemoryExactCache
+from sscre.config import Settings
 
 
 def _entry(query_hash: str, answer: str) -> CacheEntry:
@@ -88,11 +89,19 @@ def test_storage_stats_and_bounded_expired_cleanup() -> None:
 
 def test_cache_stats_endpoint_reports_bounded_storage_metrics() -> None:
     cache = InMemoryExactCache()
-    client = TestClient(create_app(repository=cache))
+    client = TestClient(
+        create_app(
+            repository=cache,
+            settings=Settings(admin_token="test-admin-token"),
+        )
+    )
     client.post("/v1/query", json={"query": "stats query"})
     client.post("/v1/query", json={"query": "stats query"})
 
-    response = client.get("/v1/cache/stats")
+    response = client.get(
+        "/v1/cache/stats",
+        headers={"Authorization": "Bearer test-admin-token"},
+    )
 
     assert response.status_code == 200
     body = response.json()

@@ -17,6 +17,7 @@ dependencies = [
 sscre-evaluate = "sscre.evaluate:main"
 sscre-storage-evaluate = "sscre.storage_evaluation:main"
 sscre-migrate = "sscre.migrate:main"
+sscre-load-test = "sscre.load_test:main"
 
 [project.optional-dependencies]
 dev = [

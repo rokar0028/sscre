@@ -2,7 +2,9 @@ from pathlib import Path
 
 import pytest
 
+from sscre.cache import CacheRepositoryError
 from sscre.migrate import _migration_files, migration_checksum
+from sscre.postgres_cache import PostgresExactCacheRepository
 
 
 def test_migration_checksum_is_sha256_of_file_contents(tmp_path: Path) -> None:
@@ -30,3 +32,21 @@ def test_migration_filenames_reject_unversioned_sql(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="NNN_name.sql"):
         _migration_files(tmp_path)
+
+
+def test_postgres_readiness_rejects_invalid_migration_state(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = object.__new__(PostgresExactCacheRepository)
+    repository._database_url = "postgresql://unused"
+
+    def invalid_migrations(*args: object, **kwargs: object) -> None:
+        raise RuntimeError("checksum mismatch")
+
+    monkeypatch.setattr(
+        "sscre.postgres_cache.validate_migration_state",
+        invalid_migrations,
+    )
+
+    with pytest.raises(CacheRepositoryError, match="migrations are invalid"):
+        repository.check_ready()

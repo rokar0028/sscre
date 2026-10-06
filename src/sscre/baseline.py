@@ -8,7 +8,11 @@ from pathlib import Path
 from typing import Mapping, Protocol
 
 from sscre.benchmark import BenchmarkRecord
-from sscre.cache import CacheEntry, InMemoryExactCache
+from sscre.cache import (
+    CacheEntry,
+    DuplicateCacheEntryError,
+    InMemoryExactCache,
+)
 from sscre.embedding import EmbeddingClient, FakeEmbeddingClient
 from sscre.llm import LLMResult, MockLLMClient
 from sscre.compatibility import evaluate_candidate
@@ -20,6 +24,15 @@ from sscre.safety import QueryMetadata
 class BaselineLLMClient(Protocol):
     def generate(self, query: str) -> LLMResult:
         ...
+
+
+def _insert_if_absent(cache: InMemoryExactCache, entry: CacheEntry) -> None:
+    try:
+        cache.insert(entry)
+    except DuplicateCacheEntryError:
+        # A reviewed workload may contain the same normalized query more than
+        # once. It is already represented by the existing cache entry.
+        pass
 
 
 @dataclass(frozen=True)
@@ -288,7 +301,8 @@ def run_exact_cache_baseline(
             input_tokens += result.input_tokens
             output_tokens += result.output_tokens
             total_latency_ms += result.latency_ms
-            cache.insert(
+            _insert_if_absent(
+                cache,
                 CacheEntry(
                     query_hash=query_hash,
                     normalized_query=normalized_query,
@@ -457,7 +471,8 @@ def run_embedding_cache_baseline(
             request_latency_ms = embedding_result.latency_ms + result.latency_ms
             request_latencies.append(request_latency_ms)
             total_latency_ms += request_latency_ms
-            cache.insert(
+            _insert_if_absent(
+                cache,
                 CacheEntry(
                     query_hash=hash_query(normalized_query),
                     normalized_query=normalized_query,
@@ -739,7 +754,8 @@ def run_compatibility_cache_baseline(
             request_latency_ms = embedding_result.latency_ms + result.latency_ms
             request_latencies.append(request_latency_ms)
             total_latency_ms += request_latency_ms
-            cache.insert(
+            _insert_if_absent(
+                cache,
                 CacheEntry(
                     query_hash=hash_query(normalized_query),
                     normalized_query=normalized_query,

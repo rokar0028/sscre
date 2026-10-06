@@ -3,7 +3,6 @@ import json
 import psycopg
 from psycopg.errors import UniqueViolation
 from collections.abc import Sequence
-from pathlib import Path
 
 from sscre.cache import (
     CacheCandidate,
@@ -16,7 +15,7 @@ from sscre.cache import (
 )
 from sscre.config import Settings
 from sscre.safety import QueryMetadata
-from sscre.migrate import validate_migration_state
+from sscre.migrate import default_migrations_dir, validate_migration_state
 
 
 def _serialize_vector(vector: tuple[float, ...] | None) -> str | None:
@@ -111,7 +110,8 @@ class PostgresExactCacheRepository(ExactCacheRepository):
         try:
             validate_migration_state(
                 self._database_url,
-                Path(__file__).resolve().parents[2] / "migrations",
+                default_migrations_dir(),
+                connect_timeout=5,
             )
         except (OSError, RuntimeError, psycopg.Error) as exc:
             raise CacheRepositoryError(
@@ -124,6 +124,21 @@ class PostgresExactCacheRepository(ExactCacheRepository):
             raise ValueError("embedding_dimension must be positive")
         self._max_top_k = max_top_k
         self._embedding_dimension = embedding_dimension
+
+    def check_ready(self, timeout_seconds: int = 1) -> None:
+        if timeout_seconds <= 0:
+            raise ValueError("readiness timeout must be positive")
+        try:
+            validate_migration_state(
+                self._database_url,
+                default_migrations_dir(),
+                connect_timeout=timeout_seconds,
+                read_only=True,
+            )
+        except (OSError, RuntimeError, ValueError, psycopg.Error) as exc:
+            raise CacheRepositoryError(
+                "PostgreSQL is unavailable or migrations are invalid"
+            ) from exc
 
     def get_by_query_hash(self, query_hash: str) -> CacheEntry | None:
         try:

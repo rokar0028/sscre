@@ -34,3 +34,54 @@ def test_invalid_dynamic_cache_boolean_is_rejected(monkeypatch) -> None:
 
     with pytest.raises(ValueError, match="true or false"):
         Settings.from_environment()
+
+
+def test_dependency_timeouts_are_read_from_environment(monkeypatch) -> None:
+    monkeypatch.setenv("SSCRE_TIMEOUT_REQUEST_SECONDS", "40")
+    monkeypatch.setenv("SSCRE_TIMEOUT_GENERATION_SECONDS", "12")
+
+    settings = Settings.from_environment()
+
+    assert settings.request_timeout_seconds == 40
+    assert settings.generation_timeout_seconds == 12
+
+
+def test_admin_token_is_read_from_environment(monkeypatch) -> None:
+    monkeypatch.setenv("SSCRE_ADMIN_TOKEN", "configured-token")
+
+    settings = Settings.from_environment()
+
+    assert settings.admin_token == "configured-token"
+
+
+def test_runtime_profile_and_log_level_are_read_from_environment(monkeypatch) -> None:
+    monkeypatch.setenv("SSCRE_RUNTIME_PROFILE", "test")
+    monkeypatch.setenv("SSCRE_LOG_LEVEL", "warning")
+
+    settings = Settings.from_environment()
+
+    assert settings.runtime_profile == "test"
+    assert settings.log_level == "WARNING"
+
+
+def test_production_requires_database_and_admin_secret() -> None:
+    with pytest.raises(ValueError, match="database_url"):
+        Settings(runtime_profile="production")
+
+    with pytest.raises(ValueError, match="admin_token"):
+        Settings(
+            runtime_profile="production",
+            database_url="postgresql://localhost/sscre",
+        )
+
+    with pytest.raises(ValueError, match="16 characters"):
+        Settings(
+            runtime_profile="production",
+            database_url="postgresql://localhost/sscre",
+            admin_token="too-short",
+        )
+
+
+def test_dependency_timeouts_must_be_positive() -> None:
+    with pytest.raises(ValueError, match="repository_timeout_seconds"):
+        Settings(repository_timeout_seconds=0)

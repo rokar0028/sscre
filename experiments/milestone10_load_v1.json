@@ -1,0 +1,52 @@
+{
+  "name": "milestone10_failure_load_v1",
+  "dataset_version": "synthetic-production-readiness-v1",
+  "warmup_requests": 8,
+  "request_count": 32,
+  "concurrency": 4,
+  "similarity_threshold": 0.95,
+  "max_cache_entries": 8,
+  "max_cache_bytes": 10000,
+  "items": [
+    {
+      "label": "exact_hit",
+      "query": "What is a cache?"
+    },
+    {
+      "label": "exact_hit",
+      "query": "What is a cache?"
+    },
+    {
+      "label": "semantic_hit",
+      "query": "[semantic] Explain cache reuse"
+    },
+    {
+      "label": "semantic_hit",
+      "query": "[semantic] Describe cache reuse"
+    },
+    {
+      "label": "dynamic_query",
+      "query": "What is the current stock price now?"
+    },
+    {
+      "label": "oversized_answer",
+      "query": "[large] return a large answer"
+    },
+    {
+      "label": "embedding_failure",
+      "query": "[fail_embedding] embedding outage"
+    },
+    {
+      "label": "generation_failure",
+      "query": "[fail_generation] generation outage"
+    },
+    {
+      "label": "eviction_candidate",
+      "query": "Explain bounded cache storage"
+    },
+    {
+      "label": "eviction_candidate",
+      "query": "Explain cache access accounting"
+    }
+  ]
+}

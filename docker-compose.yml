@@ -10,19 +10,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./migrations/000_schema_migrations.sql:/docker-entrypoint-initdb.d/000_schema_migrations.sql:ro
-      - ./migrations/001_create_cache_entries.sql:/docker-entrypoint-initdb.d/001_create_cache_entries.sql:ro
-      - ./migrations/002_enable_pgvector.sql:/docker-entrypoint-initdb.d/002_enable_pgvector.sql:ro
-      - ./migrations/003_store_cache_embeddings.sql:/docker-entrypoint-initdb.d/003_store_cache_embeddings.sql:ro
-      - ./migrations/004_store_cache_metadata.sql:/docker-entrypoint-initdb.d/004_store_cache_metadata.sql:ro
-      - ./migrations/005_store_cache_ttl.sql:/docker-entrypoint-initdb.d/005_store_cache_ttl.sql:ro
-      - ./migrations/006_store_canonical_answers.sql:/docker-entrypoint-initdb.d/006_store_canonical_answers.sql:ro
-      - ./migrations/007_cache_access_counters.sql:/docker-entrypoint-initdb.d/007_cache_access_counters.sql:ro
-      - ./migrations/008_store_cache_sizes.sql:/docker-entrypoint-initdb.d/008_store_cache_sizes.sql:ro
-      - ./migrations/009_backfill_legacy_ttl.sql:/docker-entrypoint-initdb.d/009_backfill_legacy_ttl.sql:ro
-      - ./migrations/010_cache_lifecycle_counters.sql:/docker-entrypoint-initdb.d/010_cache_lifecycle_counters.sql:ro
-      - ./migrations/011_validate_sha256_hashes.sql:/docker-entrypoint-initdb.d/011_validate_sha256_hashes.sql:ro
-      - ./migrations:/migrations:ro
     healthcheck:
       test:
         [
@@ -32,6 +19,71 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  migrate:
+    build:
+      context: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SSCRE_DATABASE_URL: >-
+        postgresql://${POSTGRES_USER:-sscre}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-sscre}
+      SSCRE_MIGRATIONS_DIR: /app/migrations
+    command:
+      [
+        "sscre-migrate",
+        "--database-url",
+        "postgresql://${POSTGRES_USER:-sscre}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-sscre}"
+      ]
+    restart: "no"
+
+  api:
+    build:
+      context: .
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      SSCRE_DATABASE_URL: >-
+        postgresql://${POSTGRES_USER:-sscre}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-sscre}
+      SSCRE_MIGRATIONS_DIR: /app/migrations
+      SSCRE_ADMIN_TOKEN: ${SSCRE_ADMIN_TOKEN:?Set SSCRE_ADMIN_TOKEN in .env}
+      SSCRE_RUNTIME_PROFILE: ${SSCRE_RUNTIME_PROFILE:-development}
+      SSCRE_LOG_LEVEL: ${SSCRE_LOG_LEVEL:-INFO}
+      SSCRE_SEMANTIC_ENABLED: ${SSCRE_SEMANTIC_ENABLED:-true}
+      SSCRE_SEMANTIC_STRATEGY: ${SSCRE_SEMANTIC_STRATEGY:-B}
+      SSCRE_SEMANTIC_TOP_K: ${SSCRE_SEMANTIC_TOP_K:-5}
+      SSCRE_SEMANTIC_SIMILARITY_THRESHOLD: ${SSCRE_SEMANTIC_SIMILARITY_THRESHOLD:-0.95}
+      SSCRE_CACHE_STABLE_TTL_SECONDS: ${SSCRE_CACHE_STABLE_TTL_SECONDS:-2592000}
+      SSCRE_CACHE_SEMI_DYNAMIC_TTL_SECONDS: ${SSCRE_CACHE_SEMI_DYNAMIC_TTL_SECONDS:-86400}
+      SSCRE_CACHE_DYNAMIC_TTL_SECONDS: ${SSCRE_CACHE_DYNAMIC_TTL_SECONDS:-}
+      SSCRE_CACHE_ALLOW_DYNAMIC_ENTRIES: ${SSCRE_CACHE_ALLOW_DYNAMIC_ENTRIES:-false}
+      SSCRE_CACHE_MAX_ANSWER_BYTES: ${SSCRE_CACHE_MAX_ANSWER_BYTES:-65536}
+      SSCRE_CACHE_MAX_METADATA_BYTES: ${SSCRE_CACHE_MAX_METADATA_BYTES:-8192}
+      SSCRE_CACHE_MAX_QUERY_BYTES: ${SSCRE_CACHE_MAX_QUERY_BYTES:-32768}
+      SSCRE_CACHE_MAX_ENTRIES: ${SSCRE_CACHE_MAX_ENTRIES:-10000}
+      SSCRE_CACHE_MAX_BYTES: ${SSCRE_CACHE_MAX_BYTES:-100000000}
+      SSCRE_TIMEOUT_REQUEST_SECONDS: ${SSCRE_TIMEOUT_REQUEST_SECONDS:-30}
+      SSCRE_TIMEOUT_EMBEDDING_SECONDS: ${SSCRE_TIMEOUT_EMBEDDING_SECONDS:-5}
+      SSCRE_TIMEOUT_GENERATION_SECONDS: ${SSCRE_TIMEOUT_GENERATION_SECONDS:-25}
+      SSCRE_TIMEOUT_REPOSITORY_SECONDS: ${SSCRE_TIMEOUT_REPOSITORY_SECONDS:-2}
+      SSCRE_TIMEOUT_HEALTH_SECONDS: ${SSCRE_TIMEOUT_HEALTH_SECONDS:-1}
+      SSCRE_TIMEOUT_ADMIN_SECONDS: ${SSCRE_TIMEOUT_ADMIN_SECONDS:-5}
+    ports:
+      - "${SSCRE_API_PORT:-8000}:8000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=1)"
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
 
 volumes:
   postgres_data:

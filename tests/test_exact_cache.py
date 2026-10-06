@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+import time
 
 import pytest
 from fastapi.testclient import TestClient
@@ -13,6 +14,7 @@ from sscre.cache import (
     InMemoryExactCache,
 )
 from sscre.embedding import EmbeddingConfig, FakeEmbeddingClient
+from sscre.config import Settings
 from sscre.llm import LLMResult, MockLLMClient
 from sscre.safety import QueryMetadata
 
@@ -462,6 +464,76 @@ def test_cache_repository_failure_returns_503_with_request_id() -> None:
     assert response.status_code == 503
     assert response.json() == {"detail": "cache unavailable"}
     assert response.headers["X-Request-ID"]
+
+
+def test_generation_timeout_returns_controlled_502() -> None:
+    class SlowLLMClient(MockLLMClient):
+        def generate(self, query: str) -> LLMResult:
+            time.sleep(1.1)
+            return super().generate(query)
+
+    client = TestClient(
+        create_app(
+            llm_client=SlowLLMClient(),
+            settings=Settings(generation_timeout_seconds=1),
+        )
+    )
+
+    response = client.post("/v1/query", json={"query": "slow generation"})
+
+    assert response.status_code == 502
+    assert response.json() == {"detail": "response generation failed"}
+    assert response.headers["X-Request-ID"]
+
+
+def test_malformed_generation_result_returns_controlled_502() -> None:
+    class MalformedLLMClient:
+        def generate(self, query: str) -> object:
+            return object()
+
+    client = TestClient(create_app(llm_client=MalformedLLMClient()))
+
+    response = client.post("/v1/query", json={"query": "bad provider"})
+
+    assert response.status_code == 502
+    assert response.json() == {"detail": "response generation failed"}
+
+
+def test_repository_timeout_fails_closed_with_503() -> None:
+    class SlowCache(InMemoryExactCache):
+        def get_by_query_hash(self, query_hash: str) -> CacheEntry | None:
+            time.sleep(1.1)
+            return super().get_by_query_hash(query_hash)
+
+    client = TestClient(
+        create_app(
+            repository=SlowCache(),
+            settings=Settings(repository_timeout_seconds=1),
+        )
+    )
+
+    response = client.post("/v1/query", json={"query": "slow repository"})
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "cache unavailable"}
+    assert response.headers["X-Request-ID"]
+
+
+def test_cache_write_failure_preserves_generated_response() -> None:
+    class WriteFailCache:
+        def get_by_query_hash(self, query_hash: str) -> CacheEntry | None:
+            return None
+
+        def insert(self, entry: CacheEntry) -> None:
+            raise CacheRepositoryError("write unavailable")
+
+    client = TestClient(create_app(repository=WriteFailCache()))
+
+    response = client.post("/v1/query", json={"query": "write outage"})
+
+    assert response.status_code == 200
+    assert response.json()["source"] == "generated"
+    assert response.json()["reason"] == "cache_write_unavailable"
 
 
 class CountingMockLLMClient(MockLLMClient):

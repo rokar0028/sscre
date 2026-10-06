@@ -10,6 +10,19 @@ class LLMResult:
     latency_ms: int
 
 
+def validate_llm_result(result: object) -> LLMResult:
+    if not isinstance(result, LLMResult):
+        raise ValueError("LLM provider returned an invalid result")
+    if (
+        not isinstance(result.text, str)
+        or result.input_tokens < 0
+        or result.output_tokens < 0
+        or result.latency_ms < 0
+    ):
+        raise ValueError("LLM provider returned invalid response metadata")
+    return result
+
+
 class MockLLMClient:
     def __init__(self, should_fail: bool = False) -> None:
         self.should_fail = should_fail

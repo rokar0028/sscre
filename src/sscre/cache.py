@@ -173,9 +173,10 @@ def _cosine_similarity(
     second_norm = sqrt(sum(value * value for value in second))
     if first_norm == 0 or second_norm == 0:
         return 0.0
-    return sum(a * b for a, b in zip(first, second)) / (
+    similarity = sum(a * b for a, b in zip(first, second)) / (
         first_norm * second_norm
     )
+    return max(-1.0, min(1.0, similarity))
 
 
 class InMemoryExactCache:
