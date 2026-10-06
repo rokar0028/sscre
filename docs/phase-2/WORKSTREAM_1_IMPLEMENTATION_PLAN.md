@@ -74,11 +74,12 @@ Those activities consume the contracts produced here.
 - [x] The contract is documented as a versioned evaluation artifact
   (`SAFETY_EVALUATION_CONTRACT_v1.md`, `SAFETY_EVALUATION_CONTRACT_VERSION`
   in `safety.py`).
-- [ ] All externally emitted traces expose the required fields consistently
-  (see [WORKSTREAM_1_STEP1_AUDIT.md](./WORKSTREAM_1_STEP1_AUDIT.md) gap table).
-- [ ] Contract tests cover serialization, bounds, precedence, and failure
-  closure (precedence/compatibility covered; serialization/bounds partial — same
-  audit doc).
+- [ ] All externally emitted traces expose the required fields consistently.
+  Strategy C does. Strategy B still records only the first retrieval trace
+  ([WORKSTREAM_1_STEP1_AUDIT.md](./WORKSTREAM_1_STEP1_AUDIT.md)).
+- [x] Contract tests cover serialization, bounds, precedence, and failure
+  closure (`tests/test_workstream1_contract.py`, `tests/test_trace_contract.py`,
+  `tests/test_serialization_boundary.py`, `tests/test_safety.py`).
 
 Evidence locations:
 
@@ -102,9 +103,11 @@ Recorded gaps to address in later steps:
 - ~~Strategy A uses `EXACT_HIT` in the API~~ (step 2: Strategy A exact hits use
   `SAFE` / `exact_query_hash_match`).
 - Strategy B paths still use retrieval-only traces and implicit `SAFE` at the
-  similarity threshold (experiment baseline; not the Strategy C contract path).
-- `QueryResponse` does not expose `candidate_traces`; traces are log-only.
-- Benchmark artifacts record aggregate decisions, not full trace tuples.
+  similarity threshold (opt-in experiment baseline; default strategy is `C`).
+- ~~`QueryResponse` does not expose `candidate_traces`~~ (step 5: API returns
+  bounded `candidate_traces`, null when none were collected).
+- ~~Benchmark artifacts record aggregate decisions only~~ (compatibility
+  baseline failure examples include per-candidate traces).
 
 ### 2. Define the safety decision contract
 
@@ -126,8 +129,8 @@ constraint mismatch, entity mismatch, dynamic query, or dynamic candidate.
 
 `UNCERTAIN` means that reuse cannot be established safely. Examples include
 missing metadata, incomplete constraint evidence, missing entity evidence,
-unknown intent/domain/format evidence, dependency failure, or an ambiguous
-borderline result.
+unknown intent/domain/format evidence, or dependency failure. Similarity
+below the threshold is `UNSAFE`, not a separate borderline band.
 
 #### Required invariants
 
@@ -396,7 +399,8 @@ Likely integration points:
   `test_repository_timeout_fails_closed_with_503`).
 - [x] Expiry failure cannot produce a cache hit
   (`test_expired_exact_entry_is_not_reused`: decision `UNCERTAIN`, reason
-  `cache candidate was not safely reusable`, expired answer not returned).
+  `expired`, traces null, expired answer not returned, and the new stable
+  answer is stored).
 - [x] API output preserves the final decision and fallback reason
   (assertions above + `test_query_cache_decision_log_includes_schema_version`).
 - [x] Trace output is bounded and contains no secrets
@@ -417,7 +421,9 @@ python -m pytest -q tests/test_safety.py tests/test_compatibility.py tests/test_
 python -m pytest -q
 ```
 
-→ 218 passed, 13 skipped. Skips are `tests/test_postgres_integration.py` because `SSCRE_DATABASE_URL` is unset. Linter diagnostics on the changed Python files: none.
+→ 218 passed, 13 skipped on that step 6 run. Superseded by the later full-suite
+re-run below (230 passed, 13 skipped). Skips are
+`tests/test_postgres_integration.py` because `SSCRE_DATABASE_URL` is unset.
 
 ### 7. Record evidence and hand off the contracts
 
@@ -425,34 +431,46 @@ python -m pytest -q
   the step 6 files listed above, including `tests/test_safety.py` and
   `tests/test_compatibility.py`).
 - [x] Run the full test suite when the environment permits
-  (`python -m pytest -q` → 218 passed, 13 skipped).
+  (`python -m pytest -q` → 230 passed, 13 skipped on the 2026-10-06
+  contract-alignment re-run).
 - [x] Inspect linter diagnostics for changed Python files (none).
 - [x] Record test commands, result counts, and skipped dependencies
-  (step 6 verification).
+  ([WORKSTREAM_1_EVIDENCE.md](./WORKSTREAM_1_EVIDENCE.md)).
 - [x] Update this plan only with evidence-backed completion marks.
-- [ ] Make the frozen contract available to benchmark, provider, and
-  evaluation workstreams.
+  Strategy B trace coverage stays open below.
+- [x] Make the frozen contract available to benchmark, provider, and
+  evaluation workstreams
+  ([WORKSTREAM_1_EVIDENCE.md](./WORKSTREAM_1_EVIDENCE.md), linked from
+  [PHASE_2_IMPLEMENTATION_PLAN.md](./PHASE_2_IMPLEMENTATION_PLAN.md)).
 
 ## Verification checklist
 
 - [x] `SAFE`, `UNSAFE`, and `UNCERTAIN` have documented semantics.
 - [x] Only `SAFE` can select and serve a cache candidate.
-- [x] `UNSAFE` and `UNCERTAIN` remain distinguishable in traces and reports.
+- [x] `UNSAFE` and `UNCERTAIN` remain distinguishable in traces and reports
+  (`test_compatibility_report_keeps_unsafe_and_uncertain_distinct`).
 - [x] Missing metadata and dependency failures cannot produce a cache hit.
 - [x] Compatibility, correctness, and preference are independent fields.
-- [x] Candidate traces explain the decision and reason for every evaluated
-  candidate.
+- [x] Strategy C candidate traces explain the decision and reason for each
+  evaluated candidate (step 6 API tests and the compatibility report test).
+- [ ] Strategy B records a trace for every retrieved candidate. It records the
+  first candidate only (`similarity_threshold_met`).
 - [x] Trace count, metadata, reason, and similarity values are bounded.
 - [x] Operational traces do not contain credentials, authorization headers,
-  unrestricted prompts, or full answers.
-- [x] Serialization is deterministic and compatible with report tooling.
+  unrestricted prompts, or full answers (decision logs reject `answer`,
+  `authorization`, and `api_key`; generation-failure and Strategy C traces
+  omit query text and the cached answer).
+- [x] Serialization is deterministic and saved reports use
+  `BOUNDARY_SERIALIZATION_VERSION`
+  (`test_saved_report_uses_boundary_schema_version`).
 - [x] Targeted tests pass (2026-10-06, included in the 79-passed step 6 run):
 
 ```bash
 python -m pytest -q tests/test_safety.py tests/test_compatibility.py
 ```
 
-- [x] Full suite passes (2026-10-06: 218 passed, 13 skipped):
+- [x] Full suite passes (2026-10-06 contract-alignment re-run: 230 passed,
+  13 skipped):
 
 ```bash
 python -m pytest -q
@@ -480,9 +498,11 @@ decision without exposing sensitive data.
 6. [x] Add unit and integration contract tests (step 6 — `tests/test_workstream1_contract.py`
    plus extensions in compatibility, trace, exact-cache tests).
 7. [x] Run the existing full suite and targeted contract tests (2026-10-06:
-   79 passed targeted, 218 passed / 13 skipped full suite).
+   79 passed targeted on the step 6 file set; later full suite 230 passed /
+   13 skipped).
 8. [x] Record evidence and mark only verified checklist items complete.
-9. [ ] Hand the frozen contracts to Workstreams 2–9.
+9. [x] Hand the frozen contracts to Workstreams 2–9
+   ([WORKSTREAM_1_EVIDENCE.md](./WORKSTREAM_1_EVIDENCE.md)).
 
 ## Acceptance criteria
 
@@ -490,9 +510,11 @@ decision without exposing sensitive data.
   Strategy B still serves from similarity alone (`similarity_threshold_met`);
   see the step 1 gap. Strategy C uses `SAFE` / `UNSAFE` / `UNCERTAIN`.
 - [x] `SAFE` is the only decision that can serve a cache candidate.
-- [x] `UNSAFE` and `UNCERTAIN` are distinguishable in traces and reports.
+- [x] `UNSAFE` and `UNCERTAIN` are distinguishable in traces and reports
+  (`test_compatibility_report_keeps_unsafe_and_uncertain_distinct`).
 - [x] Compatibility, correctness, and preference are independent fields.
-- [x] Candidate traces explain why each candidate was accepted or rejected.
+- [x] Strategy C candidate traces explain why each evaluated candidate was
+  accepted or rejected. Strategy B still records only the first candidate.
 - [x] Trace output is bounded, deterministic, and non-sensitive.
 - [x] Contract tests pass (2026-10-06, included in the 79-passed step 6 run):
 
@@ -500,14 +522,16 @@ decision without exposing sensitive data.
 python -m pytest -q tests/test_safety.py tests/test_compatibility.py
 ```
 
-- [x] Full verification passes (2026-10-06: 218 passed, 13 skipped):
+- [x] Full verification passes (2026-10-06 contract-alignment re-run:
+  230 passed, 13 skipped):
 
 ```bash
 python -m pytest -q
 ```
 
-- [ ] The implementation evidence is recorded in the Phase 2 experiment
-  report.
+- [x] The implementation evidence is recorded in
+  [WORKSTREAM_1_EVIDENCE.md](./WORKSTREAM_1_EVIDENCE.md). Workstream 1 is a
+  contract freeze, not a provider experiment.
 
 ## Risks and mitigations
 

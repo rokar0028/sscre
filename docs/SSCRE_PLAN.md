@@ -149,7 +149,7 @@ SSCRE sits between client and LLM provider:
 Client → SSCRE (retrieve → validate → serve|generate) → LLM API
 ```
 
-Downstream tokens are spent **only on cache miss or UNCERTAIN**. Wrapper overhead must stay below savings.
+Downstream tokens are spent on a cache miss, `UNSAFE`, or `UNCERTAIN`. Wrapper overhead must stay below savings.
 
 ### 5.2 Conservative by Default
 
@@ -329,20 +329,19 @@ Candidate 3 → similarity 0.87 → compatibility UNSAFE     → skip
 ### 9.2 Strategy C — Compatibility Check (MVP rules)
 
 ```python
-# Pseudocode — no LLM required
+# Pseudocode — matches evaluate_candidate(); no gray-zone threshold
 def compatibility(query_meta, cache_meta, similarity) -> Literal["SAFE", "UNSAFE", "UNCERTAIN"]:
-    if similarity < TAU_LOW:
+    if similarity < threshold:
         return "UNSAFE"
-    if query_meta.constraint_fingerprint == cache_meta.constraint_fingerprint:
-        if similarity >= TAU_HIGH:
-            return "SAFE"
-    if mismatched(query_meta.constraints, cache_meta.constraints):  # language, entity, format
+    if query_meta.temporal_class == "dynamic" or cache_meta.temporal_class == "dynamic":
         return "UNSAFE"
-    if query_meta.temporal_class == "dynamic":
+    if cache_meta is None or evidence_is_incomplete(query_meta, cache_meta):
         return "UNCERTAIN"
-    if similarity >= TAU_HIGH and query_meta.intent == cache_meta.intent:
-        return "UNCERTAIN"  # conservative unless fingerprint matches
-    return "UNSAFE"
+    if known_intent_domain_format_or_constraint_mismatch(query_meta, cache_meta):
+        return "UNSAFE"
+    if query_meta.temporal_class != cache_meta.temporal_class:
+        return "UNCERTAIN"
+    return "SAFE"
 ```
 
 **Compatibility features to check:**
@@ -730,8 +729,10 @@ minimum and is intentionally still unchecked above.
 
 ### Phase 2 — Depth (Weeks 7–10)
 
-- [ ] Define and test `SAFE`, `UNSAFE`, and `UNCERTAIN`
-- [ ] Add candidate-level decision traces
+- [x] Define and test `SAFE`, `UNSAFE`, and `UNCERTAIN`
+  (Workstream 1; [docs/phase-2/WORKSTREAM_1_EVIDENCE.md](phase-2/WORKSTREAM_1_EVIDENCE.md))
+- [x] Add candidate-level decision traces
+  (same evidence; Strategy B still records only the first candidate)
 - [ ] Expand benchmark to ≥500 reviewed pairs
 - [ ] Create development and held-out test splits
 - [x] Add threshold sweep configuration

@@ -1,6 +1,7 @@
 # Serialization boundary (v1.0.0)
 
-**Module:** `sscre.serialization` (`BOUNDARY_SERIALIZATION_VERSION`)
+**Module:** `sscre.serialization` (`BOUNDARY_SERIALIZATION_VERSION`)  
+**Status:** frozen for Phase 2 Workstreams 2–9
 
 ## Emitters
 
@@ -10,6 +11,9 @@
 | `cache_decision` logs | `build_cache_decision_log()` / `dumps_cache_decision_log()` |
 | Evaluation reports | `attach_evaluation_report_schema()` via `baseline._save_report` |
 | Failure examples | `evaluation_labels` + optional `candidate_traces` (Strategy C baseline) |
+
+Saved evaluation JSON applies `redact_operational_evaluation_report()` so failure
+galleries omit reviewed `query_a` / `query_b` text (record IDs and labels remain).
 
 ## Canonical shapes
 

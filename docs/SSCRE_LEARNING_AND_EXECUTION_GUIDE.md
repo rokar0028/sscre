@@ -144,7 +144,7 @@ and test them.
 - [x] Add a storage-cap test
 
 Milestone 9 implementation is covered by
-`docs/MILESTONE_9_IMPLEMENTATION_PLAN.md`. Storage-control evaluation is
+`docs/phase-1/MILESTONE_9_IMPLEMENTATION_PLAN.md`. Storage-control evaluation is
 available through `sscre-storage-evaluate`; PostgreSQL-specific verification,
 concurrency evaluation, and held-out storage comparisons remain open.
 

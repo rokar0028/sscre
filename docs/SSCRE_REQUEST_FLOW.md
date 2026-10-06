@@ -10,9 +10,10 @@ SSCRE instead of calling the provider directly.
    This prevents formatting-only differences from creating unnecessary cache
    keys.
 3. **Search the cache.** The system first checks for an exact match. When
-   enabled, Strategy B embeds an exact miss, retrieves top-K candidates, and
-   reuses the highest-scoring candidate only when it meets the configured
-   similarity threshold.
+   semantic retrieval is enabled, the default strategy is C: an exact miss
+   embeds the query, retrieves top-K candidates, and serves one only when
+   compatibility returns `SAFE`. Strategy B is an explicit opt-in that reuses
+   the highest-scoring candidate when it meets the similarity threshold.
    Candidates must use the same embedding model and dimension as the query.
    When semantic retrieval is disabled, the request remains exact-cache-only
    and does not call the embedding client.

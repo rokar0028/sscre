@@ -9,6 +9,8 @@ alwaysApply: true
   Markdown document, include actionable Markdown checkboxes (`- [ ]`).
 - Use unchecked boxes for work that is not verified and checked boxes only for
   work completed with evidence.
+- Keep every item under a `## Learning objectives` section unchecked. Those
+  lists are study topics, not implementation or verification checklists.
 - For verification checkboxes, record or link the command and result when the
   evidence is not obvious from the changed files.
 - Do not mark full-suite, integration, or lint checks complete when they were

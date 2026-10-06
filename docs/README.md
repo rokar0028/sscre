@@ -40,6 +40,27 @@ Focus on one file at a time in this order:
 
 Do not try to read or implement the entire system design at once.
 
+## Plan organization
+
+Implementation plans are grouped by phase:
+
+```text
+docs/
+├── phase-1/
+│   └── MILESTONE_1 ... MILESTONE_10 implementation plans
+└── phase-2/
+    ├── PHASE_2_IMPLEMENTATION_PLAN.md
+    ├── WORKSTREAM_1_IMPLEMENTATION_PLAN.md
+    ├── WORKSTREAM_1_EVIDENCE.md
+    ├── SAFETY_EVALUATION_CONTRACT_v1.md
+    ├── CANDIDATE_TRACE_CONTRACT_v1.md
+    ├── SERIALIZATION_BOUNDARY_v1.md
+    └── MILESTONE_11_REMAINING_GAPS_IMPLEMENTATION_PLAN.md
+```
+
+Shared architecture, learning, evaluation, setup, and final-report documents
+remain directly under `docs/`.
+
 ## Which document is authoritative?
 
 | Document | Purpose | Use it when |

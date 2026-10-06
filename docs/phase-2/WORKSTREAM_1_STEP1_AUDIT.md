@@ -3,6 +3,17 @@
 Audit date: 2026-10-06  
 Contract reference: [SAFETY_EVALUATION_CONTRACT_v1.md](./SAFETY_EVALUATION_CONTRACT_v1.md)
 
+The gap table below is the original step 1 record. Later steps closed the
+Strategy A `EXACT_HIT` API value, empty `QueryResponse` traces, and the
+test-only resolver. Strategy C calls `resolve_candidate_traces`. A plain miss
+with no traces is `UNSAFE` / `no candidates were retrieved`. Generation
+failure logs `UNCERTAIN` / `generation_failed`. The default semantic strategy
+is `C`.
+
+Still open when Strategy B is selected: it serves from similarity alone and
+records only the first candidate. Those gap rows remain accurate for that
+opt-in path.
+
 ## Verified (code inspection)
 
 - [x] `SafetyDecision` = `SAFE` \| `UNSAFE` \| `UNCERTAIN` in `src/sscre/safety.py`.

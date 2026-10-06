@@ -18,3 +18,17 @@ alwaysApply: true
 - Before finalizing substantive Python changes, ensure declared development
   dependencies are installed and run the full test suite when the environment
   permits; report any skipped or unavailable verification explicitly.
+
+## Git hygiene (when the user requests commits)
+
+- Propose an ordered commit plan first: purpose, file paths, and message per
+  commit. Run `git commit` only after the user confirms, unless they already
+  approved that exact plan in the same request.
+- Prefer one milestone slice or one logical change per commit. Do not bundle
+  multiple milestones in a single commit without stating the tradeoff and
+  getting explicit acceptance.
+- Keep planning-document commits separate from code commits unless the user
+  asks to combine them.
+- Review `git status` before staging; avoid blind `git add .` when unrelated
+  files are present.
+- Run the relevant tests before each commit and report pass, fail, or skip.

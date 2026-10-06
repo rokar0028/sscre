@@ -64,7 +64,7 @@ The checked-in migration sequence is `000_schema_migrations.sql` through
 | `SSCRE_RUNTIME_PROFILE` | `test`, `development`, or `production` | `development` |
 | `SSCRE_LOG_LEVEL` | Structured logger verbosity | `INFO` |
 | `SSCRE_SEMANTIC_ENABLED` | Enable embedding retrieval | `true` |
-| `SSCRE_SEMANTIC_STRATEGY` | Strategy B or C | `B` |
+| `SSCRE_SEMANTIC_STRATEGY` | Strategy B or C | `C` |
 | `SSCRE_SEMANTIC_TOP_K` | Candidate count | `5` |
 | `SSCRE_SEMANTIC_SIMILARITY_THRESHOLD` | Similarity threshold | `0.95` |
 | `SSCRE_CACHE_STABLE_TTL_SECONDS` | Stable TTL | `2592000` |

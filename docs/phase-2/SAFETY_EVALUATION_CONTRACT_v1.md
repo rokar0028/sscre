@@ -1,6 +1,7 @@
 # Safety evaluation contract (v1.0.0)
 
-**Status:** frozen for Phase 2 Workstream 1 audit baseline  
+**Status:** frozen for Phase 2 Workstreams 2–9  
+**Evidence:** [WORKSTREAM_1_EVIDENCE.md](./WORKSTREAM_1_EVIDENCE.md)  
 **Canonical implementation:** `src/sscre/safety.py`, `src/sscre/compatibility.py`  
 **Version policy:** increment minor for additive fields; increment major for semantic or
 breaking serialization changes.
@@ -22,9 +23,10 @@ are defined in Workstream 1 step 3.
 | `UNSAFE` | Known incompatibility (constraint, entity, dynamic query/candidate, similarity below threshold, explicit mismatch) | No — generate |
 | `UNCERTAIN` | Reuse cannot be established safely (missing metadata, incomplete evidence, dependency/validator failure, temporal mismatch) | No — generate |
 
-Strategy A exact-hash hits without a compatibility pass use `SAFE` with reason
-`exact_query_hash_match`. The public API exposes only `SAFE`, `UNSAFE`, and
-`UNCERTAIN`.
+Strategy A and Strategy B exact-hash hits that skip compatibility use `SAFE`
+with reason `exact_query_hash_match`. The default semantic strategy is `C`,
+so exact hits on that path run `evaluate_candidate`. The public API exposes
+only `SAFE`, `UNSAFE`, and `UNCERTAIN`.
 
 ## Core types
 
@@ -50,8 +52,8 @@ Per-candidate evaluation record:
 | `query_metadata` | no | bounded dict from `QueryMetadata.to_dict()` |
 | `candidate_metadata` | no | bounded dict or `{}` if missing |
 
-Freshness and rule outcomes may appear in metadata until dedicated typed fields
-are justified (Workstream 1 step 4).
+`freshness_class` and `cache_control_outcome` are optional typed fields on
+the trace.
 
 ### `SafetyResult`
 
@@ -106,10 +108,10 @@ Additional operational reasons (not from pure evaluator):
 | Component | Role |
 |---|---|
 | `compatibility.evaluate_candidate` | Pure trace producer |
-| `safety.resolve_candidate_traces` | Aggregate resolver (tests; not yet wired in `app.py`) |
-| `app.query` | Evaluates candidates, selects first `SAFE`, logs `serialize_candidate_traces()` |
-| `baseline.run_*` | Benchmark compatibility decisions; stores `predicted_decision` / reasons |
-| `QueryResponse` | Exposes aggregate `decision`, `reason`, optional similarity/hash — **not** full traces |
+| `safety.resolve_candidate_traces` | Aggregate resolver used by Strategy C in `app.py` and by the compatibility baseline |
+| `app.query` | Evaluates candidates, selects the first `SAFE`, and emits boundary traces |
+| `baseline.run_compatibility_cache_baseline` | Keeps `UNSAFE` and `UNCERTAIN` in separate `decision_counts` |
+| `QueryResponse` | Exposes `decision`, `reason`, and `candidate_traces` (`null` when no traces were collected) |
 
 Operational trace emission: structured `cache_decision` logs in `app.py` and
 optional `candidate_traces` on `QueryResponse` (`sscre.serialization` boundary).

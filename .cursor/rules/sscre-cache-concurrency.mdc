@@ -12,8 +12,10 @@ alwaysApply: false
   concurrent misses.
 - Recheck the cache after waiting for coordination before calling the model.
 - Handle duplicate writes from shared or multi-process repositories without
-  returning an avoidable server error; under Strategy C, re-run the safety
-  validator before returning the raced entry.
+  returning an avoidable server error. Serve a raced entry only after cache
+  control says it is reusable. Under Strategy C, run the safety validator
+  only after that check. Compatible metadata must not serve an expired,
+  TTL-less, or disabled dynamic entry.
 - Treat missing cached compatibility metadata as `UNCERTAIN`; never substitute
   current-request metadata for missing entry metadata.
 - Synchronize application-scoped metric updates and snapshots.
