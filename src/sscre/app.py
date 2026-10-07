@@ -30,10 +30,14 @@ from sscre.embedding import (
     FakeEmbeddingClient,
     validate_embedding_result,
 )
-from sscre.llm import MockLLMClient, validate_llm_result
+from sscre.llm import LLMClient, MockLLMClient, validate_llm_result
 from sscre.metrics import MetricsCollector
 from sscre.postgres_cache import PostgresExactCacheRepository
+from sscre.pricing import CostBreakdown, PricingSchedule, estimate_request_cost
+from sscre.provider_config import RealProviderConfig
 from sscre.query import QueryRequest, QueryResponse, preprocess_query
+from sscre.remote_embedding import OpenAICompatibleEmbeddingClient
+from sscre.remote_llm import OpenAICompatibleLLMClient
 from sscre.serialization import (
     boundary_candidate_traces,
     dumps_cache_decision_log,
@@ -48,6 +52,18 @@ from sscre.safety import (
 )
 
 logger = logging.getLogger("sscre")
+
+
+def _cost_metric_fields(cost: CostBreakdown) -> dict[str, object]:
+    return {
+        "generation_cost_usd": cost.generation_cost_usd,
+        "embedding_cost_usd": cost.embedding_cost_usd,
+        "retry_cost_usd": cost.retry_cost_usd,
+        "wrapper_cost_usd": cost.wrapper_cost_usd,
+        "total_estimated_cost_usd": cost.total_estimated_cost_usd,
+        "cost_source": cost.cost_source,
+        "pricing_schedule_id": cost.pricing_schedule_id,
+    }
 
 
 class DependencyTimeoutError(RuntimeError):
@@ -76,7 +92,7 @@ def run_with_timeout(
 
 
 def create_app(
-    llm_client: MockLLMClient | None = None,
+    llm_client: LLMClient | None = None,
     repository: ExactCacheRepository | None = None,
     settings: Settings | None = None,
     embedding_client: EmbeddingClient | None = None,
@@ -84,6 +100,7 @@ def create_app(
     semantic_strategy: str | None = None,
     semantic_top_k: int | None = None,
     semantic_similarity_threshold: float | None = None,
+    pricing_schedule: PricingSchedule | None = None,
 ) -> FastAPI:
     runtime_settings = settings or Settings.from_environment()
     logger.setLevel(getattr(logging, runtime_settings.log_level))
@@ -113,6 +130,22 @@ def create_app(
         raise ValueError("semantic_top_k must be positive")
     if not -1.0 <= semantic_similarity_threshold <= 1.0:
         raise ValueError("semantic_similarity_threshold must be between -1 and 1")
+    real_provider_config = RealProviderConfig.from_environment()
+    if real_provider_config is not None:
+        if llm_client is None:
+            llm_client = OpenAICompatibleLLMClient(real_provider_config)
+        elif isinstance(llm_client, MockLLMClient):
+            raise ValueError(
+                "real-provider mode does not accept fake generation clients"
+            )
+        if semantic_enabled and embedding_client is None:
+            embedding_client = OpenAICompatibleEmbeddingClient(
+                real_provider_config
+            )
+        elif semantic_enabled and isinstance(embedding_client, FakeEmbeddingClient):
+            raise ValueError(
+                "real-provider mode does not accept fake embedding clients"
+            )
     if runtime_settings.runtime_profile == "production" and (
         llm_client is None
         or (semantic_enabled and embedding_client is None)
@@ -409,6 +442,7 @@ def create_app(
             response_metrics = metrics.snapshot(
                 request_id=request_id,
                 total_latency_ms=int((perf_counter() - started_at) * 1000),
+                provider_name=None,
             )
             effective_traces = traces or (
                 exact_entry_boundary_trace(entry),
@@ -465,6 +499,37 @@ def create_app(
             response_metrics = metrics.snapshot(
                 request_id=request_id,
                 total_latency_ms=int((perf_counter() - started_at) * 1000),
+                embedding_latency_ms=(
+                    embedding_result.latency_ms if embedding_result is not None else 0
+                ),
+                embedding_input_tokens=(
+                    embedding_result.input_tokens
+                    if embedding_result is not None
+                    else 0
+                ),
+                embedding_usage_source=(
+                    embedding_result.usage_source
+                    if embedding_result is not None
+                    else None
+                ),
+                embedding_attempts=(
+                    embedding_result.attempts if embedding_result is not None else 0
+                ),
+                embedding_retry_count=(
+                    embedding_result.retry_count
+                    if embedding_result is not None
+                    else 0
+                ),
+                provider_name=(
+                    embedding_result.provider_name
+                    if embedding_result is not None
+                    else None
+                ),
+                embedding_model=(
+                    embedding_result.model_name
+                    if embedding_result is not None
+                    else None
+                ),
             )
             serialized_traces = serialized_boundary_traces(traces)
             logger.info(
@@ -1114,6 +1179,51 @@ def create_app(
             llm_latency_ms=result.latency_ms,
             llm_input_tokens=result.input_tokens,
             llm_output_tokens=result.output_tokens,
+            llm_usage_source=result.usage_source,
+            llm_attempts=result.attempts,
+            llm_retry_count=result.retry_count,
+            embedding_latency_ms=(
+                embedding_result.latency_ms if embedding_result is not None else 0
+            ),
+            embedding_input_tokens=(
+                embedding_result.input_tokens if embedding_result is not None else 0
+            ),
+            embedding_usage_source=(
+                embedding_result.usage_source
+                if embedding_result is not None
+                else None
+            ),
+            embedding_attempts=(
+                embedding_result.attempts if embedding_result is not None else 0
+            ),
+            embedding_retry_count=(
+                embedding_result.retry_count
+                if embedding_result is not None
+                else 0
+            ),
+            provider_name=result.provider_name,
+            generation_model=result.model_name,
+            embedding_model=(
+                embedding_result.model_name if embedding_result is not None else None
+            ),
+            **_cost_metric_fields(
+                estimate_request_cost(
+                    pricing_schedule,
+                    generation_input_tokens=result.input_tokens,
+                    generation_output_tokens=result.output_tokens,
+                    embedding_input_tokens=(
+                        embedding_result.input_tokens
+                        if embedding_result is not None
+                        else 0
+                    ),
+                    generation_retry_count=result.retry_count,
+                    embedding_retry_count=(
+                        embedding_result.retry_count
+                        if embedding_result is not None
+                        else 0
+                    ),
+                )
+            ),
         )
         if decision_traces:
             fallback_safety = resolve_candidate_traces(

@@ -27,12 +27,25 @@ def test_response_contains_request_metrics_and_cumulative_counters() -> None:
     assert generated_metrics["total_latency_ms"] >= 0
     assert generated_metrics["llm_input_tokens"] > 0
     assert generated_metrics["llm_output_tokens"] > 0
+    assert generated_metrics["llm_usage_source"] == "estimated"
+    assert generated_metrics["llm_attempts"] == 1
+    assert generated_metrics["llm_retry_count"] == 0
+    assert generated_metrics["embedding_latency_ms"] >= 0
+    assert generated_metrics["embedding_input_tokens"] > 0
+    assert generated_metrics["embedding_usage_source"] == "estimated"
+    assert generated_metrics["embedding_attempts"] == 1
+    assert generated_metrics["embedding_retry_count"] == 0
+    assert generated_metrics["provider_name"] == "synthetic"
+    assert generated_metrics["generation_model"] == "mock"
+    assert generated_metrics["embedding_model"] == "fake-embedding"
     assert generated_metrics["cache_hits"] == 0
     assert generated_metrics["cache_misses"] == 1
     assert generated_metrics["semantic_misses"] == 1
     assert cached_metrics["cache_hits"] == 1
     assert cached_metrics["cache_misses"] == 1
     assert cached_metrics["exact_hits"] == 1
+    assert cached_metrics["embedding_attempts"] == 0
+    assert cached_metrics["llm_attempts"] == 0
 
 
 def test_decision_log_is_structured_and_does_not_include_answer(

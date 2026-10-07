@@ -10,6 +10,24 @@ class RequestMetrics(BaseModel):
     llm_latency_ms: int = Field(default=0, ge=0)
     llm_input_tokens: int = Field(default=0, ge=0)
     llm_output_tokens: int = Field(default=0, ge=0)
+    llm_usage_source: str | None = None
+    llm_attempts: int = Field(default=0, ge=0)
+    llm_retry_count: int = Field(default=0, ge=0)
+    embedding_latency_ms: int = Field(default=0, ge=0)
+    embedding_input_tokens: int = Field(default=0, ge=0)
+    embedding_usage_source: str | None = None
+    embedding_attempts: int = Field(default=0, ge=0)
+    embedding_retry_count: int = Field(default=0, ge=0)
+    provider_name: str | None = None
+    generation_model: str | None = None
+    embedding_model: str | None = None
+    generation_cost_usd: float | None = None
+    embedding_cost_usd: float | None = None
+    retry_cost_usd: float | None = None
+    wrapper_cost_usd: float | None = None
+    total_estimated_cost_usd: float | None = None
+    cost_source: str = "unavailable"
+    pricing_schedule_id: str | None = None
     cache_hits: int = Field(ge=0)
     cache_misses: int = Field(ge=0)
     exact_hits: int = Field(default=0, ge=0)
@@ -76,6 +94,24 @@ class MetricsCollector:
         llm_latency_ms: int = 0,
         llm_input_tokens: int = 0,
         llm_output_tokens: int = 0,
+        llm_usage_source: str | None = None,
+        llm_attempts: int = 0,
+        llm_retry_count: int = 0,
+        embedding_latency_ms: int = 0,
+        embedding_input_tokens: int = 0,
+        embedding_usage_source: str | None = None,
+        embedding_attempts: int = 0,
+        embedding_retry_count: int = 0,
+        provider_name: str | None = None,
+        generation_model: str | None = None,
+        embedding_model: str | None = None,
+        generation_cost_usd: float | None = None,
+        embedding_cost_usd: float | None = None,
+        retry_cost_usd: float | None = None,
+        wrapper_cost_usd: float | None = None,
+        total_estimated_cost_usd: float | None = None,
+        cost_source: str = "unavailable",
+        pricing_schedule_id: str | None = None,
     ) -> RequestMetrics:
         with self._lock:
             return RequestMetrics(
@@ -84,6 +120,24 @@ class MetricsCollector:
                 llm_latency_ms=llm_latency_ms,
                 llm_input_tokens=llm_input_tokens,
                 llm_output_tokens=llm_output_tokens,
+                llm_usage_source=llm_usage_source,
+                llm_attempts=llm_attempts,
+                llm_retry_count=llm_retry_count,
+                embedding_latency_ms=embedding_latency_ms,
+                embedding_input_tokens=embedding_input_tokens,
+                embedding_usage_source=embedding_usage_source,
+                embedding_attempts=embedding_attempts,
+                embedding_retry_count=embedding_retry_count,
+                provider_name=provider_name,
+                generation_model=generation_model,
+                embedding_model=embedding_model,
+                generation_cost_usd=generation_cost_usd,
+                embedding_cost_usd=embedding_cost_usd,
+                retry_cost_usd=retry_cost_usd,
+                wrapper_cost_usd=wrapper_cost_usd,
+                total_estimated_cost_usd=total_estimated_cost_usd,
+                cost_source=cost_source,
+                pricing_schedule_id=pricing_schedule_id,
                 cache_hits=self.cache_hits,
                 cache_misses=self.cache_misses,
                 exact_hits=self.exact_hits,

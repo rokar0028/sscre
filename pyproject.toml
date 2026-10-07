@@ -28,3 +28,6 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+markers = [
+    "real_provider: opt-in tests that make bounded remote provider requests",
+]
