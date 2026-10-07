@@ -1,6 +1,6 @@
 # Serialization boundary (v1.0.0)
 
-**Module:** `sscre.serialization` (`BOUNDARY_SERIALIZATION_VERSION`)  
+**Module:** `sscre.serialization` (`BOUNDARY_SERIALIZATION_VERSION`)
 **Status:** frozen for Phase 2 Workstreams 2–9
 
 ## Emitters

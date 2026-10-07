@@ -2,9 +2,9 @@
 
 ## Audit status
 
-**Completed:** 2026-10-07  
+**Completed:** 2026-10-07
 **Scope:** provider boundary, request call sites, measurement fields,
-serialization boundary, and available HTTP dependencies.  
+serialization boundary, and available HTTP dependencies.
 **Result:** the existing fake-provider interfaces are suitable extension
 points, but real-provider measurement requires new provider adapters,
 provider-aware accounting fields, and an explicit opt-in configuration.

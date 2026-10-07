@@ -1,7 +1,7 @@
 # Safety evaluation contract (v1.0.0)
 
-**Status:** frozen for Phase 2 Workstreams 2–9  
-**Evidence:** [WORKSTREAM_1_EVIDENCE.md](./WORKSTREAM_1_EVIDENCE.md)  
+**Status:** frozen for Phase 2 Workstreams 2–9
+**Evidence:** [WORKSTREAM_1_EVIDENCE.md](./WORKSTREAM_1_EVIDENCE.md)
 **Canonical implementation:** `src/sscre/safety.py`, `src/sscre/compatibility.py`  
 **Version policy:** increment minor for additive fields; increment major for semantic or
 breaking serialization changes.

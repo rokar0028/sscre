@@ -1,7 +1,7 @@
 # Workstream 3 — Step 1 audit record
 
-Audit date: 2026-10-07  
-Parent plan: [WORKSTREAM_3_IMPLEMENTATION_PLAN.md](./WORKSTREAM_3_IMPLEMENTATION_PLAN.md)  
+Audit date: 2026-10-07
+Parent plan: [WORKSTREAM_3_IMPLEMENTATION_PLAN.md](./WORKSTREAM_3_IMPLEMENTATION_PLAN.md)
 Frozen test matrix: [`tests/fixtures/workstream3_decision_matrix.py`](../../tests/fixtures/workstream3_decision_matrix.py)
 
 Contract versions (unchanged):

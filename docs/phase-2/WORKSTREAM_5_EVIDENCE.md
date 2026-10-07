@@ -2,8 +2,8 @@
 
 ## Step 9 held-out evaluation package
 
-**Run date:** 2026-10-07  
-**Status:** interim  
+**Run date:** 2026-10-07
+**Status:** interim
 **Reason for interim status:** the checked-in benchmark contains 32 reviewed
 pairs, below the Phase 2 `--phase2` scale gate of 500 pairs.
 

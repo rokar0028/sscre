@@ -2,10 +2,10 @@
 
 ## Audit status
 
-**Completed:** 2026-10-07  
+**Completed:** 2026-10-07
 **Scope:** baseline evaluation reports, `sscre.evaluate` CLI payloads, threshold
 selection, label and failure galleries, storage evaluation, Workstream 4 provider
-comparison artifacts, and Phase 2 §5.2–§5.4 requirements.  
+comparison artifacts, and Phase 2 §5.2–§5.4 requirements.
 **Result:** four-baseline held-out comparison and rich compatibility metrics
 exist as **point estimates** on deterministic synthetic replay; confidence
 intervals, Pareto frontiers, explicit `measurement_environment` labels, and

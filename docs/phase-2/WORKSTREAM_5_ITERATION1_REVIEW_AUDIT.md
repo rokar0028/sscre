@@ -2,10 +2,10 @@
 
 ## Audit status
 
-**Completed:** 2026-10-07  
+**Completed:** 2026-10-07
 **Scope:** Steps 1–5 implementation (audit through statistics attachment), tests,
 contracts, and gap analysis versus Phase 2 §5 and
-[`WORKSTREAM_5_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_5_IMPLEMENTATION_PLAN.md).  
+[`WORKSTREAM_5_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_5_IMPLEMENTATION_PLAN.md).
 **Verdict:** **Steps 1–5 are implemented and tested** on the 32-pair working
 benchmark. **Steps 6–12 remain open.** Do not treat Workstream 5 or Phase 2
 statistical acceptance as closed.

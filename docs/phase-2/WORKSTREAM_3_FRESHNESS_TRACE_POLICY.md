@@ -1,6 +1,6 @@
 # Workstream 3 freshness trace policy
 
-**Status:** adopted for Phase 2 Workstream 3 step 3  
+**Status:** adopted for Phase 2 Workstream 3 step 3
 **Related:** [CANDIDATE_TRACE_CONTRACT_v1.md](./CANDIDATE_TRACE_CONTRACT_v1.md)
 
 ## Decision

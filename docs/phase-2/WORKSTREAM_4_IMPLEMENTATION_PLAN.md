@@ -379,7 +379,8 @@ provider-specific request and response parsing inside the adapter.
 - [x] Apply the configured generation/embedding operation timeout on urllib
   transport; `TimeoutError` maps to the bounded `timeout` category. Split
   connect/read budgets remain a standard-library transport follow-up
-  (`connect_timeout_seconds` is validated but shares one `urlopen` timeout).
+  The standard-library transport uses one bounded timeout for each request;
+  separate connect/read timeout configuration is intentionally deferred.
 - [x] Measure provider-call latency with a monotonic clock.
 - [x] Parse only the expected response fields.
 - [x] Validate text and token counts before returning `LLMResult`.

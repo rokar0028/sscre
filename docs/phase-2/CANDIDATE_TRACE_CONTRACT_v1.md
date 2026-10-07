@@ -1,7 +1,7 @@
 # Candidate trace contract (v1.0.0)
 
-**Implementation:** `src/sscre/safety.py` (`CANDIDATE_TRACE_CONTRACT_VERSION`)  
-**Status:** frozen for Phase 2 Workstreams 2–9  
+**Implementation:** `src/sscre/safety.py` (`CANDIDATE_TRACE_CONTRACT_VERSION`)
+**Status:** frozen for Phase 2 Workstreams 2–9
 **Related:** [SAFETY_EVALUATION_CONTRACT_v1.md](./SAFETY_EVALUATION_CONTRACT_v1.md)
 
 ## Purpose

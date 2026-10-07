@@ -1,7 +1,7 @@
 # Benchmark annotation guide (v1.0.0)
 
-**Version:** `1.0.0`  
-**Schema:** benchmark JSONL `1.1`  
+**Version:** `1.0.0`
+**Schema:** benchmark JSONL `1.1`
 **Related:** [EVALUATION_LABEL_CONTRACT_v1.md](./EVALUATION_LABEL_CONTRACT_v1.md), [README.md](./README.md)
 
 This guide is for human reviewers authoring or adjudicating query pairs. You do

@@ -1,7 +1,7 @@
 # Evaluation statistics contract (v1.0)
 
-**Module:** `sscre.evaluation_statistics`  
-**Schema version:** `evaluation-statistics-1.0`  
+**Module:** `sscre.evaluation_statistics`
+**Schema version:** `evaluation-statistics-1.0`
 **Status:** frozen for Workstream 5 iteration 1
 
 ## Purpose
