@@ -249,7 +249,7 @@ def test_canonical_answer_deduplication_and_lifecycle_stats(
         _cleanup_query_hashes([entry.query_hash for entry in entries])
 
 
-def test_postgres_search_filters_expired_candidates(
+def test_postgres_search_returns_expired_candidates(
     repository: PostgresExactCacheRepository,
 ) -> None:
     expired_query = f"expired vector query {uuid4()}"
@@ -284,7 +284,7 @@ def test_postgres_search_filters_expired_candidates(
             embedding_model="test-embedding",
         )
 
-        assert expired_query not in {
+        assert expired_query in {
             candidate.normalized_query for candidate in candidates
         }
         assert fresh_query in {

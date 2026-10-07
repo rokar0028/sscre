@@ -43,9 +43,8 @@ def test_expired_exact_entry_is_not_reused() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["source"] == "generated"
-    assert body["decision"] == "UNCERTAIN"
-    assert body["reason"] == "expired"
-    assert body["candidate_traces"] is None
+    assert body["decision"] == "UNSAFE"
+    assert body["candidate_traces"][0]["cache_control_outcome"] == "expired"
     assert body["answer"] != "expired answer"
     stored = cache.get_by_query_hash(
         hashlib.sha256(query.encode()).hexdigest()
@@ -78,8 +77,8 @@ def test_expired_compatible_entry_is_not_served_on_replacement() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["source"] == "generated"
-    assert body["decision"] == "UNCERTAIN"
-    assert body["reason"] == "expired"
+    assert body["decision"] == "UNSAFE"
+    assert body["candidate_traces"][0]["cache_control_outcome"] == "expired"
     assert body["answer"] != "expired answer"
     stored = cache.get_by_query_hash(hash_query(query))
     assert stored is not None

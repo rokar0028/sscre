@@ -40,7 +40,13 @@ def test_request_path_contract_paths_use_strategy_c_or_error() -> None:
             assert row.strategy == "C", row.path_id
 
 
-def test_filtered_paths_do_not_require_compatibility_traces() -> None:
+def test_freshness_blocked_paths_document_retrieval_traces() -> None:
+    blocked = {
+        "rp_expired_exact",
+        "rp_dynamic_exact_disabled",
+        "rp_missing_ttl",
+    }
     for row in REQUEST_PATH_MATRIX:
-        if row.candidate_disposition == "filtered_before_evaluation":
-            assert row.min_trace_count == 0, row.path_id
+        if row.path_id in blocked:
+            assert row.min_trace_count >= 1, row.path_id
+            assert row.candidate_disposition == "evaluated", row.path_id

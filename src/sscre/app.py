@@ -4,7 +4,7 @@ import hmac
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 from collections.abc import Callable
 from contextlib import contextmanager
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import datetime, timezone
 from threading import BoundedSemaphore, Lock
 from time import perf_counter
@@ -13,8 +13,9 @@ from uuid import uuid4
 from fastapi import FastAPI, Header
 from fastapi import HTTPException
 
+from sscre.cache_control_traces import build_cache_control_trace
 from sscre.cache_controls import evaluate_cache_control
-from sscre.compatibility import evaluate_candidate
+from sscre.compatibility import evaluate_candidate_boundary
 from sscre.cache import (
     CacheCandidate,
     CacheEntry,
@@ -323,6 +324,41 @@ def create_app(
         cache_skip_reason: str | None = None
         reuse_block_reason: str | None = None
 
+        def serialized_boundary_traces(traces: tuple[CandidateTrace, ...]):
+            try:
+                return boundary_candidate_traces(traces)
+            except ValueError as exc:
+                raise HTTPException(
+                    status_code=500,
+                    detail="cache decision unavailable",
+                    headers={"X-Request-ID": str(request_id)},
+                ) from exc
+
+        def logged_strategy() -> str:
+            if semantic_strategy == "C" or semantic_enabled:
+                return semantic_strategy
+            return "A"
+
+        def merge_decision_traces(
+            extra: tuple[CandidateTrace, ...],
+        ) -> tuple[CandidateTrace, ...]:
+            merged = list(decision_traces)
+            index_by_hash = {
+                trace.candidate_query_hash: index
+                for index, trace in enumerate(merged)
+            }
+            for trace in extra:
+                existing = index_by_hash.get(trace.candidate_query_hash)
+                if existing is None:
+                    index_by_hash[trace.candidate_query_hash] = len(merged)
+                    merged.append(trace)
+                else:
+                    merged[existing] = trace
+            return tuple(
+                replace(trace, candidate_order=order)
+                for order, trace in enumerate(merged, start=1)
+            )
+
         def dependency_budget(configured_seconds: int) -> float:
             remaining = runtime_settings.request_timeout_seconds - (
                 perf_counter() - started_at
@@ -377,7 +413,7 @@ def create_app(
             effective_traces = traces or (
                 exact_entry_boundary_trace(entry),
             )
-            serialized_traces = boundary_candidate_traces(effective_traces)
+            serialized_traces = serialized_boundary_traces(effective_traces)
             logger.info(
                 dumps_cache_decision_log(
                     {
@@ -430,7 +466,7 @@ def create_app(
                 request_id=request_id,
                 total_latency_ms=int((perf_counter() - started_at) * 1000),
             )
-            serialized_traces = boundary_candidate_traces(traces)
+            serialized_traces = serialized_boundary_traces(traces)
             logger.info(
                 dumps_cache_decision_log(
                     {
@@ -561,19 +597,11 @@ def create_app(
 
         def evaluate_exact_entry(entry: CacheEntry) -> CandidateTrace:
             candidate = exact_candidate(entry)
-            try:
-                trace = evaluate_candidate(
-                    processed.metadata,
-                    candidate,
-                    similarity_threshold=semantic_similarity_threshold,
-                )
-            except Exception:
-                trace = CandidateTrace(
-                    candidate_query_hash=candidate.query_hash,
-                    similarity=candidate.similarity,
-                    decision="UNCERTAIN",
-                    reason="safety_validator_error",
-                )
+            trace = evaluate_candidate_boundary(
+                processed.metadata,
+                candidate,
+                similarity_threshold=semantic_similarity_threshold,
+            )
             return trace_with_context(trace, candidate, 1)
 
         try:
@@ -609,8 +637,17 @@ def create_app(
                         )
                 else:
                     return cached_response(cached_entry)
-            elif reuse_block_reason is None:
-                reuse_block_reason = exact_control.reason
+            else:
+                decision_traces = (
+                    build_cache_control_trace(
+                        exact_candidate(cached_entry),
+                        exact_control,
+                        candidate_order=1,
+                        query_metadata=processed.metadata.to_dict(),
+                    ),
+                )
+                if reuse_block_reason is None:
+                    reuse_block_reason = exact_control.reason
 
         embedding_result = None
         if semantic_enabled:
@@ -643,100 +680,124 @@ def create_app(
                             "semantic cache search",
                             dependency_slots,
                     )
-                    candidates = tuple(
+                    reusable_candidates = tuple(
                         candidate
                         for candidate in candidates
                         if cache_entry_is_reusable(candidate)
                     )
                     if candidates and semantic_strategy == "C":
                         evaluated_candidates = candidates[:MAX_CANDIDATE_TRACES]
-                        traces = tuple(
-                            trace_with_context(
-                                evaluate_candidate(
-                                    processed.metadata,
-                                    candidate,
-                                    similarity_threshold=(
-                                        semantic_similarity_threshold
-                                    ),
-                                ),
-                                candidate,
-                                index + 1,
-                            )
-                            for index, candidate in enumerate(evaluated_candidates)
-                        )
-                        decision_traces = traces
+                        trace_rows: list[CandidateTrace] = []
+                        for candidate in evaluated_candidates:
+                            control = cache_control_for(candidate)
+                            if control.reusable:
+                                trace_rows.append(
+                                    trace_with_context(
+                                        evaluate_candidate_boundary(
+                                            processed.metadata,
+                                            candidate,
+                                            similarity_threshold=(
+                                                semantic_similarity_threshold
+                                            ),
+                                        ),
+                                        candidate,
+                                        1,
+                                    )
+                                )
+                            else:
+                                trace_rows.append(
+                                    build_cache_control_trace(
+                                        candidate,
+                                        control,
+                                        candidate_order=1,
+                                        query_metadata=processed.metadata.to_dict(),
+                                    )
+                                )
+                        decision_traces = merge_decision_traces(tuple(trace_rows))
                         safety_result = resolve_candidate_traces(
-                            traces,
+                            decision_traces,
                             strategy="C",
                         )
                         if is_reusable_decision(safety_result.decision):
-                            safe_index = next(
-                                index
-                                for index, trace in enumerate(traces)
-                                if trace.candidate_query_hash
-                                == safety_result.selected_candidate_query_hash
+                            selected = next(
+                                (
+                                    candidate
+                                    for candidate in evaluated_candidates
+                                    if candidate.query_hash
+                                    == safety_result.selected_candidate_query_hash
+                                ),
+                                None,
                             )
+                            if selected is None:
+                                raise HTTPException(
+                                    status_code=500,
+                                    detail="cache decision unavailable",
+                                    headers={"X-Request-ID": str(request_id)},
+                                )
                             return semantic_cached_response(
-                                candidates[safe_index],
+                                selected,
                                 safety_result,
-                                traces=traces,
+                                traces=decision_traces,
                             )
                     elif (
-                        candidates
-                        and candidates[0].similarity
+                        reusable_candidates
+                        and reusable_candidates[0].similarity
                         >= semantic_similarity_threshold
                     ):
                         freshness_class, cache_control_outcome = (
-                            candidate_freshness_fields(candidates[0])
+                            candidate_freshness_fields(reusable_candidates[0])
                         )
-                        decision_traces = (
+                        decision_traces = merge_decision_traces((
                             CandidateTrace(
-                                candidate_query_hash=candidates[0].query_hash,
-                                similarity=candidates[0].similarity,
+                                candidate_query_hash=reusable_candidates[0].query_hash,
+                                similarity=reusable_candidates[0].similarity,
                                 decision="SAFE",
                                 reason="similarity_threshold_met",
                                 candidate_order=1,
                                 stage="retrieval",
                                 query_metadata=processed.metadata.to_dict(),
                                 candidate_metadata=(
-                                    candidates[0].metadata.to_dict()
-                                    if candidates[0].metadata is not None
+                                    reusable_candidates[0].metadata.to_dict()
+                                    if reusable_candidates[0].metadata is not None
                                     else {}
                                 ),
                                 freshness_class=freshness_class,  # type: ignore[arg-type]
                                 cache_control_outcome=cache_control_outcome,
                             ),
-                        )
+                        ))
                         return semantic_cached_response(
-                            candidates[0],
+                            reusable_candidates[0],
                             traces=decision_traces,
                         )
-                    elif candidates:
+                    elif reusable_candidates:
                         freshness_class, cache_control_outcome = (
-                            candidate_freshness_fields(candidates[0])
+                            candidate_freshness_fields(reusable_candidates[0])
                         )
-                        decision_traces = (
+                        decision_traces = merge_decision_traces((
                             CandidateTrace(
-                                candidate_query_hash=candidates[0].query_hash,
-                                similarity=candidates[0].similarity,
+                                candidate_query_hash=reusable_candidates[0].query_hash,
+                                similarity=reusable_candidates[0].similarity,
                                 decision="UNSAFE",
                                 reason="similarity_below_threshold",
                                 candidate_order=1,
                                 stage="retrieval",
                                 query_metadata=processed.metadata.to_dict(),
                                 candidate_metadata=(
-                                    candidates[0].metadata.to_dict()
-                                    if candidates[0].metadata is not None
+                                    reusable_candidates[0].metadata.to_dict()
+                                    if reusable_candidates[0].metadata is not None
                                     else {}
                                 ),
                                 freshness_class=freshness_class,  # type: ignore[arg-type]
                                 cache_control_outcome=cache_control_outcome,
                             ),
-                        )
-                    if candidates:
+                        ))
                         metrics.record_threshold_rejection()
+                    elif candidates:
+                        metrics.record_semantic_miss()
                     else:
                         metrics.record_semantic_miss()
+            except HTTPException:
+                raise
             except Exception as exc:
                 embedding_result = None
                 metrics.record_cache_rejection("semantic_lookup_unavailable")
@@ -774,7 +835,7 @@ def create_app(
                     if semantic_strategy != "C":
                         return cached_response(cached_entry)
                     exact_safety = evaluate_exact_entry(cached_entry)
-                    decision_traces = (exact_safety,)
+                    decision_traces = merge_decision_traces((exact_safety,))
                     if is_reusable_decision(exact_safety.decision):
                         return cached_response(
                             cached_entry,
@@ -782,8 +843,17 @@ def create_app(
                             reason=exact_safety.reason,
                             traces=decision_traces,
                         )
-                elif reuse_block_reason is None:
-                    reuse_block_reason = exact_control.reason
+                else:
+                    decision_traces = merge_decision_traces((
+                        build_cache_control_trace(
+                            exact_candidate(cached_entry),
+                            exact_control,
+                            candidate_order=1,
+                            query_metadata=processed.metadata.to_dict(),
+                        ),
+                    ))
+                    if reuse_block_reason is None:
+                        reuse_block_reason = exact_control.reason
 
             try:
                 result = run_with_timeout(
@@ -959,14 +1029,23 @@ def create_app(
                         if semantic_strategy != "C":
                             return cached_response(cached_entry)
                         duplicate_safety = evaluate_exact_entry(cached_entry)
+                        decision_traces = merge_decision_traces((duplicate_safety,))
                         if is_reusable_decision(duplicate_safety.decision):
                             return cached_response(
                                 cached_entry,
                                 decision=duplicate_safety.decision,
                                 reason=duplicate_safety.reason,
-                                traces=(duplicate_safety,),
+                                traces=decision_traces,
                             )
                     else:
+                        decision_traces = merge_decision_traces((
+                            build_cache_control_trace(
+                                exact_candidate(cached_entry),
+                                duplicate_control,
+                                candidate_order=1,
+                                query_metadata=processed.metadata.to_dict(),
+                            ),
+                        ))
                         delete_entry = getattr(
                             cache, "delete_by_query_hash", None
                         )
@@ -1039,7 +1118,7 @@ def create_app(
         if decision_traces:
             fallback_safety = resolve_candidate_traces(
                 decision_traces,
-                strategy=semantic_strategy if semantic_enabled else "A",
+                strategy=logged_strategy(),
             )
             generated_decision = fallback_safety.decision
             generated_reason = fallback_safety.reason
@@ -1052,12 +1131,12 @@ def create_app(
         else:
             empty_result = resolve_candidate_traces(
                 (),
-                strategy=semantic_strategy if semantic_enabled else "A",
+                strategy=logged_strategy(),
             )
             generated_decision = empty_result.decision
             generated_reason = empty_result.reason
 
-        serialized_traces = boundary_candidate_traces(decision_traces)
+        serialized_traces = serialized_boundary_traces(decision_traces)
         logger.info(
             dumps_cache_decision_log(
                 {
@@ -1067,7 +1146,7 @@ def create_app(
                     "reason": generated_reason,
                     "outcome": "generated",
                     "source": "generated",
-                    "strategy": semantic_strategy if semantic_enabled else "A",
+                    "strategy": logged_strategy(),
                     "cache_skip_reason": cache_skip_reason,
                     "candidate_traces": serialized_traces,
                     "latency_ms": response_metrics.total_latency_ms,

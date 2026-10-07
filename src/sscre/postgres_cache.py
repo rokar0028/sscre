@@ -521,8 +521,6 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                         WHERE ce.embedding IS NOT NULL
                           AND ce.embedding_dimension = %s
                           AND (%s::text IS NULL OR ce.embedding_model = %s)
-                          AND ce.ttl_expires_at IS NOT NULL
-                          AND ce.ttl_expires_at > now()
                         ORDER BY ce.embedding <=> %s::vector, ce.query_hash
                         LIMIT %s
                         """,

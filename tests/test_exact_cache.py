@@ -62,6 +62,7 @@ def test_first_query_generates_and_repeated_query_uses_cache() -> None:
     assert first.json()["source"] == "generated"
     assert second.status_code == 200
     assert second.json()["source"] == "cache"
+    assert second.json()["decision"] == "SAFE"
     assert second.json()["answer"] == first.json()["answer"]
     assert model.calls == 1
 
@@ -425,9 +426,10 @@ def test_strategy_c_does_not_reuse_dynamic_exact_entry() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["source"] == "generated"
-    assert body["decision"] == "UNCERTAIN"
-    assert body["reason"] == "dynamic_entries_disabled"
-    assert body["candidate_traces"] is None
+    assert body["decision"] == "UNSAFE"
+    assert body["candidate_traces"][0]["cache_control_outcome"] == (
+        "dynamic_entries_disabled"
+    )
     assert body["answer"] != "stale price answer"
     assert model.calls == 1
 
