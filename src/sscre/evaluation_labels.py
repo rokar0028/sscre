@@ -12,6 +12,44 @@ from sscre.safety import SafetyDecision
 
 EVALUATION_LABEL_CONTRACT_VERSION = "1.0.0"
 
+DISAGREEMENT_CLASSES = frozenset(
+    {
+        "evaluator_behavior",
+        "metadata_insufficiency",
+        "freshness_policy",
+        "retrieval_miss",
+        "benchmark_data_limitation",
+    }
+)
+_METADATA_INSUFFICIENCY_REASONS = frozenset(
+    {
+        "candidate_metadata_missing",
+        "incomplete_constraint_evidence",
+        "incomplete_entity_evidence",
+        "temporal_class_mismatch",
+        "safety_validator_error",
+        "no candidate had sufficient compatibility evidence",
+    }
+)
+_EVALUATOR_UNSAFE_REASONS = frozenset(
+    {
+        "entity_mismatch",
+        "intent_mismatch",
+        "domain_mismatch",
+        "format_mismatch",
+        "similarity_below_threshold",
+        "dynamic_query_not_reusable",
+        "candidate_is_dynamic",
+        "all candidates were incompatible",
+    }
+)
+_RETRIEVAL_MISS_REASONS = frozenset(
+    {
+        "no candidates were retrieved",
+        "no_candidate",
+    }
+)
+
 CorrectnessLabel = Literal["correct", "incorrect", "uncertain"]
 CompatibilityGroundLabel = Literal["compatible", "incompatible", "uncertain"]
 PreferenceWinner = Literal["cached", "generated", "tie"]
@@ -62,6 +100,46 @@ def expected_compatibility_decision(record: _BenchmarkGroundTruth) -> SafetyDeci
     if not record.reusable or record.compatibility_label == "incompatible":
         return "UNSAFE"
     return "UNCERTAIN"
+
+
+def classify_compatibility_disagreement(
+    *,
+    expected_decision: SafetyDecision,
+    observed_decision: SafetyDecision,
+    reason: str,
+    has_traces: bool,
+) -> str | None:
+    """Classify expected-vs-observed disagreement without rewriting labels."""
+    if expected_decision == observed_decision:
+        return None
+    reason_text = reason.strip()
+    if not has_traces or reason_text in _RETRIEVAL_MISS_REASONS:
+        return "retrieval_miss"
+    if reason_text.startswith("cache_control_"):
+        return "freshness_policy"
+    if (
+        reason_text in _METADATA_INSUFFICIENCY_REASONS
+        or (
+            reason_text.startswith("missing_")
+            and reason_text.endswith("_evidence")
+        )
+    ):
+        return "metadata_insufficiency"
+    if observed_decision == "UNCERTAIN":
+        return "metadata_insufficiency"
+    if (
+        observed_decision == "UNSAFE"
+        and (
+            reason_text in _EVALUATOR_UNSAFE_REASONS
+            or reason_text.startswith("constraint_mismatch:")
+        )
+    ):
+        return "evaluator_behavior"
+    if expected_decision == "SAFE" and observed_decision == "UNSAFE":
+        return "evaluator_behavior"
+    if observed_decision == "SAFE":
+        return "evaluator_behavior"
+    return "benchmark_data_limitation"
 
 
 class CompatibilityEvaluation(BaseModel):

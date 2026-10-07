@@ -15,7 +15,9 @@ from sscre.cache import (
 )
 from sscre.embedding import EmbeddingClient, FakeEmbeddingClient
 from sscre.llm import LLMResult, MockLLMClient
-from sscre.compatibility import evaluate_candidate
+from sscre.cache_control_traces import build_cache_control_trace
+from sscre.cache_controls import CacheControlPolicy, evaluate_cache_control
+from sscre.compatibility import evaluate_candidate_boundary
 from sscre.metadata import extract_metadata
 from sscre.query import hash_query, normalize_query
 from sscre.serialization import (
@@ -26,10 +28,12 @@ from sscre.serialization import (
 from sscre.evaluation_labels import (
     build_evaluation_labels,
     build_label_sections,
+    classify_compatibility_disagreement,
     correctness_metrics_bucket,
     expected_compatibility_decision,
 )
 from sscre.safety import (
+    CandidateTrace,
     QueryMetadata,
     SafetyDecision,
     is_reusable_decision,
@@ -204,6 +208,8 @@ class CompatibilityCacheReport:
     preference_label_counts: dict[str, int]
     label_sections: dict[str, dict[str, int]]
     false_positive_examples: list[dict[str, object]]
+    observed_pair_records: list[dict[str, object]]
+    disagreement_class_counts: dict[str, int]
 
 
 def run_no_cache_baseline(
@@ -614,6 +620,8 @@ def run_compatibility_cache_baseline(
     compatibility_label_counts: dict[str, int] = {}
     preference_label_counts: dict[str, int] = {}
     compatibility_agreement_counts: dict[str, int] = {}
+    observed_pair_records: list[dict[str, object]] = []
+    disagreement_class_counts: dict[str, int] = {}
 
     def record_compatibility_agreement(
         record: BenchmarkRecord,
@@ -623,6 +631,42 @@ def run_compatibility_cache_baseline(
         bucket = "match" if observed == expected else "mismatch"
         compatibility_agreement_counts[bucket] = (
             compatibility_agreement_counts.get(bucket, 0) + 1
+        )
+
+    def record_pair_observation(
+        record: BenchmarkRecord,
+        *,
+        observed: SafetyDecision,
+        reason: str,
+        traces: tuple[CandidateTrace, ...],
+    ) -> None:
+        expected = expected_compatibility_decision(record)
+        disagreement = classify_compatibility_disagreement(
+            expected_decision=expected,
+            observed_decision=observed,
+            reason=reason,
+            has_traces=bool(traces),
+        )
+        if disagreement is not None:
+            disagreement_class_counts[disagreement] = (
+                disagreement_class_counts.get(disagreement, 0) + 1
+            )
+        record_compatibility_agreement(record, observed)
+        observed_pair_records.append(
+            {
+                "id": record.id,
+                "direction": "b_to_a",
+                "expected_compatibility": record.compatibility_label,
+                "expected_decision": expected,
+                "observed_decision": observed,
+                "reason": reason,
+                "disagreement_class": disagreement,
+                "candidate_traces": boundary_candidate_traces(traces),
+                "evaluation_labels": build_evaluation_labels(
+                    record=record,
+                    observed_decision=observed,
+                ).to_artifact_dict(),
+            }
         )
 
     def example_with_labels(
@@ -695,21 +739,44 @@ def run_compatibility_cache_baseline(
             )
             request_count += 1
 
+            cache_policy = CacheControlPolicy()
             safe_candidate = None
             evaluated_traces = []
             for index, candidate in enumerate(candidates):
-                candidate_trace = replace(
-                    evaluate_candidate(
-                        query_metadata,
-                        candidate,
-                        similarity_threshold=threshold,
-                    ),
-                    candidate_order=index + 1,
+                temporal_class = (
+                    candidate.metadata.temporal_class
+                    if candidate.metadata is not None
+                    else "stable"
                 )
+                control = evaluate_cache_control(
+                    temporal_class,
+                    candidate.ttl_expires_at,
+                    policy=cache_policy,
+                )
+                if control.reusable:
+                    candidate_trace = replace(
+                        evaluate_candidate_boundary(
+                            query_metadata,
+                            candidate,
+                            similarity_threshold=threshold,
+                        ),
+                        candidate_order=index + 1,
+                        freshness_class=temporal_class,
+                        cache_control_outcome=control.reason,
+                    )
+                else:
+                    candidate_trace = build_cache_control_trace(
+                        candidate,
+                        control,
+                        candidate_order=index + 1,
+                        query_metadata=query_metadata.to_dict(),
+                    )
                 evaluated_traces.append(candidate_trace)
-                if is_reusable_decision(candidate_trace.decision):
+                if (
+                    safe_candidate is None
+                    and is_reusable_decision(candidate_trace.decision)
+                ):
                     safe_candidate = candidate
-                    break
 
             if safe_candidate is not None:
                 cache_hits += 1
@@ -718,7 +785,17 @@ def run_compatibility_cache_baseline(
                 tokens_saved += len(normalized_query.split())
                 tokens_saved += len(safe_candidate.answer.split())
                 if direction == "b_to_a":
-                    record_compatibility_agreement(record, "SAFE")
+                    winning = next(
+                        trace
+                        for trace in evaluated_traces
+                        if is_reusable_decision(trace.decision)
+                    )
+                    record_pair_observation(
+                        record,
+                        observed="SAFE",
+                        reason=winning.reason,
+                        traces=tuple(evaluated_traces),
+                    )
                     if record.reusable:
                         safe_reuse_hits += 1
                     else:
@@ -754,16 +831,12 @@ def run_compatibility_cache_baseline(
 
             cache_misses += 1
             if candidates:
-                if evaluated_traces:
-                    aggregate = resolve_candidate_traces(
-                        tuple(evaluated_traces),
-                        strategy="C",
-                    )
-                    decision = aggregate.decision
-                    reason = aggregate.reason
-                else:
-                    decision = "UNCERTAIN"
-                    reason = "no_decision"
+                aggregate = resolve_candidate_traces(
+                    tuple(evaluated_traces),
+                    strategy="C",
+                )
+                decision = aggregate.decision
+                reason = aggregate.reason
                 decision_counts[decision] = decision_counts.get(decision, 0) + 1
                 record_breakdown(query_metadata, decision)
                 if decision == "UNCERTAIN":
@@ -774,7 +847,12 @@ def run_compatibility_cache_baseline(
                     failure_categories.get(category, 0) + 1
                 )
                 if direction == "b_to_a":
-                    record_compatibility_agreement(record, decision)
+                    record_pair_observation(
+                        record,
+                        observed=decision,
+                        reason=reason,
+                        traces=tuple(evaluated_traces),
+                    )
                     failure_category = None
                     if record.reusable:
                         failure_category = "false_negative"
@@ -809,26 +887,40 @@ def run_compatibility_cache_baseline(
                             )
                         )
             else:
-                decision_counts["MISS"] = decision_counts.get("MISS", 0) + 1
-                record_breakdown(query_metadata, "GENERATED")
+                empty_result = resolve_candidate_traces((), strategy="C")
+                decision_counts[empty_result.decision] = (
+                    decision_counts.get(empty_result.decision, 0) + 1
+                )
+                record_breakdown(query_metadata, empty_result.decision)
                 failure_categories["semantic_miss"] = (
                     failure_categories.get("semantic_miss", 0) + 1
                 )
-                if direction == "b_to_a" and record.reusable:
-                    failure_examples.append(
-                        {
-                            "id": record.id,
-                            "direction": direction,
-                            "query_a": record.query_a,
-                            "query_b": record.query_b,
-                            "similarity": None,
-                            "predicted_decision": "MISS",
-                            "expected_reusable": record.reusable,
-                            "expected_compatibility": record.compatibility_label,
-                            "reason": "no_candidate",
-                            "failure_category": "false_negative",
-                        }
+                if direction == "b_to_a":
+                    record_pair_observation(
+                        record,
+                        observed=empty_result.decision,
+                        reason=empty_result.reason,
+                        traces=(),
                     )
+                    if record.reusable:
+                        failure_examples.append(
+                            example_with_labels(
+                                {
+                                    "id": record.id,
+                                    "direction": direction,
+                                    "query_a": record.query_a,
+                                    "query_b": record.query_b,
+                                    "similarity": None,
+                                    "predicted_decision": empty_result.decision,
+                                    "expected_reusable": record.reusable,
+                                    "expected_compatibility": record.compatibility_label,
+                                    "reason": empty_result.reason,
+                                    "failure_category": "false_negative",
+                                },
+                                record,
+                                empty_result.decision,
+                            )
+                        )
             result = model_client.generate(normalized_query)
             generated_requests += 1
             input_tokens += result.input_tokens
@@ -931,6 +1023,8 @@ def run_compatibility_cache_baseline(
             decision_counts=decision_counts,
         ),
         false_positive_examples=false_positive_examples,
+        observed_pair_records=observed_pair_records,
+        disagreement_class_counts=disagreement_class_counts,
     )
 
 

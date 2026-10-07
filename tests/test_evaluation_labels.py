@@ -3,8 +3,10 @@ from pydantic import ValidationError
 
 from sscre.benchmark import BenchmarkRecord
 from sscre.evaluation_labels import (
+    DISAGREEMENT_CLASSES,
     EvaluationLabelRecordValidator,
     build_evaluation_labels,
+    classify_compatibility_disagreement,
     correctness_metrics_bucket,
     expected_compatibility_decision,
     normalized_correctness_label,
@@ -88,3 +90,76 @@ def test_evaluation_artifact_keeps_labels_separate() -> None:
     assert payload["preference"]["applicable"] is False
 
     EvaluationLabelRecordValidator.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    ("expected", "observed", "reason", "has_traces", "classified"),
+    [
+        ("SAFE", "SAFE", "compatible_metadata", True, None),
+        (
+            "SAFE",
+            "UNSAFE",
+            "constraint_mismatch:language",
+            True,
+            "evaluator_behavior",
+        ),
+        (
+            "SAFE",
+            "UNCERTAIN",
+            "missing_intent_evidence",
+            True,
+            "metadata_insufficiency",
+        ),
+        (
+            "SAFE",
+            "UNSAFE",
+            "cache_control_expired",
+            True,
+            "freshness_policy",
+        ),
+        (
+            "SAFE",
+            "UNSAFE",
+            "no candidates were retrieved",
+            False,
+            "retrieval_miss",
+        ),
+        (
+            "UNCERTAIN",
+            "UNSAFE",
+            "all candidates were incompatible",
+            True,
+            "evaluator_behavior",
+        ),
+        (
+            "UNSAFE",
+            "SAFE",
+            "compatible_metadata",
+            True,
+            "evaluator_behavior",
+        ),
+        (
+            "UNCERTAIN",
+            "UNSAFE",
+            "benchmark pair is underspecified",
+            True,
+            "benchmark_data_limitation",
+        ),
+    ],
+)
+def test_classify_compatibility_disagreement(
+    expected: str,
+    observed: str,
+    reason: str,
+    has_traces: bool,
+    classified: str | None,
+) -> None:
+    result = classify_compatibility_disagreement(
+        expected_decision=expected,  # type: ignore[arg-type]
+        observed_decision=observed,  # type: ignore[arg-type]
+        reason=reason,
+        has_traces=has_traces,
+    )
+    assert result == classified
+    if result is not None:
+        assert result in DISAGREEMENT_CLASSES
