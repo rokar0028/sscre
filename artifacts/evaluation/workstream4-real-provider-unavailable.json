@@ -18,8 +18,42 @@
     "total_estimated": null,
     "wrapper": null
   },
-  "execution_timestamp": "2026-10-07T16:18:19.008234+00:00",
-  "git_commit": "6607193d4e7448eae15b03cf0cc5082f50322316",
+  "execution_timestamp": "2026-10-07T16:43:08.937690+00:00",
+  "failures": [
+    {
+      "category": "authentication",
+      "count": 0
+    },
+    {
+      "category": "authorization",
+      "count": 0
+    },
+    {
+      "category": "malformed_response",
+      "count": 0
+    },
+    {
+      "category": "permanent_provider",
+      "count": 0
+    },
+    {
+      "category": "rate_limited",
+      "count": 0
+    },
+    {
+      "category": "timeout",
+      "count": 0
+    },
+    {
+      "category": "transient_provider",
+      "count": 0
+    },
+    {
+      "category": "validation",
+      "count": 0
+    }
+  ],
+  "git_commit": "045cd71f0edde6217824aa3dc077e3a7209d4cab",
   "latency_ms": {
     "embedding": null,
     "generation": null,
@@ -45,6 +79,14 @@
     "embedding": 0,
     "generation": 0,
     "retries": 0
+  },
+  "runtime_versions": {
+    "fastapi": "0.142.2",
+    "provider_api": "openai-compatible-http-v1",
+    "provider_sdk": null,
+    "pytest": "9.1.1",
+    "python": "3.14.5",
+    "sscre": "0.1.0"
   },
   "schema_version": "real-provider-measurement-1.0",
   "status": "unavailable",

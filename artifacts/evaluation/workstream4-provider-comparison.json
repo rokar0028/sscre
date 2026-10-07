@@ -3,10 +3,11 @@
     "Synthetic and real-provider values remain separate; no combined average is computed.",
     "Unavailable real-provider values remain null.",
     "Synthetic zero-cost placeholders are not real-provider costs.",
-    "Generated-answer quality is not inferred from synthetic text."
+    "Generated-answer quality is not inferred from synthetic text.",
+    "Compare latency and cost only when provider, endpoint origin, generation model, and embedding model match; otherwise treat differences as configuration drift, not cache behavior."
   ],
   "dataset_version": "reviewed-query-pairs-1.1",
-  "execution_timestamp": "2026-10-07T16:18:19.180391+00:00",
+  "execution_timestamp": "2026-10-07T17:06:49.445525+00:00",
   "limitations": [
     "No credentialed real-provider request was made.",
     "Synthetic measurements were not substituted.",
