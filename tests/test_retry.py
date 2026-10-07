@@ -112,3 +112,36 @@ def test_retry_does_not_sleep_past_elapsed_budget() -> None:
 
     assert attempts == 1
     assert delays == []
+
+
+def test_retry_stops_when_total_budget_is_exhausted() -> None:
+    attempts = 0
+    delays: list[float] = []
+    current_time = 0.0
+
+    def clock() -> float:
+        return current_time
+
+    def sleep_fn(delay: float) -> None:
+        nonlocal current_time
+        delays.append(delay)
+        current_time += delay
+
+    def operation() -> None:
+        nonlocal attempts
+        attempts += 1
+        raise RetryableError()
+
+    with pytest.raises(RetryableError):
+        run_with_bounded_retries(
+            operation,
+            retry_limit=3,
+            min_backoff_seconds=2,
+            max_backoff_seconds=2,
+            max_elapsed_seconds=3,
+            sleep_fn=sleep_fn,
+            clock_fn=clock,
+        )
+
+    assert attempts == 2
+    assert delays == [2]

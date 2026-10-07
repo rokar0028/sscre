@@ -63,7 +63,6 @@ def _config(**overrides) -> RealProviderConfig:
         "request_timeout_seconds": 30,
         "generation_timeout_seconds": 25,
         "embedding_timeout_seconds": 5,
-        "connect_timeout_seconds": 2,
         "retry_limit": 0,
         "min_backoff_seconds": 0,
         "max_backoff_seconds": 1,
@@ -128,7 +127,7 @@ def test_invalid_provider_token_counts_are_rejected(usage: dict) -> None:
     assert exc_info.value.category == "malformed_response"
 
 
-def test_urllib_timeout_maps_to_timeout_category(monkeypatch) -> None:
+def test_urllib_connection_timeout_maps_to_timeout_category(monkeypatch) -> None:
     def raise_timeout(*_args, **_kwargs):
         raise TimeoutError("timed out")
 
@@ -137,6 +136,35 @@ def test_urllib_timeout_maps_to_timeout_category(monkeypatch) -> None:
 
     with pytest.raises(RemoteLLMError) as exc_info:
         transport.post(
+            "https://api.example.test/v1/chat/completions",
+            headers={},
+            payload={"model": "m", "messages": []},
+            timeout_seconds=5,
+        )
+
+    assert exc_info.value.category == "timeout"
+
+
+def test_urllib_read_timeout_maps_to_timeout_category(monkeypatch) -> None:
+    class TimedOutResponse:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self, _limit):
+            raise TimeoutError("read timed out")
+
+    monkeypatch.setattr(
+        "sscre.remote_llm.urlopen",
+        lambda *_args, **_kwargs: TimedOutResponse(),
+    )
+
+    with pytest.raises(RemoteLLMError) as exc_info:
+        UrllibJSONTransport().post(
             "https://api.example.test/v1/chat/completions",
             headers={},
             payload={"model": "m", "messages": []},
@@ -165,6 +193,23 @@ def test_missing_usage_is_explicitly_estimated() -> None:
     )
 
     assert result.input_tokens == 2
+    assert result.output_tokens == 3
+    assert result.usage_source == "estimated"
+
+
+def test_partial_usage_estimates_only_missing_generation_field() -> None:
+    transport = FakeTransport(
+        response={
+            "choices": [{"message": {"content": "one two three"}}],
+            "usage": {"prompt_tokens": 4},
+        }
+    )
+
+    result = OpenAICompatibleLLMClient(_config(), transport=transport).generate(
+        "one two"
+    )
+
+    assert result.input_tokens == 4
     assert result.output_tokens == 3
     assert result.usage_source == "estimated"
 

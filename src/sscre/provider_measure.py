@@ -209,6 +209,8 @@ def build_live_measurement(
     embedding_input_tokens = 0
     generation_calls = 0
     embedding_calls = 0
+    generation_attempts = 0
+    embedding_attempts = 0
     retry_total = 0
     cost_generation = 0.0
     cost_embedding = 0.0
@@ -220,6 +222,7 @@ def build_live_measurement(
         query = record.query_a
         record_started = datetime.now(timezone.utc)
         try:
+            embedding_attempts += 1
             embedding_result = embed_fn(query)
             embedding_calls += 1
             embedding_latencies.append(embedding_result.latency_ms)
@@ -227,6 +230,7 @@ def build_live_measurement(
             usage_sources[embedding_result.usage_source] += 1
             retry_total += embedding_result.retry_count
 
+            generation_attempts += 1
             generation_result = generate_fn(query)
             generation_calls += 1
             generation_latencies.append(generation_result.latency_ms)
@@ -300,6 +304,14 @@ def build_live_measurement(
         },
         "requests": {
             "count": len(records),
+            "attempted": generation_attempts + embedding_attempts,
+            "successful": generation_calls + embedding_calls,
+            "failed": (
+                generation_attempts
+                + embedding_attempts
+                - generation_calls
+                - embedding_calls
+            ),
             "generation": generation_calls,
             "embedding": embedding_calls,
             "retries": retry_total,

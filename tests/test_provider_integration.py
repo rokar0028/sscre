@@ -36,7 +36,6 @@ def _enable_provider(monkeypatch) -> None:
         "SSCRE_PROVIDER_REQUEST_TIMEOUT_SECONDS": "30",
         "SSCRE_PROVIDER_GENERATION_TIMEOUT_SECONDS": "25",
         "SSCRE_PROVIDER_EMBEDDING_TIMEOUT_SECONDS": "5",
-        "SSCRE_PROVIDER_CONNECT_TIMEOUT_SECONDS": "2",
         "SSCRE_PROVIDER_RETRY_LIMIT": "0",
         "SSCRE_PROVIDER_MIN_BACKOFF_SECONDS": "0",
         "SSCRE_PROVIDER_MAX_BACKOFF_SECONDS": "1",
@@ -635,5 +634,4 @@ def test_provider_mode_does_not_change_candidate_ordering_or_freshness_decisions
         (trace["decision"], trace["candidate_order"])
         for trace in provider_body["candidate_traces"]
     ]
-
 

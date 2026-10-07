@@ -18,6 +18,7 @@ MAX_ENDPOINT_LENGTH = 2048
 MAX_REQUEST_PARAMETERS = 32
 MAX_REQUEST_PARAMETER_LENGTH = 128
 _RESERVED_REQUEST_PARAMETER_KEYS = frozenset({"model", "messages", "input"})
+_LOCAL_HOSTS = frozenset({"localhost", "127.0.0.1", "::1"})
 
 
 def _required_environment(name: str) -> str:
@@ -80,7 +81,6 @@ class RealProviderConfig:
     request_timeout_seconds: float
     generation_timeout_seconds: float
     embedding_timeout_seconds: float
-    connect_timeout_seconds: float
     retry_limit: int
     min_backoff_seconds: float
     max_backoff_seconds: float
@@ -117,6 +117,8 @@ class RealProviderConfig:
         parsed = urlsplit(self.endpoint)
         if parsed.scheme not in {"http", "https"} or not parsed.netloc:
             raise ValueError("endpoint must use an http or https URL")
+        if parsed.scheme == "http" and parsed.hostname not in _LOCAL_HOSTS:
+            raise ValueError("credentialed provider endpoints must use https")
         if parsed.username is not None or parsed.password is not None:
             raise ValueError("endpoint must not include user info")
         if parsed.query:
@@ -130,7 +132,6 @@ class RealProviderConfig:
             "request_timeout_seconds",
             "generation_timeout_seconds",
             "embedding_timeout_seconds",
-            "connect_timeout_seconds",
             "max_retry_elapsed_seconds",
         ):
             value = getattr(self, name)
@@ -140,8 +141,6 @@ class RealProviderConfig:
             raise ValueError("generation timeout exceeds request timeout")
         if self.embedding_timeout_seconds > self.request_timeout_seconds:
             raise ValueError("embedding timeout exceeds request timeout")
-        if self.connect_timeout_seconds > self.request_timeout_seconds:
-            raise ValueError("connect timeout exceeds request timeout")
         if self.max_retry_elapsed_seconds > self.request_timeout_seconds:
             raise ValueError("retry budget exceeds request timeout")
         if (
@@ -224,7 +223,6 @@ class RealProviderConfig:
             "request_timeout_seconds": self.request_timeout_seconds,
             "generation_timeout_seconds": self.generation_timeout_seconds,
             "embedding_timeout_seconds": self.embedding_timeout_seconds,
-            "connect_timeout_seconds": self.connect_timeout_seconds,
             "retry_limit": self.retry_limit,
             "min_backoff_seconds": self.min_backoff_seconds,
             "max_backoff_seconds": self.max_backoff_seconds,
@@ -272,10 +270,6 @@ class RealProviderConfig:
             ),
             embedding_timeout_seconds=_environment_float(
                 "SSCRE_PROVIDER_EMBEDDING_TIMEOUT_SECONDS",
-                minimum=0.001,
-            ),
-            connect_timeout_seconds=_environment_float(
-                "SSCRE_PROVIDER_CONNECT_TIMEOUT_SECONDS",
                 minimum=0.001,
             ),
             retry_limit=_environment_int("SSCRE_PROVIDER_RETRY_LIMIT"),

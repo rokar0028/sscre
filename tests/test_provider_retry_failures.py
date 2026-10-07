@@ -77,7 +77,6 @@ def _config(**overrides) -> RealProviderConfig:
         "request_timeout_seconds": 30,
         "generation_timeout_seconds": 25,
         "embedding_timeout_seconds": 5,
-        "connect_timeout_seconds": 2,
         "retry_limit": 0,
         "min_backoff_seconds": 0,
         "max_backoff_seconds": 1,

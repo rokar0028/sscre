@@ -19,7 +19,6 @@ def _enable_provider(monkeypatch, **overrides) -> None:
         "SSCRE_PROVIDER_REQUEST_TIMEOUT_SECONDS": "30",
         "SSCRE_PROVIDER_GENERATION_TIMEOUT_SECONDS": "25",
         "SSCRE_PROVIDER_EMBEDDING_TIMEOUT_SECONDS": "5",
-        "SSCRE_PROVIDER_CONNECT_TIMEOUT_SECONDS": "2",
         "SSCRE_PROVIDER_RETRY_LIMIT": "2",
         "SSCRE_PROVIDER_MIN_BACKOFF_SECONDS": "0.1",
         "SSCRE_PROVIDER_MAX_BACKOFF_SECONDS": "2",
@@ -94,6 +93,7 @@ def test_invalid_numeric_configuration_is_rejected(
     "endpoint",
     [
         "ftp://api.example.test/v1",
+        "http://api.example.test/v1",
         "https://user:password@api.example.test/v1",
         "https://api.example.test/v1?api_key=secret",
         "https://api.example.test/v1#fragment",
@@ -104,6 +104,30 @@ def test_endpoint_must_be_safe_http_url(monkeypatch, endpoint: str) -> None:
 
     with pytest.raises(ValueError, match="endpoint"):
         RealProviderConfig.from_environment()
+
+
+def test_local_http_endpoint_is_allowed_for_bounded_test_transport() -> None:
+    config = RealProviderConfig(
+        provider="provider",
+        endpoint="http://127.0.0.1:8080/v1",
+        generation_model="generation",
+        embedding_model="embedding",
+        embedding_dimension=8,
+        request_timeout_seconds=30,
+        generation_timeout_seconds=25,
+        embedding_timeout_seconds=5,
+        retry_limit=0,
+        min_backoff_seconds=0,
+        max_backoff_seconds=1,
+        max_retry_elapsed_seconds=5,
+        experiment_id="experiment",
+        dataset_version="dataset",
+        split="development",
+        pricing_schedule_id="prices",
+        credential="test-credential",
+    )
+
+    assert config.endpoint_origin == "http://127.0.0.1:8080"
 
 
 def test_endpoint_host_allow_list_is_enforced(monkeypatch) -> None:
@@ -127,7 +151,6 @@ def test_request_parameters_cannot_override_reserved_fields() -> None:
             request_timeout_seconds=30,
             generation_timeout_seconds=25,
             embedding_timeout_seconds=5,
-            connect_timeout_seconds=2,
             retry_limit=0,
             min_backoff_seconds=0,
             max_backoff_seconds=1,
@@ -151,7 +174,6 @@ def test_request_parameters_cannot_contain_credentials() -> None:
             request_timeout_seconds=30,
             generation_timeout_seconds=25,
             embedding_timeout_seconds=5,
-            connect_timeout_seconds=2,
             retry_limit=0,
             min_backoff_seconds=0,
             max_backoff_seconds=1,
@@ -175,7 +197,6 @@ def test_timeout_relationships_are_validated() -> None:
             request_timeout_seconds=10,
             generation_timeout_seconds=11,
             embedding_timeout_seconds=5,
-            connect_timeout_seconds=2,
             retry_limit=0,
             min_backoff_seconds=0,
             max_backoff_seconds=1,
@@ -198,7 +219,6 @@ def test_provider_timeout_and_retry_budget_must_fit_request_timeout() -> None:
             request_timeout_seconds=30,
             generation_timeout_seconds=25,
             embedding_timeout_seconds=5,
-            connect_timeout_seconds=2,
             retry_limit=1,
             min_backoff_seconds=0,
             max_backoff_seconds=1,

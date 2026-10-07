@@ -23,7 +23,6 @@ def _provider_config() -> RealProviderConfig:
         request_timeout_seconds=30,
         generation_timeout_seconds=25,
         embedding_timeout_seconds=5,
-        connect_timeout_seconds=2,
         retry_limit=0,
         min_backoff_seconds=0,
         max_backoff_seconds=1,
@@ -112,3 +111,25 @@ def test_live_measurement_aggregates_without_storing_raw_content() -> None:
     assert payload["tokens"]["generation_input"] > 0
     assert "redacted answer" not in encoded
     assert "Write Python" not in encoded
+
+
+def test_live_measurement_distinguishes_attempted_and_successful_calls() -> None:
+    def fail_embed(_text: str) -> EmbeddingResult:
+        raise RuntimeError("provider unavailable")
+
+    def fail_generate(_query: str) -> LLMResult:
+        raise AssertionError("generation must not run after embedding failure")
+
+    payload = build_live_measurement(
+        benchmark_path=ROOT / "benchmarks" / "development.jsonl",
+        config_path=ROOT / "experiments" / "evaluation_config.json",
+        provider_config=_provider_config(),
+        generate=fail_generate,
+        embed=fail_embed,
+    )
+
+    record_count = payload["benchmark"]["record_count"]
+    assert payload["requests"]["count"] == record_count
+    assert payload["requests"]["attempted"] == record_count
+    assert payload["requests"]["successful"] == 0
+    assert payload["requests"]["failed"] == record_count
