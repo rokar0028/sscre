@@ -20,6 +20,9 @@ alwaysApply: true
   permits; report any skipped or unavailable verification explicitly.
 - On Windows PowerShell, chain shell commands with `;`, not `&&` (unless the
   shell explicitly supports `&&`).
+- On Windows PowerShell, do not use bash-style commit HEREDOCs
+  (`$(cat <<'EOF' ...)`); use `git commit -m "subject" -m "body"` or pipe a
+  here-string to `git commit -F -`.
 
 ## Git hygiene (when the user requests commits)
 
@@ -34,3 +37,7 @@ alwaysApply: true
 - Review `git status` before staging; avoid blind `git add .` when unrelated
   files are present.
 - Run the relevant tests before each commit and report pass, fail, or skip.
+- Run staging and `git commit` commands sequentially, not in parallel, to avoid
+  `.git/index.lock` failures.
+- When testing `create_app` with `runtime_profile="production"`, pass an in-memory
+  `repository=` unless the test intentionally exercises PostgreSQL.

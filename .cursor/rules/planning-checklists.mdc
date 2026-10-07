@@ -13,6 +13,8 @@ alwaysApply: true
   lists are study topics, not implementation or verification checklists.
 - For verification checkboxes, record or link the command and result when the
   evidence is not obvious from the changed files.
+- Before running or recording a verification command, confirm every referenced
+  file, test path, marker, and CLI option exists in the current checkout.
 - Do not mark full-suite, integration, or lint checks complete when they were
   not run successfully; distinguish unavailable tooling from a clean result.
 - Recheck broad verification claims after later milestones change the codebase,
@@ -21,3 +23,6 @@ alwaysApply: true
   progresses.
 - Do not commit or push planning-document changes without explicit user
   approval.
+- When closing a workstream milestone, sync the plan **Status**, **Execution
+  sequence**, **Acceptance criteria**, and linked **evidence** file so unchecked
+  boxes do not contradict implemented code or recorded deferrals.
