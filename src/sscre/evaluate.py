@@ -29,6 +29,10 @@ from sscre.benchmark_splits import (
     validate_benchmark_dataset,
 )
 from sscre import __version__
+from sscre.evaluation_statistics import (
+    apply_statistics_config_defaults,
+    build_comparison_statistics,
+)
 from sscre.serialization import (
     attach_evaluation_report_schema,
     redact_operational_evaluation_report,
@@ -109,6 +113,7 @@ def _load_config(path: str | Path) -> dict[str, Any]:
     ):
         raise ValueError("max_false_positive_rate must be between 0 and 1")
     config["max_false_positive_rate"] = float(max_false_positive_rate)
+    apply_statistics_config_defaults(config)
     return config
 
 
@@ -273,6 +278,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Require final review status on every source record.",
     )
+    parser.add_argument(
+        "--no-statistics",
+        action="store_true",
+        help="Omit confidence-interval statistics from evaluation reports.",
+    )
     return parser
 
 
@@ -288,6 +298,7 @@ def main(argv: list[str] | None = None) -> int:
             require_final_review=require_final_review,
         )
         config = _load_config(args.config)
+        attach_statistics = not args.no_statistics
         manifest = _validate_split(
             benchmark_path,
             args.split,
@@ -356,31 +367,38 @@ def main(argv: list[str] | None = None) -> int:
                 if (example["id"], example["direction"])
                 not in compatibility_false_positive_keys
             ]
-            payload = redact_operational_evaluation_report(
-                attach_evaluation_report_schema(
-                    {
-                        **metadata,
-                        "baseline": "comparison",
-                        "threshold_selection": asdict(selection),
-                        "baselines": {
-                            "no-cache": asdict(no_cache_report),
-                            "exact-cache": asdict(exact_cache_report),
-                            "embedding-cache": asdict(embedding_report),
-                            "compatibility-cache": asdict(compatibility_report),
-                        },
-                        "failure_gallery": {
-                            "embedding_only_false_positives": (
-                                embedding_report.false_positive_examples
-                            ),
-                            "embedding_only_false_positives_caught_by_strategy_c": (
-                                caught_embedding_false_positives
-                            ),
-                            "strategy_c_failures": (
-                                compatibility_report.failure_examples
-                            ),
-                        },
-                    }
+            baseline_payloads = {
+                "no-cache": asdict(no_cache_report),
+                "exact-cache": asdict(exact_cache_report),
+                "embedding-cache": asdict(embedding_report),
+                "compatibility-cache": asdict(compatibility_report),
+            }
+            comparison_body: dict[str, Any] = {
+                **metadata,
+                "baseline": "comparison",
+                "measurement_environment": "synthetic_replay",
+                "threshold_selection": asdict(selection),
+                "baselines": baseline_payloads,
+                "failure_gallery": {
+                    "embedding_only_false_positives": (
+                        embedding_report.false_positive_examples
+                    ),
+                    "embedding_only_false_positives_caught_by_strategy_c": (
+                        caught_embedding_false_positives
+                    ),
+                    "strategy_c_failures": compatibility_report.failure_examples,
+                },
+            }
+            if attach_statistics:
+                comparison_body["statistics"] = build_comparison_statistics(
+                    baseline_payloads,
+                    config,
+                    selected_threshold=selection.selected_threshold,
+                    selection_rule=selection.selection_rule,
+                    max_false_positive_rate=config["max_false_positive_rate"],
                 )
+            payload = redact_operational_evaluation_report(
+                attach_evaluation_report_schema(comparison_body)
             )
             output_path = Path(args.output)
             output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -390,7 +408,13 @@ def main(argv: list[str] | None = None) -> int:
             )
         elif args.baseline == "no-cache":
             report = run_no_cache_baseline(records, **common_options)
-            save_no_cache_report(report, args.output, metadata=metadata)
+            save_no_cache_report(
+                report,
+                args.output,
+                metadata=metadata,
+                evaluation_config=config,
+                attach_statistics=attach_statistics,
+            )
         elif args.baseline == "exact-cache":
             report = run_exact_cache_baseline(
                 records,
@@ -398,7 +422,13 @@ def main(argv: list[str] | None = None) -> int:
                 cache_lookup_cost_usd=config["cache_lookup_cost_usd"],
                 preprocessing_cost_usd=config["preprocessing_cost_usd"],
             )
-            save_exact_cache_report(report, args.output, metadata=metadata)
+            save_exact_cache_report(
+                report,
+                args.output,
+                metadata=metadata,
+                evaluation_config=config,
+                attach_statistics=attach_statistics,
+            )
         elif args.baseline == "compatibility-cache":
             selection = _select_development_threshold(benchmark_path, config)
             report = run_compatibility_cache_baseline(
@@ -423,6 +453,8 @@ def main(argv: list[str] | None = None) -> int:
                 report,
                 args.output,
                 metadata=metadata,
+                evaluation_config=config,
+                attach_statistics=attach_statistics,
             )
         elif args.split == "development":
             report = run_embedding_threshold_sweep(
@@ -437,7 +469,13 @@ def main(argv: list[str] | None = None) -> int:
                 cache_lookup_cost_usd=config["cache_lookup_cost_usd"],
                 preprocessing_cost_usd=config["preprocessing_cost_usd"],
             )
-            save_embedding_sweep_report(report, args.output, metadata=metadata)
+            save_embedding_sweep_report(
+                report,
+                args.output,
+                metadata=metadata,
+                evaluation_config=config,
+                attach_statistics=attach_statistics,
+            )
         else:
             selection = _select_development_threshold(benchmark_path, config)
             report = run_embedding_cache_baseline(
@@ -458,7 +496,13 @@ def main(argv: list[str] | None = None) -> int:
                     "threshold_selection_rule": selection.selection_rule,
                 }
             )
-            save_embedding_cache_report(report, args.output, metadata=metadata)
+            save_embedding_cache_report(
+                report,
+                args.output,
+                metadata=metadata,
+                evaluation_config=config,
+                attach_statistics=attach_statistics,
+            )
     except (OSError, ValueError, TypeError) as exc:
         print(f"evaluation failed: {exc}", file=sys.stderr)
         return 2

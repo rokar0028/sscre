@@ -2,12 +2,13 @@
 
 import argparse
 import json
+import math
 import subprocess
 from time import perf_counter
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable, Mapping
 
 from sscre.cache import CacheEntry, InMemoryExactCache
 from sscre.metadata import extract_metadata
@@ -67,7 +68,108 @@ class StorageControlReport:
     reusable_opportunities: int
     safe_reuse_coverage: float
     expired_reuse_prevented: int
+    measurement_environment: str = "synthetic_storage_simulation"
 
+
+def build_reuse_storage_pareto_point(
+    report: StorageControlReport | Mapping[str, object],
+    *,
+    evaluation_config: Mapping[str, object] | None = None,
+) -> dict[str, Any]:
+    """Map a storage report to the WS5 reuse-versus-storage point shape."""
+    source = asdict(report) if isinstance(report, StorageControlReport) else dict(report)
+    dataset_version = source.get("dataset_version")
+    if not isinstance(dataset_version, str) or not dataset_version:
+        raise ValueError("storage report requires a non-empty dataset_version")
+    measurement_environment = source.get("measurement_environment")
+    if measurement_environment not in (None, "synthetic_storage_simulation"):
+        raise ValueError(
+            "storage report must use synthetic_storage_simulation measurement_environment"
+        )
+
+    for field_name in ("total_bytes", "entries", "eviction_count"):
+        value = source.get(field_name)
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, int)
+            or value < 0
+        ):
+            raise ValueError(f"storage report {field_name} must be a non-negative integer")
+
+    safe_reuse_coverage = source.get("safe_reuse_coverage")
+    if (
+        isinstance(safe_reuse_coverage, bool)
+        or not isinstance(safe_reuse_coverage, (int, float))
+        or not math.isfinite(safe_reuse_coverage)
+        or not 0.0 <= safe_reuse_coverage <= 1.0
+    ):
+        raise ValueError("storage report safe_reuse_coverage must be between 0 and 1")
+
+    config_metadata: dict[str, object] = {}
+    if evaluation_config is not None:
+        if evaluation_config.get("dataset_version") != dataset_version:
+            raise ValueError(
+                "storage report and evaluation config dataset versions differ"
+            )
+        config_version = evaluation_config.get("config_version")
+        if not isinstance(config_version, str) or not config_version:
+            raise ValueError("evaluation config requires a non-empty config_version")
+        for field_name in (
+            "input_cost_per_1k_tokens",
+            "output_cost_per_1k_tokens",
+            "embedding_cost_per_1k_tokens",
+            "cache_lookup_cost_usd",
+            "preprocessing_cost_usd",
+        ):
+            value = evaluation_config.get(field_name, 0.0)
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(value)
+                or value < 0
+            ):
+                raise ValueError(f"evaluation config {field_name} must be non-negative")
+        for field_name in ("input_cost_per_1k_tokens", "output_cost_per_1k_tokens"):
+            if source.get(field_name, 0.0) != evaluation_config.get(field_name, 0.0):
+                raise ValueError(
+                    f"storage report and evaluation config {field_name} differ"
+                )
+        config_metadata = {
+            "config_version": config_version,
+            "costs": {
+                field_name: evaluation_config.get(field_name, 0.0)
+                for field_name in (
+                    "input_cost_per_1k_tokens",
+                    "output_cost_per_1k_tokens",
+                    "embedding_cost_per_1k_tokens",
+                    "cache_lookup_cost_usd",
+                    "preprocessing_cost_usd",
+                )
+            },
+        }
+
+    return {
+        "plane": "reuse_vs_storage",
+        "dataset_version": dataset_version,
+        "measurement_environment": "synthetic_storage_simulation",
+        "source": "storage_control_report",
+        **config_metadata,
+        "x": {
+            "metric": "safe_reuse_coverage",
+            "value": safe_reuse_coverage,
+            "direction": "maximize",
+        },
+        "y": {
+            "metric": "total_bytes",
+            "value": source["total_bytes"],
+            "direction": "minimize",
+        },
+        "storage": {
+            "total_bytes": source["total_bytes"],
+            "entries": source["entries"],
+            "eviction_count": source["eviction_count"],
+        },
+    }
 
 def _git_metadata() -> tuple[str | None, bool | None]:
     root = Path(__file__).resolve().parents[2]

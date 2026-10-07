@@ -74,12 +74,15 @@ def serialize_safety_result_for_boundary(
 
 
 def attach_evaluation_report_schema(payload: Mapping[str, object]) -> dict[str, object]:
-    return {
+    from sscre.evaluation_statistics import attach_evaluation_statistics_schema
+
+    envelope = {
         "schema_version": BOUNDARY_SERIALIZATION_VERSION,
         "safety_contract_version": SAFETY_EVALUATION_CONTRACT_VERSION,
         "trace_contract_version": CANDIDATE_TRACE_CONTRACT_VERSION,
         **dict(payload),
     }
+    return attach_evaluation_statistics_schema(envelope)
 
 
 _OPERATIONAL_QUERY_TEXT_KEYS = frozenset({"query_a", "query_b"})
@@ -135,6 +138,20 @@ def redact_operational_evaluation_report(
             for key, value in gallery.items()
         }
 
+    statistics = result.get("statistics")
+    if isinstance(statistics, dict):
+        validate_redacted_report_payload(statistics)
+
+    request_samples = result.get("request_samples")
+    if request_samples is not None:
+        validate_redacted_report_payload(request_samples)
+
+    baselines = result.get("baselines")
+    if isinstance(baselines, dict):
+        for baseline in baselines.values():
+            if isinstance(baseline, dict) and "request_samples" in baseline:
+                validate_redacted_report_payload(baseline["request_samples"])
+
     return result
 
 
@@ -165,6 +182,18 @@ def dumps_cache_decision_log(event: Mapping[str, object]) -> str:
 def validate_redacted_report_payload(payload: object) -> None:
     """Reject credential-like and raw-content keys from report artifacts."""
     _reject_forbidden_keys(payload)
+
+
+def validate_statistics_preserves_redaction(
+    payload: Mapping[str, object],
+) -> None:
+    """Ensure statistics blocks survive operational redaction unchanged."""
+    if "statistics" not in payload:
+        return
+    before = payload.get("statistics")
+    after = redact_operational_evaluation_report(payload).get("statistics")
+    if before != after:
+        raise ValueError("statistics block must be preserved by redaction")
 
 
 def _reject_forbidden_keys(payload: object) -> None:

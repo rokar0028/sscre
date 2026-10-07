@@ -32,6 +32,13 @@ from sscre.evaluation_labels import (
     correctness_metrics_bucket,
     expected_compatibility_decision,
 )
+from sscre.evaluation_statistics import (
+    RequestObservationSample,
+    RequestSampleCollector,
+    enrich_evaluation_payload,
+    estimate_request_observation_cost_usd,
+    reuse_outcome_indicators,
+)
 from sscre.safety import (
     CandidateTrace,
     QueryMetadata,
@@ -81,6 +88,7 @@ class NoCacheReport:
     cache_miss_categories: dict[str, int] = field(default_factory=dict)
     failure_categories: dict[str, int] = field(default_factory=dict)
     hit_rate: float = 0.0
+    request_samples: tuple[dict[str, object], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -109,6 +117,7 @@ class ExactCacheReport:
     estimated_cost_usd: float
     cache_miss_categories: dict[str, int]
     failure_categories: dict[str, int]
+    request_samples: tuple[dict[str, object], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -150,6 +159,7 @@ class EmbeddingCacheReport:
     estimated_cost_usd: float
     failure_categories: dict[str, int]
     false_positive_examples: list[dict[str, object]]
+    request_samples: tuple[dict[str, object], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -159,6 +169,7 @@ class EmbeddingThresholdSweepReport:
     thresholds: tuple[float, ...]
     selected_threshold: float
     selection_rule: str
+    constraint_satisfied: bool
     reports: tuple[EmbeddingCacheReport, ...]
 
 
@@ -210,6 +221,13 @@ class CompatibilityCacheReport:
     false_positive_examples: list[dict[str, object]]
     observed_pair_records: list[dict[str, object]]
     disagreement_class_counts: dict[str, int]
+    request_samples: tuple[dict[str, object], ...] = ()
+
+
+def _benchmark_strata(record: BenchmarkRecord) -> tuple[str | None, str | None]:
+    failure = record.failure_category
+    freshness = str(record.freshness_class)
+    return failure, freshness
 
 
 def run_no_cache_baseline(
@@ -219,24 +237,56 @@ def run_no_cache_baseline(
     llm_client: BaselineLLMClient | None = None,
     input_cost_per_1k_tokens: float = 0.0,
     output_cost_per_1k_tokens: float = 0.0,
+    collect_request_samples: bool = True,
 ) -> NoCacheReport:
     """Replay both query directions without performing cache lookup."""
     if input_cost_per_1k_tokens < 0 or output_cost_per_1k_tokens < 0:
         raise ValueError("token costs must not be negative")
 
     model_client = llm_client or MockLLMClient()
+    sample_collector = RequestSampleCollector(enabled=collect_request_samples)
     request_count = 0
     input_tokens = 0
     output_tokens = 0
     total_latency_ms = 0
 
     for record in records:
-        for query in (record.query_a, record.query_b):
+        failure_category, freshness_class = _benchmark_strata(record)
+        for direction, query in (
+            ("a_to_b", record.query_a),
+            ("b_to_a", record.query_b),
+        ):
             result = model_client.generate(normalize_query(query))
             request_count += 1
             input_tokens += result.input_tokens
             output_tokens += result.output_tokens
             total_latency_ms += result.latency_ms
+            sample_collector.record(
+                RequestObservationSample(
+                    pair_id=record.id,
+                    direction=direction,
+                    cache_hit=0,
+                    generated=1,
+                    false_positive=0,
+                    safe_reuse_hit=0,
+                    latency_ms=float(result.latency_ms),
+                    embedding_tokens=0,
+                    generation_input_tokens=result.input_tokens,
+                    generation_output_tokens=result.output_tokens,
+                    estimated_cost_usd=estimate_request_observation_cost_usd(
+                        generation_input_tokens=result.input_tokens,
+                        generation_output_tokens=result.output_tokens,
+                        embedding_tokens=0,
+                        input_cost_per_1k_tokens=input_cost_per_1k_tokens,
+                        output_cost_per_1k_tokens=output_cost_per_1k_tokens,
+                        embedding_cost_per_1k_tokens=0.0,
+                        cache_lookup_cost_usd=0.0,
+                        preprocessing_cost_usd=0.0,
+                    ),
+                    failure_category=failure_category,
+                    freshness_class=freshness_class,
+                )
+            )
 
     estimated_cost_usd = round(
         input_tokens * input_cost_per_1k_tokens / 1000
@@ -260,6 +310,7 @@ def run_no_cache_baseline(
         input_cost_per_1k_tokens=input_cost_per_1k_tokens,
         output_cost_per_1k_tokens=output_cost_per_1k_tokens,
         estimated_cost_usd=estimated_cost_usd,
+        request_samples=sample_collector.as_tuple(),
     )
 
 
@@ -272,6 +323,7 @@ def run_exact_cache_baseline(
     output_cost_per_1k_tokens: float = 0.0,
     cache_lookup_cost_usd: float = 0.0,
     preprocessing_cost_usd: float = 0.0,
+    collect_request_samples: bool = True,
 ) -> ExactCacheReport:
     """Replay both query directions with normalized exact-cache lookup."""
     costs = (
@@ -285,6 +337,7 @@ def run_exact_cache_baseline(
 
     model_client = llm_client or MockLLMClient()
     cache = InMemoryExactCache()
+    sample_collector = RequestSampleCollector(enabled=collect_request_samples)
     request_count = 0
     generated_requests = 0
     cache_hits = 0
@@ -300,6 +353,7 @@ def run_exact_cache_baseline(
     failure_categories: dict[str, int] = {}
 
     for record in records:
+        failure_category, freshness_class = _benchmark_strata(record)
         for direction, query in (("a_to_b", record.query_a), ("b_to_a", record.query_b)):
             started_at = perf_counter()
             normalized_query = normalize_query(query)
@@ -313,9 +367,43 @@ def run_exact_cache_baseline(
                 hit_output_tokens = len(cached_entry.answer.split())
                 input_tokens_saved += hit_input_tokens
                 output_tokens_saved += hit_output_tokens
-                if direction == "b_to_a" and record.reusable:
+                false_positive, safe_reuse_hit = reuse_outcome_indicators(
+                    direction=direction,
+                    reusable=record.reusable,
+                    served_reuse=True,
+                )
+                if safe_reuse_hit:
                     safe_reuse_hits += 1
-                total_latency_ms += int((perf_counter() - started_at) * 1000)
+                request_latency_ms = float(
+                    int((perf_counter() - started_at) * 1000)
+                )
+                total_latency_ms += int(request_latency_ms)
+                sample_collector.record(
+                    RequestObservationSample(
+                        pair_id=record.id,
+                        direction=direction,
+                        cache_hit=1,
+                        generated=0,
+                        false_positive=false_positive,
+                        safe_reuse_hit=safe_reuse_hit,
+                        latency_ms=request_latency_ms,
+                        embedding_tokens=0,
+                        generation_input_tokens=0,
+                        generation_output_tokens=0,
+                        estimated_cost_usd=estimate_request_observation_cost_usd(
+                            generation_input_tokens=0,
+                            generation_output_tokens=0,
+                            embedding_tokens=0,
+                            input_cost_per_1k_tokens=input_cost_per_1k_tokens,
+                            output_cost_per_1k_tokens=output_cost_per_1k_tokens,
+                            embedding_cost_per_1k_tokens=0.0,
+                            cache_lookup_cost_usd=cache_lookup_cost_usd,
+                            preprocessing_cost_usd=preprocessing_cost_usd,
+                        ),
+                        failure_category=failure_category,
+                        freshness_class=freshness_class,
+                    )
+                )
                 continue
 
             cache_misses += 1
@@ -325,6 +413,32 @@ def run_exact_cache_baseline(
             input_tokens += result.input_tokens
             output_tokens += result.output_tokens
             total_latency_ms += result.latency_ms
+            sample_collector.record(
+                RequestObservationSample(
+                    pair_id=record.id,
+                    direction=direction,
+                    cache_hit=0,
+                    generated=1,
+                    false_positive=0,
+                    safe_reuse_hit=0,
+                    latency_ms=float(result.latency_ms),
+                    embedding_tokens=0,
+                    generation_input_tokens=result.input_tokens,
+                    generation_output_tokens=result.output_tokens,
+                    estimated_cost_usd=estimate_request_observation_cost_usd(
+                        generation_input_tokens=result.input_tokens,
+                        generation_output_tokens=result.output_tokens,
+                        embedding_tokens=0,
+                        input_cost_per_1k_tokens=input_cost_per_1k_tokens,
+                        output_cost_per_1k_tokens=output_cost_per_1k_tokens,
+                        embedding_cost_per_1k_tokens=0.0,
+                        cache_lookup_cost_usd=cache_lookup_cost_usd,
+                        preprocessing_cost_usd=preprocessing_cost_usd,
+                    ),
+                    failure_category=failure_category,
+                    freshness_class=freshness_class,
+                )
+            )
             _insert_if_absent(
                 cache,
                 CacheEntry(
@@ -373,6 +487,7 @@ def run_exact_cache_baseline(
         estimated_cost_usd=estimated_cost_usd,
         cache_miss_categories=cache_miss_categories,
         failure_categories=failure_categories,
+        request_samples=sample_collector.as_tuple(),
     )
 
 
@@ -402,6 +517,7 @@ def run_embedding_cache_baseline(
     embedding_cost_per_1k_tokens: float = 0.0,
     cache_lookup_cost_usd: float = 0.0,
     preprocessing_cost_usd: float = 0.0,
+    collect_request_samples: bool = True,
 ) -> EmbeddingCacheReport:
     """Replay the development workload with embedding-only reuse."""
     if not math.isfinite(threshold) or not -1.0 <= threshold <= 1.0:
@@ -424,6 +540,7 @@ def run_embedding_cache_baseline(
         max_top_k=top_k,
         embedding_dimension=vector_client.config.dimension,
     )
+    sample_collector = RequestSampleCollector(enabled=collect_request_samples)
     request_count = 0
     generated_requests = 0
     cache_hits = 0
@@ -442,6 +559,7 @@ def run_embedding_cache_baseline(
     false_positive_examples: list[dict[str, object]] = []
 
     for record in records:
+        failure_category, freshness_class = _benchmark_strata(record)
         for direction, query in (
             ("a_to_b", record.query_a),
             ("b_to_a", record.query_b),
@@ -460,10 +578,15 @@ def run_embedding_cache_baseline(
                 cache_hits += 1
                 tokens_saved += len(normalized_query.split())
                 tokens_saved += len(candidate.answer.split())
+                false_positive, safe_reuse_hit = reuse_outcome_indicators(
+                    direction=direction,
+                    reusable=record.reusable,
+                    served_reuse=True,
+                )
                 if direction == "b_to_a":
-                    if record.reusable:
+                    if safe_reuse_hit:
                         safe_reuse_hits += 1
-                    else:
+                    elif false_positive:
                         unsafe_reuse_hits += 1
                         false_positive_examples.append(
                             {
@@ -475,12 +598,38 @@ def run_embedding_cache_baseline(
                                 "reason": record.reason,
                             }
                         )
-                request_latency_ms = (
+                request_latency_ms = float(
                     embedding_result.latency_ms
                     + int((perf_counter() - started_at) * 1000)
                 )
                 request_latencies.append(request_latency_ms)
-                total_latency_ms += request_latency_ms
+                total_latency_ms += int(request_latency_ms)
+                sample_collector.record(
+                    RequestObservationSample(
+                        pair_id=record.id,
+                        direction=direction,
+                        cache_hit=1,
+                        generated=0,
+                        false_positive=false_positive,
+                        safe_reuse_hit=safe_reuse_hit,
+                        latency_ms=request_latency_ms,
+                        embedding_tokens=embedding_result.input_tokens,
+                        generation_input_tokens=0,
+                        generation_output_tokens=0,
+                        estimated_cost_usd=estimate_request_observation_cost_usd(
+                            generation_input_tokens=0,
+                            generation_output_tokens=0,
+                            embedding_tokens=embedding_result.input_tokens,
+                            input_cost_per_1k_tokens=input_cost_per_1k_tokens,
+                            output_cost_per_1k_tokens=output_cost_per_1k_tokens,
+                            embedding_cost_per_1k_tokens=embedding_cost_per_1k_tokens,
+                            cache_lookup_cost_usd=cache_lookup_cost_usd,
+                            preprocessing_cost_usd=preprocessing_cost_usd,
+                        ),
+                        failure_category=failure_category,
+                        freshness_class=freshness_class,
+                    )
+                )
                 continue
 
             cache_misses += 1
@@ -492,9 +641,37 @@ def run_embedding_cache_baseline(
             generated_requests += 1
             input_tokens += result.input_tokens
             output_tokens += result.output_tokens
-            request_latency_ms = embedding_result.latency_ms + result.latency_ms
+            request_latency_ms = float(
+                embedding_result.latency_ms + result.latency_ms
+            )
             request_latencies.append(request_latency_ms)
-            total_latency_ms += request_latency_ms
+            total_latency_ms += int(request_latency_ms)
+            sample_collector.record(
+                RequestObservationSample(
+                    pair_id=record.id,
+                    direction=direction,
+                    cache_hit=0,
+                    generated=1,
+                    false_positive=0,
+                    safe_reuse_hit=0,
+                    latency_ms=request_latency_ms,
+                    embedding_tokens=embedding_result.input_tokens,
+                    generation_input_tokens=result.input_tokens,
+                    generation_output_tokens=result.output_tokens,
+                    estimated_cost_usd=estimate_request_observation_cost_usd(
+                        generation_input_tokens=result.input_tokens,
+                        generation_output_tokens=result.output_tokens,
+                        embedding_tokens=embedding_result.input_tokens,
+                        input_cost_per_1k_tokens=input_cost_per_1k_tokens,
+                        output_cost_per_1k_tokens=output_cost_per_1k_tokens,
+                        embedding_cost_per_1k_tokens=embedding_cost_per_1k_tokens,
+                        cache_lookup_cost_usd=cache_lookup_cost_usd,
+                        preprocessing_cost_usd=preprocessing_cost_usd,
+                    ),
+                    failure_category=failure_category,
+                    freshness_class=freshness_class,
+                )
+            )
             _insert_if_absent(
                 cache,
                 CacheEntry(
@@ -567,6 +744,7 @@ def run_embedding_cache_baseline(
         ),
         failure_categories={},
         false_positive_examples=false_positive_examples,
+        request_samples=sample_collector.as_tuple(),
     )
 
 
@@ -583,6 +761,7 @@ def run_compatibility_cache_baseline(
     embedding_cost_per_1k_tokens: float = 0.0,
     cache_lookup_cost_usd: float = 0.0,
     preprocessing_cost_usd: float = 0.0,
+    collect_request_samples: bool = True,
 ) -> CompatibilityCacheReport:
     """Replay the workload with rule-based compatibility-aware reuse."""
     if not math.isfinite(threshold) or not -1.0 <= threshold <= 1.0:
@@ -605,6 +784,7 @@ def run_compatibility_cache_baseline(
         max_top_k=top_k,
         embedding_dimension=vector_client.config.dimension,
     )
+    sample_collector = RequestSampleCollector(enabled=collect_request_samples)
     request_count = generated_requests = cache_hits = cache_misses = 0
     safe_reuse_hits = unsafe_reuse_hits = uncertain_decisions = 0
     reusable_opportunities = sum(record.reusable for record in records)
@@ -707,6 +887,7 @@ def run_compatibility_cache_baseline(
                 labels[label] = labels.get(label, 0) + 1
 
     for record in records:
+        failure_category, freshness_class = _benchmark_strata(record)
         compatibility_label_counts[record.compatibility_label] = (
             compatibility_label_counts.get(record.compatibility_label, 0) + 1
         )
@@ -784,6 +965,11 @@ def run_compatibility_cache_baseline(
                 record_breakdown(query_metadata, "SAFE")
                 tokens_saved += len(normalized_query.split())
                 tokens_saved += len(safe_candidate.answer.split())
+                false_positive, safe_reuse_hit = reuse_outcome_indicators(
+                    direction=direction,
+                    reusable=record.reusable,
+                    served_reuse=True,
+                )
                 if direction == "b_to_a":
                     winning = next(
                         trace
@@ -796,9 +982,9 @@ def run_compatibility_cache_baseline(
                         reason=winning.reason,
                         traces=tuple(evaluated_traces),
                     )
-                    if record.reusable:
+                    if safe_reuse_hit:
                         safe_reuse_hits += 1
-                    else:
+                    elif false_positive:
                         unsafe_reuse_hits += 1
                         example = example_with_labels(
                             {
@@ -821,21 +1007,50 @@ def run_compatibility_cache_baseline(
                         )
                         false_positive_examples.append(example)
                         failure_examples.append(example)
-                request_latency_ms = (
+                request_latency_ms = float(
                     embedding_result.latency_ms
                     + int((perf_counter() - started_at) * 1000)
                 )
                 request_latencies.append(request_latency_ms)
-                total_latency_ms += request_latency_ms
+                total_latency_ms += int(request_latency_ms)
+                sample_collector.record(
+                    RequestObservationSample(
+                        pair_id=record.id,
+                        direction=direction,
+                        cache_hit=1,
+                        generated=0,
+                        false_positive=false_positive,
+                        safe_reuse_hit=safe_reuse_hit,
+                        latency_ms=request_latency_ms,
+                        embedding_tokens=embedding_result.input_tokens,
+                        generation_input_tokens=0,
+                        generation_output_tokens=0,
+                        estimated_cost_usd=estimate_request_observation_cost_usd(
+                            generation_input_tokens=0,
+                            generation_output_tokens=0,
+                            embedding_tokens=embedding_result.input_tokens,
+                            input_cost_per_1k_tokens=input_cost_per_1k_tokens,
+                            output_cost_per_1k_tokens=output_cost_per_1k_tokens,
+                            embedding_cost_per_1k_tokens=embedding_cost_per_1k_tokens,
+                            cache_lookup_cost_usd=cache_lookup_cost_usd,
+                            preprocessing_cost_usd=preprocessing_cost_usd,
+                        ),
+                        observed_decision="SAFE",
+                        failure_category=failure_category,
+                        freshness_class=freshness_class,
+                    )
+                )
                 continue
 
             cache_misses += 1
+            request_decision: SafetyDecision | None = None
             if candidates:
                 aggregate = resolve_candidate_traces(
                     tuple(evaluated_traces),
                     strategy="C",
                 )
                 decision = aggregate.decision
+                request_decision = decision
                 reason = aggregate.reason
                 decision_counts[decision] = decision_counts.get(decision, 0) + 1
                 record_breakdown(query_metadata, decision)
@@ -888,6 +1103,7 @@ def run_compatibility_cache_baseline(
                         )
             else:
                 empty_result = resolve_candidate_traces((), strategy="C")
+                request_decision = empty_result.decision
                 decision_counts[empty_result.decision] = (
                     decision_counts.get(empty_result.decision, 0) + 1
                 )
@@ -925,9 +1141,38 @@ def run_compatibility_cache_baseline(
             generated_requests += 1
             input_tokens += result.input_tokens
             output_tokens += result.output_tokens
-            request_latency_ms = embedding_result.latency_ms + result.latency_ms
+            request_latency_ms = float(
+                embedding_result.latency_ms + result.latency_ms
+            )
             request_latencies.append(request_latency_ms)
-            total_latency_ms += request_latency_ms
+            total_latency_ms += int(request_latency_ms)
+            sample_collector.record(
+                RequestObservationSample(
+                    pair_id=record.id,
+                    direction=direction,
+                    cache_hit=0,
+                    generated=1,
+                    false_positive=0,
+                    safe_reuse_hit=0,
+                    latency_ms=request_latency_ms,
+                    embedding_tokens=embedding_result.input_tokens,
+                    generation_input_tokens=result.input_tokens,
+                    generation_output_tokens=result.output_tokens,
+                    estimated_cost_usd=estimate_request_observation_cost_usd(
+                        generation_input_tokens=result.input_tokens,
+                        generation_output_tokens=result.output_tokens,
+                        embedding_tokens=embedding_result.input_tokens,
+                        input_cost_per_1k_tokens=input_cost_per_1k_tokens,
+                        output_cost_per_1k_tokens=output_cost_per_1k_tokens,
+                        embedding_cost_per_1k_tokens=embedding_cost_per_1k_tokens,
+                        cache_lookup_cost_usd=cache_lookup_cost_usd,
+                        preprocessing_cost_usd=preprocessing_cost_usd,
+                    ),
+                    observed_decision=request_decision,
+                    failure_category=failure_category,
+                    freshness_class=freshness_class,
+                )
+            )
             _insert_if_absent(
                 cache,
                 CacheEntry(
@@ -1025,6 +1270,7 @@ def run_compatibility_cache_baseline(
         false_positive_examples=false_positive_examples,
         observed_pair_records=observed_pair_records,
         disagreement_class_counts=disagreement_class_counts,
+        request_samples=sample_collector.as_tuple(),
     )
 
 
@@ -1102,6 +1348,10 @@ def run_embedding_threshold_sweep(
         list(reports),
         max_false_positive_rate=max_false_positive_rate,
     )
+    constraint_satisfied = any(
+        report.false_positive_rate <= max_false_positive_rate
+        for report in reports
+    )
     return EmbeddingThresholdSweepReport(
         baseline="embedding-cache-threshold-sweep",
         dataset_version=dataset_version,
@@ -1111,6 +1361,7 @@ def run_embedding_threshold_sweep(
             "maximize safe reuse coverage subject to the development "
             f"false-positive rate <= {max_false_positive_rate}"
         ),
+        constraint_satisfied=constraint_satisfied,
         reports=reports,
     )
 
@@ -1125,9 +1376,17 @@ def _save_report(
     ),
     path: str | Path,
     metadata: Mapping[str, object] | None,
+    *,
+    evaluation_config: Mapping[str, object] | None = None,
+    attach_statistics: bool = True,
 ) -> None:
+    payload = enrich_evaluation_payload(
+        asdict(report),
+        evaluation_config,
+        attach_statistics=attach_statistics,
+    )
     payload = redact_operational_evaluation_report(
-        attach_evaluation_report_schema(asdict(report))
+        attach_evaluation_report_schema(payload)
     )
     if metadata:
         payload.update(metadata)
@@ -1144,9 +1403,17 @@ def save_no_cache_report(
     path: str | Path,
     *,
     metadata: Mapping[str, object] | None = None,
+    evaluation_config: Mapping[str, object] | None = None,
+    attach_statistics: bool = True,
 ) -> None:
     """Save a no-cache report as indented, machine-readable JSON."""
-    _save_report(report, path, metadata)
+    _save_report(
+        report,
+        path,
+        metadata,
+        evaluation_config=evaluation_config,
+        attach_statistics=attach_statistics,
+    )
 
 
 def save_exact_cache_report(
@@ -1154,9 +1421,17 @@ def save_exact_cache_report(
     path: str | Path,
     *,
     metadata: Mapping[str, object] | None = None,
+    evaluation_config: Mapping[str, object] | None = None,
+    attach_statistics: bool = True,
 ) -> None:
     """Save an exact-cache report as indented, machine-readable JSON."""
-    _save_report(report, path, metadata)
+    _save_report(
+        report,
+        path,
+        metadata,
+        evaluation_config=evaluation_config,
+        attach_statistics=attach_statistics,
+    )
 
 
 def save_embedding_sweep_report(
@@ -1164,9 +1439,17 @@ def save_embedding_sweep_report(
     path: str | Path,
     *,
     metadata: Mapping[str, object] | None = None,
+    evaluation_config: Mapping[str, object] | None = None,
+    attach_statistics: bool = True,
 ) -> None:
     """Save a development-only Strategy B threshold sweep report."""
-    _save_report(report, path, metadata)
+    _save_report(
+        report,
+        path,
+        metadata,
+        evaluation_config=evaluation_config,
+        attach_statistics=attach_statistics,
+    )
 
 
 def save_embedding_cache_report(
@@ -1174,9 +1457,17 @@ def save_embedding_cache_report(
     path: str | Path,
     *,
     metadata: Mapping[str, object] | None = None,
+    evaluation_config: Mapping[str, object] | None = None,
+    attach_statistics: bool = True,
 ) -> None:
     """Save a single Strategy B evaluation report."""
-    _save_report(report, path, metadata)
+    _save_report(
+        report,
+        path,
+        metadata,
+        evaluation_config=evaluation_config,
+        attach_statistics=attach_statistics,
+    )
 
 
 def save_compatibility_cache_report(
@@ -1184,6 +1475,14 @@ def save_compatibility_cache_report(
     path: str | Path,
     *,
     metadata: Mapping[str, object] | None = None,
+    evaluation_config: Mapping[str, object] | None = None,
+    attach_statistics: bool = True,
 ) -> None:
     """Save a single Strategy C evaluation report."""
-    _save_report(report, path, metadata)
+    _save_report(
+        report,
+        path,
+        metadata,
+        evaluation_config=evaluation_config,
+        attach_statistics=attach_statistics,
+    )

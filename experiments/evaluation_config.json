@@ -12,5 +12,11 @@
     0.95
   ],
   "embedding_top_k": 5,
-  "max_false_positive_rate": 0.0
+  "max_false_positive_rate": 0.0,
+  "confidence_level": 0.95,
+  "bootstrap_seed": 42,
+  "bootstrap_iterations": 1000,
+  "proportion_interval_method": "wilson",
+  "minimum_n_proportion": 1,
+  "minimum_n_bootstrap": 5
 }
