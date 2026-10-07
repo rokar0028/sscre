@@ -18,6 +18,8 @@ alwaysApply: true
 - Before finalizing substantive Python changes, ensure declared development
   dependencies are installed and run the full test suite when the environment
   permits; report any skipped or unavailable verification explicitly.
+- On Windows PowerShell, chain shell commands with `;`, not `&&` (unless the
+  shell explicitly supports `&&`).
 
 ## Git hygiene (when the user requests commits)
 
