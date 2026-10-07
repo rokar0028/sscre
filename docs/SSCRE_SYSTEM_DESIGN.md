@@ -345,10 +345,13 @@ SELECT id, query_hash, query_text, answer_text, metadata,
        constraint_fingerprint, freshness_class, ttl_expires_at,
        1 - (embedding <=> $1::vector) AS similarity
 FROM cache_entries
-WHERE ttl_expires_at IS NULL OR ttl_expires_at > now()
 ORDER BY embedding <=> $1::vector
 LIMIT $2;
 ```
+
+Nearest-neighbor search returns ineligible rows inside `top_k`. The request
+path records cache-control traces for those rows and serves a candidate only
+when the safety decision is `SAFE`.
 
 The current Milestone 7 implementation uses cosine distance from pgvector:
 `embedding <=> query_vector`. The reported similarity is `1 - distance`, so

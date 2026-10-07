@@ -58,6 +58,10 @@ and reports. Metadata is re-validated through `QueryMetadata` and limited to
 | `compatible_metadata` | `SAFE` |
 | `safety_validator_error` | `UNCERTAIN` |
 | `exact_query_hash_match` | `SAFE` (Strategy A exact-hash boundary trace) |
+| `cache_control_expired` | `UNSAFE` (freshness gate, `stage=retrieval`) |
+| `cache_control_dynamic_disabled` | `UNSAFE` (freshness gate) |
+| `cache_control_missing_expiration` | `UNCERTAIN` (freshness gate) |
+| `cache_control_invalid_expiration` | `UNCERTAIN` (freshness gate) |
 
 Aggregate resolver reasons (on `SafetyResult`, not candidate traces):
 
