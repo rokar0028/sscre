@@ -49,7 +49,8 @@ def evaluate_candidate(
 
     query_constraints = _constraints(query_metadata)
     candidate_constraints = _constraints(candidate.metadata)
-    for key in query_constraints.keys() & candidate_constraints.keys():
+    shared_keys = query_constraints.keys() & candidate_constraints.keys()
+    for key in sorted(shared_keys):
         if query_constraints[key] != candidate_constraints[key]:
             return CandidateTrace(
                 candidate.query_hash,
@@ -121,3 +122,28 @@ def evaluate_candidate(
         "SAFE",
         "compatible_metadata",
     )
+
+
+def evaluate_candidate_boundary(
+    query_metadata: QueryMetadata,
+    candidate: CacheCandidate,
+    *,
+    similarity_threshold: float,
+) -> CandidateTrace:
+    """Evaluate one candidate; map validator failures to ``UNCERTAIN``."""
+    try:
+        return evaluate_candidate(
+            query_metadata,
+            candidate,
+            similarity_threshold=similarity_threshold,
+        )
+    except Exception:
+        similarity = candidate.similarity
+        if not -1.0 <= similarity <= 1.0:
+            similarity = 0.0
+        return CandidateTrace(
+            candidate_query_hash=candidate.query_hash,
+            similarity=similarity,
+            decision="UNCERTAIN",
+            reason="safety_validator_error",
+        )

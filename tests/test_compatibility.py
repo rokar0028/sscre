@@ -205,6 +205,19 @@ def test_temporal_class_mismatch_is_uncertain() -> None:
     assert result.reason == "temporal_class_mismatch"
 
 
+def test_constraint_mismatch_uses_sorted_key() -> None:
+    result = evaluate_candidate(
+        metadata(constraints=(("version", "3"), ("language", "python"))),
+        candidate(
+            metadata(constraints=(("language", "java"), ("version", "2")))
+        ),
+        similarity_threshold=0.95,
+    )
+
+    assert result.decision == "UNSAFE"
+    assert result.reason == "constraint_mismatch:language"
+
+
 def test_threshold_must_be_valid() -> None:
     with pytest.raises(ValueError, match="similarity_threshold"):
         evaluate_candidate(
