@@ -1,0 +1,124 @@
+{
+  "comparison_rules": [
+    "Synthetic and real-provider values remain separate; no combined average is computed.",
+    "Unavailable real-provider values remain null.",
+    "Synthetic zero-cost placeholders are not real-provider costs.",
+    "Generated-answer quality is not inferred from synthetic text."
+  ],
+  "dataset_version": "reviewed-query-pairs-1.1",
+  "execution_timestamp": "2026-10-07T16:18:19.180391+00:00",
+  "limitations": [
+    "No credentialed real-provider request was made.",
+    "Synthetic measurements were not substituted.",
+    "Quality, latency, token, and cost conclusions remain unavailable."
+  ],
+  "measurement_environment": "comparison",
+  "rows": [
+    {
+      "metric": "request_count",
+      "real_provider": {
+        "artifact": "artifacts/evaluation/workstream4-real-provider-unavailable.json",
+        "measurement_environment": "real_provider",
+        "value": 0
+      },
+      "synthetic": {
+        "artifact": "artifacts/evaluation/workstream3-development.json",
+        "measurement_environment": "synthetic",
+        "value": 42
+      }
+    },
+    {
+      "metric": "generation_latency_ms",
+      "real_provider": {
+        "artifact": "artifacts/evaluation/workstream4-real-provider-unavailable.json",
+        "measurement_environment": "real_provider",
+        "value": null
+      },
+      "synthetic": {
+        "artifact": "artifacts/evaluation/workstream3-development.json",
+        "measurement_environment": "synthetic",
+        "value": 0.0
+      }
+    },
+    {
+      "metric": "embedding_latency_ms",
+      "real_provider": {
+        "artifact": "artifacts/evaluation/workstream4-real-provider-unavailable.json",
+        "measurement_environment": "real_provider",
+        "value": null
+      },
+      "synthetic": {
+        "artifact": "artifacts/evaluation/workstream3-development.json",
+        "measurement_environment": "synthetic",
+        "value": null
+      }
+    },
+    {
+      "metric": "total_latency_ms",
+      "real_provider": {
+        "artifact": "artifacts/evaluation/workstream4-real-provider-unavailable.json",
+        "measurement_environment": "real_provider",
+        "value": null
+      },
+      "synthetic": {
+        "artifact": "artifacts/evaluation/workstream3-development.json",
+        "measurement_environment": "synthetic",
+        "value": 0.0
+      }
+    },
+    {
+      "metric": "generation_input_tokens",
+      "real_provider": {
+        "artifact": "artifacts/evaluation/workstream4-real-provider-unavailable.json",
+        "measurement_environment": "real_provider",
+        "value": null
+      },
+      "synthetic": {
+        "artifact": "artifacts/evaluation/workstream3-development.json",
+        "measurement_environment": "synthetic",
+        "value": 264
+      }
+    },
+    {
+      "metric": "generation_output_tokens",
+      "real_provider": {
+        "artifact": "artifacts/evaluation/workstream4-real-provider-unavailable.json",
+        "measurement_environment": "real_provider",
+        "value": null
+      },
+      "synthetic": {
+        "artifact": "artifacts/evaluation/workstream3-development.json",
+        "measurement_environment": "synthetic",
+        "value": 387
+      }
+    },
+    {
+      "metric": "embedding_input_tokens",
+      "real_provider": {
+        "artifact": "artifacts/evaluation/workstream4-real-provider-unavailable.json",
+        "measurement_environment": "real_provider",
+        "value": null
+      },
+      "synthetic": {
+        "artifact": "artifacts/evaluation/workstream3-development.json",
+        "measurement_environment": "synthetic",
+        "value": 271
+      }
+    },
+    {
+      "metric": "estimated_cost_usd",
+      "real_provider": {
+        "artifact": "artifacts/evaluation/workstream4-real-provider-unavailable.json",
+        "measurement_environment": "real_provider",
+        "value": null
+      },
+      "synthetic": {
+        "artifact": "artifacts/evaluation/workstream3-development.json",
+        "measurement_environment": "synthetic",
+        "value": 0.0
+      }
+    }
+  ],
+  "schema_version": "provider-measurement-comparison-1.0",
+  "split": "development"
+}

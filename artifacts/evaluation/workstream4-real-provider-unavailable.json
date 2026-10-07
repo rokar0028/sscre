@@ -1,0 +1,58 @@
+{
+  "benchmark": {
+    "dataset_version": "reviewed-query-pairs-1.1",
+    "path": "benchmarks/development.jsonl",
+    "record_count": 21,
+    "split": "development"
+  },
+  "configuration": {
+    "config_version": "evaluation-config-1.0",
+    "path": "experiments/evaluation_config.json",
+    "pricing_schedule_id": null
+  },
+  "cost_usd": {
+    "embedding": null,
+    "generation": null,
+    "retry": null,
+    "source": "unavailable",
+    "total_estimated": null,
+    "wrapper": null
+  },
+  "execution_timestamp": "2026-10-07T16:18:19.008234+00:00",
+  "git_commit": "6607193d4e7448eae15b03cf0cc5082f50322316",
+  "latency_ms": {
+    "embedding": null,
+    "generation": null,
+    "total": null,
+    "wrapper": null
+  },
+  "limitations": [
+    "No credentialed real-provider request was made.",
+    "Synthetic measurements were not substituted.",
+    "Quality, latency, token, and cost conclusions remain unavailable."
+  ],
+  "measurement_environment": "real_provider",
+  "provider": null,
+  "provider_available": false,
+  "redaction": {
+    "credentials": false,
+    "provider_payloads": false,
+    "raw_answers": false,
+    "raw_prompts": false
+  },
+  "requests": {
+    "count": 0,
+    "embedding": 0,
+    "generation": 0,
+    "retries": 0
+  },
+  "schema_version": "real-provider-measurement-1.0",
+  "status": "unavailable",
+  "tokens": {
+    "embedding_input": null,
+    "generation_input": null,
+    "generation_output": null,
+    "usage_sources": {}
+  },
+  "unavailable_reason": "live_opt_in_missing"
+}
