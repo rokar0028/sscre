@@ -2,7 +2,7 @@ import hashlib
 from dataclasses import dataclass
 from math import isfinite
 from collections.abc import Mapping, Sequence
-from typing import Protocol
+from typing import Literal, Protocol
 
 
 class EmbeddingClientError(RuntimeError):
@@ -39,6 +39,10 @@ class EmbeddingResult:
     model_name: str
     input_tokens: int
     latency_ms: int
+    provider_name: str = "synthetic"
+    usage_source: Literal["provider_reported", "estimated"] = "estimated"
+    attempts: int = 1
+    retry_count: int = 0
 
     def __post_init__(self) -> None:
         if not self.vector:
@@ -53,6 +57,20 @@ class EmbeddingResult:
             raise EmbeddingValidationError("input_tokens must not be negative")
         if self.latency_ms < 0:
             raise EmbeddingValidationError("latency_ms must not be negative")
+        if not isinstance(self.provider_name, str) or not self.provider_name.strip():
+            raise EmbeddingValidationError("embedding provider_name must not be empty")
+        if self.usage_source not in {"provider_reported", "estimated"}:
+            raise EmbeddingValidationError("invalid embedding usage_source")
+        if (
+            not isinstance(self.attempts, int)
+            or isinstance(self.attempts, bool)
+            or self.attempts <= 0
+            or not isinstance(self.retry_count, int)
+            or isinstance(self.retry_count, bool)
+            or self.retry_count < 0
+            or self.retry_count != self.attempts - 1
+        ):
+            raise EmbeddingValidationError("invalid embedding retry metadata")
 
 
 class EmbeddingClient(Protocol):
@@ -142,6 +160,8 @@ class FakeEmbeddingClient:
                 else len(text.split())
             ),
             latency_ms=self._latency_ms,
+            provider_name="synthetic",
+            usage_source="estimated",
         )
         validate_embedding_result(result, self._config)
         return result
