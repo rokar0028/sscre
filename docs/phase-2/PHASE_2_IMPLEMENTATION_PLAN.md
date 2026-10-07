@@ -279,14 +279,14 @@ measurement date. Do not tune thresholds on held-out labels.
 
 Acceptance criteria:
 
-- [ ] Missing credentials skip opt-in tests safely.
-- [ ] At least one redacted real-provider run is reproducible, or the report
-  explicitly states why it is unavailable.
-- [ ] Provider errors preserve failure-closed cache behavior.
-- [ ] Synthetic and real-provider results are labeled separately.
-- [x] Completion evidence is linked:
-  [`WORKSTREAM_4_EVIDENCE.md`](./WORKSTREAM_4_EVIDENCE.md). The record
-  explicitly states that the credentialed provider run is unavailable.
+- [x] Missing credentials skip opt-in tests safely.
+- [x] At least one redacted real-provider run is reproducible, or the report
+  explicitly states why it is unavailable (unavailable artifact + evidence).
+- [x] Provider errors preserve failure-closed cache behavior.
+- [x] Synthetic and real-provider results are labeled separately.
+- [x] Workstream 4 iteration 1 complete; completion evidence:
+  [`WORKSTREAM_4_EVIDENCE.md`](./WORKSTREAM_4_EVIDENCE.md). Live observation
+  deferred to a later iteration.
 
 ## Workstream 5 — Complete evaluation and statistical reporting
 
