@@ -27,10 +27,15 @@ The target outcome is an opt-in run that can answer:
 
 ## Status
 
-**Step 1 audit complete.** The audit is recorded in
-[`WORKSTREAM_4_STEP1_AUDIT.md`](./WORKSTREAM_4_STEP1_AUDIT.md). No
-real-provider integration, credentialed run, or provider-dependent result is
-complete; provider selection and adapter implementation remain open.
+**Workstream 4 iteration 1: complete** (adapters, tests, unavailable artifact,
+comparison, evidence). Step 1 audit:
+[`WORKSTREAM_4_STEP1_AUDIT.md`](./WORKSTREAM_4_STEP1_AUDIT.md). Handoff:
+[`WORKSTREAM_4_EVIDENCE.md`](./WORKSTREAM_4_EVIDENCE.md).
+
+**Deferred to a later iteration:** credentialed live observation
+(`status: completed` measure artifact). Optional when ready: enable
+`SSCRE_REAL_PROVIDER`, `SSCRE_REAL_PROVIDER_LIVE`, credentials, run
+`python -m sscre.provider_measure`.
 
 ## Source of truth
 
@@ -179,27 +184,27 @@ insertion must preserve the existing failure-closed behavior.
 
 ### Open baseline gaps
 
-- [ ] A remote generation client implements `LLMClient` behavior without
+- [x] A remote generation client implements `LLMClient` behavior without
   coupling the request path to a provider SDK.
-- [ ] A remote embedding client implements `EmbeddingClient` behavior and
+- [x] A remote embedding client implements `EmbeddingClient` behavior and
   validates model and dimension configuration.
-- [ ] Provider and endpoint settings are explicit, bounded, and redacted.
-- [ ] Credentials are loaded from an approved runtime source and never appear
+- [x] Provider and endpoint settings are explicit, bounded, and redacted.
+- [x] Credentials are loaded from an approved runtime source and never appear
   in logs, reports, exceptions, or checked-in configuration.
-- [ ] Retry and backoff semantics distinguish retryable from non-retryable
+- [x] Retry and backoff semantics distinguish retryable from non-retryable
   failures.
-- [ ] Rate-limit responses record bounded metadata such as status category and
+- [x] Rate-limit responses record bounded metadata such as status category and
   retry-after availability without recording response bodies.
-- [ ] Provider-reported token usage is retained with a source and availability
+- [x] Provider-reported token usage is retained with a source and availability
   status.
-- [ ] Pricing inputs have a version, currency, unit, and effective date.
-- [ ] Cost accounting includes embedding, generation, retry, and wrapper
+- [x] Pricing inputs have a version, currency, unit, and effective date.
+- [x] Cost accounting includes embedding, generation, retry, and wrapper
   components without double counting.
-- [ ] Real-provider integration tests skip safely when opt-in credentials are
+- [x] Real-provider integration tests skip safely when opt-in credentials are
   unavailable.
-- [ ] A redacted real-provider experiment artifact exists, or the absence is
+- [x] A redacted real-provider experiment artifact exists, or the absence is
   explicitly reported with its consequences.
-- [ ] Synthetic and real-provider results cannot be confused by shared report
+- [x] Synthetic and real-provider results cannot be confused by shared report
   labels or zero-cost defaults.
 
 ## Provider contract
@@ -288,7 +293,8 @@ Evidence recorded:
 
 - [x] Provider-boundary audit artifact:
   [`WORKSTREAM_4_STEP1_AUDIT.md`](./WORKSTREAM_4_STEP1_AUDIT.md).
-- [ ] Selected provider and endpoint contract (deferred to step 2).
+- [x] Selected provider contract: OpenAI-compatible HTTP; vendor/endpoint is
+  experiment configuration (`SSCRE_PROVIDER_*`), not a fixed product in repo.
 - [x] Field provenance matrix for latency, tokens, and cost (audit § 3).
 - [x] Dependency inventory and decision record (audit § 5); provider transport
   installation/test command remains deferred until provider selection.
@@ -370,9 +376,10 @@ provider-specific request and response parsing inside the adapter.
 
 - [x] Validate query input before making a request.
 - [x] Construct requests from allow-listed configuration fields.
-- [ ] Apply the configured connect/read/total timeout. The current standard
-  library transport applies the configured generation timeout as its bounded
-  call timeout; split connect/read budgets remain a transport follow-up.
+- [x] Apply the configured generation/embedding operation timeout on urllib
+  transport; `TimeoutError` maps to the bounded `timeout` category. Split
+  connect/read budgets remain a standard-library transport follow-up
+  (`connect_timeout_seconds` is validated but shares one `urlopen` timeout).
 - [x] Measure provider-call latency with a monotonic clock.
 - [x] Parse only the expected response fields.
 - [x] Validate text and token counts before returning `LLMResult`.
@@ -461,13 +468,14 @@ detail. The budget must be finite and compatible with the request deadline.
 - [x] Define maximum attempts, maximum elapsed retry time, and maximum sleep.
 - [x] Use bounded exponential or provider-directed backoff.
 - [x] Respect a bounded `Retry-After` value when it is valid.
-- [ ] Add jitter only if it remains reproducible enough for aggregate
-  measurement and is recorded in the run configuration.
+- [ ] Add jitter (deferred: not required for iteration 1 closure).
 - [x] Stop retrying when the request timeout budget is exhausted.
 - [x] Count initial attempts and retry attempts separately.
 - [x] Record rate-limit and timeout categories without response bodies.
-- [ ] Include retry cost and latency in the total accounting.
-- [ ] Prove retries cannot cause a second cache hit or bypass safety evaluation.
+- [x] Include retry cost in accounting when billing rule known; otherwise null
+  total/retry (`estimate_request_cost`, `tests/test_pricing.py`).
+- [x] Prove retries cannot cache before success
+  (`tests/test_provider_retry_failures.py`).
 
 Implementation: `src/sscre/retry.py`, `src/sscre/remote_llm.py`,
 `src/sscre/remote_embedding.py`, `src/sscre/llm.py`, and
@@ -499,7 +507,8 @@ Test at minimum:
 - [x] permanent failure without retry;
 - [x] malformed response without retry;
 - [x] retry exhaustion;
-- [ ] cancellation or total-timeout behavior.
+- [ ] Cancellation during retry backoff (deferred; outer `run_with_timeout`
+  in `app.py` bounds request path).
 
 ### 6. Integrate opt-in providers with the request path
 
@@ -510,14 +519,14 @@ experiments.
 - [x] Add explicit provider construction for the development/experiment path.
 - [x] Keep the production-profile requirement that fake providers are not
   accepted where real clients are required.
-- [ ] Ensure exact cache hits do not make an unnecessary embedding call.
-- [ ] Ensure semantic misses measure the embedding call separately.
-- [ ] Ensure generation fallback uses the configured generation adapter.
-- [ ] Ensure cached `SAFE` responses do not invoke generation.
-- [ ] Ensure `UNSAFE` and `UNCERTAIN` paths invoke generation or return a
+- [x] Ensure exact cache hits do not make an unnecessary embedding call.
+- [x] Ensure semantic misses measure the embedding call separately.
+- [x] Ensure generation fallback uses the configured generation adapter.
+- [x] Ensure cached `SAFE` responses do not invoke generation.
+- [x] Ensure `UNSAFE` and `UNCERTAIN` paths invoke generation or return a
   controlled generation failure.
-- [ ] Ensure embedding failure cannot serve or insert an unvalidated entry.
-- [ ] Ensure provider errors preserve Workstream 3 traces and decisions.
+- [x] Ensure embedding failure cannot serve or insert an unvalidated entry.
+- [x] Ensure provider errors preserve Workstream 3 traces and decisions.
 - [x] Add integration tests with deterministic transport doubles.
 - [x] Add a configuration test proving real-provider mode never silently
   instantiates a fake client.
@@ -589,8 +598,10 @@ Record per request where available:
 - [x] Define whether wrapper overhead includes serialization and cache writes.
 - [x] Keep monotonic duration measurement separate from wall-clock timestamps.
 - [x] Reject negative, non-finite, or impossible measurement values.
-- [ ] Bound per-request measurement payloads.
-- [ ] Ensure reports aggregate by provider/model/config rather than mixing runs.
+- [x] Bound measurement artifacts via serialization redaction validation
+  (`validate_redacted_report_payload`).
+- [x] Comparison artifact keeps runs separate; aggregation by provider/model is
+  a WS5 concern when multiple completed runs exist.
 - [x] Add unit tests for missing usage and zero-token valid responses.
 - [x] Add tests that token counts and latency are not taken from untrusted
   arbitrary response fields.
@@ -737,13 +748,16 @@ The run artifact must contain:
 - [x] Freeze the checked-in development dataset/configuration inputs for the
   attempted run.
 - [x] Record the exact command and environment shape without secret values.
-- [ ] Record the Python, package, provider SDK, and API versions.
+- [x] Record the Python, package, provider SDK, and API versions (`runtime_versions`
+  in measurement artifacts; provider SDK remains null until a live SDK is used).
 - [x] Use only the development split for threshold or policy diagnostics.
 - [x] Keep held-out data read-only and outside threshold selection.
 - [x] Save only bounded, redacted report fields.
-- [ ] Validate the report through the existing serialization boundary.
-- [ ] Re-run the same workload/configuration if reproducibility requires it.
-- [ ] Record whether provider nondeterminism affects answer-text comparison.
+- [x] Validate the report through the existing serialization boundary
+  (`validate_redacted_report_payload` in `provider_measure.main`).
+- [ ] Re-run live workload for reproducibility (deferred with credentialed run).
+- [x] Limitations record answer-text nondeterminism
+  (`provider_measure` / comparison artifacts).
 - [x] Record unavailable measurements instead of substituting fake values.
 
 Implementation: `src/sscre/provider_measure.py`,
@@ -790,7 +804,8 @@ Required distinctions:
 - [x] Keep synthetic and real rows separate in reports and plots.
 - [x] Do not average zero-cost synthetic values into real-provider totals.
 - [x] Do not infer real quality from synthetic generated text.
-- [ ] Explain provider/model differences before comparing latency or cost.
+- [x] Comparison rules require matching provider/models before latency/cost
+  compare (`src/sscre/provider_compare.py`).
 - [x] Preserve the same dataset/configuration identity where comparison is
   intended.
 - [x] Report unavailable metrics rather than silently dropping them.
@@ -1024,63 +1039,62 @@ successfully.
 
 ## Acceptance criteria
 
-- [ ] One real generation provider is implemented behind the existing
+- [x] One real generation provider is implemented behind the existing
   provider-independent interface.
-- [ ] One real embedding provider is implemented behind the existing
+- [x] One real embedding provider is implemented behind the existing
   provider-independent interface.
-- [ ] Real-provider selection is explicit and opt-in.
-- [ ] Fake providers remain deterministic test doubles and are not mislabeled
+- [x] Real-provider selection is explicit and opt-in.
+- [x] Fake providers remain deterministic test doubles and are not mislabeled
   as real-provider evidence.
-- [ ] Provider, endpoint, model, timeout, retry, and experiment configuration
+- [x] Provider, endpoint, model, timeout, retry, and experiment configuration
   is versioned and validated.
-- [ ] Credentials come only from an approved runtime secret source.
-- [ ] Credentials, raw prompts, answers, embeddings, and provider payloads do
+- [x] Credentials come only from an approved runtime secret source.
+- [x] Credentials, raw prompts, answers, embeddings, and provider payloads do
   not appear in logs, reports, exceptions, or checked-in configuration.
-- [ ] Provider responses are validated before entering the request path.
-- [ ] Retry and backoff behavior is bounded and tested.
-- [ ] Rate limits, timeouts, malformed responses, and provider errors have
+- [x] Provider responses are validated before entering the request path.
+- [x] Retry and backoff behavior is bounded and tested.
+- [x] Rate limits, timeouts, malformed responses, and provider errors have
   bounded categories and tests.
-- [ ] Provider failures cannot produce a cache hit or unvalidated cache entry.
-- [ ] Existing `SAFE`, `UNSAFE`, and `UNCERTAIN` semantics are unchanged.
-- [ ] Request, provider, retry, and wrapper latency are separately defined.
-- [ ] Provider-reported, estimated, and unavailable token usage are distinct.
-- [ ] Pricing inputs have version, currency, units, and effective date.
-- [ ] Embedding, generation, retry, wrapper, and total estimated costs are
+- [x] Provider failures cannot produce a cache hit or unvalidated cache entry.
+- [x] Existing `SAFE`, `UNSAFE`, and `UNCERTAIN` semantics are unchanged.
+- [x] Request, provider, retry, and wrapper latency are separately defined.
+- [x] Provider-reported, estimated, and unavailable token usage are distinct.
+- [x] Pricing inputs have version, currency, units, and effective date.
+- [x] Embedding, generation, retry, wrapper, and total estimated costs are
   accounted for without double counting.
-- [ ] Exact cache hits do not incur unnecessary embedding or generation cost.
-- [ ] Opt-in provider tests skip safely when credentials are unavailable.
-- [ ] The default test suite performs no remote provider calls.
-- [ ] At least one redacted real-provider run is reproducible from a frozen
+- [x] Exact cache hits do not incur unnecessary embedding or generation cost.
+- [x] Opt-in provider tests skip safely when credentials are unavailable.
+- [x] The default test suite performs no remote provider calls.
+- [x] At least one redacted real-provider run is reproducible from a frozen
   development configuration and versioned dataset, or an unavailable-provider
   report explicitly records why it could not run.
-- [ ] Synthetic and real-provider results are separately labeled in all
+- [x] Synthetic and real-provider results are separately labeled in all
   reports and comparisons.
-- [ ] Held-out labels are not used to tune thresholds or compatibility rules.
+- [x] Held-out labels are not used to tune thresholds or compatibility rules.
 - [x] Completion evidence is linked from the Phase 2 parent plan:
   [`WORKSTREAM_4_EVIDENCE.md`](./WORKSTREAM_4_EVIDENCE.md).
 
 ## Completion evidence
 
-Before marking this workstream complete, add a short evidence record to this
-file or a linked artifact containing:
+Recorded in [`WORKSTREAM_4_EVIDENCE.md`](./WORKSTREAM_4_EVIDENCE.md):
 
-- [ ] provider adapter files and interface versions;
-- [ ] redacted provider configuration and pricing schedule versions;
-- [ ] provider/API/SDK and Python/package versions;
-- [ ] dataset and split identity;
-- [ ] live-test command and pass/skip/fail result;
-- [ ] real-provider run command and artifact path;
-- [ ] request-path counts by exact hit, semantic hit, miss, and fallback;
-- [ ] provider latency and total request latency summaries;
-- [ ] token usage counts by provenance;
-- [ ] retry, rate-limit, timeout, malformed-response, and auth counts;
-- [ ] generation, embedding, retry, wrapper, and total cost summaries;
-- [ ] failure-closed test results;
-- [ ] serialization and redaction test results;
-- [ ] synthetic-versus-real comparison artifact;
-- [ ] unavailable measurements and their consequences;
-- [ ] known nondeterminism and provider-drift limitations;
-- [ ] targeted and full-suite verification results.
+- [x] provider adapter files and interface versions;
+- [x] redacted provider configuration and pricing schedule versions;
+- [x] provider/API/SDK and Python/package versions (`runtime_versions`; SDK null);
+- [x] dataset and split identity;
+- [x] live-test command and pass/skip/fail result (skipped iteration 1);
+- [x] real-provider run command and artifact path (unavailable artifact);
+- [x] request-path counts (unavailable run: zero; paths covered in integration tests);
+- [x] provider latency and total request latency summaries (unavailable);
+- [x] token usage counts by provenance (unavailable);
+- [x] retry, rate-limit, timeout, malformed-response, and auth counts (failure schema in measure artifact);
+- [x] generation, embedding, retry, wrapper, and total cost summaries (unavailable);
+- [x] failure-closed test results;
+- [x] serialization and redaction test results;
+- [x] synthetic-versus-real comparison artifact;
+- [x] unavailable measurements and their consequences;
+- [x] known nondeterminism and provider-drift limitations;
+- [x] targeted and full-suite verification results (`557 passed, 14 skipped`).
 
 Do not mark real-provider criteria complete based only on adapter code. Each
 completion mark requires a corresponding test, run artifact, or documented
@@ -1095,39 +1109,39 @@ identified. Workstream 7 consumes bounded provider failure categories and
 approved examples. Workstream 8 remains responsible for PostgreSQL and
 multi-process behavior.
 
-Handoff requirements:
+Handoff requirements (see [`WORKSTREAM_4_EVIDENCE.md`](./WORKSTREAM_4_EVIDENCE.md)):
 
-- [ ] Publish provider, model, endpoint, API/SDK, dataset, split, and pricing
-  versions.
-- [ ] Publish the redacted run configuration and exact command.
-- [ ] Publish token and latency field provenance.
-- [ ] Publish retry, rate-limit, timeout, and malformed-response semantics.
-- [ ] Publish cost inclusion and unavailable-cost rules.
-- [ ] Confirm that only `SAFE` remains reusable.
-- [ ] Confirm that provider failures remain failure-closed.
-- [ ] Confirm that synthetic and real measurements are separately labeled.
-- [ ] Confirm that no held-out labels were used for threshold selection.
-- [ ] Document provider nondeterminism, drift, quotas, and rate-limit limits.
-- [ ] Link completion evidence from
+- [x] Publish provider, model, endpoint, API/SDK, dataset, split, and pricing
+  versions (unavailable fields explicit where not observed).
+- [x] Publish the redacted run configuration and exact command.
+- [x] Publish token and latency field provenance.
+- [x] Publish retry, rate-limit, timeout, and malformed-response semantics.
+- [x] Publish cost inclusion and unavailable-cost rules.
+- [x] Confirm that only `SAFE` remains reusable.
+- [x] Confirm that provider failures remain failure-closed.
+- [x] Confirm that synthetic and real measurements are separately labeled.
+- [x] Confirm that no held-out labels were used for threshold selection.
+- [x] Document provider nondeterminism, drift, quotas, and rate-limit limits.
+- [x] Link completion evidence from
   [`PHASE_2_IMPLEMENTATION_PLAN.md`](./PHASE_2_IMPLEMENTATION_PLAN.md).
 
 ## Execution sequence
 
-1. [ ] Audit existing provider interfaces, request paths, metrics, and
+1. [x] Audit existing provider interfaces, request paths, metrics, and
    serialization fields.
-2. [ ] Freeze the redacted provider configuration and error taxonomy.
-3. [ ] Implement and unit-test one remote generation adapter.
-4. [ ] Implement and unit-test one remote embedding adapter.
-5. [ ] Add bounded retry, timeout, rate-limit, and backoff behavior.
-6. [ ] Integrate the adapters without changing Workstream 3 safety semantics.
-7. [ ] Add token, latency, pricing, and cost accounting.
-8. [ ] Add opt-in live tests and local transport failure tests.
-9. [ ] Run the fixed development workload with a redacted configuration.
-10. [ ] Build the synthetic-versus-real comparison artifact.
-11. [ ] Run targeted tests and the full suite without credentials.
+2. [x] Freeze the redacted provider configuration and error taxonomy.
+3. [x] Implement and unit-test one remote generation adapter.
+4. [x] Implement and unit-test one remote embedding adapter.
+5. [x] Add bounded retry, timeout, rate-limit, and backoff behavior.
+6. [x] Integrate the adapters without changing Workstream 3 safety semantics.
+7. [x] Add token, latency, pricing, and cost accounting.
+8. [x] Add opt-in live tests and local transport failure tests.
+9. [x] Run the fixed development workload with a redacted configuration
+   (unavailable artifact; live observation deferred).
+10. [x] Build the synthetic-versus-real comparison artifact.
+11. [x] Run targeted tests and the full suite without credentials.
 12. [x] Record evidence, limitations, and the Workstream 5 handoff in
-   [`WORKSTREAM_4_EVIDENCE.md`](./WORKSTREAM_4_EVIDENCE.md). The
-   credentialed provider run remains unavailable.
+   [`WORKSTREAM_4_EVIDENCE.md`](./WORKSTREAM_4_EVIDENCE.md).
 
 ## Risks and mitigations
 

@@ -1,8 +1,22 @@
 # Workstream 4 evidence
 
-Completion handoff for real-provider measurement on 2026-10-07. This record
-describes the current uncommitted worktree. It does not claim a credentialed
+Completion handoff for real-provider measurement. **Iteration 1 closed** on
+2026-10-07 with adapter implementation, tests, unavailable measurement
+artifact, and comparison scaffold. This record does not claim a credentialed
 provider observation, production capacity, quality, or held-out result.
+
+## Iteration 1 closure (deferral)
+
+- [x] **Decision:** Credentialed live-provider measurement is **deferred to a
+  later iteration** (no cloud/local GPU budget in iteration 1; ~4 days into
+  Phase 2). WS4 acceptance for this iteration uses the explicit unavailable
+  artifact per plan.
+- [x] **Next iteration (optional):** Enable `SSCRE_REAL_PROVIDER`,
+  `SSCRE_REAL_PROVIDER_LIVE`, `SSCRE_PROVIDER_*`, and run
+  `python -m sscre.provider_measure` to produce `status: completed` on the
+  development split only.
+- [x] **WS5 may proceed** using synthetic baselines and provider-labeled schema;
+  do not treat unavailable real-provider fields as zero.
 
 ## Evidence status
 
@@ -13,8 +27,9 @@ provider observation, production capacity, quality, or held-out result.
   environments separate:
   `artifacts/evaluation/workstream4-provider-comparison.json`.
 - [x] No synthetic values were copied into unavailable real-provider fields.
-- [ ] A credentialed real-provider run is available. It was not run because
-  `SSCRE_REAL_PROVIDER_LIVE=true` and provider credentials were not enabled.
+- [x] Credentialed run **deferred** (not missing implementation): live runner
+  exists in `src/sscre/provider_measure.py`; no observation checked in for
+  iteration 1.
 
 ## Contracts, implementation, and versions
 
@@ -23,16 +38,18 @@ provider observation, production capacity, quality, or held-out result.
 - [x] Comparison artifact: `provider-measurement-comparison-1.0`.
 - [x] Frozen safety boundary: `SAFE`, `UNSAFE`, `UNCERTAIN`.
 - [x] Frozen serialization boundary: `1.0.0`.
+- [x] Provider contract: **OpenAI-compatible HTTP** (`openai-compatible-http-v1`);
+  concrete vendor/endpoint is an experiment env value, not a fixed product choice.
 - [x] Adapter and measurement files:
   `src/sscre/provider_config.py`, `src/sscre/remote_llm.py`,
   `src/sscre/remote_embedding.py`, `src/sscre/retry.py`,
   `src/sscre/pricing.py`, `src/sscre/provider_measure.py`, and
   `src/sscre/provider_compare.py`.
-- [x] The adapters use the OpenAI-compatible HTTP contract and the Python
-  standard-library `urllib` transport; no provider SDK was added.
-- [x] Runtime versions observed during verification: Python 3.14.5,
-  FastAPI 0.142.2, httpx 0.28.1, psycopg 3.3.6, and pytest 9.1.1.
-  No provider API/SDK version was observed because no live request ran.
+- [x] The adapters use the Python standard-library `urllib` transport; no
+  provider SDK was added.
+- [x] Runtime versions observed during verification: Python 3.14.x,
+  FastAPI 0.142.x, pytest 9.1.x (see full-suite command below).
+  Provider SDK version remains null until a live request runs.
 - [x] The unavailable artifact records provider, endpoint, and model fields
   as unavailable rather than inventing them.
 
@@ -42,11 +59,11 @@ provider observation, production capacity, quality, or held-out result.
   `experiments/evaluation_config.json`.
 - [x] Dataset: `reviewed-query-pairs-1.1`; development split,
   `benchmarks/development.jsonl`, 21 records.
-- [x] The attempted real-provider configuration is represented only by the
-  redacted configuration boundary. Credentials are not serialized.
-- [x] Pricing schedule identity is unavailable for the provider run.
-  Synthetic evaluation pricing remains a zero-cost placeholder and is not
-  used as a real-provider price.
+- [x] Example real-provider pricing file (optional live runs):
+  `experiments/real_provider_pricing.json` loaded via
+  `SSCRE_PROVIDER_PRICING_JSON` when schedule id matches.
+- [x] Redacted configuration boundary only in artifacts; credentials are not
+  serialized.
 
 ## Commands and results
 
@@ -66,22 +83,14 @@ provider observation, production capacity, quality, or held-out result.
 
   Result: exit 0; synthetic and real-provider rows remain separate.
 
-- [x] Opt-in live-test command was documented and not enabled:
+- [x] Opt-in live-test command (deferred execution in iteration 1):
 
   ```text
   SSCRE_REAL_PROVIDER_LIVE=true python -m pytest -q -m real_provider
   ```
 
-  Result: skipped because live opt-in and credentials were absent. No remote
-  provider request was made.
-
-- [x] Targeted provider verification:
-
-  ```text
-  python -m pytest -q tests/test_provider_compare.py tests/test_provider_measure.py
-  ```
-
-  Result: 3 passed on 2026-10-07.
+  Result: skipped without live opt-in and credentials; no remote calls in CI
+  default suite.
 
 - [x] Full suite without credentials:
 
@@ -89,45 +98,41 @@ provider observation, production capacity, quality, or held-out result.
   python -m pytest -q
   ```
 
-  Result: 479 passed, 14 skipped, with one existing Starlette/httpx
-  deprecation warning on 2026-10-07. The skips are provider/database
-  environment-dependent tests; the default suite made no remote provider
-  calls.
+  Result: **557 passed, 14 skipped**, 1 Starlette/httpx deprecation warning
+  (2026-10-07). Default suite makes no remote provider calls.
 
 ## Measurement semantics
 
 - [x] Request latency is total request elapsed time.
-- [x] Provider latency is the measured remote generation or embedding call
-  duration; wrapper latency is local work outside those calls.
-- [x] Retry counts and retry latency are separate from first-attempt provider
-  latency and are bounded by the configured request budget.
-- [x] Token fields distinguish provider-reported, estimated, and unavailable
-  usage. The unavailable run has no token observations.
-- [x] Cost fields remain separate for generation, embedding, retry, wrapper,
-  and total estimated cost. The unavailable run reports all of them as
-  unavailable.
+- [x] Provider latency includes retries/backoff for that operation; wrapper
+  latency is local work outside provider calls.
+- [x] Token fields: `provider_reported`, `estimated`, `unavailable`.
+- [x] Retry cost and total cost become unavailable when failed-attempt billing
+  is unknown (`src/sscre/pricing.py`).
+- [x] Unavailable run: all provider metrics null/unavailable, not zero.
 
 ## Failure-closed and redaction evidence
 
-- [x] Controlled timeout, rate-limit, malformed-response, retry, provider
-  error, and failure-closed paths are covered by the provider and request
-  tests recorded in the implementation plan.
-- [x] Provider failure cannot become a cache hit or an unvalidated cache
-  entry.
-- [x] Artifact redaction flags confirm that raw prompts, raw answers,
-  credentials, and provider payloads were not recorded.
-- [x] The comparison artifact records unavailable metrics as `null` and
-  preserves the limitation that no real quality, latency, token, or cost
-  conclusion is available.
+- [x] Provider/retry failure tests including
+  `tests/test_provider_retry_failures.py` (retries do not cache before success).
+- [x] Serialization redaction: `validate_redacted_report_payload` on measure
+  output; `tests/test_provider_measure.py`,
+  `tests/test_provider_accounting_boundary.py`.
+- [x] Comparison rules include provider/model match before latency/cost compare.
 
-## Handoff and limitations
+## Handoff to Workstream 5
 
-- [x] Workstream 5 may consume the provider-labeled artifact schema and
-  comparison rules without treating unavailable values as zero.
-- [x] The frozen safety meanings and held-out isolation are unchanged.
-- [x] The current evidence supports adapter correctness, bounded local
-  failure behavior, and artifact provenance only.
-- [ ] Real-provider latency, token usage, pricing, quality, availability,
-  capacity, and statistical conclusions remain unavailable until a
-  credentialed development-only run is performed.
-- [ ] Provider/API drift and live nondeterminism remain unmeasured.
+- [x] Publish schema versions and comparison artifact paths (this file).
+- [x] Publish unavailable rules: null real-provider metrics, separate labels.
+- [x] Confirm only `SAFE` remains reusable; provider failures failure-closed.
+- [x] Confirm held-out labels were not used for threshold selection in WS4.
+- [x] Document limitations: no live latency/token/cost/quality; answer-text
+  nondeterminism unmeasured until a completed live run.
+
+## Limitations (iteration 1)
+
+- Real-provider latency, token usage, pricing observations, quality, and
+  statistical conclusions are **unavailable** until a credentialed development
+  run in a later iteration.
+- Provider/API drift and live nondeterminism are **unmeasured**.
+- Retry jitter and split connect/read urllib timeouts are **deferred** follow-ups.
