@@ -4,6 +4,7 @@ from sscre.provider_config import RealProviderConfig
 from sscre.remote_llm import (
     OpenAICompatibleLLMClient,
     RemoteLLMError,
+    UrllibJSONTransport,
 )
 
 
@@ -125,6 +126,33 @@ def test_invalid_provider_token_counts_are_rejected(usage: dict) -> None:
         client.generate("query")
 
     assert exc_info.value.category == "malformed_response"
+
+
+def test_urllib_timeout_maps_to_timeout_category(monkeypatch) -> None:
+    def raise_timeout(*_args, **_kwargs):
+        raise TimeoutError("timed out")
+
+    monkeypatch.setattr("sscre.remote_llm.urlopen", raise_timeout)
+    transport = UrllibJSONTransport()
+
+    with pytest.raises(RemoteLLMError) as exc_info:
+        transport.post(
+            "https://api.example.test/v1/chat/completions",
+            headers={},
+            payload={"model": "m", "messages": []},
+            timeout_seconds=5,
+        )
+
+    assert exc_info.value.category == "timeout"
+
+
+def test_request_parameters_merge_into_generation_payload() -> None:
+    transport = FakeTransport()
+    config = _config(request_parameters=(("temperature", "0"),))
+    OpenAICompatibleLLMClient(config, transport=transport).generate("hello")
+
+    assert transport.calls[0]["payload"]["temperature"] == "0"
+    assert transport.calls[0]["payload"]["model"] == "generation-test"
 
 
 def test_missing_usage_is_explicitly_estimated() -> None:

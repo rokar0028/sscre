@@ -19,6 +19,7 @@ from sscre.remote_llm import (
     UrllibJSONTransport,
     _http_error_category,
     _usage_count,
+    merge_provider_request_parameters,
 )
 from sscre.retry import run_with_bounded_retries
 
@@ -91,10 +92,14 @@ class OpenAICompatibleEmbeddingClient:
                 headers={
                     "Authorization": f"Bearer {self._provider_config.credential}"
                 },
-                payload={
-                    "model": self._provider_config.embedding_model,
-                    "input": text,
-                },
+                payload=merge_provider_request_parameters(
+                    {
+                        "model": self._provider_config.embedding_model,
+                        "input": text,
+                    },
+                    self._provider_config,
+                    reserved_keys=frozenset({"model", "input"}),
+                ),
                 timeout_seconds=self._provider_config.embedding_timeout_seconds,
             )
         except Exception as exc:

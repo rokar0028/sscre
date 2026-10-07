@@ -116,6 +116,30 @@ def test_endpoint_host_allow_list_is_enforced(monkeypatch) -> None:
         RealProviderConfig.from_environment()
 
 
+def test_request_parameters_cannot_override_reserved_fields() -> None:
+    with pytest.raises(ValueError, match="reserved fields"):
+        RealProviderConfig(
+            provider="provider",
+            endpoint="https://api.example.test",
+            generation_model="generation",
+            embedding_model="embedding",
+            embedding_dimension=8,
+            request_timeout_seconds=30,
+            generation_timeout_seconds=25,
+            embedding_timeout_seconds=5,
+            connect_timeout_seconds=2,
+            retry_limit=0,
+            min_backoff_seconds=0,
+            max_backoff_seconds=1,
+            max_retry_elapsed_seconds=5,
+            experiment_id="experiment",
+            dataset_version="dataset",
+            split="development",
+            pricing_schedule_id="prices",
+            request_parameters=(("model", "other"),),
+        )
+
+
 def test_request_parameters_cannot_contain_credentials() -> None:
     with pytest.raises(ValueError, match="credentials"):
         RealProviderConfig(

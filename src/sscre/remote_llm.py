@@ -1,9 +1,4 @@
-"""OpenAI-compatible remote generation adapter.
-
-The adapter owns provider-specific HTTP and response parsing. Retry policy is
-intentionally excluded; Workstream 4 step 5 will add bounded retries around
-this single-attempt client.
-"""
+"""OpenAI-compatible remote generation adapter."""
 
 from collections.abc import Mapping
 from dataclasses import replace
@@ -81,7 +76,11 @@ class UrllibJSONTransport:
                 _http_error_category(exc.code),
                 retry_after_seconds=_retry_after_seconds(exc.headers),
             ) from exc
-        except (TimeoutError, URLError, OSError) as exc:
+        except TimeoutError as exc:
+            raise RemoteLLMError("timeout") from exc
+        except URLError as exc:
+            raise RemoteLLMError("transient_provider") from exc
+        except OSError as exc:
             raise RemoteLLMError("transient_provider") from exc
 
         if len(raw) > MAX_RESPONSE_BYTES:
@@ -116,6 +115,25 @@ def _retry_after_seconds(headers: object) -> float | None:
     except (TypeError, ValueError):
         return None
     return value if value >= 0 else None
+
+
+_RESERVED_GENERATION_PAYLOAD_KEYS = frozenset({"model", "messages"})
+
+
+def merge_provider_request_parameters(
+    base: Mapping[str, object],
+    config: RealProviderConfig,
+    *,
+    reserved_keys: frozenset[str] = _RESERVED_GENERATION_PAYLOAD_KEYS,
+) -> dict[str, object]:
+    """Attach allow-listed request parameters without overriding core fields."""
+    merged = dict(base)
+    for key, value in config.request_parameters:
+        normalized = key.strip().lower()
+        if normalized in reserved_keys:
+            raise ValueError("request parameters must not override reserved fields")
+        merged[key] = value
+    return merged
 
 
 def _usage_count(
@@ -174,10 +192,13 @@ class OpenAICompatibleLLMClient:
             status, response = self._transport.post(
                 self._completion_url(),
                 headers={"Authorization": f"Bearer {self.config.credential}"},
-                payload={
-                    "model": self.config.generation_model,
-                    "messages": [{"role": "user", "content": query}],
-                },
+                payload=merge_provider_request_parameters(
+                    {
+                        "model": self.config.generation_model,
+                        "messages": [{"role": "user", "content": query}],
+                    },
+                    self.config,
+                ),
                 timeout_seconds=self.config.generation_timeout_seconds,
             )
         except RemoteLLMError:

@@ -17,6 +17,7 @@ MAX_IDENTIFIER_LENGTH = 128
 MAX_ENDPOINT_LENGTH = 2048
 MAX_REQUEST_PARAMETERS = 32
 MAX_REQUEST_PARAMETER_LENGTH = 128
+_RESERVED_REQUEST_PARAMETER_KEYS = frozenset({"model", "messages", "input"})
 
 
 def _required_environment(name: str) -> str:
@@ -189,6 +190,8 @@ class RealProviderConfig:
             normalized_key = key.strip().lower()
             if normalized_key in seen_keys:
                 raise ValueError("request parameter keys must be unique")
+            if normalized_key in _RESERVED_REQUEST_PARAMETER_KEYS:
+                raise ValueError("request parameters must not override reserved fields")
             if any(secret_word in normalized_key for secret_word in (
                 "key",
                 "secret",
