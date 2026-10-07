@@ -1,10 +1,12 @@
 import json
 import shutil
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
+import sscre.baseline as baseline_module
 from sscre.baseline import (
     run_compatibility_cache_baseline,
     run_embedding_cache_baseline,
@@ -942,7 +944,52 @@ def test_embedding_threshold_sweep_selects_dev_threshold() -> None:
     assert sweep.dataset_version == "development-v1"
     assert sweep.selected_threshold == 0.9
     assert "safe reuse coverage" in sweep.selection_rule
+    assert sweep.constraint_satisfied is True
     assert len(sweep.reports) == 2
+
+
+def test_embedding_threshold_sweep_reports_unsatisfied_constraint(
+    monkeypatch,
+) -> None:
+    records = [
+        BenchmarkRecord.model_validate(
+            {
+                **valid_record("pair-0001"),
+                "query_a": "first query",
+                "query_b": "second query",
+                "reusable": True,
+                "compatibility_label": "compatible",
+                "reason": None,
+            }
+        )
+    ]
+    original_runner = baseline_module.run_embedding_cache_baseline
+
+    def always_false_positive(records, **kwargs):
+        report = original_runner(records, **kwargs)
+        return replace(report, false_positive_rate=1.0)
+
+    monkeypatch.setattr(
+        baseline_module,
+        "run_embedding_cache_baseline",
+        always_false_positive,
+    )
+    sweep = baseline_module.run_embedding_threshold_sweep(
+        records,
+        dataset_version="development-v1",
+        thresholds=[0.5, 0.9],
+        max_false_positive_rate=0.0,
+        embedding_client=FakeEmbeddingClient(
+            config=EmbeddingConfig(model_name="test-embedding", dimension=2),
+            vectors={
+                "first query": (1.0, 0.0),
+                "second query": (0.99, 0.141067),
+            },
+        ),
+    )
+
+    assert sweep.constraint_satisfied is False
+    assert sweep.selected_threshold == 0.9
 
 
 def test_evaluate_command_writes_selected_baseline_report(tmp_path) -> None:

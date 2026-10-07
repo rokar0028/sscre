@@ -1,5 +1,8 @@
+import pytest
+
 from sscre.storage_evaluation import (
     StorageWorkloadItem,
+    build_reuse_storage_pareto_point,
     run_storage_control_evaluation,
     save_storage_control_report,
 )
@@ -51,3 +54,75 @@ def test_storage_evaluation_reports_deduplication_and_expiration(tmp_path) -> No
     output = tmp_path / "storage-report.json"
     save_storage_control_report(report, output)
     assert '"report_type": "storage_controls"' in output.read_text()
+
+
+def test_storage_report_maps_to_labeled_reuse_storage_point() -> None:
+    report = run_storage_control_evaluation(
+        [StorageWorkloadItem("query", "answer")],
+        dataset_version="storage-test-v1",
+        input_cost_per_1k_tokens=0.1,
+        output_cost_per_1k_tokens=0.2,
+    )
+
+    point = build_reuse_storage_pareto_point(
+        report,
+        evaluation_config={
+            "config_version": "evaluation-config-1.0",
+            "dataset_version": "storage-test-v1",
+            "input_cost_per_1k_tokens": 0.1,
+            "output_cost_per_1k_tokens": 0.2,
+        },
+    )
+
+    assert point["plane"] == "reuse_vs_storage"
+    assert point["measurement_environment"] == "synthetic_storage_simulation"
+    assert point["x"] == {
+        "metric": "safe_reuse_coverage",
+        "value": report.safe_reuse_coverage,
+        "direction": "maximize",
+    }
+    assert point["y"] == {
+        "metric": "total_bytes",
+        "value": report.total_bytes,
+        "direction": "minimize",
+    }
+    assert point["storage"] == {
+        "total_bytes": report.total_bytes,
+        "entries": report.entries,
+        "eviction_count": report.eviction_count,
+    }
+    assert point["config_version"] == "evaluation-config-1.0"
+
+
+def test_storage_point_rejects_mismatched_dataset_version() -> None:
+    report = run_storage_control_evaluation(
+        [StorageWorkloadItem("query", "answer")],
+        dataset_version="storage-test-v1",
+    )
+
+    with pytest.raises(ValueError, match="dataset versions differ"):
+        build_reuse_storage_pareto_point(
+            report,
+            evaluation_config={
+                "config_version": "evaluation-config-1.0",
+                "dataset_version": "other-dataset",
+            },
+        )
+
+
+def test_storage_point_rejects_mismatched_costs() -> None:
+    report = run_storage_control_evaluation(
+        [StorageWorkloadItem("query", "answer")],
+        dataset_version="storage-test-v1",
+        input_cost_per_1k_tokens=0.1,
+    )
+
+    with pytest.raises(ValueError, match="input_cost_per_1k_tokens differ"):
+        build_reuse_storage_pareto_point(
+            report,
+            evaluation_config={
+                "config_version": "evaluation-config-1.0",
+                "dataset_version": "storage-test-v1",
+                "input_cost_per_1k_tokens": 0.2,
+            },
+        )

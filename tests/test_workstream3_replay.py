@@ -122,7 +122,7 @@ def test_saved_replay_report_keeps_bounded_identity(tmp_path: Path) -> None:
         assert record.query_a not in encoded
         assert record.query_b not in encoded
     assert payload["dataset_version"] == _FROZEN_DATASET_VERSION
-    assert "confidence_interval" not in payload
+    assert "statistics" not in payload
     assert payload["observed_pair_records"][0]["id"].startswith("pair-")
 
 
@@ -152,6 +152,8 @@ def test_evaluate_cli_replays_development_without_held_out_tuning(
     assert payload["benchmark_artifact"]["split_record_count"] == 21
     assert len(payload["observed_pair_records"]) == 21
     assert "query_a" not in json.dumps(payload["observed_pair_records"])
+    assert payload["statistics_schema_version"] == "evaluation-statistics-1.0"
+    assert payload["statistics"]["proportions"]["hit_rate"]["n"] > 0
     assert "confidence_interval" not in payload
     assert payload["selected_threshold"] in {0.8, 0.9, 0.95}
 
@@ -179,4 +181,6 @@ def test_held_out_compatibility_replay_still_selects_development_threshold(
     assert payload["evaluation_split"] == "held-out"
     assert payload["threshold_selection_split"] == "development"
     assert payload["benchmark_artifact"]["split_record_count"] == 11
+    assert "statistics" in payload
+    assert payload["statistics"]["sample_unit"] == "directed_request"
     assert "confidence_interval" not in payload
