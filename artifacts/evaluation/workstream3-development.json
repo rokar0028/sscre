@@ -1,0 +1,2777 @@
+{
+  "abstention_rate": 0.07142857142857142,
+  "average_latency_ms": 0.0,
+  "baseline": "compatibility-cache",
+  "benchmark_artifact": {
+    "annotation_guide_version": "1.0.0",
+    "coverage_summary": {
+      "coverage_category_counts": {
+        "ambiguity": 1,
+        "constraint_change": 5,
+        "domain_change": 2,
+        "entity_change": 4,
+        "exact_duplicate": 2,
+        "format_change": 3,
+        "high_similarity_incompatible": 1,
+        "insufficient_evidence": 1,
+        "intent_change": 2,
+        "low_overlap_compatible": 1,
+        "paraphrase": 4,
+        "stale_answer": 1,
+        "temporal_freshness": 3,
+        "whitespace_variant": 2
+      },
+      "freshness_class_counts": {
+        "dynamic": 2,
+        "semi_dynamic": 2,
+        "stable": 28
+      },
+      "negative_count": 23,
+      "negative_fraction": 0.71875,
+      "paraphrase_fraction": 0.125,
+      "policy": {
+        "category_minimums": {
+          "ambiguity": 1,
+          "constraint_change": 1,
+          "domain_change": 1,
+          "entity_change": 1,
+          "exact_duplicate": 1,
+          "format_change": 1,
+          "high_similarity_incompatible": 1,
+          "insufficient_evidence": 1,
+          "intent_change": 1,
+          "low_overlap_compatible": 1,
+          "paraphrase": 1,
+          "stale_answer": 1,
+          "temporal_freshness": 1,
+          "whitespace_variant": 1
+        },
+        "max_paraphrase_fraction": 0.45,
+        "min_freshness_class_counts": {
+          "dynamic": 1,
+          "semi_dynamic": 1,
+          "stable": 1
+        },
+        "min_negative_fraction": 0.25,
+        "min_positive_fraction": 0.25
+      },
+      "positive_count": 9,
+      "positive_fraction": 0.28125,
+      "record_count": 32
+    },
+    "dataset_version": "reviewed-query-pairs-1.1",
+    "evaluation_directions": [
+      "a_to_b",
+      "b_to_a"
+    ],
+    "evaluation_split": "development",
+    "frozen_at": "2026-10-07T10:53:33+00:00",
+    "label_review_status_counts": {
+      "disputed": 0,
+      "draft": 0,
+      "final": 21,
+      "unavailable": 0
+    },
+    "leakage_validation": {
+      "cross_split_fingerprint_overlaps": 0,
+      "near_duplicate_pairs": 0,
+      "reversed_pair_overlaps": 0,
+      "shared_source_groups": 0,
+      "status": "passed"
+    },
+    "manifest_schema_version": "1.0.0",
+    "schema_version": "1.1",
+    "source_dataset": {
+      "path": "benchmarks/reviewed_query_pairs.jsonl",
+      "record_count": 32,
+      "sha256": "02a99cb646774fe744a9b94f965f8773fad4c472ed9d3c6aa5a92c04040e57f6"
+    },
+    "split_manifest_sha256": "5c1020145c622e4f73a4a5f19eacf34e7467f0cb99033ae55a31cc516cc0ea16",
+    "split_record_count": 21,
+    "split_record_identity": [
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "exact_duplicate",
+        "failure_category": "none",
+        "id": "pair-0001",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "exact_duplicate",
+        "failure_category": "none",
+        "id": "pair-0002",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "whitespace_variant",
+        "failure_category": "none",
+        "id": "pair-0003",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "whitespace_variant",
+        "failure_category": "none",
+        "id": "pair-0004",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "paraphrase",
+        "failure_category": "none",
+        "id": "pair-0005",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "paraphrase",
+        "failure_category": "none",
+        "id": "pair-0006",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "paraphrase",
+        "failure_category": "none",
+        "id": "pair-0007",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "paraphrase",
+        "failure_category": "none",
+        "id": "pair-0008",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "constraint_change",
+        "failure_category": "constraint_mismatch",
+        "id": "pair-0009",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "high_similarity_incompatible",
+        "failure_category": "constraint_mismatch",
+        "id": "pair-0010",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "format_change",
+        "failure_category": "format_mismatch",
+        "id": "pair-0011",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "format_change",
+        "failure_category": "format_mismatch",
+        "id": "pair-0012",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "entity_change",
+        "failure_category": "entity_mismatch",
+        "id": "pair-0013",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "constraint_change",
+        "failure_category": "constraint_mismatch",
+        "id": "pair-0014",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "constraint_change",
+        "failure_category": "constraint_mismatch",
+        "id": "pair-0015",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "constraint_change",
+        "failure_category": "constraint_mismatch",
+        "id": "pair-0016",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "temporal_freshness",
+        "failure_category": "temporal_mismatch",
+        "id": "pair-0025",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "temporal_freshness",
+        "failure_category": "intent_mismatch",
+        "id": "pair-0026",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "domain_change",
+        "failure_category": "domain_mismatch",
+        "id": "pair-0027",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "ambiguity",
+        "failure_category": "ambiguity",
+        "id": "pair-0028",
+        "preference_label": null,
+        "review_status": "final"
+      },
+      {
+        "adjudication_status": null,
+        "correctness_label": null,
+        "coverage_category": "insufficient_evidence",
+        "failure_category": "insufficient_evidence",
+        "id": "pair-0029",
+        "preference_label": null,
+        "review_status": "final"
+      }
+    ],
+    "split_record_ids": [
+      "pair-0001",
+      "pair-0002",
+      "pair-0003",
+      "pair-0004",
+      "pair-0005",
+      "pair-0006",
+      "pair-0007",
+      "pair-0008",
+      "pair-0009",
+      "pair-0010",
+      "pair-0011",
+      "pair-0012",
+      "pair-0013",
+      "pair-0014",
+      "pair-0015",
+      "pair-0016",
+      "pair-0025",
+      "pair-0026",
+      "pair-0027",
+      "pair-0028",
+      "pair-0029"
+    ],
+    "split_sha256": "f50d16a2c2dbcb133cbe6d765f6d088bc690414e0212a8a61f872c024e743483"
+  },
+  "cache_hits": 1,
+  "cache_lookup_cost_usd": 0.0,
+  "cache_misses": 41,
+  "compatibility_label_counts": {
+    "compatible": 8,
+    "incompatible": 11,
+    "uncertain": 2
+  },
+  "config_version": "evaluation-config-1.0",
+  "correctness_label_counts": {
+    "not_collected": 21
+  },
+  "dataset_version": "reviewed-query-pairs-1.1",
+  "decision_breakdowns": {
+    "constraint": {
+      "audience=beginner:UNSAFE": 1,
+      "audience=children:UNSAFE": 1,
+      "language=javascript:UNSAFE": 1,
+      "language=python:SAFE": 1,
+      "language=python:UNCERTAIN": 1,
+      "language=python:UNSAFE": 8,
+      "language=sql:UNSAFE": 1,
+      "none:UNCERTAIN": 2,
+      "none:UNSAFE": 26
+    },
+    "domain": {
+      "programming:SAFE": 1,
+      "programming:UNCERTAIN": 1,
+      "programming:UNSAFE": 12,
+      "unknown:UNCERTAIN": 2,
+      "unknown:UNSAFE": 26
+    },
+    "entity": {
+      "berlin:UNSAFE": 1,
+      "binary search:SAFE": 1,
+      "binary search:UNSAFE": 3,
+      "found:UNSAFE": 1,
+      "javascript:UNSAFE": 1,
+      "markdown:UNSAFE": 1,
+      "mongodb:UNSAFE": 1,
+      "none:UNCERTAIN": 1,
+      "none:UNSAFE": 19,
+      "not:UNSAFE": 1,
+      "openai:UNSAFE": 2,
+      "paris:UNSAFE": 1,
+      "python:SAFE": 1,
+      "python:UNCERTAIN": 1,
+      "python:UNSAFE": 8,
+      "use:UNCERTAIN": 1,
+      "use:UNSAFE": 1
+    },
+    "format": {
+      "code:SAFE": 1,
+      "code:UNSAFE": 3,
+      "json:UNCERTAIN": 1,
+      "json:UNSAFE": 2,
+      "list:UNSAFE": 6,
+      "table:UNSAFE": 1,
+      "unknown:UNCERTAIN": 2,
+      "unknown:UNSAFE": 26
+    },
+    "intent": {
+      "code:SAFE": 1,
+      "code:UNSAFE": 3,
+      "explain:UNCERTAIN": 1,
+      "explain:UNSAFE": 8,
+      "factual:UNCERTAIN": 1,
+      "factual:UNSAFE": 8,
+      "summarize:UNSAFE": 4,
+      "unknown:UNCERTAIN": 1,
+      "unknown:UNSAFE": 15
+    },
+    "temporal": {
+      "dynamic:UNSAFE": 2,
+      "semi_dynamic:UNSAFE": 1,
+      "stable:SAFE": 1,
+      "stable:UNCERTAIN": 3,
+      "stable:UNSAFE": 35
+    }
+  },
+  "decision_counts": {
+    "SAFE": 1,
+    "UNCERTAIN": 3,
+    "UNSAFE": 38
+  },
+  "disagreement_class_counts": {
+    "evaluator_behavior": 6,
+    "metadata_insufficiency": 3
+  },
+  "embedding_cost_per_1k_tokens": 0.0,
+  "embedding_dimension": 8,
+  "embedding_model": "fake-embedding",
+  "embedding_tokens": 271,
+  "estimated_cost_usd": 0.0,
+  "evaluation_split": "development",
+  "execution_timestamp": "2026-10-07T15:27:55.066101+00:00",
+  "failure_categories": {
+    "all candidates were incompatible": 37,
+    "no candidate had sufficient compatibility evidence": 3,
+    "semantic_miss": 1
+  },
+  "failure_examples": [
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "c8bd4856de54dc1ae8502a4b43f2b5e5d5ba15e39b03b6cad2fa92bd336c39e6",
+          "decision": "UNCERTAIN",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "missing_domain_evidence",
+          "similarity": 1.0,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNCERTAIN"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_reusable": true,
+      "failure_category": "false_negative",
+      "id": "pair-0001",
+      "predicted_decision": "UNCERTAIN",
+      "reason": "no candidate had sufficient compatibility evidence",
+      "similarity": 1.0
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNCERTAIN",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "missing_intent_evidence",
+          "similarity": 1.0,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.02707985456721438,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "c8bd4856de54dc1ae8502a4b43f2b5e5d5ba15e39b03b6cad2fa92bd336c39e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.14116243424939443,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNCERTAIN"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_reusable": true,
+      "failure_category": "false_negative",
+      "id": "pair-0003",
+      "predicted_decision": "UNCERTAIN",
+      "reason": "no candidate had sufficient compatibility evidence",
+      "similarity": -0.14116243424939443
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "2e78ac6d33e821cb65abd979ce444efa9003a9ef27b908743db68463cc0afe84",
+          "decision": "UNCERTAIN",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "missing_domain_evidence",
+          "similarity": 1.0,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.43357714501196526,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.36769385041494906,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "c8bd4856de54dc1ae8502a4b43f2b5e5d5ba15e39b03b6cad2fa92bd336c39e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.3896174846739567,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNCERTAIN"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_reusable": true,
+      "failure_category": "false_negative",
+      "id": "pair-0004",
+      "predicted_decision": "UNCERTAIN",
+      "reason": "no candidate had sufficient compatibility evidence",
+      "similarity": -0.3896174846739567
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "f32065fd93148d45165aa4894c6e4b8a3c50cb9c51fd0f73cceeb812b469abf3",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.10184768373817533,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "c8bd4856de54dc1ae8502a4b43f2b5e5d5ba15e39b03b6cad2fa92bd336c39e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.05178965458838681,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.004563129919077463,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.03188770415568045,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "2e78ac6d33e821cb65abd979ce444efa9003a9ef27b908743db68463cc0afe84",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.4479205983443941,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_reusable": true,
+      "failure_category": "false_negative",
+      "id": "pair-0005",
+      "predicted_decision": "UNSAFE",
+      "reason": "all candidates were incompatible",
+      "similarity": -0.4479205983443941
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.4178552727676432,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "f32065fd93148d45165aa4894c6e4b8a3c50cb9c51fd0f73cceeb812b469abf3",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.30876471539085804,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "0a9c1705a98f257c456ee440ee9c22565dd39db28e786df420390fd2456a9c62",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.2961409795786278,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.0886686892901272,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "2e78ac6d33e821cb65abd979ce444efa9003a9ef27b908743db68463cc0afe84",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.11535155859810386,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_reusable": true,
+      "failure_category": "false_negative",
+      "id": "pair-0006",
+      "predicted_decision": "UNSAFE",
+      "reason": "all candidates were incompatible",
+      "similarity": -0.11535155859810386
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "5a9336ba37b14c81c93c2d1b2153355e1040c1912c38594d5801c78528f9ecf4",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.7717412711460002,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "c23dbb4ba4b87e787bc52738d647c09184058350e7a1d1faf8c3e89e85d3bb86",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5845201693559482,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "f32065fd93148d45165aa4894c6e4b8a3c50cb9c51fd0f73cceeb812b469abf3",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.2191359009980556,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "0a9c1705a98f257c456ee440ee9c22565dd39db28e786df420390fd2456a9c62",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.03562164986997584,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.030980598789042486,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_reusable": true,
+      "failure_category": "false_negative",
+      "id": "pair-0007",
+      "predicted_decision": "UNSAFE",
+      "reason": "all candidates were incompatible",
+      "similarity": 0.030980598789042486
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.3290522118142369,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "2e78ac6d33e821cb65abd979ce444efa9003a9ef27b908743db68463cc0afe84",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.28660522271334354,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "c23dbb4ba4b87e787bc52738d647c09184058350e7a1d1faf8c3e89e85d3bb86",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.15508215864282218,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "6ae7ac78198ceff73021b6f78dedf8825bfe7fcdce8d16d7f7f431199fc56a10",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.13292640293597066,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "f32065fd93148d45165aa4894c6e4b8a3c50cb9c51fd0f73cceeb812b469abf3",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.12167456079669338,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_reusable": true,
+      "failure_category": "false_negative",
+      "id": "pair-0008",
+      "predicted_decision": "UNSAFE",
+      "reason": "all candidates were incompatible",
+      "similarity": 0.12167456079669338
+    }
+  ],
+  "false_positive_examples": [],
+  "false_positive_rate": 0.0,
+  "generated_requests": 41,
+  "git_commit": "c1d15bac1e00b8d001c9b994c24d48c01dfa4a7f",
+  "git_worktree_dirty": true,
+  "hit_rate": 0.023809523809523808,
+  "input_cost_per_1k_tokens": 0.0,
+  "input_tokens": 264,
+  "label_sections": {
+    "compatibility": {
+      "compatible": 8,
+      "incompatible": 11,
+      "match": 12,
+      "mismatch": 9,
+      "observed_safe": 1,
+      "observed_uncertain": 3,
+      "observed_unsafe": 38,
+      "uncertain": 2
+    },
+    "correctness": {
+      "not_collected": 21
+    },
+    "preference": {
+      "not_collected": 21
+    }
+  },
+  "observed_pair_records": [
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "c8bd4856de54dc1ae8502a4b43f2b5e5d5ba15e39b03b6cad2fa92bd336c39e6",
+          "decision": "UNCERTAIN",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "missing_domain_evidence",
+          "similarity": 1.0,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": "metadata_insufficiency",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNCERTAIN"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_decision": "SAFE",
+      "id": "pair-0001",
+      "observed_decision": "UNCERTAIN",
+      "reason": "no candidate had sufficient compatibility evidence"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "SAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "compatible_metadata",
+          "similarity": 1.0,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "c8bd4856de54dc1ae8502a4b43f2b5e5d5ba15e39b03b6cad2fa92bd336c39e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.419161629550672,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": null,
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "SAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_decision": "SAFE",
+      "id": "pair-0002",
+      "observed_decision": "SAFE",
+      "reason": "compatible_metadata"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNCERTAIN",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "missing_intent_evidence",
+          "similarity": 1.0,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.02707985456721438,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "c8bd4856de54dc1ae8502a4b43f2b5e5d5ba15e39b03b6cad2fa92bd336c39e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.14116243424939443,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": "metadata_insufficiency",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNCERTAIN"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_decision": "SAFE",
+      "id": "pair-0003",
+      "observed_decision": "UNCERTAIN",
+      "reason": "no candidate had sufficient compatibility evidence"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "2e78ac6d33e821cb65abd979ce444efa9003a9ef27b908743db68463cc0afe84",
+          "decision": "UNCERTAIN",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "missing_domain_evidence",
+          "similarity": 1.0,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.43357714501196526,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.36769385041494906,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "c8bd4856de54dc1ae8502a4b43f2b5e5d5ba15e39b03b6cad2fa92bd336c39e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.3896174846739567,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": "metadata_insufficiency",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNCERTAIN"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_decision": "SAFE",
+      "id": "pair-0004",
+      "observed_decision": "UNCERTAIN",
+      "reason": "no candidate had sufficient compatibility evidence"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "f32065fd93148d45165aa4894c6e4b8a3c50cb9c51fd0f73cceeb812b469abf3",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.10184768373817533,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "c8bd4856de54dc1ae8502a4b43f2b5e5d5ba15e39b03b6cad2fa92bd336c39e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.05178965458838681,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.004563129919077463,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.03188770415568045,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "2e78ac6d33e821cb65abd979ce444efa9003a9ef27b908743db68463cc0afe84",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.4479205983443941,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": "evaluator_behavior",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_decision": "SAFE",
+      "id": "pair-0005",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.4178552727676432,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "f32065fd93148d45165aa4894c6e4b8a3c50cb9c51fd0f73cceeb812b469abf3",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.30876471539085804,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "0a9c1705a98f257c456ee440ee9c22565dd39db28e786df420390fd2456a9c62",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.2961409795786278,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.0886686892901272,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "2e78ac6d33e821cb65abd979ce444efa9003a9ef27b908743db68463cc0afe84",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": -0.11535155859810386,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": "evaluator_behavior",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_decision": "SAFE",
+      "id": "pair-0006",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "5a9336ba37b14c81c93c2d1b2153355e1040c1912c38594d5801c78528f9ecf4",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.7717412711460002,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "c23dbb4ba4b87e787bc52738d647c09184058350e7a1d1faf8c3e89e85d3bb86",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5845201693559482,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "f32065fd93148d45165aa4894c6e4b8a3c50cb9c51fd0f73cceeb812b469abf3",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.2191359009980556,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "0a9c1705a98f257c456ee440ee9c22565dd39db28e786df420390fd2456a9c62",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.03562164986997584,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.030980598789042486,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": "evaluator_behavior",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_decision": "SAFE",
+      "id": "pair-0007",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.3290522118142369,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "2e78ac6d33e821cb65abd979ce444efa9003a9ef27b908743db68463cc0afe84",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.28660522271334354,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "c23dbb4ba4b87e787bc52738d647c09184058350e7a1d1faf8c3e89e85d3bb86",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.15508215864282218,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "6ae7ac78198ceff73021b6f78dedf8825bfe7fcdce8d16d7f7f431199fc56a10",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.13292640293597066,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "f32065fd93148d45165aa4894c6e4b8a3c50cb9c51fd0f73cceeb812b469abf3",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.12167456079669338,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": "evaluator_behavior",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "SAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "compatible",
+      "expected_decision": "SAFE",
+      "id": "pair-0008",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "578d3bb339074ca554d7cd4561f4e33036c3d194f1a72efdf3f3e96da00a8e04",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.7814342592820498,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "431611dcf22e2198f563d8f64c073af845a1b8dd7bf8be9c43ffa0d7bb047be4",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.6755168223260196,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "c23dbb4ba4b87e787bc52738d647c09184058350e7a1d1faf8c3e89e85d3bb86",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.36474941541388,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.23068417284387718,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "6ae7ac78198ceff73021b6f78dedf8825bfe7fcdce8d16d7f7f431199fc56a10",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.21287602140840806,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": null,
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNSAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "incompatible",
+      "expected_decision": "UNSAFE",
+      "id": "pair-0009",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.4196444413948918,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "cfe9c8e65ea8525bfd507a934f1f0167b7df41fb10c394f29f37ee6c390c0374",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.3484351032628245,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "0a9c1705a98f257c456ee440ee9c22565dd39db28e786df420390fd2456a9c62",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.3316039329906569,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "2e78ac6d33e821cb65abd979ce444efa9003a9ef27b908743db68463cc0afe84",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.3068244343243626,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "c8bd4856de54dc1ae8502a4b43f2b5e5d5ba15e39b03b6cad2fa92bd336c39e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.21358848094164493,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": null,
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNSAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "incompatible",
+      "expected_decision": "UNSAFE",
+      "id": "pair-0010",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "15ca6d71c2ef602065dd32e28254f50e8766b36ae038fc94fcba88fb038cd9e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.6709726070817233,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "cfe9c8e65ea8525bfd507a934f1f0167b7df41fb10c394f29f37ee6c390c0374",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.34822604874225177,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.3088774362486109,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "10856b7edaabbbee271861c439cd60363c19a7d15933e63813b14e511ef8d925",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.2899001574604793,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "c8bd4856de54dc1ae8502a4b43f2b5e5d5ba15e39b03b6cad2fa92bd336c39e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.2794924555964115,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": null,
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNSAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "incompatible",
+      "expected_decision": "UNSAFE",
+      "id": "pair-0011",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "c0874af1e4f2976ddbc5e8edd8c65881baf2ba1cf2f0c9acd46ba0df2db459a2",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5518243705310105,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "a64b193748e3514c2a0168faa3ddd5cb7213911f166aa4cab56880b04089ee29",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.39451167523495845,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.36897788107270724,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "431611dcf22e2198f563d8f64c073af845a1b8dd7bf8be9c43ffa0d7bb047be4",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.34408661387591544,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "10f5e74fdea1af04162d6c09cedecf065df7057bf815cc74c2d27e383bea2a6c",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.24763358337276248,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": null,
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNSAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "incompatible",
+      "expected_decision": "UNSAFE",
+      "id": "pair-0012",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "15ca6d71c2ef602065dd32e28254f50e8766b36ae038fc94fcba88fb038cd9e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5205968862088621,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "0a9c1705a98f257c456ee440ee9c22565dd39db28e786df420390fd2456a9c62",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.32923621867824304,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "2e78ac6d33e821cb65abd979ce444efa9003a9ef27b908743db68463cc0afe84",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.2951726939088281,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "ef73e80b4d9bec7d86234dbeb05a3f17aefa329384ac5a4a29d7ba80abdc01f8",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.2898594005377821,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.2719136872393938,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": null,
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNSAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "incompatible",
+      "expected_decision": "UNSAFE",
+      "id": "pair-0013",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "2e78ac6d33e821cb65abd979ce444efa9003a9ef27b908743db68463cc0afe84",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5572701527165571,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "ef73e80b4d9bec7d86234dbeb05a3f17aefa329384ac5a4a29d7ba80abdc01f8",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5127149962599152,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "8241fbe4f31617c82ed8d5c3eca555fcc957115351cdc317728b8438853c5baf",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.37124410292978244,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "10856b7edaabbbee271861c439cd60363c19a7d15933e63813b14e511ef8d925",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.256036473944142,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "431611dcf22e2198f563d8f64c073af845a1b8dd7bf8be9c43ffa0d7bb047be4",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.25450557552396535,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": null,
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNSAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "incompatible",
+      "expected_decision": "UNSAFE",
+      "id": "pair-0014",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "05ec98b46988190a464bfbc6e7b56c6de81a8222162199324f1cd23a63c14009",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5091398219073455,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "15310d6222602e044aa9afbd76d9a87c49eeb22a369ac3c643e34b57cbbe6118",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.32923825330528106,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "c0874af1e4f2976ddbc5e8edd8c65881baf2ba1cf2f0c9acd46ba0df2db459a2",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.30564455862203194,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "ef73e80b4d9bec7d86234dbeb05a3f17aefa329384ac5a4a29d7ba80abdc01f8",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.2861231705396767,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "7df1d1921263b82717008c104d9d658d361b7784fe0321509e0c6dd8dba4274e",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.25428415973358576,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": null,
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNSAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "incompatible",
+      "expected_decision": "UNSAFE",
+      "id": "pair-0015",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "5f5486201282851e2b8219950829e28fa98ce75f65b20e4c9d3ea2becb8aab6d",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.6680304174574968,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "10856b7edaabbbee271861c439cd60363c19a7d15933e63813b14e511ef8d925",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5791526784270371,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "578d3bb339074ca554d7cd4561f4e33036c3d194f1a72efdf3f3e96da00a8e04",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5376204517634089,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "c0874af1e4f2976ddbc5e8edd8c65881baf2ba1cf2f0c9acd46ba0df2db459a2",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5046938459990927,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "10f5e74fdea1af04162d6c09cedecf065df7057bf815cc74c2d27e383bea2a6c",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.43221530279287296,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": null,
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNSAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "incompatible",
+      "expected_decision": "UNSAFE",
+      "id": "pair-0016",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "c23dbb4ba4b87e787bc52738d647c09184058350e7a1d1faf8c3e89e85d3bb86",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5575909436751506,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "6ae7ac78198ceff73021b6f78dedf8825bfe7fcdce8d16d7f7f431199fc56a10",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.3744187186258477,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "cfe9c8e65ea8525bfd507a934f1f0167b7df41fb10c394f29f37ee6c390c0374",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.30806702577422895,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "42bd78bc1e5d6f6e7409e131691f602bd6db9178123c3cf60dc87d198f9618a9",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.24713540735461684,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "c0874af1e4f2976ddbc5e8edd8c65881baf2ba1cf2f0c9acd46ba0df2db459a2",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.23960318824576862,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": null,
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNSAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "incompatible",
+      "expected_decision": "UNSAFE",
+      "id": "pair-0025",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "a64b193748e3514c2a0168faa3ddd5cb7213911f166aa4cab56880b04089ee29",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.6484635561421427,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "ff44ced2eeaa5820abd84146518dbe65f95392caa94717cd90b51fb30abe7181",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5992255454295077,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "6ae7ac78198ceff73021b6f78dedf8825bfe7fcdce8d16d7f7f431199fc56a10",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5497547219776082,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "f32065fd93148d45165aa4894c6e4b8a3c50cb9c51fd0f73cceeb812b469abf3",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.4901765561362959,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "c8bd4856de54dc1ae8502a4b43f2b5e5d5ba15e39b03b6cad2fa92bd336c39e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.27125841921792687,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": null,
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNSAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "incompatible",
+      "expected_decision": "UNSAFE",
+      "id": "pair-0026",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "c0874af1e4f2976ddbc5e8edd8c65881baf2ba1cf2f0c9acd46ba0df2db459a2",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.49775019175275326,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "6ba19fad0e068b01e9d3452e6da8e5b579b974c7b32acfb71486ff261ebd7b0b",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.4924556168603565,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "883e3cc9d1bffe1e1ee5785dff0f688f1ca6065a15eefe36056d0a36847bed48",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.4885202572452154,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "578d3bb339074ca554d7cd4561f4e33036c3d194f1a72efdf3f3e96da00a8e04",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.4567309800639858,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "5f5486201282851e2b8219950829e28fa98ce75f65b20e4c9d3ea2becb8aab6d",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.42386115264081337,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": null,
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNSAFE",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "incompatible",
+      "expected_decision": "UNSAFE",
+      "id": "pair-0027",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "c23dbb4ba4b87e787bc52738d647c09184058350e7a1d1faf8c3e89e85d3bb86",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.7628704071178021,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "ccf4a9eb2c640abdfa4e911eb6d18b422377ac997665bd0e6b59dc81eb458313",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.6416502110757044,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "578d3bb339074ca554d7cd4561f4e33036c3d194f1a72efdf3f3e96da00a8e04",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.6318518361077663,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "c0874af1e4f2976ddbc5e8edd8c65881baf2ba1cf2f0c9acd46ba0df2db459a2",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5776433468343076,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 5,
+          "candidate_query_hash": "47f00df824d6c3078ec8e5ff96976f805f78f9c4bb7e1065acccc11cbce3ba23",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5272342588231198,
+          "stage": "compatibility"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": "evaluator_behavior",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNCERTAIN",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "uncertain",
+      "expected_decision": "UNCERTAIN",
+      "id": "pair-0028",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    },
+    {
+      "candidate_traces": [
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 1,
+          "candidate_query_hash": "d7a304c5bd14c015fa6e76c232b3e4882e8751660ad1e4b8a7a114614c1b8662",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5907658883468162,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 2,
+          "candidate_query_hash": "47d319a13ecdbb90aa914bc25f2ef7e776c1299b631301451911b04bf1ffa968",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.5061899541053959,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 3,
+          "candidate_query_hash": "15ca6d71c2ef602065dd32e28254f50e8766b36ae038fc94fcba88fb038cd9e6",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.41186972721771026,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "fresh",
+          "candidate_metadata": {},
+          "candidate_order": 4,
+          "candidate_query_hash": "80ef4384769f081d17053fa84303f2c1399d894178623cb1d3767a2ac2dd3079",
+          "decision": "UNSAFE",
+          "freshness_class": "stable",
+          "query_metadata": {},
+          "reason": "similarity_below_threshold",
+          "similarity": 0.3508266435534442,
+          "stage": "compatibility"
+        },
+        {
+          "cache_control_outcome": "dynamic_entries_disabled",
+          "candidate_metadata": {
+            "constraints": {},
+            "domain": "unknown",
+            "entities": [
+              "openai"
+            ],
+            "intent": "factual",
+            "output_format": "unknown",
+            "temporal_class": "dynamic"
+          },
+          "candidate_order": 5,
+          "candidate_query_hash": "d800bea24f52c9db2a3057701924936677de692de4cf1011ac2b7ffbfc5f3702",
+          "decision": "UNSAFE",
+          "freshness_class": "dynamic",
+          "query_metadata": {
+            "constraints": {},
+            "domain": "unknown",
+            "entities": [],
+            "intent": "summarize",
+            "output_format": "unknown",
+            "temporal_class": "semi_dynamic"
+          },
+          "reason": "cache_control_dynamic_disabled",
+          "similarity": 0.3301344880316933,
+          "stage": "retrieval"
+        }
+      ],
+      "direction": "b_to_a",
+      "disagreement_class": "evaluator_behavior",
+      "evaluation_labels": {
+        "annotation": {
+          "adjudication_status": null,
+          "source": "human_review"
+        },
+        "compatibility": {
+          "expected_decision": "UNCERTAIN",
+          "observed_decision": "UNSAFE"
+        },
+        "correctness": {
+          "cached_answer": null,
+          "generated_answer": null
+        },
+        "preference": {
+          "applicable": false,
+          "winner": null
+        }
+      },
+      "expected_compatibility": "uncertain",
+      "expected_decision": "UNCERTAIN",
+      "id": "pair-0029",
+      "observed_decision": "UNSAFE",
+      "reason": "all candidates were incompatible"
+    }
+  ],
+  "output_cost_per_1k_tokens": 0.0,
+  "output_tokens": 387,
+  "p50_latency_ms": 0.0,
+  "p95_latency_ms": 0.0,
+  "p99_latency_ms": 0.0,
+  "precision": 1.0,
+  "preference_label_counts": {
+    "not_collected": 21
+  },
+  "preprocessing_cost_usd": 0.0,
+  "recall": 0.125,
+  "request_count": 42,
+  "reusable_opportunities": 8,
+  "safe_reuse_coverage": 0.125,
+  "safe_reuse_hits": 1,
+  "safety_contract_version": "1.0.0",
+  "schema_version": "1.0.0",
+  "selected_threshold": 0.95,
+  "software_version": "0.1.0",
+  "threshold": 0.95,
+  "threshold_selection_rule": "maximize safe reuse coverage subject to the development false-positive rate <= 0.0",
+  "threshold_selection_split": "development",
+  "tokens_saved": 17,
+  "top_k": 5,
+  "total_latency_ms": 0,
+  "trace_contract_version": "1.0.0",
+  "uncertain_decisions": 3,
+  "unsafe_reuse_hits": 0
+}

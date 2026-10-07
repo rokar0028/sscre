@@ -24,7 +24,7 @@ remains an opt-in retrieval-only experiment baseline.
 | `src/sscre/cache_controls.py` | Freshness/TTL eligibility via `evaluate_cache_control()`; not a safety decision. |
 | `src/sscre/app.py` | Orchestration: exact lookup, semantic search, freshness filter, Strategy B/C branches, generation fallback, logging, `QueryResponse`. |
 | `src/sscre/serialization.py` | API/log/report boundary: `boundary_candidate_traces()`, `build_cache_decision_log()`, redaction. |
-| `src/sscre/baseline.py` | Evaluation replay: `evaluate_candidate()` + `resolve_candidate_traces()` for compatibility baseline reports. |
+| `src/sscre/baseline.py` | Evaluation replay: cache control, then `evaluate_candidate_boundary()` and `resolve_candidate_traces()` for compatibility baseline reports. |
 | `src/sscre/query.py` | `QueryResponse` Pydantic validation of decision literals and SAFE-only selection fields. |
 
 Production cache reuse under Strategy C flows:
@@ -61,17 +61,18 @@ preprocess_query → metadata
 | Disposition | Meaning | Where it happens | Trace expectation (current) |
 |---|---|---|---|
 | **evaluated** | Candidate passed freshness gate and received `evaluate_candidate()` (and context enrichment). | Strategy C exact/semantic paths, duplicate-write recheck. | One or more full `CandidateTrace` rows in response/logs when traces collected. |
-| **filtered_before_evaluation** | Entry or candidate removed by `cache_entry_is_reusable` / `evaluate_cache_control` before compatibility runs. | Expired, missing/invalid TTL, dynamic policy disabled. | Often **no** candidate trace; aggregate reason may be cache-control (`expired`, `dynamic_entries_disabled`) on generated response. |
+| **filtered_before_evaluation** | Entry blocked by `evaluate_cache_control` before compatibility runs. | Expired, missing/invalid TTL, dynamic policy disabled. | A `stage=retrieval` cache-control trace. Search does not drop these rows before tracing. |
 | **not_retrieved** | Lookup/search failed or never ran; empty candidate set. | Repo errors, no semantic hits, embedding failure before search. | `candidate_traces: null` or empty; `no candidates were retrieved` when applicable. |
 
-Step 3 will decide whether filtered candidates must appear as explicit pre-compatibility
-trace rows without changing the `SAFE` / `UNSAFE` / `UNCERTAIN` vocabulary.
+Ineligible retrieved candidates are `stage=retrieval` cache-control traces.
+The public vocabulary stays `SAFE`, `UNSAFE`, and `UNCERTAIN`.
 
 ## Frozen test matrix
 
 - **Pure evaluator rows:** 16 conditions → expected decision and reason (step 2 unit tests).
-- **Request path rows:** 15 orchestration scenarios → strategy, source, decision, reason
-  pattern, trace count floor, disposition, planned step, optional existing test name.
+- **Request path rows:** 18 orchestration scenarios (7 `SAFE`, 5 `UNSAFE`,
+  5 `UNCERTAIN`, 1 error) → strategy, source, decision, reason pattern, trace
+  count floor, disposition, planned step, optional existing test name.
 
 Matrix guard tests: `tests/test_workstream3_decision_matrix.py`.
 
@@ -152,9 +153,9 @@ follow-ups**, not as proof that runtime behavior is fully matrix-tested yet.
   `app.py`, `serialization.py`, `baseline.py`, and `query.py`.
 - Strategy C flow diagram matches `app.py` (freshness gate → evaluate →
   `resolve_candidate_traces` → generate on non-`SAFE`).
-- All **16** pure-evaluator matrix rows already have matching unit tests in
-  `tests/test_compatibility.py` (step 2 adds boundaries, precedence, and
-  matrix-driven parametrization—not greenfield behavior).
+- Step 2 adds matrix-driven coverage in `tests/test_workstream3_pure_evaluator.py`
+  and `tests/fixtures/workstream3_evaluator_cases.py` (16 rows, precedence,
+  boundary helper). Legacy overlap remains in `tests/test_compatibility.py`.
 - Contract versions match module constants.
 - Matrix guard tests pass together with safety/compatibility (40 tests, 2026-10-07).
 

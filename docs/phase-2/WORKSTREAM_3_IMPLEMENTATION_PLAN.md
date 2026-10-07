@@ -22,30 +22,11 @@ The target outcome is a deterministic Strategy C path that can explain:
 
 ## Status
 
-**Baseline exists; decision-depth hardening is open.** The repository already
-contains `CandidateTrace`, `SafetyResult`, `resolve_candidate_traces`,
-`evaluate_candidate`, Strategy C integration in `app.py`, bounded trace
-serialization, and tests for several compatibility and failure paths.
-
-The remaining work is to close the contract gaps and make the behavior
-comprehensive and reproducible:
-
-- candidate-level tests do not yet cover every required decision and freshness
-  outcome as a single contract suite;
-- freshness filtering currently prevents some expired or disallowed candidates
-  from appearing in candidate traces;
-- the trace contract requires contextual freshness and cache-control evidence
-  for evaluated candidates, but the pure evaluator does not produce that
-  context itself;
-- validator, repository, embedding, and serialization failures need explicit
-  failure-closed integration coverage;
-- deterministic ordering and aggregate behavior need regression tests across
-  multiple candidates;
-- completion evidence for this workstream has not yet been recorded.
-
-This plan treats the current implementation as the starting point. Any
-behavioral change must remain compatible with the frozen contract versions
-unless a separately approved contract revision is created.
+**Decision-depth checks are recorded.** Execution steps 1–11 are checked. The
+handoff is [WORKSTREAM_3_EVIDENCE.md](./WORKSTREAM_3_EVIDENCE.md) (2026-10-07:
+full suite 412 passed, 13 PostgreSQL skips). Behavioral changes stay
+compatible with the frozen contract versions unless a separately approved
+contract revision is created.
 
 ## Source of truth
 
@@ -189,19 +170,23 @@ No caller may interpret `UNCERTAIN` as a cache hit or silently collapse it into
 
 ### Open baseline gaps
 
-- [ ] Candidate traces expose every freshness rejection that affected the
-  decision, including expired and policy-disallowed candidates.
-- [ ] The trace contract's required contextual fields are consistently present
-  for every evaluated candidate and every fallback reason.
-- [ ] All candidate-level decision branches have direct unit coverage with
-  explicit expected reason values.
-- [ ] Multi-candidate resolution proves first-safe selection and preserves
-  retrieval order after rejected candidates.
-- [ ] Validator and serialization exceptions are proven not to produce a hit.
-- [ ] Exact and semantic paths have equivalent failure-closed guarantees.
-- [ ] Deterministic fake-provider replay proves stable traces and response
-  decisions across repeated runs.
-- [ ] Completion evidence links commands, test results, and known limitations.
+- [x] Candidate traces expose every freshness rejection that affected the
+  decision, including expired and policy-disallowed candidates (step 3).
+- [x] Freshness contextual fields on considered candidates (step 3); compatibility
+  paths unchanged for unevaluated rows.
+- [x] All candidate-level decision branches have direct unit coverage with
+  explicit expected reason values (step 2 matrix + `test_workstream3_pure_evaluator.py`).
+- [x] Multi-candidate resolution proves first-safe selection and preserves
+  retrieval order after rejected candidates (step 4).
+- [x] Validator and serialization exceptions are proven not to produce a hit
+  (step 6).
+- [x] Exact and semantic paths have equivalent failure-closed guarantees (step 5
+  integration tests; step 6 covers dependency failures).
+- [x] Deterministic fake-provider replay proves stable traces and response
+  decisions across repeated runs (step 8 boundary replay; step 10 full suite
+  includes the HTTP replay).
+- [x] Completion evidence links commands, test results, and known limitations
+  ([WORKSTREAM_3_EVIDENCE.md](./WORKSTREAM_3_EVIDENCE.md)).
 
 ## Contract handoff
 
@@ -303,20 +288,49 @@ Required outcomes:
 | Temporal class mismatch | `UNCERTAIN` | `temporal_class_mismatch` |
 | Complete compatible evidence | `SAFE` | `compatible_metadata` |
 
-- [ ] Add direct tests for every row in the decision table.
-- [ ] Test threshold equality and both similarity bounds.
-- [ ] Test deterministic precedence when more than one mismatch exists.
-- [ ] Test empty, unknown, and partially populated metadata explicitly.
-- [ ] Test constraint-key mismatch separately from constraint-value mismatch.
-- [ ] Test entity overlap, disjoint entities, and one-sided entity evidence.
-- [ ] Test temporal mismatch independently from TTL expiration.
-- [ ] Confirm the evaluator never returns `SAFE` for incomplete evidence.
-- [ ] Confirm every produced reason passes the frozen taxonomy validator.
-- [ ] Confirm malformed candidate metadata is converted to `UNCERTAIN` at the
+- [x] Add direct tests for every row in the decision table.
+- [x] Test threshold equality and both similarity bounds.
+- [x] Test deterministic precedence when more than one mismatch exists.
+- [x] Test empty, unknown, and partially populated metadata explicitly.
+- [x] Test constraint-key mismatch separately from constraint-value mismatch.
+- [x] Test entity overlap, disjoint entities, and one-sided entity evidence.
+- [x] Test temporal mismatch independently from TTL expiration.
+- [x] Confirm the evaluator never returns `SAFE` for incomplete evidence.
+- [x] Confirm every produced reason passes the frozen taxonomy validator.
+- [x] Confirm malformed candidate metadata is converted to `UNCERTAIN` at the
   boundary that owns validation, without exposing exception text.
 
 Do not add a borderline decision band. Similarity below the configured
 threshold is `UNSAFE`; insufficient compatibility evidence is `UNCERTAIN`.
+
+Step 2 evidence (2026-10-07):
+
+- [x] `evaluate_candidate_boundary()` in `src/sscre/compatibility.py`; Strategy C
+  paths in `app.py` use it for failure-closed evaluation.
+- [x] Matrix-driven cases in `tests/fixtures/workstream3_evaluator_cases.py`.
+- [x] Contract tests in `tests/test_workstream3_pure_evaluator.py`.
+- [x] `python -m pytest -q tests/test_workstream3_pure_evaluator.py tests/test_compatibility.py` → 56 passed (2026-10-07).
+
+#### Step 2 independent review (2026-10-07)
+
+**Verdict:** Step 2 checklist is satisfied. Pure `evaluate_candidate()` is unchanged
+in semantics; coverage is matrix-driven; Strategy C request paths use
+`evaluate_candidate_boundary()`.
+
+| Checklist item | Assessment |
+|---|---|
+| All decision-table rows | 16/16 via parametrized `test_pure_evaluator_matrix_row` |
+| Threshold equality / bounds | At-threshold SAFE at ±1; just-below UNSAFE; invalid threshold rejected |
+| Precedence | Similarity before constraint; dynamic query before missing metadata; constraint before entity |
+| Metadata shapes | Empty entities, all-unknown scalars, overlap |
+| Constraint key vs value | Extra keys → `incomplete_*`; shared key diff → `constraint_mismatch:*` |
+| Taxonomy | `validate_trace_reason` on matrix assertions |
+| Malformed / validator failure | `evaluate_candidate_boundary` + invalid similarity 2.0 case |
+
+**Minor follow-ups (not step 2 blockers):** duplicate scenarios in
+`test_compatibility.py`; replay uses `evaluate_candidate_boundary` and applies
+cache control before that boundary; broad `except Exception` on the boundary
+is intentional failure-closed but untyped.
 
 ### 3. Make freshness evidence explicit and failure-closed
 
@@ -326,9 +340,9 @@ effective order must remain:
 ```text
 cache-control policy and TTL
     ↓
-candidate compatibility
-    ↓
 similarity threshold
+    ↓
+other compatibility rules
     ↓
 aggregate decision
     ↓
@@ -339,21 +353,21 @@ The runtime must never serve a candidate that is expired, has invalid or
 missing expiration data, is a disallowed dynamic class, or is otherwise
 ineligible under the active policy.
 
-- [ ] Decide and document whether ineligible retrieved candidates are emitted
+- [x] Decide and document whether ineligible retrieved candidates are emitted
   as `UNSAFE` traces with their cache-control reason or represented as a
   separate bounded pre-compatibility trace stage.
-- [ ] Keep the decision vocabulary unchanged while making freshness outcomes
+- [x] Keep the decision vocabulary unchanged while making freshness outcomes
   visible in the approved trace fields.
-- [ ] Ensure `freshness_class` and `cache_control_outcome` are present whenever
+- [x] Ensure `freshness_class` and `cache_control_outcome` are present whenever
   a candidate was considered by the request path.
-- [ ] Test fresh stable and semi-dynamic candidates.
-- [ ] Test expired candidates and confirm they cannot be selected.
-- [ ] Test dynamic entries when dynamic caching is disabled.
-- [ ] Test missing and invalid expiration metadata.
-- [ ] Test that a fresh but incompatible candidate remains non-reusable.
-- [ ] Test that a stale compatible candidate does not become `SAFE`.
-- [ ] Test exact and semantic freshness behavior consistently.
-- [ ] Preserve the existing lazy-cleanup behavior unless a separate storage
+- [x] Test fresh stable and semi-dynamic candidates.
+- [x] Test expired candidates and confirm they cannot be selected.
+- [x] Test dynamic entries when dynamic caching is disabled.
+- [x] Test missing and invalid expiration metadata.
+- [x] Test that a fresh but incompatible candidate remains non-reusable.
+- [x] Test that a stale compatible candidate does not become `SAFE`.
+- [x] Test exact and semantic freshness behavior consistently.
+- [x] Preserve the existing lazy-cleanup behavior unless a separate storage
   task explicitly changes it.
 
 The implementation must not hide a stale-answer risk merely because the
@@ -361,25 +375,45 @@ candidate was removed before compatibility evaluation. If the repository API
 cannot return rejected candidates, record that limitation and ensure reports
 do not claim candidate-level freshness coverage that was not observed.
 
+Step 3 evidence (2026-10-07):
+
+- [x] Policy: [`WORKSTREAM_3_FRESHNESS_TRACE_POLICY.md`](./WORKSTREAM_3_FRESHNESS_TRACE_POLICY.md).
+- [x] `build_cache_control_trace()` in `src/sscre/cache_control_traces.py`.
+- [x] Strategy C exact/semantic paths trace ineligible candidates at
+  `stage=retrieval`; Strategy B still filters before serve.
+- [x] Tests: `tests/test_cache_control_traces.py`,
+  `tests/test_workstream3_freshness.py`; TTL/exact-cache expectations updated.
+- [x] `python -m pytest -q tests/test_cache_control_traces.py tests/test_workstream3_decision_matrix.py tests/test_trace_contract.py tests/test_workstream3_pure_evaluator.py tests/test_compatibility.py` → 74 passed (2026-10-07).
+- [x] `tests/test_workstream3_freshness.py` and TTL integration passed in the
+  2026-10-07 full suite (412 passed, 13 PostgreSQL skips).
+
 ### 4. Verify deterministic candidate ordering and aggregation
 
 Strategy C receives candidates in retrieval order. The first `SAFE` candidate
 must win; later candidates must not replace it. If no candidate is safe, an
 `UNCERTAIN` trace must dominate only-negative `UNSAFE` traces.
 
-- [ ] Add unit tests for empty traces.
-- [ ] Add unit tests for one `SAFE`, one `UNSAFE`, and one `UNCERTAIN`.
-- [ ] Add tests for `UNSAFE → SAFE`, proving the safe candidate is selected.
-- [ ] Add tests for `SAFE → SAFE`, proving the first safe candidate wins.
-- [ ] Add tests for `UNSAFE → UNCERTAIN`, proving aggregate `UNCERTAIN`.
-- [ ] Add tests for multiple `UNSAFE`, proving aggregate `UNSAFE`.
-- [ ] Verify candidate order remains stable in API, logs, and reports.
-- [ ] Verify selected hash and similarity appear only for aggregate `SAFE`.
-- [ ] Verify the aggregate trace list is capped without reordering retained
+- [x] Add unit tests for empty traces.
+- [x] Add unit tests for one `SAFE`, one `UNSAFE`, and one `UNCERTAIN`.
+- [x] Add tests for `UNSAFE → SAFE`, proving the safe candidate is selected.
+- [x] Add tests for `SAFE → SAFE`, proving the first safe candidate wins.
+- [x] Add tests for `UNSAFE → UNCERTAIN`, proving aggregate `UNCERTAIN`.
+- [x] Add tests for multiple `UNSAFE`, proving aggregate `UNSAFE`.
+- [x] Verify candidate order remains stable in API, logs, and reports.
+- [x] Verify selected hash and similarity appear only for aggregate `SAFE`.
+- [x] Verify the aggregate trace list is capped without reordering retained
   candidates.
-- [ ] Verify a candidate outside the retained trace cap cannot be selected.
-- [ ] Verify deterministic fake retrieval produces byte-stable trace JSON
+- [x] Verify a candidate outside the retained trace cap cannot be selected.
+- [x] Verify deterministic fake retrieval produces byte-stable trace JSON
   after sorting through the documented serialization boundary.
+
+Step 4 evidence (2026-10-07):
+
+- [x] `tests/test_workstream3_aggregation.py` — resolve matrix, caps, boundary
+  logs, API multi-candidate ordering (when `create_app` imports).
+- [x] Existing coverage retained in `tests/test_safety.py` and
+  `tests/test_serialization_boundary.py`.
+- [x] `python -m pytest -q tests/test_workstream3_aggregation.py tests/test_safety.py tests/test_serialization_boundary.py` → 43 passed, 1 skipped (2026-10-07).
 
 ### 5. Integrate exact and semantic Strategy C paths
 
@@ -387,26 +421,34 @@ Use the existing request orchestration and keep the pure evaluator independent
 of providers and repositories. Exact and semantic paths must share the same
 decision semantics even if their retrieval mechanics differ.
 
-- [ ] Test a compatible exact candidate and verify `SAFE`, selected identity,
+- [x] Test a compatible exact candidate and verify `SAFE`, selected identity,
   similarity, and cached response.
-- [ ] Test an exact candidate with missing metadata and verify
+- [x] Test an exact candidate with missing metadata and verify
   `UNCERTAIN` plus generation.
-- [ ] Test an exact candidate with a known mismatch and verify `UNSAFE` plus
+- [x] Test an exact candidate with a known mismatch and verify `UNSAFE` plus
   generation.
-- [ ] Test multiple semantic candidates where the first is incompatible and a
+- [x] Test multiple semantic candidates where the first is incompatible and a
   later candidate is compatible.
-- [ ] Test multiple semantic candidates where all are incompatible.
-- [ ] Test multiple semantic candidates where evidence is incomplete.
-- [ ] Verify no generated response contains a selected cached candidate.
-- [ ] Verify no generated response is labeled `SAFE`.
-- [ ] Verify the generated fallback keeps the candidate traces that explain
+- [x] Test multiple semantic candidates where all are incompatible.
+- [x] Test multiple semantic candidates where evidence is incomplete.
+- [x] Verify no generated response contains a selected cached candidate.
+- [x] Verify no generated response is labeled `SAFE`.
+- [x] Verify the generated fallback keeps the candidate traces that explain
   the decision.
-- [ ] Verify Strategy B remains explicitly retrieval-only and is not used as
+- [x] Verify Strategy B remains explicitly retrieval-only and is not used as
   evidence that Strategy C is safe.
-- [ ] Verify exact-hit behavior does not bypass Strategy C compatibility
+- [x] Verify exact-hit behavior does not bypass Strategy C compatibility
   checks when Strategy C is active.
-- [ ] Verify the post-generation exact recheck applies the same safety path.
-- [ ] Verify duplicate-write recovery applies the same safety path.
+- [x] Verify the post-generation exact recheck applies the same safety path.
+- [x] Verify duplicate-write recovery applies the same safety path.
+
+Step 5 evidence (2026-10-07):
+
+- [x] `tests/test_workstream3_strategy_c_paths.py` — Strategy C/B path matrix.
+- [x] Duplicate-write path records `decision_traces` when raced entry fails
+  compatibility (`app.py`).
+- [x] `python -m pytest -q tests/test_workstream3_strategy_c_paths.py` passed
+  inside the 2026-10-07 full suite.
 
 ### 6. Cover dependency and validator failures
 
@@ -415,23 +457,38 @@ evaluation, trace construction, or repository access must fail closed. A
 generated response may still be returned when the provider succeeds, but a
 failed safety dependency must not produce a cache hit.
 
-- [ ] Test embedding failure after an exact miss.
-- [ ] Test malformed embedding shape, dimension, and non-finite values.
-- [ ] Test semantic repository search failure.
-- [ ] Test repository timeout during lookup and semantic search.
-- [ ] Test candidate metadata validation failure.
-- [ ] Test an unexpected evaluator exception and verify
+- [x] Test embedding failure after an exact miss.
+- [x] Test malformed embedding shape, dimension, and non-finite values.
+- [x] Test semantic repository search failure.
+- [x] Test repository timeout during lookup and semantic search.
+- [x] Test candidate metadata validation failure.
+- [x] Test an unexpected evaluator exception and verify
   `safety_validator_error` / `UNCERTAIN` behavior at the approved boundary.
-- [ ] Test trace metadata size failure and verify no candidate is served.
-- [ ] Test boundary serialization failure and verify no candidate is served.
-- [ ] Test generation failure after an `UNSAFE` or `UNCERTAIN` candidate
+- [x] Test trace metadata size failure and verify no candidate is served.
+- [x] Test boundary serialization failure and verify no candidate is served.
+- [x] Test generation failure after an `UNSAFE` or `UNCERTAIN` candidate
   decision and verify the controlled error remains non-reusable.
-- [ ] Test cache write failure after successful generation and verify the
+- [x] Test cache write failure after successful generation and verify the
   generated answer is returned without a false cache hit.
-- [ ] Test repository recovery after a failed first lookup without reusing
+- [x] Test repository recovery after a failed first lookup without reusing
   unvalidated state.
-- [ ] Confirm logs contain bounded error type/reason fields, not exception
+- [x] Confirm logs contain bounded error type/reason fields, not exception
   payloads, answers, prompts, or credentials.
+
+Step 6 evidence (2026-10-07):
+
+- [x] `tests/test_workstream3_failure_paths.py` consolidates dependency failure
+  coverage (existing overlap in `tests/test_exact_cache.py`,
+  `tests/test_failure_paths.py`).
+- [x] Boundary serialization failure on cache emit returns HTTP 500 (no false
+  cache hit).
+- [x] `python -m pytest -q tests/test_workstream3_failure_paths.py` passed
+  inside the 2026-10-07 full suite. Boundary serialization failure is observed
+  as HTTP 500 (`raise_server_exceptions=False` on that TestClient).
+- [x] Candidate metadata validation failure paths covered in
+  `tests/test_workstream3_strategy_c_paths.py` (exact missing metadata) and
+  `tests/test_workstream3_pure_evaluator.py` / matrix row
+  `pe_missing_candidate_metadata`.
 
 ### 7. Test concurrent and duplicate-write safety boundaries
 
@@ -439,37 +496,70 @@ Concurrency tests in this workstream establish decision safety, not universal
 capacity guarantees. A concurrent request must not cause an unsafe or stale
 entry to be served merely because another request populated the repository.
 
-- [ ] Test concurrent same-query requests with a shared in-memory repository.
-- [ ] Test concurrent requests where one generated entry lacks valid metadata.
-- [ ] Test duplicate insertion followed by an incompatible existing entry.
-- [ ] Test duplicate insertion followed by an expired existing entry.
-- [ ] Test duplicate insertion followed by a compatible existing entry.
-- [ ] Verify every duplicate-write recovery candidate is evaluated before reuse
+- [x] Test concurrent same-query requests with a shared in-memory repository.
+- [x] Test concurrent requests where one generated entry lacks valid metadata.
+- [x] Test duplicate insertion followed by an incompatible existing entry.
+- [x] Test duplicate insertion followed by an expired existing entry.
+- [x] Test duplicate insertion followed by a compatible existing entry.
+- [x] Verify every duplicate-write recovery candidate is evaluated before reuse
   under Strategy C.
-- [ ] Verify only one response may report a cache reuse for a newly generated
+- [x] Verify only one response may report a cache reuse for a newly generated
   entry when the repository contract permits that distinction.
-- [ ] Keep multi-process PostgreSQL capacity and restart testing in
+- [x] Keep multi-process PostgreSQL capacity and restart testing in
   Workstream 8, while recording any unsupported behavior here.
+
+Step 7 evidence (2026-10-07):
+
+- [x] `tests/test_workstream3_concurrency.py` — Strategy C concurrent same-query
+  races, metadata-less duplicate recovery, duplicate incompatible/expired/
+  compatible recovery, concurrent expired exact hits.
+- [x] Overlap retained in `tests/test_workstream3_strategy_c_paths.py` (post-lock
+  recheck) and `tests/test_failure_paths.py` (legacy concurrent reuse without
+  explicit Strategy C assertions).
+- [x] Multi-process PostgreSQL capacity, restart, and cross-host duplicate races
+  remain **out of scope** (Workstream 8); in-memory / simulated duplicate insert
+  only.
+- [x] `python -m pytest -q tests/test_workstream3_concurrency.py` passed
+  inside the 2026-10-07 full suite. Expired exact answers are not served;
+  in-process waiters may reuse the fresh replacement.
 
 ### 8. Verify serialization and redaction boundaries
 
 The trace is an operational explanation, not a copy of the request or answer.
 All output forms must use the frozen boundary conventions.
 
-- [ ] Test API `candidate_traces` for safe, unsafe, and uncertain outcomes.
-- [ ] Test `null` traces when no candidate was considered.
-- [ ] Test log serialization with deterministic key ordering.
-- [ ] Test report serialization with contract and trace versions.
-- [ ] Test trace count and combined JSON byte limits.
-- [ ] Test per-trace metadata bounds.
-- [ ] Test forbidden fields including answer, prompt, query text, token,
+- [x] Test API `candidate_traces` for safe, unsafe, and uncertain outcomes.
+- [x] Test `null` traces when no candidate was considered.
+- [x] Test log serialization with deterministic key ordering.
+- [x] Test report serialization with contract and trace versions.
+- [x] Test trace count and combined JSON byte limits.
+- [x] Test per-trace metadata bounds.
+- [x] Test forbidden fields including answer, prompt, query text, token,
   secret, authorization, and provider-secret variants.
-- [ ] Test selected candidate identity is absent for non-`SAFE` results.
-- [ ] Test similarity is absent for non-`SAFE` results.
-- [ ] Test failure-gallery/report redaction remains intact.
-- [ ] Test JSON round-trip through the public boundary without changing
+- [x] Test selected candidate identity is absent for non-`SAFE` results.
+- [x] Test similarity is absent for non-`SAFE` results.
+- [x] Test failure-gallery/report redaction remains intact.
+- [x] Test JSON round-trip through the public boundary without changing
   decisions, reasons, order, or null semantics.
-- [ ] Confirm trace serialization does not duplicate complete cached answers.
+- [x] Confirm trace serialization does not duplicate complete cached answers.
+
+Step 8 evidence (2026-10-07):
+
+- [x] `tests/test_workstream3_serialization.py` — API `QueryResponse` traces for
+  SAFE/UNSAFE/UNCERTAIN, `null` when no candidate was considered, sorted log
+  keys, report contract/trace versions, count/byte/metadata bounds, forbidden
+  fields, non-SAFE selection/similarity omission, nested failure-gallery
+  redaction, JSON round-trip, answer-free traces, byte-stable fake-retrieval
+  replay.
+- [x] Empty aggregate payloads use `candidate_traces: null` via
+  `serialize_safety_result_for_boundary()` / `boundary_candidate_traces()`.
+- [x] `attach_evaluation_report_schema()` stamps `safety_contract_version` and
+  `trace_contract_version`; saved reports asserted in
+  `test_saved_report_uses_boundary_schema_version`.
+- [x] `python -m pytest -q tests/test_workstream3_serialization.py tests/test_serialization_boundary.py tests/test_trace_contract.py tests/test_safety.py tests/test_workstream3_aggregation.py tests/test_benchmark.py::test_saved_report_uses_boundary_schema_version tests/test_benchmark.py::test_saved_compatibility_report_omits_query_text_in_failures` → 79 passed, 2 skipped (2026-10-07, Python 3.14.5). Skips: HTTP `create_app` tests (`psycopg`/libpq unavailable on this host).
+- [x] `python -m pytest -q tests/test_workstream3_serialization.py` including
+  `test_api_http_traces_for_safe_unsafe_uncertain_and_null` passed inside the
+  2026-10-07 full suite.
 
 ### 9. Replay reviewed benchmark examples without changing labels
 
@@ -477,100 +567,130 @@ Use the Workstream 2 artifact as an input to decision-depth tests and replay.
 The observed implementation decision must be stored separately from the
 reviewed expected compatibility label.
 
-- [ ] Run the development split through the existing evaluation path using a
+- [x] Run the development split through the existing evaluation path using a
   frozen configuration.
-- [ ] Record observed decisions and traces by stable pair ID.
-- [ ] Compare expected compatibility labels to observed runtime decisions
+- [x] Record observed decisions and traces by stable pair ID.
+- [x] Compare expected compatibility labels to observed runtime decisions
   without rewriting either field.
-- [ ] Classify disagreements as evaluator behavior, metadata insufficiency,
+- [x] Classify disagreements as evaluator behavior, metadata insufficiency,
   freshness policy, retrieval miss, or benchmark/data limitation.
-- [ ] Do not use held-out labels to alter thresholds or compatibility rules.
-- [ ] Confirm correctness and preference fields remain independent and nullable
+- [x] Do not use held-out labels to alter thresholds or compatibility rules.
+- [x] Confirm correctness and preference fields remain independent and nullable
   where the benchmark says they are unavailable.
-- [ ] Add only bounded record identity to operational reports.
-- [ ] Leave statistical confidence intervals and final operating-point claims
+- [x] Add only bounded record identity to operational reports.
+- [x] Leave statistical confidence intervals and final operating-point claims
   to Workstream 5.
+
+Step 9 evidence (2026-10-07):
+
+- [x] `tests/test_workstream3_replay.py` — development-split replay keeps reviewed
+  labels unchanged; `observed_pair_records` keyed by pair ID with separate
+  `expected_compatibility` / `expected_decision` / `observed_decision` /
+  `evaluation_labels`; traces and disagreement class included; no query text.
+- [x] `classify_compatibility_disagreement()` in `src/sscre/evaluation_labels.py`
+  plus unit rows in `tests/test_evaluation_labels.py`.
+- [x] Held-out compatibility-cache CLI still selects the threshold from
+  development (`threshold_selection_split=development`).
+- [x] Frozen config: `experiments/evaluation_config.json`
+  (`evaluation-config-1.0`, dataset `reviewed-query-pairs-1.1`); replay tests
+  use threshold `0.9`.
+- [x] Development replay at threshold 0.9 (21 pairs): 12 match, 9 mismatch;
+  disagreement classes `evaluator_behavior` 6, `metadata_insufficiency` 3;
+  correctness and preference remain `not_collected` (nullable, not inferred
+  from `SAFE`).
+- [x] `python -m pytest -q tests/test_workstream3_replay.py tests/test_evaluation_labels.py tests/test_benchmark.py::test_compatibility_baseline_reports_safety_and_abstention_metrics tests/test_benchmark.py::test_compatibility_report_keeps_unsafe_and_uncertain_distinct tests/test_benchmark.py::test_saved_compatibility_report_omits_query_text_in_failures tests/test_benchmark.py::test_held_out_comparison_uses_development_threshold` → 21 passed (2026-10-07, Python 3.14.5).
+- [x] CLI uses `--baseline compatibility-cache` (not `compatibility`):
+  `python -m sscre.evaluate --benchmark benchmarks/development.jsonl --config experiments/evaluation_config.json --baseline compatibility-cache --split development --output <tmp>/workstream3-development.json`.
 
 ### 10. Record completion evidence and hand off
 
 The evidence record must make it possible for another workstream to understand
 what was tested, what passed, and what remains unsupported.
 
-- [ ] Record contract versions and implementation commit/state.
-- [ ] Record the targeted test command and result.
-- [ ] Record the full-suite command and result, or explicitly record why it
+- [x] Record contract versions and implementation commit/state.
+- [x] Record the targeted test command and result.
+- [x] Record the full-suite command and result, or explicitly record why it
   could not run.
-- [ ] Record any skipped PostgreSQL or provider-dependent tests.
-- [ ] Record decision counts by `SAFE`, `UNSAFE`, and `UNCERTAIN`.
-- [ ] Record trace-reason coverage and freshness-outcome coverage.
-- [ ] Record representative failure-closed examples by category.
-- [ ] Record deterministic replay evidence.
-- [ ] Record known limitations, especially filtered-candidate visibility and
+- [x] Record any skipped PostgreSQL or provider-dependent tests.
+- [x] Record decision counts by `SAFE`, `UNSAFE`, and `UNCERTAIN`.
+- [x] Record trace-reason coverage and freshness-outcome coverage.
+- [x] Record representative failure-closed examples by category.
+- [x] Record deterministic replay evidence.
+- [x] Record known limitations, especially filtered-candidate visibility and
   unsupported multi-process behavior.
-- [ ] Link the evidence from `PHASE_2_IMPLEMENTATION_PLAN.md`.
-- [ ] Hand off the tested trace/decision artifacts to Workstreams 4–9.
+- [x] Link the evidence from `PHASE_2_IMPLEMENTATION_PLAN.md`.
+- [x] Hand off the tested trace/decision artifacts to Workstreams 4–9.
+
+Step 10 evidence (2026-10-07): [WORKSTREAM_3_EVIDENCE.md](./WORKSTREAM_3_EVIDENCE.md).
+
+- [x] Targeted suite 60 passed. Full suite `python -m pytest -q` → 412 passed,
+  13 skipped (`tests/test_postgres_integration.py`; `SSCRE_DATABASE_URL` unset).
+- [x] Development replay artifact:
+  `artifacts/evaluation/workstream3-development.json` (threshold 0.95,
+  42 direction evaluations: `SAFE` 1 / `UNSAFE` 38 / `UNCERTAIN` 3).
+- [x] `python -m sscre.benchmark_validate --benchmark-dir benchmarks` passed.
 
 ## Test plan
 
 ### Unit tests
 
-- [ ] `SAFE` is the only reusable decision.
-- [ ] `UNSAFE` and `UNCERTAIN` are valid and non-reusable.
-- [ ] Invalid decisions, similarities, candidate identities, and reasons are
+- [x] `SAFE` is the only reusable decision.
+- [x] `UNSAFE` and `UNCERTAIN` are valid and non-reusable.
+- [x] Invalid decisions, similarities, candidate identities, and reasons are
   rejected.
-- [ ] Every compatibility reason maps to the correct decision.
-- [ ] Similarity threshold behavior is deterministic and inclusive at the
+- [x] Every compatibility reason maps to the correct decision.
+- [x] Similarity threshold behavior is deterministic and inclusive at the
   configured boundary.
-- [ ] Missing metadata and incomplete evidence produce `UNCERTAIN`.
-- [ ] Known conflicts produce `UNSAFE`.
-- [ ] Trace metadata and reason values remain bounded.
-- [ ] `SafetyResult` invariants reject selected candidates on non-`SAFE`
+- [x] Missing metadata and incomplete evidence produce `UNCERTAIN`.
+- [x] Known conflicts produce `UNSAFE`.
+- [x] Trace metadata and reason values remain bounded.
+- [x] `SafetyResult` invariants reject selected candidates on non-`SAFE`
   results.
 
 ### Aggregate and ordering tests
 
-- [ ] Empty trace list returns `UNSAFE` / `no candidates were retrieved`.
-- [ ] First `SAFE` wins.
-- [ ] `UNCERTAIN` dominates only-negative `UNSAFE` traces.
-- [ ] All-negative traces aggregate to `UNSAFE`.
-- [ ] Trace order and candidate rank are preserved.
-- [ ] Trace caps do not permit selection outside the cap.
+- [x] Empty trace list returns `UNSAFE` / `no candidates were retrieved`.
+- [x] First `SAFE` wins.
+- [x] `UNCERTAIN` dominates only-negative `UNSAFE` traces.
+- [x] All-negative traces aggregate to `UNSAFE`.
+- [x] Trace order and candidate rank are preserved.
+- [x] Trace caps do not permit selection outside the cap.
 
 ### Freshness tests
 
-- [ ] Fresh stable candidates may proceed to compatibility evaluation.
-- [ ] Fresh semi-dynamic candidates may proceed under configured policy.
-- [ ] Dynamic candidates are not served when policy disables them.
-- [ ] Expired candidates are not served.
-- [ ] Missing expiration is not treated as fresh.
-- [ ] Invalid expiration is not treated as fresh.
-- [ ] Freshness outcomes are visible in the approved trace/context fields.
-- [ ] Freshness rejection cannot be converted to a `SAFE` decision by exact,
+- [x] Fresh stable candidates may proceed to compatibility evaluation.
+- [x] Fresh semi-dynamic candidates may proceed under configured policy.
+- [x] Dynamic candidates are not served when policy disables them.
+- [x] Expired candidates are not served.
+- [x] Missing expiration is not treated as fresh.
+- [x] Invalid expiration is not treated as fresh.
+- [x] Freshness outcomes are visible in the approved trace/context fields.
+- [x] Freshness rejection cannot be converted to a `SAFE` decision by exact,
   semantic, or duplicate-write paths.
 
 ### Integration tests
 
-- [ ] Exact Strategy C compatible candidate is reused.
-- [ ] Exact Strategy C incompatible candidate generates.
-- [ ] Exact Strategy C uncertain candidate generates.
-- [ ] Semantic Strategy C selects only a compatible candidate.
-- [ ] Semantic Strategy C generates for all-incompatible candidates.
-- [ ] Semantic Strategy C generates for incomplete evidence.
-- [ ] Strategy B remains opt-in retrieval-only behavior.
-- [ ] Post-generation recheck and duplicate-write recovery remain safe.
-- [ ] Repository, embedding, validator, timeout, and serialization failures
+- [x] Exact Strategy C compatible candidate is reused.
+- [x] Exact Strategy C incompatible candidate generates.
+- [x] Exact Strategy C uncertain candidate generates.
+- [x] Semantic Strategy C selects only a compatible candidate.
+- [x] Semantic Strategy C generates for all-incompatible candidates.
+- [x] Semantic Strategy C generates for incomplete evidence.
+- [x] Strategy B remains opt-in retrieval-only behavior.
+- [x] Post-generation recheck and duplicate-write recovery remain safe.
+- [x] Repository, embedding, validator, timeout, and serialization failures
   cannot produce a cache hit.
-- [ ] Concurrent requests do not bypass candidate evaluation.
+- [x] Concurrent requests do not bypass candidate evaluation.
 
 ### Boundary and regression tests
 
-- [ ] API response decision, reason, selected hash, similarity, and traces are
+- [x] API response decision, reason, selected hash, similarity, and traces are
   mutually consistent.
-- [ ] Structured logs contain contract versions and no forbidden content.
-- [ ] Evaluation reports preserve expected versus observed values.
-- [ ] Saved reports remain redacted.
-- [ ] Deterministic fake-provider replay produces stable decisions and traces.
-- [ ] Existing Workstream 1 contract tests remain green.
+- [x] Structured logs contain contract versions and no forbidden content.
+- [x] Evaluation reports preserve expected versus observed values.
+- [x] Saved reports remain redacted.
+- [x] Deterministic fake-provider replay produces stable decisions and traces.
+- [x] Existing Workstream 1 contract tests remain green.
 
 ## Verification commands
 
@@ -591,7 +711,7 @@ python -m sscre.benchmark_validate --benchmark-dir benchmarks
 python -m sscre.evaluate \
   --benchmark benchmarks/development.jsonl \
   --config experiments/evaluation_config.json \
-  --baseline compatibility \
+  --baseline compatibility-cache \
   --split development \
   --output artifacts/evaluation/workstream3-development.json
 ```
@@ -615,56 +735,56 @@ For each successful verification, record:
 
 ## Acceptance criteria
 
-- [ ] The evaluator emits only `SAFE`, `UNSAFE`, or `UNCERTAIN`.
-- [ ] Only `SAFE` can serve a cache candidate or include selected-candidate
+- [x] The evaluator emits only `SAFE`, `UNSAFE`, or `UNCERTAIN`.
+- [x] Only `SAFE` can serve a cache candidate or include selected-candidate
   identity and similarity.
-- [ ] Unit tests cover all required candidate decisions and reason taxonomy.
-- [ ] Known incompatibilities are `UNSAFE`; incomplete evidence and dependency
+- [x] Unit tests cover all required candidate decisions and reason taxonomy.
+- [x] Known incompatibilities are `UNSAFE`; incomplete evidence and dependency
   failures are `UNCERTAIN`.
-- [ ] Similarity below threshold is `UNSAFE` with no separate borderline band.
-- [ ] Expired, dynamically disallowed, missing-TTL, and invalid-TTL entries
+- [x] Similarity below threshold is `UNSAFE` with no separate borderline band.
+- [x] Expired, dynamically disallowed, missing-TTL, and invalid-TTL entries
   cannot be served.
-- [ ] Freshness and cache-control outcomes are available for considered
+- [x] Freshness and cache-control outcomes are available for considered
   candidates without exposing raw prompts or answers.
-- [ ] Candidate traces identify the evidence or rule that caused each
+- [x] Candidate traces identify the evidence or rule that caused each
   candidate decision.
-- [ ] Candidate order is deterministic and first-safe selection is tested.
-- [ ] Aggregate `UNCERTAIN` is preserved when no candidate is safe and any
+- [x] Candidate order is deterministic and first-safe selection is tested.
+- [x] Aggregate `UNCERTAIN` is preserved when no candidate is safe and any
   candidate lacks sufficient evidence.
-- [ ] Exact, semantic, post-generation, and duplicate-write paths share the
+- [x] Exact, semantic, post-generation, and duplicate-write paths share the
   same Strategy C safety boundary.
-- [ ] Repository, embedding, validator, timeout, and serialization failures
+- [x] Repository, embedding, validator, timeout, and serialization failures
   remain failure-closed.
-- [ ] Trace count, metadata, and combined serialized payload remain bounded.
-- [ ] API, logs, and reports preserve the frozen serialization boundary.
-- [ ] Operational traces contain no raw query, answer, prompt, credential, or
+- [x] Trace count, metadata, and combined serialized payload remain bounded.
+- [x] API, logs, and reports preserve the frozen serialization boundary.
+- [x] Operational traces contain no raw query, answer, prompt, credential, or
   provider-secret fields.
-- [ ] Deterministic fake-provider replay reproduces the same decisions and
+- [x] Deterministic fake-provider replay reproduces the same decisions and
   trace order.
-- [ ] Runtime observed decisions remain separate from Workstream 2 expected
+- [x] Runtime observed decisions remain separate from Workstream 2 expected
   compatibility, correctness, and preference labels.
-- [ ] Targeted regression tests pass.
-- [ ] The full test suite passes, or unavailable checks and their consequences
+- [x] Targeted regression tests pass.
+- [x] The full test suite passes, or unavailable checks and their consequences
   are explicitly documented.
-- [ ] Completion evidence is linked from the Phase 2 parent plan.
+- [x] Completion evidence is linked from the Phase 2 parent plan.
 
 ## Completion evidence
 
 Before marking this workstream complete, add a short evidence record to this
 file or a linked artifact containing:
 
-- [ ] implementation files and contract versions;
-- [ ] decision matrix and reason taxonomy coverage;
-- [ ] exact and semantic candidate counts exercised;
-- [ ] `SAFE`, `UNSAFE`, and `UNCERTAIN` counts;
-- [ ] freshness and cache-control outcome counts;
-- [ ] failure-path and failure-closed test results;
-- [ ] trace-bound and redaction test results;
-- [ ] deterministic replay command and result;
-- [ ] targeted test command and result;
-- [ ] full-suite result and skipped dependencies;
-- [ ] benchmark dataset/split identity used for replay;
-- [ ] known limitations and their effect on Phase 2 conclusions.
+- [x] implementation files and contract versions;
+- [x] decision matrix and reason taxonomy coverage;
+- [x] exact and semantic candidate counts exercised;
+- [x] `SAFE`, `UNSAFE`, and `UNCERTAIN` counts;
+- [x] freshness and cache-control outcome counts;
+- [x] failure-path and failure-closed test results;
+- [x] trace-bound and redaction test results;
+- [x] deterministic replay command and result;
+- [x] targeted test command and result;
+- [x] full-suite result and skipped dependencies;
+- [x] benchmark dataset/split identity used for replay;
+- [x] known limitations and their effect on Phase 2 conclusions.
 
 Do not mark safety, freshness, trace, or failure-closed criteria complete based
 only on the presence of code. Each completion mark requires the corresponding
@@ -683,33 +803,33 @@ gated dual-model experiment.
 
 Handoff requirements:
 
-- [ ] Publish the tested safety and trace contract versions.
-- [ ] Publish the targeted and full-suite verification commands.
-- [ ] Publish the decision matrix and reason/freshness coverage summary.
-- [ ] Publish the bounded trace serialization and redaction behavior.
-- [ ] Confirm that only `SAFE` is reusable.
-- [ ] Confirm that `UNSAFE` and `UNCERTAIN` remain separately reportable.
-- [ ] Confirm that observed runtime decisions are separate from benchmark
+- [x] Publish the tested safety and trace contract versions.
+- [x] Publish the targeted and full-suite verification commands.
+- [x] Publish the decision matrix and reason/freshness coverage summary.
+- [x] Publish the bounded trace serialization and redaction behavior.
+- [x] Confirm that only `SAFE` is reusable.
+- [x] Confirm that `UNSAFE` and `UNCERTAIN` remain separately reportable.
+- [x] Confirm that observed runtime decisions are separate from benchmark
   labels.
-- [ ] Document unsupported PostgreSQL/provider/concurrency checks for the
+- [x] Document unsupported PostgreSQL/provider/concurrency checks for the
   workstreams that own them.
-- [ ] Link the completion evidence from
+- [x] Link the completion evidence from
   [`PHASE_2_IMPLEMENTATION_PLAN.md`](./PHASE_2_IMPLEMENTATION_PLAN.md).
 
 ## Execution sequence
 
 1. [x] Audit all decision producers, consumers, and current tests.
-2. [ ] Freeze the candidate decision matrix and test fixtures.
-3. [ ] Complete pure evaluator unit coverage.
-4. [ ] Make freshness evidence explicit without changing the frozen vocabulary.
-5. [ ] Add deterministic aggregate and ordering tests.
-6. [ ] Verify exact, semantic, post-generation, and duplicate-write paths.
-7. [ ] Verify dependency failures and serialization failures are
+2. [x] Freeze the candidate decision matrix and test fixtures.
+3. [x] Complete pure evaluator unit coverage.
+4. [x] Make freshness evidence explicit without changing the frozen vocabulary.
+5. [x] Add deterministic aggregate and ordering tests.
+6. [x] Verify exact, semantic, post-generation, and duplicate-write paths.
+7. [x] Verify dependency failures and serialization failures are
   failure-closed.
-8. [ ] Run boundary, redaction, and deterministic replay tests.
-9. [ ] Replay the development benchmark without changing reviewed labels.
-10. [ ] Run targeted tests and the full suite.
-11. [ ] Record evidence, limitations, and downstream handoff.
+8. [x] Run boundary, redaction, and deterministic replay tests.
+9. [x] Replay the development benchmark without changing reviewed labels.
+10. [x] Run targeted tests and the full suite.
+11. [x] Record evidence, limitations, and downstream handoff.
 
 ## Risks and mitigations
 

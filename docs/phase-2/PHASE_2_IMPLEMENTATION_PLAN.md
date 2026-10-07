@@ -236,11 +236,13 @@ avoid duplicating complete answers.
 
 Acceptance criteria:
 
-- [ ] Unit tests cover all three decisions.
-- [ ] Integration tests verify that `UNCERTAIN` falls back to generation.
-- [ ] Candidate traces identify the rule or evidence causing the decision.
-- [ ] Trace output is deterministic for deterministic fake providers.
-- [ ] Failure paths are tested as failure-closed.
+- [x] Unit tests cover all three decisions
+  ([WORKSTREAM_3_EVIDENCE.md](./WORKSTREAM_3_EVIDENCE.md)).
+- [x] Integration tests verify that `UNCERTAIN` falls back to generation.
+- [x] Candidate traces identify the rule or evidence causing the decision.
+- [x] Trace output is deterministic for deterministic fake providers.
+- [x] Failure paths are tested as failure-closed. PostgreSQL integration
+  remains skipped when `SSCRE_DATABASE_URL` is unset (13 tests).
 
 ## Workstream 4 — Add real-provider measurement
 
