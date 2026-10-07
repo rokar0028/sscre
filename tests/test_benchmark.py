@@ -43,6 +43,10 @@ from sscre.llm import LLMResult
 from sscre.embedding import EmbeddingConfig, FakeEmbeddingClient
 from sscre.evaluate import main
 from sscre.serialization import BOUNDARY_SERIALIZATION_VERSION
+from sscre.safety import (
+    CANDIDATE_TRACE_CONTRACT_VERSION,
+    SAFETY_EVALUATION_CONTRACT_VERSION,
+)
 
 
 def valid_record(record_id: str = "pair-0001") -> dict[str, object]:
@@ -308,6 +312,17 @@ def test_assign_next_pair_id_increments() -> None:
     from sscre.benchmark_build import assign_next_pair_id
 
     assert assign_next_pair_id({"pair-0032"}) == "pair-0033"
+
+
+def test_benchmark_build_reorders_global_benchmark_dir_flag() -> None:
+    from sscre.benchmark_build import _reorder_global_benchmark_dir
+
+    assert _reorder_global_benchmark_dir(
+        ["freeze-splits", "--benchmark-dir", "benchmarks"]
+    ) == ["--benchmark-dir", "benchmarks", "freeze-splits"]
+    assert _reorder_global_benchmark_dir(
+        ["--benchmark-dir", "benchmarks", "freeze-splits"]
+    ) == ["--benchmark-dir", "benchmarks", "freeze-splits"]
 
 
 def test_resolve_rebuild_split_ids_matches_repository_manifest() -> None:
@@ -856,6 +871,8 @@ def test_saved_report_uses_boundary_schema_version(tmp_path: Path) -> None:
     save_no_cache_report(report, path)
     payload = json.loads(path.read_text(encoding="utf-8"))
     assert payload["schema_version"] == BOUNDARY_SERIALIZATION_VERSION
+    assert payload["safety_contract_version"] == SAFETY_EVALUATION_CONTRACT_VERSION
+    assert payload["trace_contract_version"] == CANDIDATE_TRACE_CONTRACT_VERSION
     assert list(payload) == sorted(payload)
 
 

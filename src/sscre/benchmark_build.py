@@ -23,6 +23,25 @@ _REDACTION_PATTERNS = (
     re.compile(r"\bBearer\s+[A-Za-z0-9._-]+\b", re.IGNORECASE),
 )
 _RECORD_ID_PATTERN = re.compile(r"^pair-(\d+)$")
+_BENCHMARK_BUILD_COMMANDS = frozenset(
+    {"merge", "validate-candidates", "freeze-splits"}
+)
+
+
+def _reorder_global_benchmark_dir(argv: list[str]) -> list[str]:
+    """Place --benchmark-dir before the subcommand when it appears after it."""
+    if not argv or "--benchmark-dir" not in argv:
+        return argv
+    tokens = list(argv)
+    idx = tokens.index("--benchmark-dir")
+    if idx + 1 >= len(tokens):
+        return argv
+    flag = tokens[idx : idx + 2]
+    rest = tokens[:idx] + tokens[idx + 2 :]
+    for pos, token in enumerate(rest):
+        if token in _BENCHMARK_BUILD_COMMANDS:
+            return [*flag, *rest[:pos], *rest[pos:]]
+    return argv
 
 
 def validate_redaction(text: str) -> None:
@@ -179,7 +198,8 @@ def main(argv: list[str] | None = None) -> int:
         help="Validate and freeze split_manifest.json identity metadata",
     )
 
-    args = parser.parse_args(argv)
+    command_line = argv if argv is not None else sys.argv[1:]
+    args = parser.parse_args(_reorder_global_benchmark_dir(list(command_line)))
     benchmark_dir = Path(args.benchmark_dir)
 
     try:
