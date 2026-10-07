@@ -1,11 +1,13 @@
 """Contract for cache freshness, TTL, and reuse eligibility.
 
-Freshness policy is evaluated before compatibility and similarity:
+Freshness policy is evaluated before the compatibility evaluator:
 
 1. policy eligibility (including dynamic-entry policy)
 2. TTL validity and expiration
-3. compatibility decision
-4. similarity threshold
+
+The compatibility evaluator then checks the similarity threshold before
+other compatibility rules. Aggregation serves a candidate only when the
+decision is SAFE.
 
 TTL controls whether an entry is available. It does not prove that the answer
 is compatible; compatibility remains the responsibility of the safety engine.

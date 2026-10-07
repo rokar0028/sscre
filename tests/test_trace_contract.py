@@ -17,6 +17,7 @@ def test_documented_reasons_include_compatibility_outcomes() -> None:
     assert is_documented_trace_reason("compatible_metadata")
     assert is_documented_trace_reason("constraint_mismatch:language")
     assert is_documented_trace_reason("missing_domain_evidence")
+    assert is_documented_trace_reason("cache_control_expired")
     assert not is_documented_trace_reason("language mismatch")
 
 

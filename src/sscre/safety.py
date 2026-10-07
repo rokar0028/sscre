@@ -49,6 +49,10 @@ _DOCUMENTED_CANDIDATE_REASONS = frozenset(
         "safety_validator_error",
         "similarity_threshold_met",
         "exact_query_hash_match",
+        "cache_control_expired",
+        "cache_control_dynamic_disabled",
+        "cache_control_missing_expiration",
+        "cache_control_invalid_expiration",
     }
 )
 _MISSING_EVIDENCE_REASON = re.compile(r"^missing_[a-z_]+_evidence$")
