@@ -1,0 +1,166 @@
+{
+  "config_version": "evaluation-config-1.0",
+  "dataset_version": "reviewed-query-pairs-1.1",
+  "dominance": {
+    "cost_vs_safety": {
+      "x": {
+        "direction": "minimize",
+        "metric": "estimated_cost_usd"
+      },
+      "y": {
+        "direction": "minimize",
+        "metric": "false_positive_rate"
+      }
+    },
+    "false_positives_vs_tokens_saved": {
+      "x": {
+        "direction": "minimize",
+        "metric": "false_positive_rate"
+      },
+      "y": {
+        "direction": "maximize",
+        "metric": "tokens_saved"
+      }
+    },
+    "latency_vs_cost": {
+      "x": {
+        "direction": "minimize",
+        "metric": "p95_latency_ms"
+      },
+      "y": {
+        "direction": "minimize",
+        "metric": "estimated_cost_usd"
+      }
+    },
+    "reuse_vs_storage": {
+      "x": {
+        "direction": "maximize",
+        "metric": "safe_reuse_coverage"
+      },
+      "y": {
+        "direction": "minimize",
+        "metric": "total_bytes"
+      }
+    },
+    "safety_vs_reuse": {
+      "x": {
+        "direction": "minimize",
+        "metric": "false_positive_rate"
+      },
+      "y": {
+        "direction": "maximize",
+        "metric": "safe_reuse_coverage"
+      }
+    }
+  },
+  "evaluation_split": "held-out",
+  "frontier_thresholds": {
+    "cost_vs_safety": [
+      0.8,
+      0.9,
+      0.95
+    ],
+    "false_positives_vs_tokens_saved": [
+      0.8,
+      0.9,
+      0.95
+    ],
+    "latency_vs_cost": [
+      0.8,
+      0.9,
+      0.95
+    ],
+    "reuse_vs_storage": [],
+    "safety_vs_reuse": [
+      0.8,
+      0.9,
+      0.95
+    ]
+  },
+  "measurement_environment": "synthetic_replay",
+  "pareto_schema_version": "evaluation-pareto-1.0",
+  "points": [
+    {
+      "constraint": {
+        "limit": 0.0,
+        "name": "max_false_positive_rate",
+        "observed": 0.0,
+        "satisfied": true
+      },
+      "embedding_report": {
+        "false_positive_rate": 0.0,
+        "safe_reuse_coverage": 0.0
+      },
+      "metrics": {
+        "embedding_false_positive_rate": 0.0,
+        "embedding_safe_reuse_coverage": 0.0,
+        "estimated_cost_usd": 0.0,
+        "false_positive_rate": 0.0,
+        "p95_latency_ms": 0.0,
+        "safe_reuse_coverage": 0.0,
+        "tokens_saved": 0.0
+      },
+      "selected": false,
+      "storage": null,
+      "threshold": 0.8
+    },
+    {
+      "constraint": {
+        "limit": 0.0,
+        "name": "max_false_positive_rate",
+        "observed": 0.0,
+        "satisfied": true
+      },
+      "embedding_report": {
+        "false_positive_rate": 0.0,
+        "safe_reuse_coverage": 0.0
+      },
+      "metrics": {
+        "embedding_false_positive_rate": 0.0,
+        "embedding_safe_reuse_coverage": 0.0,
+        "estimated_cost_usd": 0.0,
+        "false_positive_rate": 0.0,
+        "p95_latency_ms": 0.0,
+        "safe_reuse_coverage": 0.0,
+        "tokens_saved": 0.0
+      },
+      "selected": false,
+      "storage": null,
+      "threshold": 0.9
+    },
+    {
+      "constraint": {
+        "limit": 0.0,
+        "name": "max_false_positive_rate",
+        "observed": 0.0,
+        "satisfied": true
+      },
+      "embedding_report": {
+        "false_positive_rate": 0.0,
+        "safe_reuse_coverage": 0.0
+      },
+      "metrics": {
+        "embedding_false_positive_rate": 0.0,
+        "embedding_safe_reuse_coverage": 0.0,
+        "estimated_cost_usd": 0.0,
+        "false_positive_rate": 0.0,
+        "p95_latency_ms": 0.0,
+        "safe_reuse_coverage": 0.0,
+        "tokens_saved": 0.0
+      },
+      "selected": true,
+      "storage": null,
+      "threshold": 0.95
+    }
+  ],
+  "selected_constraint": {
+    "limit": 0.0,
+    "name": "max_false_positive_rate",
+    "observed": 0.0,
+    "satisfied": true
+  },
+  "selected_threshold": 0.95,
+  "software_version": "0.1.0",
+  "storage_measurement_environment": "unavailable",
+  "threshold_selection_split": "development"
+}
