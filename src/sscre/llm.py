@@ -11,7 +11,9 @@ class LLMResult:
     latency_ms: int
     provider_name: str = "synthetic"
     model_name: str = "mock"
-    usage_source: Literal["provider_reported", "estimated"] = "estimated"
+    usage_source: Literal["provider_reported", "estimated", "unavailable"] = (
+        "estimated"
+    )
     attempts: int = 1
     retry_count: int = 0
 
@@ -40,7 +42,8 @@ def validate_llm_result(result: object) -> LLMResult:
         or not result.provider_name.strip()
         or not isinstance(result.model_name, str)
         or not result.model_name.strip()
-        or result.usage_source not in {"provider_reported", "estimated"}
+        or result.usage_source
+        not in {"provider_reported", "estimated", "unavailable"}
         or not isinstance(result.attempts, int)
         or isinstance(result.attempts, bool)
         or result.attempts <= 0

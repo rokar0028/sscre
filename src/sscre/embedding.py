@@ -40,7 +40,9 @@ class EmbeddingResult:
     input_tokens: int
     latency_ms: int
     provider_name: str = "synthetic"
-    usage_source: Literal["provider_reported", "estimated"] = "estimated"
+    usage_source: Literal["provider_reported", "estimated", "unavailable"] = (
+        "estimated"
+    )
     attempts: int = 1
     retry_count: int = 0
 
@@ -59,7 +61,11 @@ class EmbeddingResult:
             raise EmbeddingValidationError("latency_ms must not be negative")
         if not isinstance(self.provider_name, str) or not self.provider_name.strip():
             raise EmbeddingValidationError("embedding provider_name must not be empty")
-        if self.usage_source not in {"provider_reported", "estimated"}:
+        if self.usage_source not in {
+            "provider_reported",
+            "estimated",
+            "unavailable",
+        }:
             raise EmbeddingValidationError("invalid embedding usage_source")
         if (
             not isinstance(self.attempts, int)

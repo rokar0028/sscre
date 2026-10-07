@@ -23,6 +23,12 @@ def test_validate_llm_result_accepts_valid_metadata() -> None:
     assert validate_llm_result(_result()) == _result()
 
 
+def test_validate_llm_result_accepts_unavailable_usage_source() -> None:
+    assert validate_llm_result(_result(usage_source="unavailable")) == _result(
+        usage_source="unavailable"
+    )
+
+
 @pytest.mark.parametrize(
     "overrides",
     [
@@ -32,7 +38,6 @@ def test_validate_llm_result_accepts_valid_metadata() -> None:
         {"text": ""},
         {"provider_name": " "},
         {"model_name": ""},
-        {"usage_source": "unavailable"},
         {"attempts": 0},
         {"retry_count": 1},
     ],
