@@ -1,6 +1,7 @@
 import json
 import logging
 import hmac
+import os
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 from collections.abc import Callable
 from contextlib import contextmanager
@@ -33,7 +34,14 @@ from sscre.embedding import (
 from sscre.llm import LLMClient, MockLLMClient, validate_llm_result
 from sscre.metrics import MetricsCollector
 from sscre.postgres_cache import PostgresExactCacheRepository
-from sscre.pricing import CostBreakdown, PricingSchedule, estimate_request_cost
+from pathlib import Path
+
+from sscre.pricing import (
+    CostBreakdown,
+    PricingSchedule,
+    estimate_request_cost,
+    load_pricing_schedule_from_json,
+)
 from sscre.provider_config import RealProviderConfig
 from sscre.query import QueryRequest, QueryResponse, preprocess_query
 from sscre.remote_embedding import OpenAICompatibleEmbeddingClient
@@ -131,6 +139,13 @@ def create_app(
     if not -1.0 <= semantic_similarity_threshold <= 1.0:
         raise ValueError("semantic_similarity_threshold must be between -1 and 1")
     real_provider_config = RealProviderConfig.from_environment()
+    if pricing_schedule is None and real_provider_config is not None:
+        pricing_path = os.getenv("SSCRE_PROVIDER_PRICING_JSON")
+        if pricing_path:
+            pricing_schedule = load_pricing_schedule_from_json(
+                Path(pricing_path),
+                schedule_id=real_provider_config.pricing_schedule_id,
+            )
     if real_provider_config is not None:
         if llm_client is None:
             llm_client = OpenAICompatibleLLMClient(real_provider_config)

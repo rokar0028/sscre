@@ -1,6 +1,10 @@
 import pytest
 
-from sscre.pricing import PricingSchedule, estimate_request_cost
+from sscre.pricing import (
+    PricingSchedule,
+    estimate_request_cost,
+    load_pricing_schedule_from_json,
+)
 
 
 def _schedule(**overrides) -> PricingSchedule:
@@ -96,6 +100,21 @@ def test_retry_cost_is_unavailable_when_failed_attempt_billing_is_unknown() -> N
 
     assert result.retry_cost_usd is None
     assert result.total_estimated_cost_usd is None
+
+
+def test_load_pricing_schedule_from_json(tmp_path) -> None:
+    path = tmp_path / "pricing.json"
+    path.write_text(
+        '{"schedule_id":"prices","currency":"USD","effective_date":"2026-10-07",'
+        '"source":"provider_list_estimate","generation_input_per_1k":0.01,'
+        '"generation_output_per_1k":0.02,"embedding_input_per_1k":0.001}',
+        encoding="utf-8",
+    )
+
+    loaded = load_pricing_schedule_from_json(path, schedule_id="prices")
+
+    assert loaded is not None
+    assert loaded.schedule_id == "prices"
 
 
 def test_missing_schedule_is_explicitly_unavailable() -> None:

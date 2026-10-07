@@ -1,0 +1,11 @@
+{
+  "schedule_id": "prices-2026-10",
+  "currency": "USD",
+  "effective_date": "2026-10-07",
+  "source": "provider_list_estimate",
+  "generation_input_per_1k": 0.01,
+  "generation_output_per_1k": 0.02,
+  "embedding_input_per_1k": 0.001,
+  "cache_lookup_per_request": 0.0,
+  "preprocessing_per_request": 0.0
+}

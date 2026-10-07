@@ -1,9 +1,11 @@
 """Versioned provider pricing and conservative request cost accounting."""
 
+import json
 from dataclasses import dataclass
 from datetime import date
 from math import isfinite
-from typing import Literal
+from pathlib import Path
+from typing import Any, Literal, Mapping
 
 
 PricingSource = Literal["provider_list_estimate", "measured_charge", "synthetic_placeholder"]
@@ -117,3 +119,39 @@ def estimate_request_cost(
         schedule.source,
         schedule.schedule_id,
     )
+
+
+def pricing_schedule_from_mapping(payload: Mapping[str, Any]) -> PricingSchedule:
+    """Parse one versioned pricing schedule from a JSON object."""
+    return PricingSchedule(
+        schedule_id=str(payload["schedule_id"]),
+        currency=str(payload["currency"]),
+        effective_date=str(payload["effective_date"]),
+        source=payload["source"],  # type: ignore[arg-type]
+        generation_input_per_1k=float(payload["generation_input_per_1k"]),
+        generation_output_per_1k=float(payload["generation_output_per_1k"]),
+        embedding_input_per_1k=float(payload["embedding_input_per_1k"]),
+        cache_lookup_per_request=float(
+            payload.get("cache_lookup_per_request", 0.0)
+        ),
+        preprocessing_per_request=float(
+            payload.get("preprocessing_per_request", 0.0)
+        ),
+    )
+
+
+def load_pricing_schedule_from_json(
+    path: Path,
+    *,
+    schedule_id: str | None = None,
+) -> PricingSchedule | None:
+    """Load a schedule when the file exists and the identifier matches."""
+    if not path.is_file():
+        return None
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, Mapping):
+        raise ValueError("pricing schedule JSON must be an object")
+    loaded = pricing_schedule_from_mapping(payload)
+    if schedule_id is not None and loaded.schedule_id != schedule_id:
+        return None
+    return loaded

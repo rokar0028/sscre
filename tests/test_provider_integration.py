@@ -259,6 +259,36 @@ def test_opt_in_real_provider_smoke_is_bounded_and_development_only() -> None:
     assert embedding.vector
 
 
+def test_create_app_loads_pricing_schedule_from_env(monkeypatch, tmp_path) -> None:
+    _enable_provider(monkeypatch)
+    pricing_path = tmp_path / "pricing.json"
+    pricing_path.write_text(
+        '{"schedule_id":"prices","currency":"USD","effective_date":"2026-10-07",'
+        '"source":"provider_list_estimate","generation_input_per_1k":0.01,'
+        '"generation_output_per_1k":0.02,"embedding_input_per_1k":0.001}',
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("SSCRE_PROVIDER_PRICING_JSON", str(pricing_path))
+    monkeypatch.setenv("SSCRE_PROVIDER_PRICING_SCHEDULE_ID", "prices")
+
+    llm = CountingProviderLLMClient()
+    embedding = CountingProviderEmbeddingClient()
+    client = TestClient(
+        create_app(
+            llm_client=llm,
+            embedding_client=embedding,
+            semantic_enabled=True,
+            semantic_strategy="C",
+        )
+    )
+    response = client.post("/v1/query", json={"query": "pricing schedule wiring"})
+
+    assert response.status_code == 200
+    metrics = response.json()["metrics"]
+    assert metrics["pricing_schedule_id"] == "prices"
+    assert metrics["cost_source"] == "provider_list_estimate"
+
+
 def test_invalid_opt_in_configuration_fails_clearly(monkeypatch) -> None:
     _enable_provider(monkeypatch)
     monkeypatch.setenv("SSCRE_PROVIDER_ENDPOINT", "not-a-valid-url")
