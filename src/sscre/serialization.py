@@ -162,6 +162,11 @@ def dumps_cache_decision_log(event: Mapping[str, object]) -> str:
     return json.dumps(build_cache_decision_log(event), sort_keys=True)
 
 
+def validate_redacted_report_payload(payload: object) -> None:
+    """Reject credential-like and raw-content keys from report artifacts."""
+    _reject_forbidden_keys(payload)
+
+
 def _reject_forbidden_keys(payload: object) -> None:
     if isinstance(payload, Mapping):
         for key, value in payload.items():
