@@ -284,6 +284,9 @@ Acceptance criteria:
   explicitly states why it is unavailable.
 - [ ] Provider errors preserve failure-closed cache behavior.
 - [ ] Synthetic and real-provider results are labeled separately.
+- [x] Completion evidence is linked:
+  [`WORKSTREAM_4_EVIDENCE.md`](./WORKSTREAM_4_EVIDENCE.md). The record
+  explicitly states that the credentialed provider run is unavailable.
 
 ## Workstream 5 — Complete evaluation and statistical reporting
 
