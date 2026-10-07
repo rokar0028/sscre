@@ -31,6 +31,10 @@ _FORBIDDEN_LOG_KEYS = frozenset(
         "password",
         "prompt",
         "provider_secret",
+        "query",
+        "query_a",
+        "query_b",
+        "query_text",
         "secret",
         "token",
     }
@@ -60,19 +64,20 @@ def serialize_safety_result_for_boundary(
     result: SafetyResult,
 ) -> dict[str, object]:
     """One JSON object for reports and tooling."""
-    payload = {
+    return {
         "schema_version": BOUNDARY_SERIALIZATION_VERSION,
         "safety_contract_version": SAFETY_EVALUATION_CONTRACT_VERSION,
         "trace_contract_version": CANDIDATE_TRACE_CONTRACT_VERSION,
         **result.to_log_dict(),
+        "candidate_traces": boundary_candidate_traces(result.candidate_traces),
     }
-    _assert_trace_payload_bounded(payload.get("candidate_traces", []))
-    return payload
 
 
 def attach_evaluation_report_schema(payload: Mapping[str, object]) -> dict[str, object]:
     return {
         "schema_version": BOUNDARY_SERIALIZATION_VERSION,
+        "safety_contract_version": SAFETY_EVALUATION_CONTRACT_VERSION,
+        "trace_contract_version": CANDIDATE_TRACE_CONTRACT_VERSION,
         **dict(payload),
     }
 
@@ -82,6 +87,7 @@ _FAILURE_EXAMPLE_LIST_KEYS = frozenset(
     {
         "false_positive_examples",
         "failure_examples",
+        "observed_pair_records",
     }
 )
 
@@ -156,10 +162,16 @@ def dumps_cache_decision_log(event: Mapping[str, object]) -> str:
     return json.dumps(build_cache_decision_log(event), sort_keys=True)
 
 
-def _reject_forbidden_keys(payload: Mapping[str, object]) -> None:
-    for key in payload:
-        if key.lower() in _FORBIDDEN_LOG_KEYS:
-            raise ValueError(f"decision log must not include field {key!r}")
+def _reject_forbidden_keys(payload: object) -> None:
+    if isinstance(payload, Mapping):
+        for key, value in payload.items():
+            if str(key).lower() in _FORBIDDEN_LOG_KEYS:
+                raise ValueError(f"decision log must not include field {key!r}")
+            _reject_forbidden_keys(value)
+        return
+    if isinstance(payload, (list, tuple)):
+        for item in payload:
+            _reject_forbidden_keys(item)
 
 
 def _assert_trace_payload_bounded(traces: object) -> None:
@@ -170,10 +182,19 @@ def _assert_trace_payload_bounded(traces: object) -> None:
     payload = json.dumps(traces, sort_keys=True, separators=(",", ":"))
     if len(payload.encode("utf-8")) > MAX_BOUNDARY_TRACE_JSON_BYTES:
         raise ValueError("serialized candidate_traces exceed boundary size limit")
+    if len(traces) > MAX_CANDIDATE_TRACES:
+        raise ValueError("serialized candidate_traces exceed trace count limit")
     for item in traces:
         if not isinstance(item, dict):
             raise ValueError("each candidate trace must be an object")
         _reject_forbidden_keys(item)
+        for meta_key in ("query_metadata", "candidate_metadata"):
+            metadata = item.get(meta_key)
+            if metadata is None:
+                continue
+            encoded = json.dumps(metadata, sort_keys=True, separators=(",", ":"))
+            if len(encoded.encode("utf-8")) > MAX_TRACE_METADATA_JSON_BYTES:
+                raise ValueError("trace metadata exceeds serialized size limit")
 
 
 def cap_traces_for_boundary(
