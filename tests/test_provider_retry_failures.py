@@ -236,6 +236,37 @@ def test_timeout_does_not_return_partial_provider_result(
     assert len(transport.calls) == 1
 
 
+def test_retries_during_generation_do_not_cache_before_success() -> None:
+    from sscre.cache import InMemoryExactCache
+    from sscre.embedding import EmbeddingResult
+    from tests.test_provider_integration import CountingProviderEmbeddingClient
+
+    transport = FlakyTransport(failures=1)
+    llm = OpenAICompatibleLLMClient(
+        _config(retry_limit=2, min_backoff_seconds=0, max_backoff_seconds=0),
+        transport=transport,
+    )
+    cache = InMemoryExactCache()
+    client = TestClient(
+        create_app(
+            llm_client=llm,
+            embedding_client=CountingProviderEmbeddingClient(),
+            repository=cache,
+            semantic_strategy="C",
+        )
+    )
+
+    response = client.post(
+        "/v1/query",
+        json={"query": "retry before cache insert unique phrase"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["source"] == "generated"
+    assert len(transport.calls) == 2
+    assert cache.storage_stats().entries == 1
+
+
 def test_provider_generation_failure_does_not_produce_cache_hit() -> None:
     cache = InMemoryExactCache()
     model = MockLLMClient(should_fail=True)
