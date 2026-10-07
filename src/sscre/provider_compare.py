@@ -112,6 +112,9 @@ def build_measurement_comparison(
             "Unavailable real-provider values remain null.",
             "Synthetic zero-cost placeholders are not real-provider costs.",
             "Generated-answer quality is not inferred from synthetic text.",
+            "Compare latency and cost only when provider, endpoint origin, "
+            "generation model, and embedding model match; otherwise treat "
+            "differences as configuration drift, not cache behavior.",
         ],
         "limitations": (
             real.get("limitations", [])
