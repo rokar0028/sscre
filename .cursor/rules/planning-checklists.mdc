@@ -26,3 +26,8 @@ alwaysApply: true
 - When closing a workstream milestone, sync the plan **Status**, **Execution
   sequence**, **Acceptance criteria**, and linked **evidence** file so unchecked
   boxes do not contradict implemented code or recorded deferrals.
+- When marking an implementation **step** complete in a workstream plan, update
+  that step’s checkboxes and evidence in the same pass, and refresh **Current
+  baseline** (especially **Open baseline gaps** and the canonical module table)
+  so the plan does not still describe the pre-step codebase. Do not rely on a
+  later review to discover drift.

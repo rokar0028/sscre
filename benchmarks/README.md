@@ -255,6 +255,22 @@ is in place for downstream workstreams.
 
 ## Threshold sweep and held-out comparison
 
+### Operating point
+
+The operating point is selected on the development split only. The configured
+`max_false_positive_rate` in
+[`experiments/evaluation_config.json`](../experiments/evaluation_config.json)
+is a constraint: eligible thresholds are filtered first, then the remaining
+threshold with the greatest safe reuse coverage is selected. Held-out labels
+are never passed to `_select_development_threshold`; held-out evaluation only
+reports metrics and constraint satisfaction.
+
+If no development threshold satisfies the configured cap, the sweep fails
+closed for selection purposes: it records `constraint_satisfied: false` and
+selects the least-unsafe threshold for diagnostic replay. This does not claim
+that the operating point satisfies the cap; consumers must check the recorded
+constraint flag before treating it as an approved operating point.
+
 Run the development threshold sweep first:
 
 ```powershell
@@ -281,3 +297,36 @@ python -m sscre.evaluate `
 The held-out report includes no-cache, exact-cache, and embedding-only
 baselines, latency percentiles, and reviewed false-positive examples. Held-out
 labels are used for reporting only, never threshold selection.
+
+### Storage footprint companion for Pareto reporting
+
+Generate the storage companion with the same `dataset_version` and the same
+input/output pricing values used by the evaluation config:
+
+```powershell
+python -m sscre.storage_evaluation `
+  --workload <held-out-aligned-storage-workload>.json `
+  --dataset-version reviewed-query-pairs-1.1 `
+  --input-cost-per-1k-tokens 0.0 `
+  --output-cost-per-1k-tokens 0.0 `
+  --output artifacts/evaluation/workstream5-held-out-storage.json
+```
+
+Pair this report with the held-out comparison JSON when building the
+reuse-versus-storage plane. The storage row is labeled
+`synthetic_storage_simulation`; do not treat its measured in-memory footprint
+as provider API latency or cost. `total_bytes`, `entries`, and
+`eviction_count` are the storage footprint fields, while
+`safe_reuse_coverage` is the reuse axis. The values above must match
+`experiments/evaluation_config.json` if non-zero pricing is configured.
+
+Build the deterministic Pareto artifact after both inputs exist:
+
+```powershell
+python -m sscre.pareto `
+  --development-sweep experiments/embedding_development.json `
+  --held-out-benchmark benchmarks/held_out_test.jsonl `
+  --config experiments/evaluation_config.json `
+  --storage-report artifacts/evaluation/workstream5-held-out-storage.json `
+  --output artifacts/evaluation/workstream5-held-out-pareto.json
+```

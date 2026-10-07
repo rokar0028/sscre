@@ -290,6 +290,15 @@ Acceptance criteria:
 
 ## Workstream 5 — Complete evaluation and statistical reporting
 
+Status: interim evaluation package recorded; final Phase 2 claims remain
+gated by the 500-pair benchmark requirement and unavailable live-provider
+measurements. Evidence: [`WORKSTREAM_5_EVIDENCE.md`](./WORKSTREAM_5_EVIDENCE.md).
+
+- [x] Workstream 5 iteration 1 evidence links the held-out comparison,
+  statistics, Pareto artifact, operating-point policy, and provider limitations.
+- [ ] Final statistical acceptance after the benchmark scale gate and any
+  required live-provider measurements.
+
 ### 5.1 Baselines
 
 Rerun the same held-out workload against:
@@ -332,6 +341,7 @@ Generate plots or machine-readable artifacts showing trade-offs among:
 
 - safety versus reuse
 - false positives versus tokens saved
+- cost versus safety
 - latency versus cost
 - reuse versus storage footprint
 
