@@ -866,6 +866,7 @@ class RequestObservationSample:
     observed_decision: str | None = None
     failure_category: str | None = None
     freshness_class: str | None = None
+    runtime_temporal_class: str | None = None
 
     def __post_init__(self) -> None:
         for name in (
@@ -921,6 +922,8 @@ class RequestObservationSample:
             payload["failure_category"] = self.failure_category
         if self.freshness_class is not None:
             payload["freshness_class"] = self.freshness_class
+        if self.runtime_temporal_class is not None:
+            payload["runtime_temporal_class"] = self.runtime_temporal_class
         return payload
 
 
