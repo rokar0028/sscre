@@ -102,12 +102,14 @@ existing project volume was not touched. CI configuration is in
 
 - [ ] Define a versioned benchmark schema containing query pairs, expected
   reuse decision, failure category, freshness class, and annotation source.
-- [ ] Expand the reviewed benchmark to at least 500 labeled pairs.
-- [ ] Include exact duplicates, paraphrases, intent changes, constraint
+- [x] Expand the reviewed benchmark to at least 500 labeled pairs.
+  - 615 final records in `reviewed-query-pairs-2.0`; Phase 2 production
+    validation passed on 2026-10-08.
+- [x] Include exact duplicates, paraphrases, intent changes, constraint
   changes, entity changes, format changes, temporal changes, and domain
   changes.
-- [ ] Create disjoint development and held-out manifests.
-- [ ] Validate that query IDs and source examples do not leak across splits.
+- [x] Create disjoint development and held-out manifests.
+- [x] Validate that query IDs and source examples do not leak across splits.
 - [ ] Record annotation guidance and adjudication rules.
 - [ ] Store correctness labels independently from preference labels.
 
@@ -230,7 +232,9 @@ Acceptance criteria:
 
 ## Definition of done
 
-- [ ] Phase 2 benchmark contains at least 500 reviewed, split-validated pairs.
+- [x] Phase 2 benchmark contains at least 500 reviewed, split-validated pairs.
+  - 615 source / 400 development / 215 held-out; frozen manifest and
+    `benchmark_validate --phase2 --production` passed on 2026-10-08.
 - [ ] Correctness, compatibility, and preference labels are separate.
 - [ ] Real-provider measurements exist or their absence is explicitly reported.
 - [ ] Final results include uncertainty, Pareto trade-offs, cost, latency,
