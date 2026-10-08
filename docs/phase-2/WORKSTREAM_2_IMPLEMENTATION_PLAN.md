@@ -17,17 +17,19 @@ development and held-out splits. The current repository contains a smaller
 working benchmark and validation path; this workstream expands and hardens it
 without changing the frozen decision or label semantics from Workstream 1.
 
-## Status (2026-10-06)
+## Status (2026-10-08)
 
 **Infrastructure: complete.** Schema 1.1, validation, leakage checks, build/freeze
 CLI, split manifest identity, evaluate `benchmark_artifact`, operational report
 redaction, and regression tests are implemented on the frozen
-`reviewed-query-pairs-1.1` artifact (32 pairs).
+`reviewed-query-pairs-1.1` artifact (32 pairs). The scale-up subsequently
+produced and froze `reviewed-query-pairs-2.0` (615 pairs).
 
-**Phase 2 scale gate: open.** The ≥500 reviewed-pair target is the only remaining
-acceptance blocker. Enforce with
-`python -m sscre.benchmark_validate --benchmark-dir benchmarks --phase2` after
-scale-up. Evidence lives in [`benchmarks/README.md`](../../benchmarks/README.md)
+**Phase 2 scale gate: complete.** The checked-in artifact contains 615 final
+records in 400 development and 215 held-out rows. The frozen manifest and
+Phase 2 validation command are recorded in the scale-up evidence.
+[`BENCHMARK_500_SCALE_UP_IMPLEMENTATION_PLAN.md`](./BENCHMARK_500_SCALE_UP_IMPLEMENTATION_PLAN.md).
+Evidence lives in [`benchmarks/README.md`](../../benchmarks/README.md)
 (§ Workstream 2 completion evidence).
 
 ## Source of truth
@@ -739,8 +741,9 @@ Record for each successful verification:
 - [x] `benchmarks/README.md` documents the versioned schema, annotation guide,
   review policy, redaction policy, and split policy (includes completion
   evidence table; 500-pair target documented as open).
-- [ ] The checked-in benchmark contains at least 500 reviewed pairs (only open
-  Phase 2 acceptance gate).
+- [x] The checked-in benchmark contains at least 500 reviewed pairs.
+  - 615 final records; `benchmark_validate --phase2 --production` passed
+    after the manifest was re-frozen (2026-10-08).
 - [x] Every final pair on the working artifact has a stable ID and immutable
   dataset membership (`split_manifest.json` `record_ids` + checksums).
 - [x] Required categories are represented and `WORKING_BASELINE_COVERAGE`
@@ -764,7 +767,7 @@ Record for each successful verification:
 - [x] Evaluation artifacts identify dataset, schema, split, manifest, and
   annotation-guide versions (`benchmark_artifact` on evaluate reports).
 - [x] Benchmark validation and the full test suite pass, with unavailable
-  integrations explicitly reported (262 passed, 13 skipped, 2026-10-06).
+  integrations explicitly reported (603 passed, 14 skipped, 2026-10-08).
 
 ## Completion evidence
 
@@ -782,9 +785,12 @@ Before marking this workstream complete, add a short evidence record to
 - [x] known limitations and their effect on Phase 2 conclusions.
 
 Recorded in [`benchmarks/README.md`](../../benchmarks/README.md) § Workstream 2
-completion evidence (2026-10-06). The **500-pair** scale criterion remains open.
+completion evidence and
+[`BENCHMARK_500_SCALE_UP_EVIDENCE.md`](./BENCHMARK_500_SCALE_UP_EVIDENCE.md)
+(2026-10-08). The scale criterion is complete; factual correctness,
+preference, and real-provider evidence remain separate open work.
 
-Do not mark the 500-pair, leakage, review, or full-suite criteria complete
+Do not mark review-quality, factual-correctness, or full-suite criteria complete
 based only on the presence of files. Each completion mark requires the
 corresponding artifact and command evidence.
 
@@ -802,7 +808,7 @@ when reporting operational or dashboard results.
 Handoff requirements:
 
 - [x] Publish the final schema and annotation-guide versions (1.1 / 1.0.0 for
-  the working artifact; 500-pair revision will bump dataset version).
+  `reviewed-query-pairs-2.0`).
 - [x] Publish the split manifest and validation command.
 - [x] Publish the category and label coverage summary (`split_manifest.json`,
   `benchmark_validate` output).
@@ -819,11 +825,13 @@ Handoff requirements:
   (working artifact `reviewed-query-pairs-1.1`).
 3. [x] Implement record-level category, metadata, and review validation.
 4. [x] Implement normalized source, template, and split leakage checks.
-5. [x] Build and independently review the expanded candidate dataset (32-pair
-  slice; 500-pair target open).
-6. [ ] Adjudicate disagreements and remove unapproved or unresolved records (no
-  disputed pairs in artifact; workflow untested at scale).
-7. [ ] Validate category coverage and the 500-pair minimum (`--phase2` gate).
+5. [x] Build and independently review the expanded candidate dataset (615
+  final records; no disputed pairs in the frozen artifact).
+6. [x] Adjudicate disagreements and remove unapproved or unresolved records
+  (583 imported rows reviewed; 30 high-impact rows received a second
+  annotator count).
+7. [x] Validate category coverage and the 500-pair minimum (`--phase2`
+  production gate).
 8. [x] Create immutable development and held-out manifests.
 9. [x] Run benchmark and split regression tests.
 10. [x] Replay development and held-out evaluations without held-out tuning.
