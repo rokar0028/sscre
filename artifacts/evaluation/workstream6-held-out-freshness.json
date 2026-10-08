@@ -82,7 +82,7 @@
     "source_dataset": {
       "path": "benchmarks/reviewed_query_pairs.jsonl",
       "record_count": 615,
-      "sha256": "84d8c6fdcd4be6618c5278920433c3ea2a90d43cf7e54f86af9ee6d2a4b285c5"
+      "sha256": "8dbd3c503927006d27f18c4f41a0c3ae47c7294e583203d3371871fa2e0664cd"
     },
     "split_manifest_sha256": "c0109b36346442858d712ec13c183c8178ebb3e244b082f845cb7426750d8bbd",
     "split_record_count": 215,
@@ -2240,7 +2240,7 @@
       "pair-0610",
       "pair-0615"
     ],
-    "split_sha256": "d44865c12722667e06c9c4f2f436411e658bb9a153cc3f5e6c20b5e5e882e148"
+    "split_sha256": "30801a9629dd997c92a3aa935af6fe92433c22cd1ef69226fd7a8e2919a251e1"
   },
   "config_version": "evaluation-config-1.0",
   "dataset_version": "reviewed-query-pairs-2.0",

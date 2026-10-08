@@ -84,7 +84,7 @@
     "source_dataset": {
       "path": "benchmarks/reviewed_query_pairs.jsonl",
       "record_count": 615,
-      "sha256": "84d8c6fdcd4be6618c5278920433c3ea2a90d43cf7e54f86af9ee6d2a4b285c5"
+      "sha256": "8dbd3c503927006d27f18c4f41a0c3ae47c7294e583203d3371871fa2e0664cd"
     },
     "split_manifest_sha256": "69c90c4182644dfedd8c9d018a9c452b539bedede22215d768ec382c6ec29e02",
     "split_record_count": 400,

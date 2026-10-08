@@ -1,0 +1,2 @@
+# Benchmark JSONL checksums in split_manifest.json assume LF line endings.
+*.jsonl text eol=lf
