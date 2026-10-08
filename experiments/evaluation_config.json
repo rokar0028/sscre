@@ -18,5 +18,56 @@
   "bootstrap_iterations": 1000,
   "proportion_interval_method": "wilson",
   "minimum_n_proportion": 1,
-  "minimum_n_bootstrap": 5
+  "minimum_n_bootstrap": 5,
+  "freshness_experiment": {
+    "schema_version": "freshness-evaluation-1.0",
+    "scope": "development_only",
+    "freshness_class_reporting": "both",
+    "held_out_freshness_scope": {
+      "stable": "evaluated",
+      "semi_dynamic": "unavailable",
+      "dynamic": "unavailable",
+      "reason": "Held-out split has zero reviewed semi-dynamic and zero dynamic pairs (WS6 Step 1 audit); Option A development-only scope."
+    },
+    "policy_matrix": [
+      {
+        "name": "conservative",
+        "stable_ttl_seconds": 3600,
+        "semi_dynamic_ttl_seconds": 600,
+        "dynamic_ttl_seconds": null,
+        "allow_dynamic_entries": false
+      },
+      {
+        "name": "default",
+        "stable_ttl_seconds": 2592000,
+        "semi_dynamic_ttl_seconds": 86400,
+        "dynamic_ttl_seconds": null,
+        "allow_dynamic_entries": false
+      },
+      {
+        "name": "dynamic-short",
+        "stable_ttl_seconds": 2592000,
+        "semi_dynamic_ttl_seconds": 86400,
+        "dynamic_ttl_seconds": 300,
+        "allow_dynamic_entries": true
+      },
+      {
+        "name": "long-lived",
+        "stable_ttl_seconds": 7776000,
+        "semi_dynamic_ttl_seconds": 604800,
+        "dynamic_ttl_seconds": null,
+        "allow_dynamic_entries": false
+      }
+    ],
+    "selection": {
+      "selection_rule": "constraint_first_then_maximize_safe_reuse_coverage",
+      "objective": "safe_reuse_coverage",
+      "constraints": {
+        "max_stale_exposure_rate": 0.0,
+        "max_false_positive_rate": 0.0,
+        "max_dynamic_reuse_served_rate": 0.0
+      }
+    },
+    "invalidation_scope": "repository_boundary_only"
+  }
 }

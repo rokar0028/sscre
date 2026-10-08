@@ -75,6 +75,7 @@ def serialize_safety_result_for_boundary(
 
 def attach_evaluation_report_schema(payload: Mapping[str, object]) -> dict[str, object]:
     from sscre.evaluation_statistics import attach_evaluation_statistics_schema
+    from sscre.freshness_evaluation import attach_freshness_evaluation_schema
 
     envelope = {
         "schema_version": BOUNDARY_SERIALIZATION_VERSION,
@@ -82,7 +83,8 @@ def attach_evaluation_report_schema(payload: Mapping[str, object]) -> dict[str, 
         "trace_contract_version": CANDIDATE_TRACE_CONTRACT_VERSION,
         **dict(payload),
     }
-    return attach_evaluation_statistics_schema(envelope)
+    with_statistics = attach_evaluation_statistics_schema(envelope)
+    return attach_freshness_evaluation_schema(with_statistics)
 
 
 _OPERATIONAL_QUERY_TEXT_KEYS = frozenset({"query_a", "query_b"})
@@ -141,6 +143,10 @@ def redact_operational_evaluation_report(
     statistics = result.get("statistics")
     if isinstance(statistics, dict):
         validate_redacted_report_payload(statistics)
+
+    freshness = result.get("freshness_experiment")
+    if isinstance(freshness, dict):
+        validate_redacted_report_payload(freshness)
 
     request_samples = result.get("request_samples")
     if request_samples is not None:
