@@ -55,8 +55,11 @@ readiness evidence are tracked in
   and the final decision.
 - [x] Results include confidence intervals and Pareto plots.
   - WS5 held-out comparison + Pareto JSON ([WORKSTREAM_5_EVIDENCE.md](./WORKSTREAM_5_EVIDENCE.md), 2026-10-08).
-- [ ] Freshness policies are compared on stable, semi-dynamic, and dynamic
+- [x] Freshness policies are compared on stable, semi-dynamic, and dynamic
   workloads.
+  - Four-arm development replay + frozen `conservative` held-out stable scope
+    ([WORKSTREAM_6_EVIDENCE.md](./WORKSTREAM_6_EVIDENCE.md), 2026-10-09; held-out
+    semi/dynamic unavailable).
 - [ ] Failure categories and representative examples are reported.
 - [x] No-cache, exact-cache, embedding-only, and compatibility-aware
   baselines are rerun on the final held-out split.
@@ -372,6 +375,11 @@ Acceptance criteria (synthetic held-out package; live provider deferred):
 
 ## Workstream 6 — Freshness experiments
 
+Evidence: [`WORKSTREAM_6_EVIDENCE.md`](./WORKSTREAM_6_EVIDENCE.md) (complete
+2026-10-09, Option A). Artifacts:
+`artifacts/evaluation/workstream6-development-freshness.json`,
+`workstream6-held-out-freshness.json`, `workstream6-invalidation.json`.
+
 Evaluate at least three policy classes:
 
 | Class | Example behavior |
@@ -385,9 +393,12 @@ storage. Test explicit invalidation where the existing design supports it.
 
 Acceptance criteria:
 
-- [ ] Workloads contain stable, semi-dynamic, and dynamic examples.
-- [ ] TTL policy and invalidation behavior are reported separately.
-- [ ] Dynamic queries cannot be served from expired or disallowed entries.
+- [x] Workloads contain stable, semi-dynamic, and dynamic examples.
+  - Source benchmark 606 / 5 / 4; held-out stable-only evaluation per Option A.
+- [x] TTL policy and invalidation behavior are reported separately.
+- [x] Dynamic queries cannot be served from expired or disallowed entries.
+  - Tested in `tests/test_workstream6_freshness.py`, `test_cache_controls.py`,
+    and request-path integration tests.
 
 ## Workstream 7 — Failure gallery and quality analysis
 
@@ -478,9 +489,10 @@ Acceptance criteria:
 4. [ ] Collect correctness labels and adjudicate disagreements.
 5. [x] Integrate one opt-in real provider (Workstream 4 iteration 1; live observation deferred).
 6. [x] Freeze development thresholds and evaluate the held-out split (Workstream 5, 2026-10-08).
-7. [ ] Add confidence intervals, Pareto artifacts, and freshness experiments.
+7. [x] Add confidence intervals, Pareto artifacts, and freshness experiments.
   - [x] Confidence intervals and Pareto artifacts (Workstream 5).
-  - [ ] Freshness policy experiments (Workstream 6).
+  - [x] Freshness policy experiments (Workstream 6;
+    [WORKSTREAM_6_EVIDENCE.md](./WORKSTREAM_6_EVIDENCE.md), 2026-10-09).
 8. [ ] Build the failure gallery and update the final report.
 9. [ ] Run PostgreSQL restart and concurrency verification.
 10. [ ] Add the dashboard or dual-model experiment only if its gate is met.

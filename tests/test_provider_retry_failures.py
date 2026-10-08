@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 from sscre.app import create_app
 from sscre.cache import InMemoryExactCache
-from sscre.embedding import EmbeddingConfig
+from sscre.embedding import EmbeddingConfig, EmbeddingResult
 from sscre.llm import MockLLMClient
 from sscre.provider_config import RealProviderConfig
 from sscre.remote_embedding import OpenAICompatibleEmbeddingClient, RemoteEmbeddingError
@@ -237,7 +237,6 @@ def test_timeout_does_not_return_partial_provider_result(
 
 def test_retries_during_generation_do_not_cache_before_success() -> None:
     from sscre.cache import InMemoryExactCache
-    from sscre.embedding import EmbeddingResult
     from tests.test_provider_integration import CountingProviderEmbeddingClient
 
     transport = FlakyTransport(failures=1)
