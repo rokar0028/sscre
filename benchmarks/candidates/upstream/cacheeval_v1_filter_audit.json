@@ -1,0 +1,292 @@
+{
+  "filter": "cacheeval_commercial_v1",
+  "policy_doc": "docs/phase-2/BENCHMARK_500_EXTERNAL_SOURCE_POLICY.md",
+  "input_path": "CacheEval@cd3ff21fc2ea41957730ecc128c3e5cd3e4286a1/cachebench.jsonl",
+  "output_path": "benchmarks/candidates/upstream/cacheeval_v1_filtered.jsonl",
+  "upstream_revision": "cd3ff21fc2ea41957730ecc128c3e5cd3e4286a1",
+  "input_row_count": 2000,
+  "retained_row_count": 1945,
+  "excluded_row_count": 55,
+  "excluded_by_reason": {
+    "quora_qqp_source": 20,
+    "xlam_nc_source": 35
+  },
+  "excluded_ids": [
+    {
+      "id": "cb-qa-0081",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0082",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0083",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0084",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0085",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0086",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0087",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0088",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0089",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0090",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0091",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0092",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0093",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0094",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0095",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0096",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0097",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0098",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0099",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-qa-0100",
+      "reason": "quora_qqp_source",
+      "source": "Quora QQP (label=1 duplicates) \u2014 Wang et al. 2017"
+    },
+    {
+      "id": "cb-tool-0191",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0192",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0193",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0194",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0195",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0196",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0197",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0198",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0199",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0200",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0201",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0202",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0203",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0204",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0205",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0206",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0207",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0208",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0209",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0210",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0211",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0212",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0213",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0214",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0215",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0216",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0217",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0218",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0219",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0220",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0221",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0222",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0223",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0224",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    },
+    {
+      "id": "cb-tool-0225",
+      "reason": "xlam_nc_source",
+      "source": "xLAM-irrelevance-7.5k"
+    }
+  ],
+  "output_sha256": "9a05755d5382d15b087382743c3b7cf27f12cbda6188b88f6855bfa51dcd6d61"
+}
