@@ -28,7 +28,7 @@ def _provider_config() -> RealProviderConfig:
         max_backoff_seconds=1,
         max_retry_elapsed_seconds=5,
         experiment_id="workstream4-measure",
-        dataset_version="reviewed-query-pairs-1.1",
+        dataset_version="reviewed-query-pairs-2.0",
         split="development",
         pricing_schedule_id="prices-2026-10",
         credential="credential-value",

@@ -168,7 +168,7 @@ def test_reports_include_dataset_split_configuration_and_schema_versions() -> No
     )
 
     assert payload["schema_version"] == "real-provider-measurement-1.0"
-    assert payload["benchmark"]["dataset_version"] == "reviewed-query-pairs-1.1"
+    assert payload["benchmark"]["dataset_version"] == "reviewed-query-pairs-2.0"
     assert payload["benchmark"]["split"] == "development"
     assert payload["configuration"]["config_version"] == "evaluation-config-1.0"
 

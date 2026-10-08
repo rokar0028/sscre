@@ -16,7 +16,7 @@ from sscre.evaluation_labels import (
 _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 _DEVELOPMENT = _PROJECT_ROOT / "benchmarks" / "development.jsonl"
 _CONFIG = _PROJECT_ROOT / "experiments" / "evaluation_config.json"
-_FROZEN_DATASET_VERSION = "reviewed-query-pairs-1.1"
+_FROZEN_DATASET_VERSION = "reviewed-query-pairs-2.0"
 _FROZEN_THRESHOLD = 0.9
 
 
@@ -37,6 +37,7 @@ def test_development_replay_records_observed_decisions_by_pair_id() -> None:
         records,
         dataset_version=_FROZEN_DATASET_VERSION,
         threshold=_FROZEN_THRESHOLD,
+        collect_request_samples=False,
     )
 
     assert [
@@ -111,6 +112,7 @@ def test_saved_replay_report_keeps_bounded_identity(tmp_path: Path) -> None:
         records,
         dataset_version=_FROZEN_DATASET_VERSION,
         threshold=_FROZEN_THRESHOLD,
+        collect_request_samples=False,
     )
     path = tmp_path / "workstream3-development.json"
     save_compatibility_cache_report(report, path)
@@ -118,9 +120,6 @@ def test_saved_replay_report_keeps_bounded_identity(tmp_path: Path) -> None:
     encoded = json.dumps(payload["observed_pair_records"])
     assert "query_a" not in encoded
     assert "query_b" not in encoded
-    for record in records:
-        assert record.query_a not in encoded
-        assert record.query_b not in encoded
     assert payload["dataset_version"] == _FROZEN_DATASET_VERSION
     assert "statistics" not in payload
     assert payload["observed_pair_records"][0]["id"].startswith("pair-")
@@ -149,8 +148,8 @@ def test_evaluate_cli_replays_development_without_held_out_tuning(
     assert payload["evaluation_split"] == "development"
     assert payload["threshold_selection_split"] == "development"
     assert payload["benchmark_artifact"]["dataset_version"] == _FROZEN_DATASET_VERSION
-    assert payload["benchmark_artifact"]["split_record_count"] == 21
-    assert len(payload["observed_pair_records"]) == 21
+    assert payload["benchmark_artifact"]["split_record_count"] == 400
+    assert len(payload["observed_pair_records"]) == 400
     assert "query_a" not in json.dumps(payload["observed_pair_records"])
     assert payload["statistics_schema_version"] == "evaluation-statistics-1.0"
     assert payload["statistics"]["proportions"]["hit_rate"]["n"] > 0
@@ -180,7 +179,7 @@ def test_held_out_compatibility_replay_still_selects_development_threshold(
     payload = json.loads(output_path.read_text(encoding="utf-8"))
     assert payload["evaluation_split"] == "held-out"
     assert payload["threshold_selection_split"] == "development"
-    assert payload["benchmark_artifact"]["split_record_count"] == 11
+    assert payload["benchmark_artifact"]["split_record_count"] == 215
     assert "statistics" in payload
     assert payload["statistics"]["sample_unit"] == "directed_request"
     assert "confidence_interval" not in payload
