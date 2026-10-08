@@ -1,0 +1,56 @@
+{
+  "artifact_type": "workstream6_invalidation",
+  "config_version": "evaluation-config-1.0",
+  "dataset_version": "reviewed-query-pairs-2.0",
+  "definition_version": "1.0",
+  "invalidation": {
+    "constraint_satisfied": true,
+    "definition_version": "1.0",
+    "invalidation_method": "delete_by_query_hash",
+    "measurement_environment": "synthetic_repository",
+    "notes": [
+      "cleanup_expired was not invoked; deletion is explicit invalidation only."
+    ],
+    "policy_name": "invalidation-probe",
+    "postgresql_integration": {
+      "reason": "Step 7 uses in-memory repository boundary; PostgreSQL delete_by_query_hash is documented but not exercised here.",
+      "status": "not_run"
+    },
+    "repository": "in_memory_exact_cache",
+    "repository_capabilities": {
+      "in_memory_exact_cache": {
+        "delete_by_query_hash": true,
+        "semantic_retrieval_after_delete": "entry_removed_from_index"
+      },
+      "postgresql_cache": {
+        "delete_by_query_hash": true,
+        "integration_evaluated": false
+      }
+    },
+    "scope": "repository_boundary_only",
+    "sequence": {
+      "exact_lookup_before_invalidation": true,
+      "exact_lookup_empty_after_invalidation": true,
+      "fresh_reuse_eligible_before_invalidation": true,
+      "insert_verified": true,
+      "invalidation_latency_ms": 0.0051,
+      "regeneration_verified": true,
+      "semantic_retrieval_excludes_invalidated_entry": true,
+      "semantic_retrieval_includes_entry_before_invalidation": true
+    },
+    "status": "evaluated",
+    "storage_after_invalidation": {
+      "canonical_answers": 0,
+      "entries": 0,
+      "total_bytes": 0
+    },
+    "storage_after_regeneration": {
+      "canonical_answers": 1,
+      "entries": 1,
+      "total_bytes": 194
+    },
+    "ttl_expiration_used": false
+  },
+  "measurement_environment": "synthetic_repository",
+  "source_freshness_artifact": "artifacts/evaluation/workstream6-development-freshness.json"
+}
