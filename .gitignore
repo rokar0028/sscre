@@ -6,6 +6,13 @@ __pycache__/
 .env
 .env.local
 
+# CacheEval upstream (unfiltered); filtered export is reproducible via filter script
+benchmarks/candidates/upstream/cachebench.jsonl
+benchmarks/candidates/upstream/cacheeval_v1_filtered.jsonl
+
+# Local full-suite logs
+pytest_full.log
+
 # Existing standalone projects in this workspace
 fastapi/
 tutorial_pydan/
