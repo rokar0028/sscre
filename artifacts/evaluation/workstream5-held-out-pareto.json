@@ -1,6 +1,6 @@
 {
   "config_version": "evaluation-config-1.0",
-  "dataset_version": "reviewed-query-pairs-1.1",
+  "dataset_version": "reviewed-query-pairs-2.0",
   "dominance": {
     "cost_vs_safety": {
       "x": {
@@ -88,12 +88,12 @@
         "satisfied": true
       },
       "embedding_report": {
-        "false_positive_rate": 0.0,
-        "safe_reuse_coverage": 0.0
+        "false_positive_rate": 0.2936170212765957,
+        "safe_reuse_coverage": 0.5833333333333334
       },
       "metrics": {
-        "embedding_false_positive_rate": 0.0,
-        "embedding_safe_reuse_coverage": 0.0,
+        "embedding_false_positive_rate": 0.2936170212765957,
+        "embedding_safe_reuse_coverage": 0.5833333333333334,
         "estimated_cost_usd": 0.0,
         "false_positive_rate": 0.0,
         "p95_latency_ms": 0.0,
@@ -112,12 +112,12 @@
         "satisfied": true
       },
       "embedding_report": {
-        "false_positive_rate": 0.0,
-        "safe_reuse_coverage": 0.0
+        "false_positive_rate": 0.3287671232876712,
+        "safe_reuse_coverage": 0.16666666666666666
       },
       "metrics": {
-        "embedding_false_positive_rate": 0.0,
-        "embedding_safe_reuse_coverage": 0.0,
+        "embedding_false_positive_rate": 0.3287671232876712,
+        "embedding_safe_reuse_coverage": 0.16666666666666666,
         "estimated_cost_usd": 0.0,
         "false_positive_rate": 0.0,
         "p95_latency_ms": 0.0,
@@ -136,12 +136,12 @@
         "satisfied": true
       },
       "embedding_report": {
-        "false_positive_rate": 0.0,
-        "safe_reuse_coverage": 0.0
+        "false_positive_rate": 0.35714285714285715,
+        "safe_reuse_coverage": 0.11904761904761904
       },
       "metrics": {
-        "embedding_false_positive_rate": 0.0,
-        "embedding_safe_reuse_coverage": 0.0,
+        "embedding_false_positive_rate": 0.35714285714285715,
+        "embedding_safe_reuse_coverage": 0.11904761904761904,
         "estimated_cost_usd": 0.0,
         "false_positive_rate": 0.0,
         "p95_latency_ms": 0.0,
