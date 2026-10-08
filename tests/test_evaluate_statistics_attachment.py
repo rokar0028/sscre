@@ -85,6 +85,12 @@ def test_baseline_all_attaches_comparison_statistics(tmp_path: Path) -> None:
         "embedding-cache",
         "compatibility-cache",
     }
+    companion = payload.get("freshness_policy_companion_artifacts")
+    assert isinstance(companion, dict)
+    assert companion.get("integration") == "reference_only"
+    artifacts = companion.get("artifacts")
+    assert isinstance(artifacts, dict)
+    assert "development" in artifacts
     _assert_hit_rate_interval(statistics["overall"])
     _assert_hit_rate_interval(statistics["by_baseline"]["embedding-cache"])
 

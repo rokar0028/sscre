@@ -33,6 +33,8 @@ from sscre.evaluation_statistics import (
     apply_statistics_config_defaults,
     build_comparison_statistics,
 )
+from sscre.freshness_artifacts import freshness_companion_artifact_references
+from sscre.freshness_evaluation import apply_freshness_experiment_config_defaults
 from sscre.serialization import (
     attach_evaluation_report_schema,
     redact_operational_evaluation_report,
@@ -114,6 +116,7 @@ def _load_config(path: str | Path) -> dict[str, Any]:
         raise ValueError("max_false_positive_rate must be between 0 and 1")
     config["max_false_positive_rate"] = float(max_false_positive_rate)
     apply_statistics_config_defaults(config)
+    apply_freshness_experiment_config_defaults(config)
     return config
 
 
@@ -396,6 +399,11 @@ def main(argv: list[str] | None = None) -> int:
                     selected_threshold=selection.selected_threshold,
                     selection_rule=selection.selection_rule,
                     max_false_positive_rate=config["max_false_positive_rate"],
+                )
+            freshness_refs = freshness_companion_artifact_references(config)
+            if freshness_refs is not None:
+                comparison_body["freshness_policy_companion_artifacts"] = (
+                    freshness_refs
                 )
             payload = redact_operational_evaluation_report(
                 attach_evaluation_report_schema(comparison_body)
