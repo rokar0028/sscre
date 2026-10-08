@@ -36,28 +36,34 @@ readiness evidence are tracked in
 - [x] Deterministic fake providers and baseline evaluation paths exist.
 - [x] Development, held-out, and synthetic-load report structure exists.
 - [x] Docker Compose configuration and GitHub Actions CI are configured.
-- [ ] The reviewed benchmark contains at least 500 labeled pairs.
+- [x] The reviewed benchmark contains at least 500 labeled pairs.
+  - **615** pairs, `reviewed-query-pairs-2.0` ([BENCHMARK_500_SCALE_UP_EVIDENCE.md](./BENCHMARK_500_SCALE_UP_EVIDENCE.md)).
 - [ ] Human factual-correctness labels are collected.
 - [ ] A real-provider run is recorded.
-- [ ] Confidence-aware held-out results are frozen.
+- [x] Confidence-aware held-out results are frozen.
+  - WS5 held-out comparison + statistics on `reviewed-query-pairs-2.0` (2026-10-08).
 
 ## Phase 2 definition of done
 
-- [ ] The benchmark contains at least 500 reviewed pairs and validated,
+- [x] The benchmark contains at least 500 reviewed pairs and validated,
   disjoint development and held-out splits.
+  - 400 / 215 / 615; `benchmark_validate --phase2 --production` passed (2026-10-08).
 - [ ] Every pair has independent compatibility, correctness, and preference
   fields where applicable.
 - [ ] `SAFE`, `UNSAFE`, and `UNCERTAIN` decisions are explicit and tested.
 - [ ] Candidate-level traces explain retrieval, rules, thresholds, freshness,
   and the final decision.
-- [ ] Results include confidence intervals and Pareto plots.
+- [x] Results include confidence intervals and Pareto plots.
+  - WS5 held-out comparison + Pareto JSON ([WORKSTREAM_5_EVIDENCE.md](./WORKSTREAM_5_EVIDENCE.md), 2026-10-08).
 - [ ] Freshness policies are compared on stable, semi-dynamic, and dynamic
   workloads.
 - [ ] Failure categories and representative examples are reported.
-- [ ] No-cache, exact-cache, embedding-only, and compatibility-aware
+- [x] No-cache, exact-cache, embedding-only, and compatibility-aware
   baselines are rerun on the final held-out split.
-- [ ] Real-provider evidence is included, or its absence and consequences are
+  - `artifacts/evaluation/workstream5-held-out-comparison.json` (615-pair scale, 2026-10-08).
+- [x] Real-provider evidence is included, or its absence and consequences are
   explicitly reported.
+  - Unavailable artifact + WS5 evidence § provider limitations (synthetic replay only).
 - [ ] PostgreSQL restart and concurrent-request behavior is tested or
   explicitly documented as unsupported.
 - [ ] A dashboard is added only after the reports and data contracts are
@@ -136,8 +142,10 @@ policy permits it.
 Implementation status and verification evidence:
 [`WORKSTREAM_2_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_2_IMPLEMENTATION_PLAN.md),
 [`benchmarks/README.md`](../benchmarks/README.md) (§ Workstream 2 completion
-evidence). The checked-in artifact is a **32-pair** working baseline; the
-**500-pair** Phase 2 target remains open (`benchmark_validate --phase2`).
+evidence). The checked-in artifact is the frozen **615-pair**
+`reviewed-query-pairs-2.0` benchmark; `benchmark_validate --phase2
+--production` passed on 2026-10-08. Correctness labels and real-provider
+measurements remain separate open criteria.
 
 ### 2.1 Dataset schema
 
@@ -206,8 +214,9 @@ Acceptance criteria:
 
 - [x] `benchmarks/README.md` documents the schema, annotation guide, and
   version (see Workstream 2 completion evidence).
-- [ ] A checked-in benchmark contains at least 500 reviewed pairs (32-pair
-  working artifact; `--phase2` validation gate enforced in CLI).
+- [x] A checked-in benchmark contains at least 500 reviewed pairs (`--phase2`
+  validation gate enforced in CLI).
+  - **615** pairs on `reviewed-query-pairs-2.0` (2026-10-08).
 - [x] Split validation has tests for duplicate IDs and source leakage.
 - [x] Evaluation output records dataset version and split name (`benchmark_artifact`).
 
@@ -290,14 +299,15 @@ Acceptance criteria:
 
 ## Workstream 5 — Complete evaluation and statistical reporting
 
-Status: interim evaluation package recorded; final Phase 2 claims remain
-gated by the 500-pair benchmark requirement and unavailable live-provider
-measurements. Evidence: [`WORKSTREAM_5_EVIDENCE.md`](./WORKSTREAM_5_EVIDENCE.md).
+Status: **final** synthetic held-out package on `reviewed-query-pairs-2.0`
+(2026-10-08). Live-provider measurements remain deferred. Evidence:
+[`WORKSTREAM_5_EVIDENCE.md`](./WORKSTREAM_5_EVIDENCE.md).
 
 - [x] Workstream 5 iteration 1 evidence links the held-out comparison,
   statistics, Pareto artifact, operating-point policy, and provider limitations.
-- [ ] Final statistical acceptance after the benchmark scale gate and any
-  required live-provider measurements.
+- [x] Final statistical acceptance after the benchmark scale gate (615 pairs,
+  regenerated WS5 artifacts).
+- [ ] Live-provider measurements (Workstream 4 deferral) remain open.
 
 ### 5.1 Baselines
 
@@ -349,12 +359,16 @@ Select an operating point using constraints written before held-out
 evaluation. A higher hit rate is not a success if it violates the
 false-positive or freshness constraint.
 
-Acceptance criteria:
+Acceptance criteria (synthetic held-out package; live provider deferred):
 
-- [ ] The report includes confidence intervals, not only point estimates.
-- [ ] Pareto artifacts can be regenerated from checked-in commands/config.
-- [ ] Threshold selection is documented as development-only.
-- [ ] The selected operating point satisfies the stated constraints.
+- [x] The report includes confidence intervals, not only point estimates.
+  - Default `statistics` attachment on `--baseline all` ([WORKSTREAM_5_EVIDENCE.md](./WORKSTREAM_5_EVIDENCE.md)).
+- [x] Pareto artifacts can be regenerated from checked-in commands/config.
+  - `python -m sscre.pareto` commands recorded in evidence (2026-10-08).
+- [x] Threshold selection is documented as development-only.
+  - `benchmarks/README.md` operating-point policy; held-out tests in `tests/test_benchmark.py`.
+- [x] The selected operating point satisfies the stated constraints.
+  - Held-out `max_false_positive_rate`: satisfied at threshold `0.95` (Pareto `selected_constraint`).
 
 ## Workstream 6 — Freshness experiments
 
@@ -458,13 +472,15 @@ Acceptance criteria:
 
 ## Recommended execution order
 
-1. [ ] Freeze decision, label, trace, and benchmark schemas.
-2. [ ] Implement split validation and create the reviewed benchmark.
-3. [ ] Add candidate-level traces and decision tests.
+1. [x] Freeze decision, label, trace, and benchmark schemas (Workstream 1).
+2. [x] Implement split validation and create the reviewed benchmark (Workstream 2).
+3. [x] Add candidate-level traces and decision tests (Workstream 3).
 4. [ ] Collect correctness labels and adjudicate disagreements.
-5. [ ] Integrate one opt-in real provider.
-6. [ ] Freeze development thresholds and evaluate the held-out split.
+5. [x] Integrate one opt-in real provider (Workstream 4 iteration 1; live observation deferred).
+6. [x] Freeze development thresholds and evaluate the held-out split (Workstream 5, 2026-10-08).
 7. [ ] Add confidence intervals, Pareto artifacts, and freshness experiments.
+  - [x] Confidence intervals and Pareto artifacts (Workstream 5).
+  - [ ] Freshness policy experiments (Workstream 6).
 8. [ ] Build the failure gallery and update the final report.
 9. [ ] Run PostgreSQL restart and concurrency verification.
 10. [ ] Add the dashboard or dual-model experiment only if its gate is met.

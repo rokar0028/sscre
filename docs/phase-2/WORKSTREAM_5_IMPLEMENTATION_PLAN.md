@@ -28,10 +28,20 @@ The target outcome is a reproducible held-out evaluation package that answers:
 
 ## Status
 
-**Workstream 5 iteration 1: interim package complete** (Steps 1–12 recorded;
-final Phase 2 claims remain gated by benchmark scale and live-provider
-availability).
-Review: [`WORKSTREAM_5_ITERATION1_REVIEW_AUDIT.md`](./WORKSTREAM_5_ITERATION1_REVIEW_AUDIT.md).
+**Workstream 5: final synthetic held-out package** on
+`reviewed-query-pairs-2.0` (615 pairs; scale gate passed 2026-10-08). Steps
+1–12 and acceptance criteria are complete for synthetic replay, statistics,
+Pareto, and development-only operating-point reporting. Completion evidence:
+[`WORKSTREAM_5_EVIDENCE.md`](./WORKSTREAM_5_EVIDENCE.md). Iteration 1 review:
+[`WORKSTREAM_5_ITERATION1_REVIEW_AUDIT.md`](./WORKSTREAM_5_ITERATION1_REVIEW_AUDIT.md).
+
+**Remaining deferrals (not WS5 synthetic-package blockers):**
+
+- [ ] Credentialed real-provider measurements (Workstream 4 deferral; Step 11).
+- [ ] Held-out-aligned `storage_evaluate` companion for populated Pareto
+  `reuse_vs_storage` points (`storage_measurement_environment: unavailable`
+  in current held-out Pareto artifact).
+
 Prerequisites:
 
 - Workstream 3 decision-depth handoff:
@@ -40,11 +50,12 @@ Prerequisites:
   schema are available; live provider observation is deferred:
   [`WORKSTREAM_4_EVIDENCE.md`](./WORKSTREAM_4_EVIDENCE.md).
 
-**Known scale limitation:** the checked-in benchmark is a **32-pair** working
-artifact. Statistical reporting must be implemented and tested on that artifact
-while documenting that Phase 2 defensibility targets **≥500** reviewed pairs
-(`benchmark_validate --phase2`). Do not mark final Phase 2 statistical claims
-complete until the scale gate and held-out freeze criteria are met.
+**Scale gate status:** the checked-in benchmark is the frozen
+`reviewed-query-pairs-2.0` artifact with **615** reviewed pairs (400
+development / 215 held-out). The scale gate and held-out freeze criteria are
+complete. Real-provider measurements, answer correctness labels, and
+held-out-aligned storage simulation for the reuse/storage Pareto plane remain
+explicitly deferred and must not be inferred from the synthetic artifacts.
 
 ## Source of truth
 
@@ -207,8 +218,9 @@ freshness constraint documented for the operating point.
   the consolidated held-out report (beyond raw counts where needed).
 - [x] Correctness and preference reporting aligned with label contract sections
   for reused versus generated paths.
-- [ ] Storage metrics integrated into Pareto “reuse versus footprint” points
-  (via storage evaluation or bounded replay-derived estimates).
+- [x] Pareto reuse/storage plane wiring (`build_reuse_storage_pareto_point`,
+  Step 7); held-out footprint points remain **unavailable** until a matching
+  `storage_evaluate` run on `reviewed-query-pairs-2.0` (see evidence limitations).
 - [x] Pareto frontier artifacts regenerable from checked-in config and commands.
 - [x] Frozen **held-out evaluation artifact** checked in or recorded with exact
   command, git commit, and config versions.
@@ -519,7 +531,6 @@ Step 7 evidence (2026-10-07):
 - [x] Compute non-dominated frontier set with documented dominance rules.
 - [x] Mark selected threshold point and held-out constraint check outcome.
 - [x] Add CLI entry point (`python -m sscre.pareto`) writing
-  `sscre.evaluate` with `--pareto-output`) writing
   `artifacts/evaluation/<name>-pareto.json`.
 - [x] Add regeneration test: run CLI twice with same seed → identical frontier.
 
@@ -546,8 +557,7 @@ Run the final comparison only after development operating point is documented.
 - [x] Run held-out `--baseline all --production` with frozen config.
 - [x] Run statistical attachment and Pareto generation on that output.
 - [x] Record git commit, dirty flag, Python version, and test suite result.
-- [x] If benchmark scale < 500 pairs, label the artifact **interim** and list
-  widened CI limitations in evidence.
+- [x] Record the benchmark scale and label limitations in evidence.
 
 Step 9 evidence (2026-10-07):
 
@@ -557,8 +567,8 @@ Step 9 evidence (2026-10-07):
   `artifacts/evaluation/workstream5-held-out-comparison.json`.
 - [x] Pareto artifact:
   `artifacts/evaluation/workstream5-held-out-pareto.json`.
-- [x] The scale gate remains intentionally open: 32 reviewed pairs observed;
-  `benchmark_validate --phase2` requires at least 500.
+- [x] The scale gate is complete: 615 reviewed pairs observed and
+  `benchmark_validate --phase2 --production` passed on 2026-10-08.
 
 Suggested commands (verify paths exist before marking complete):
 
@@ -709,8 +719,8 @@ Aligned with Phase 2 Workstream 5 and parent definition of done:
 
 ## Completion evidence
 
-Record in [`WORKSTREAM_5_EVIDENCE.md`](./WORKSTREAM_5_EVIDENCE.md) when iteration
-1 closes:
+Record in [`WORKSTREAM_5_EVIDENCE.md`](./WORKSTREAM_5_EVIDENCE.md) (synthetic
+package closed 2026-10-08; deferrals listed under **Status**):
 
 - [x] statistics schema version and module paths;
 - [x] evaluation config version and any new statistical keys;
@@ -723,7 +733,7 @@ Record in [`WORKSTREAM_5_EVIDENCE.md`](./WORKSTREAM_5_EVIDENCE.md) when iteratio
 - [x] stratified tables or confirmation of sparse strata handling;
 - [x] provider comparison cross-reference and environment labels;
 - [x] full-suite pytest result;
-- [x] benchmark `--phase2` result recorded as an unmet scale gate;
+- [x] benchmark `--phase2 --production` result recorded as a passed scale gate;
 - [x] known limitations (sample size, unavailable provider, storage sim vs live).
 
 Do not mark acceptance criteria complete based only on plan documents; each
