@@ -273,8 +273,7 @@ def test_reviewed_dataset_has_required_coverage() -> None:
     report = build_coverage_report(records, policy=WORKING_BASELINE_COVERAGE)
     assert report["positive_count"] >= 6
     assert report["negative_count"] >= 6
-    with pytest.raises(BenchmarkValidationError):
-        validate_coverage(records, policy=PHASE2_REVIEWED_COVERAGE)
+    validate_coverage(records, policy=PHASE2_REVIEWED_COVERAGE)
 
 
 def test_reviewed_dataset_satisfies_annotation_policy() -> None:
@@ -330,8 +329,8 @@ def test_benchmark_build_reorders_global_benchmark_dir_flag() -> None:
 def test_resolve_rebuild_split_ids_matches_repository_manifest() -> None:
     benchmark_dir = Path(__file__).resolve().parents[1] / "benchmarks"
     dev_ids, held_ids = resolve_rebuild_split_ids(benchmark_dir)
-    assert len(dev_ids) == 21
-    assert len(held_ids) == 11
+    assert len(dev_ids) == 400
+    assert len(held_ids) == 215
     assert dev_ids.isdisjoint(held_ids)
 
 
@@ -341,9 +340,14 @@ def test_benchmark_dataset_integrity_passes_for_repository_fixture() -> None:
     assert validate_main(["--benchmark-dir", str(benchmark_dir)]) == 0
 
 
-def test_benchmark_validate_phase2_flag_requires_500_records() -> None:
+def test_benchmark_validate_phase2_passes_for_repository_fixture() -> None:
     benchmark_dir = Path(__file__).resolve().parents[1] / "benchmarks"
-    assert validate_main(["--benchmark-dir", str(benchmark_dir), "--phase2"]) != 0
+    assert (
+        validate_main(
+            ["--benchmark-dir", str(benchmark_dir), "--phase2", "--production"]
+        )
+        == 0
+    )
 
 
 def test_split_manifest_rejects_sha256_mismatch(tmp_path) -> None:
@@ -533,6 +537,23 @@ def test_frozen_manifest_records_split_identity() -> None:
     assert manifest["held_out_test"]["record_ids"] == [record.id for record in held_out]
 
 
+def test_frozen_manifest_scale_counts_match_checked_in_files() -> None:
+    benchmark_dir = Path(__file__).resolve().parents[1] / "benchmarks"
+    manifest = json.loads((benchmark_dir / "split_manifest.json").read_text(encoding="utf-8"))
+
+    source = load_benchmark_jsonl(benchmark_dir / "reviewed_query_pairs.jsonl")
+    development = load_benchmark_jsonl(benchmark_dir / "development.jsonl")
+    held_out = load_benchmark_jsonl(benchmark_dir / "held_out_test.jsonl")
+
+    assert manifest["source_dataset"]["record_count"] == len(source) == 615
+    assert manifest["development"]["record_count"] == len(development) == 400
+    assert manifest["held_out_test"]["record_count"] == len(held_out) == 215
+    assert manifest["coverage_summary"]["record_count"] == len(source)
+    assert manifest["source_dataset"]["sha256"]
+    assert manifest["development"]["sha256"]
+    assert manifest["held_out_test"]["sha256"]
+
+
 def test_evaluate_rejects_config_dataset_version_mismatch(tmp_path) -> None:
     project_root = Path(__file__).resolve().parents[1]
     config_path = tmp_path / "config.json"
@@ -602,8 +623,9 @@ def test_development_and_held_out_splits_are_disjoint() -> None:
     held_out_ids = {record.id for record in held_out}
     full_dataset_ids = {record.id for record in full_dataset}
 
-    assert len(development) == 21
-    assert len(held_out) == 11
+    assert len(development) == 400
+    assert len(held_out) == 215
+    assert len(full_dataset) == 615
     assert development_ids.isdisjoint(held_out_ids)
     assert development_ids | held_out_ids == full_dataset_ids
 
@@ -1012,7 +1034,7 @@ def test_evaluate_command_writes_selected_baseline_report(tmp_path) -> None:
     assert status == 0
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["baseline"] == "exact-cache"
-    assert report["dataset_version"] == "reviewed-query-pairs-1.1"
+    assert report["dataset_version"] == "reviewed-query-pairs-2.0"
     assert report["config_version"] == "evaluation-config-1.0"
     assert report["execution_timestamp"].endswith("+00:00")
     assert report["software_version"] == "0.1.0"
@@ -1022,9 +1044,9 @@ def test_evaluate_command_writes_selected_baseline_report(tmp_path) -> None:
     artifact = report["benchmark_artifact"]
     assert artifact["schema_version"] == "1.1"
     assert artifact["annotation_guide_version"] == "1.0.0"
-    assert artifact["split_record_count"] == 21
+    assert artifact["split_record_count"] == 400
     assert artifact["split_manifest_sha256"]
-    assert artifact["coverage_summary"]["record_count"] == 32
+    assert artifact["coverage_summary"]["record_count"] == 615
     assert "final" in artifact["label_review_status_counts"]
     assert artifact["split_record_identity"]
     assert "query_a" not in json.dumps(artifact["split_record_identity"])
@@ -1086,10 +1108,10 @@ def test_held_out_comparison_uses_development_threshold(tmp_path) -> None:
     assert status == 0
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["evaluation_split"] == "held-out"
-    assert report["benchmark_artifact"]["split_record_count"] == 11
+    assert report["benchmark_artifact"]["split_record_count"] == 215
     assert report["benchmark_artifact"]["leakage_validation"]["status"] == "passed"
     assert report["threshold_selection"]["dataset_version"] == (
-        "reviewed-query-pairs-1.1"
+        "reviewed-query-pairs-2.0"
     )
     assert set(report["baselines"]) == {
         "no-cache",

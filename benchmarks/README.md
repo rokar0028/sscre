@@ -3,8 +3,8 @@
 `reviewed_query_pairs.jsonl` is the Milestone 6 step 2 dataset.
 
 - Schema version: `1.1`
-- Dataset version: `reviewed-query-pairs-1.1`
-- Records: 32 (24 baseline + 8 expansion candidates merged)
+- Dataset version: `reviewed-query-pairs-2.0`
+- Records: 615 (32 baseline + 583 CacheEval scale-up, human-reviewed)
 - Review status: manually reviewed ground-truth pairs
 - Reusable pairs: exact duplicates, whitespace-equivalent queries, and
   semantically compatible variants
@@ -25,21 +25,33 @@ Human review process (compatibility, correctness, preference, adjudication):
 This benchmark is a checked-in evaluation artifact, not an operational request
 or response log.
 
-- **Approved source:** repository-authored, hand-written query pairs created
-  for SSCRE evaluation. No production user prompts, provider transcripts, or
-  unapproved third-party dataset content is included in this version.
-- **Licensing and ownership:** the project repository owns the authored
-  examples. Any future imported or externally sourced examples require a
-  recorded license/permission decision before inclusion.
+- **Approved sources (baseline):** repository-authored pairs (`hand_authored_v1`,
+  `controlled_template_v1`) registered in
+  [source_inventory.json](./source_inventory.json).
+- **Approved sources (500+ scale-up):** filtered CacheEval (`cacheeval_v1`,
+  scenario `filtered`), Redis paraphrase pools (`redis_paraphrase_v1`), and
+  human-reviewed derivatives (`hand_reviewed_v2`). Governance, commercial-use
+  filters, and exclusions are in
+  [BENCHMARK_500_EXTERNAL_SOURCE_POLICY.md](../docs/phase-2/BENCHMARK_500_EXTERNAL_SOURCE_POLICY.md).
+- **Current checked-in artifact:** **615 pairs** (`reviewed-query-pairs-2.0`):
+  400 development / 215 held-out. Scale-up rows use `hand_reviewed_v2` per-row
+  `source_group` after Phase 3 review and Phase 4 merge.
+- **Licensing:** imported rows require a registered family, documented license, and
+  attribution where required (CC BY-SA for CacheEval after filter). Do not commit
+  unfiltered upstream blobs or QQP/NC-tagged CacheEval rows.
 - **Redaction:** do not add credentials, authorization headers, API keys,
   personal data, private URLs, proprietary source text, or complete provider
   transcripts. Review text before committing it.
 - **Stable identity:** IDs are immutable within a dataset version. A changed
   pair receives a new ID or dataset version; an existing ID must not be
   silently repurposed.
-- **Current artifact:** `reviewed-query-pairs-1.1` contains 32 records, with
-  21 development records and 11 held-out records. It is an expanded working
-  baseline, not the Phase 2 target of 500 reviewed pairs.
+- **Dataset version bumps:** do not grow `reviewed-query-pairs-1.1` with bulk
+  imports. When merged labels or the final pair set changes at scale, bump to
+  `reviewed-query-pairs-2.0` (or later), update `split_manifest.json`, and
+  re-freeze splits. Split-only rebuilds without label changes may keep the same
+  version after `freeze-splits`.
+- **Current artifact:** `reviewed-query-pairs-2.0` contains 615 records (400
+  development / 215 held-out). Phase 2 `--phase2` validation passes on this artifact.
 
 ## Pair and answer semantics
 
@@ -65,7 +77,7 @@ The current input identity is defined by:
 - `development.jsonl`
 - `held_out_test.jsonl`
 - `split_manifest.json`
-- dataset version `reviewed-query-pairs-1.1`
+- dataset version `reviewed-query-pairs-2.0`
 - schema version `1.1`
 - annotation guide version `1.0.0`
 
@@ -87,16 +99,16 @@ records = load_benchmark_jsonl("benchmarks/reviewed_query_pairs.jsonl")
 
 The split manifest is `split_manifest.json`.
 
-- `development.jsonl` contains 21 pairs for configuration and threshold
+- `development.jsonl` contains 400 pairs for configuration and threshold
   decisions.
-- `held_out_test.jsonl` contains 11 disjoint pairs for final reporting only.
+- `held_out_test.jsonl` contains 215 disjoint pairs for final reporting only.
 - Test labels must not be used when choosing configuration or thresholds.
 - Each pair is evaluated in both directions (`a_to_b` and `b_to_a`) where the
   evaluation supports directional replay.
 
 The split files are exact copies of records from the reviewed dataset; their
-IDs are disjoint and together cover all 32 reviewed records (dataset version
-`reviewed-query-pairs-1.1`).
+IDs are disjoint and together cover all 615 reviewed records (dataset version
+`reviewed-query-pairs-2.0`).
 
 After rebuilding splits or merging candidates, freeze manifest identity metadata
 (record IDs, per-split SHA-256, leakage summary, coverage summary, tool version):
@@ -222,15 +234,15 @@ Saved evaluation reports redact reviewed query text from failure galleries;
 use the checked-in JSONL artifact and `benchmark_artifact.split_record_identity`
 for approved prompt lookup.
 
-## Workstream 2 completion evidence (2026-10-06)
+## Benchmark scale-up evidence (2026-10-08)
 
 | Item | Value |
 |------|-------|
-| Dataset version | `reviewed-query-pairs-1.1` |
+| Dataset version | `reviewed-query-pairs-2.0` |
 | Schema version | `1.1` |
 | Annotation guide | `1.0.0` |
-| Total / dev / held-out | 32 / 21 / 11 |
-| Phase 2 500-pair target | **Not met** (use `--phase2` to enforce) |
+| Total / dev / held-out | 615 / 400 / 215 |
+| Phase 2 500-pair target | **Met** (`benchmark_validate --phase2 --production`) |
 | Leakage | `passed` (see `split_manifest.json` `leakage_validation`) |
 | Category counts | `split_manifest.json` → `coverage_summary` |
 | Correctness collected | 0 pairs with reviewed answers |
@@ -306,7 +318,7 @@ input/output pricing values used by the evaluation config:
 ```powershell
 python -m sscre.storage_evaluation `
   --workload <held-out-aligned-storage-workload>.json `
-  --dataset-version reviewed-query-pairs-1.1 `
+  --dataset-version reviewed-query-pairs-2.0 `
   --input-cost-per-1k-tokens 0.0 `
   --output-cost-per-1k-tokens 0.0 `
   --output artifacts/evaluation/workstream5-held-out-storage.json

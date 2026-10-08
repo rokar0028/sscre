@@ -1,5 +1,6 @@
 {
-  "inventory_version": "1.0.0",
+  "inventory_version": "1.1.0",
+  "policy_doc": "docs/phase-2/BENCHMARK_500_EXTERNAL_SOURCE_POLICY.md",
   "approved_source_families": [
     {
       "id": "hand_authored_v1",
@@ -12,12 +13,39 @@
       "description": "Small template families with fixed slots filled by reviewers.",
       "license": "project-owned",
       "redaction_required": true
+    },
+    {
+      "id": "cacheeval_v1",
+      "description": "CacheEval cachebench pairs after QQP/NC and other restrictive upstream rows are removed.",
+      "license": "CC-BY-SA-4.0",
+      "upstream": "https://github.com/BudEcosystem/CacheEval",
+      "redaction_required": true,
+      "commercial_use": "allowed_after_filter",
+      "required_scenario_suffix": "filtered",
+      "attribution": "Follow CacheEval LICENSE and ATTRIBUTION.md when merging final rows."
+    },
+    {
+      "id": "redis_paraphrase_v1",
+      "description": "Redis langcache sentence pairs and LLM paraphrase datasets used as review candidates only.",
+      "license": "Apache-2.0",
+      "upstream": "https://huggingface.co/datasets/redis/langcache-sentencepairs-v3",
+      "redaction_required": true,
+      "commercial_use": "allowed"
+    },
+    {
+      "id": "hand_reviewed_v2",
+      "description": "Project-owned human-reviewed labels and edits applied to imported candidate rows.",
+      "license": "project-owned",
+      "redaction_required": true,
+      "derived_from": "cacheeval_v1 and/or redis_paraphrase_v1 candidates"
     }
   ],
   "prohibited_content": [
     "credentials and api keys",
     "production user prompts",
     "unapproved third-party datasets",
-    "personal data"
+    "personal data",
+    "unfiltered CacheEval rows with QQP or NC upstream tags",
+    "NLI corpus rows used as unreviewed reusable ground truth"
   ]
 }
