@@ -5,7 +5,7 @@ import math
 from dataclasses import asdict, dataclass, field, replace
 from time import perf_counter
 from pathlib import Path
-from typing import Mapping, Protocol
+from typing import Any, Mapping, Protocol
 
 from sscre.benchmark import BenchmarkRecord
 from sscre.cache import (
@@ -16,7 +16,8 @@ from sscre.cache import (
 from sscre.embedding import EmbeddingClient, FakeEmbeddingClient
 from sscre.llm import LLMResult, MockLLMClient
 from sscre.cache_control_traces import build_cache_control_trace
-from sscre.cache_controls import CacheControlPolicy, evaluate_cache_control
+from sscre.cache_controls import evaluate_cache_control
+from sscre.freshness_evaluation import FreshnessReplayClock
 from sscre.compatibility import evaluate_candidate_boundary
 from sscre.metadata import extract_metadata
 from sscre.query import hash_query, normalize_query
@@ -60,6 +61,52 @@ def _insert_if_absent(cache: InMemoryExactCache, entry: CacheEntry) -> None:
         # A reviewed workload may contain the same normalized query more than
         # once. It is already represented by the existing cache entry.
         pass
+
+
+def _evaluate_baseline_cache_control(
+    temporal_class: str,
+    ttl_expires_at: object,
+    *,
+    freshness_replay_clock: FreshnessReplayClock | None,
+):
+    if freshness_replay_clock is None:
+        return evaluate_cache_control(
+            temporal_class,  # type: ignore[arg-type]
+            ttl_expires_at,  # type: ignore[arg-type]
+        )
+    return freshness_replay_clock.evaluate_cache_control(
+        temporal_class,  # type: ignore[arg-type]
+        ttl_expires_at,  # type: ignore[arg-type]
+    )
+
+
+def _baseline_cache_entry_after_generation(
+    *,
+    query_hash: str,
+    normalized_query: str,
+    answer: str,
+    query_metadata: QueryMetadata,
+    embedding_result: object,
+    freshness_replay_clock: FreshnessReplayClock | None,
+) -> CacheEntry:
+    embedding = getattr(embedding_result, "vector", None)
+    common = {
+        "query_hash": query_hash,
+        "normalized_query": normalized_query,
+        "answer": answer,
+        "embedding": embedding,
+        "embedding_model": getattr(embedding_result, "model_name", None),
+        "embedding_dimension": len(embedding) if embedding is not None else None,
+        "metadata": query_metadata,
+    }
+    if freshness_replay_clock is None:
+        return CacheEntry(**common)
+    return CacheEntry(
+        **common,
+        ttl_expires_at=freshness_replay_clock.ttl_expires_at_for_insert(
+            query_metadata
+        ),
+    )
 
 
 @dataclass(frozen=True)
@@ -221,6 +268,9 @@ class CompatibilityCacheReport:
     false_positive_examples: list[dict[str, object]]
     observed_pair_records: list[dict[str, object]]
     disagreement_class_counts: dict[str, int]
+    cache_control_outcome_counts: dict[str, int] = field(default_factory=dict)
+    freshness_replay_policy_name: str | None = None
+    policy_storage_snapshot: dict[str, int] = field(default_factory=dict)
     request_samples: tuple[dict[str, object], ...] = ()
 
 
@@ -228,6 +278,32 @@ def _benchmark_strata(record: BenchmarkRecord) -> tuple[str | None, str | None]:
     failure = record.failure_category
     freshness = str(record.freshness_class)
     return failure, freshness
+
+
+def no_cache_cost_kwargs_from_config(config: Mapping[str, Any]) -> dict[str, float]:
+    """Build keyword arguments accepted by ``run_no_cache_baseline``."""
+    return {
+        "input_cost_per_1k_tokens": float(config["input_cost_per_1k_tokens"]),
+        "output_cost_per_1k_tokens": float(config["output_cost_per_1k_tokens"]),
+    }
+
+
+def compatibility_cache_cost_kwargs_from_config(
+    config: Mapping[str, Any],
+) -> dict[str, float]:
+    """Build cost kwargs for semantic/compatibility baseline runners.
+
+    Do not pass this dict to ``run_no_cache_baseline``; it includes embedding
+    and cache lookup fields that runner does not accept.
+    """
+    return {
+        **no_cache_cost_kwargs_from_config(config),
+        "embedding_cost_per_1k_tokens": float(
+            config["embedding_cost_per_1k_tokens"]
+        ),
+        "cache_lookup_cost_usd": float(config["cache_lookup_cost_usd"]),
+        "preprocessing_cost_usd": float(config["preprocessing_cost_usd"]),
+    }
 
 
 def run_no_cache_baseline(
@@ -762,6 +838,7 @@ def run_compatibility_cache_baseline(
     cache_lookup_cost_usd: float = 0.0,
     preprocessing_cost_usd: float = 0.0,
     collect_request_samples: bool = True,
+    freshness_replay_clock: FreshnessReplayClock | None = None,
 ) -> CompatibilityCacheReport:
     """Replay the workload with rule-based compatibility-aware reuse."""
     if not math.isfinite(threshold) or not -1.0 <= threshold <= 1.0:
@@ -802,6 +879,7 @@ def run_compatibility_cache_baseline(
     compatibility_agreement_counts: dict[str, int] = {}
     observed_pair_records: list[dict[str, object]] = []
     disagreement_class_counts: dict[str, int] = {}
+    cache_control_outcome_counts: dict[str, int] = {}
 
     def record_compatibility_agreement(
         record: BenchmarkRecord,
@@ -920,7 +998,6 @@ def run_compatibility_cache_baseline(
             )
             request_count += 1
 
-            cache_policy = CacheControlPolicy()
             safe_candidate = None
             evaluated_traces = []
             for index, candidate in enumerate(candidates):
@@ -929,10 +1006,10 @@ def run_compatibility_cache_baseline(
                     if candidate.metadata is not None
                     else "stable"
                 )
-                control = evaluate_cache_control(
+                control = _evaluate_baseline_cache_control(
                     temporal_class,
                     candidate.ttl_expires_at,
-                    policy=cache_policy,
+                    freshness_replay_clock=freshness_replay_clock,
                 )
                 if control.reusable:
                     candidate_trace = replace(
@@ -953,6 +1030,11 @@ def run_compatibility_cache_baseline(
                         query_metadata=query_metadata.to_dict(),
                     )
                 evaluated_traces.append(candidate_trace)
+                outcome = candidate_trace.cache_control_outcome
+                if outcome is not None:
+                    cache_control_outcome_counts[outcome] = (
+                        cache_control_outcome_counts.get(outcome, 0) + 1
+                    )
                 if (
                     safe_candidate is None
                     and is_reusable_decision(candidate_trace.decision)
@@ -1038,8 +1120,11 @@ def run_compatibility_cache_baseline(
                         observed_decision="SAFE",
                         failure_category=failure_category,
                         freshness_class=freshness_class,
+                        runtime_temporal_class=query_metadata.temporal_class,
                     )
                 )
+                if freshness_replay_clock is not None:
+                    freshness_replay_clock.advance()
                 continue
 
             cache_misses += 1
@@ -1171,20 +1256,22 @@ def run_compatibility_cache_baseline(
                     observed_decision=request_decision,
                     failure_category=failure_category,
                     freshness_class=freshness_class,
+                    runtime_temporal_class=query_metadata.temporal_class,
                 )
             )
             _insert_if_absent(
                 cache,
-                CacheEntry(
+                _baseline_cache_entry_after_generation(
                     query_hash=hash_query(normalized_query),
                     normalized_query=normalized_query,
                     answer=result.text,
-                    embedding=embedding_result.vector,
-                    embedding_model=embedding_result.model_name,
-                    embedding_dimension=len(embedding_result.vector),
-                    metadata=query_metadata,
-                )
+                    query_metadata=query_metadata,
+                    embedding_result=embedding_result,
+                    freshness_replay_clock=freshness_replay_clock,
+                ),
             )
+            if freshness_replay_clock is not None:
+                freshness_replay_clock.advance()
 
     evaluated_hits = safe_reuse_hits + unsafe_reuse_hits
     evaluated_decisions = (
@@ -1192,6 +1279,26 @@ def run_compatibility_cache_baseline(
         + decision_counts.get("UNSAFE", 0)
         + decision_counts.get("UNCERTAIN", 0)
     )
+    storage_stats = cache.storage_stats()
+    policy_storage_snapshot: dict[str, int] = {}
+    if freshness_replay_clock is not None:
+        physical_cleanup = cache.cleanup_expired(limit=10_000)
+        post_cleanup_stats = cache.storage_stats()
+        policy_storage_snapshot = {
+            "entries_before_cleanup": storage_stats.entries,
+            "total_bytes_before_cleanup": storage_stats.total_bytes,
+            "canonical_answers_before_cleanup": storage_stats.canonical_answers,
+            "eviction_count": storage_stats.evictions,
+            "expiration_counter": storage_stats.expirations,
+            "lazy_expired_rejection_count": cache_control_outcome_counts.get(
+                "expired",
+                0,
+            ),
+            "physical_expiration_cleanup_count": physical_cleanup,
+            "entries_after_cleanup": post_cleanup_stats.entries,
+            "total_bytes_after_cleanup": post_cleanup_stats.total_bytes,
+        }
+
     return CompatibilityCacheReport(
         baseline="compatibility-cache",
         dataset_version=dataset_version,
@@ -1270,6 +1377,13 @@ def run_compatibility_cache_baseline(
         false_positive_examples=false_positive_examples,
         observed_pair_records=observed_pair_records,
         disagreement_class_counts=disagreement_class_counts,
+        cache_control_outcome_counts=cache_control_outcome_counts,
+        freshness_replay_policy_name=(
+            freshness_replay_clock.policy_name
+            if freshness_replay_clock is not None
+            else None
+        ),
+        policy_storage_snapshot=policy_storage_snapshot,
         request_samples=sample_collector.as_tuple(),
     )
 
