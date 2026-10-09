@@ -63,7 +63,7 @@ hypothesis.
 - [x] Document assumptions about single-process versus multi-process
   deployment and concurrent cache writes.
 
-Evidence: `docs/SSCRE_PRODUCTION_READINESS_CONTRACT.md` inventories the current
+Evidence: `docs/reference/SSCRE_PRODUCTION_READINESS_CONTRACT.md` inventories the current
 runtime and maps the target contract to `src/sscre/app.py`,
 `src/sscre/config.py`, `src/sscre/migrate.py`,
 `src/sscre/postgres_cache.py`, `docker-compose.yml`, `.env.example`, and
@@ -90,7 +90,7 @@ steps.
 
 Evidence: `Dockerfile`, `.dockerignore`, `requirements-docker.txt`, updated
 `docker-compose.yml`, `.env.example`, and Compose operation commands in
-`docs/SSCRE_PRODUCTION_READINESS_CONTRACT.md`. `docker compose config` and
+`docs/reference/SSCRE_PRODUCTION_READINESS_CONTRACT.md`. `docker compose config` and
 `docker compose build` pass. Full clean-stack startup remains unchecked until
 the local PostgreSQL container can be started and exercised. A startup attempt
 reached the migration gate but the existing named volume rejected the current
@@ -170,7 +170,7 @@ Evidence: bearer authentication and scope authorization in `src/sscre/app.py`,
 `.env.example`, protected `/v1/cache/stats`, public `/health` and `/ready`,
 optional read-only credentials and expiry validation, and `tests/test_admin.py`
 plus the endpoint inventory in
-`docs/SSCRE_PRODUCTION_READINESS_CONTRACT.md`. The current admin surface has
+`docs/reference/SSCRE_PRODUCTION_READINESS_CONTRACT.md`. The current admin surface has
 only a read operation; no mutation endpoint exists yet.
 
 ### 6. Harden configuration and operational defaults
@@ -190,7 +190,7 @@ only a read operation; no mutation endpoint exists yet.
 Evidence: runtime profiles, startup validation, timeout/log-level settings,
 and fake-provider guards in `src/sscre/config.py` and `src/sscre/app.py`;
 configuration reference in `.env.example` and
-`docs/SSCRE_PRODUCTION_READINESS_CONTRACT.md`; and expanded tests in
+`docs/reference/SSCRE_PRODUCTION_READINESS_CONTRACT.md`; and expanded tests in
 `tests/test_config.py` and `tests/test_admin.py`.
 
 ### 7. Add integration coverage for failure paths
@@ -285,7 +285,7 @@ safety-critical request behavior.
 - [x] Update system design, request-flow, learning guide, project tracking,
   and limitations documents only after evidence exists.
 
-Evidence: `docs/MILESTONE_10_FINAL_EXPERIMENT_AND_INTERVIEW_REPORT.md`,
+Evidence: `docs/internal/reports/MILESTONE_10_FINAL_EXPERIMENT_AND_INTERVIEW_REPORT.md`,
 development and held-out evaluation reports, the storage-control report, and
 the load-test report. The report records unavailable PostgreSQL/remote-provider
 measurements and synthetic fallbacks explicitly.

@@ -109,7 +109,7 @@ The cache-decision pipeline will:
 10. Measure effectiveness via reproducible evaluation.
 
 Milestone 10 production-readiness evidence is consolidated in
-`docs/MILESTONE_10_FINAL_EXPERIMENT_AND_INTERVIEW_REPORT.md`. It includes
+`docs/internal/reports/MILESTONE_10_FINAL_EXPERIMENT_AND_INTERVIEW_REPORT.md`. It includes
 container/readiness behavior, controlled dependency failures, protected admin
 access, integration failure coverage, baseline comparisons, and cold/warm
 latency measurements. Real provider pricing and PostgreSQL capacity remain

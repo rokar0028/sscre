@@ -159,7 +159,7 @@ concurrency evaluation, and held-out storage comparisons remain open.
 - [x] Measure p50, p95, and p99 latency
 - [x] Write the final experiment report
 - [x] Prepare answers to the interview questions in
-  `docs/MILESTONE_10_FINAL_EXPERIMENT_AND_INTERVIEW_REPORT.md`
+  `docs/internal/reports/MILESTONE_10_FINAL_EXPERIMENT_AND_INTERVIEW_REPORT.md`
 
 Do not start with dual-model comparison, cross-encoders, adaptive thresholds, or
 production-scale infrastructure. Add them only after a measured hypothesis
