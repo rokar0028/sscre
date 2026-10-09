@@ -15,6 +15,19 @@ from sscre.llm import MockLLMClient
 from sscre.postgres_cache import PostgresExactCacheRepository
 
 
+class _ConnectionLossOnLookupRepository(PostgresExactCacheRepository):
+    """Simulates PostgreSQL connection loss during lookup (OPS-lite restart smoke)."""
+
+    def __init__(self, database_url: str) -> None:
+        super().__init__(database_url)
+        self.simulate_connection_loss = False
+
+    def get_by_query_hash(self, query_hash: str) -> CacheEntry | None:
+        if self.simulate_connection_loss:
+            raise CacheRepositoryError("simulated PostgreSQL connection loss")
+        return super().get_by_query_hash(query_hash)
+
+
 DATABASE_URL = os.getenv("SSCRE_DATABASE_URL")
 pytestmark = pytest.mark.skipif(
     not DATABASE_URL,
@@ -314,6 +327,31 @@ def test_cleanup_expired_removes_entry_and_updates_counter(
         assert after.expirations >= before.expirations + 1
     finally:
         _cleanup_query_hashes([entry.query_hash])
+
+
+def test_postgres_connection_loss_on_lookup_fails_closed(
+    cache_entry: CacheEntry,
+) -> None:
+    repository = _ConnectionLossOnLookupRepository(DATABASE_URL)
+    repository.insert(cache_entry)
+    repository.simulate_connection_loss = True
+    client = TestClient(
+        create_app(
+            repository=repository,
+            settings=Settings(database_url=DATABASE_URL),
+        )
+    )
+
+    response = client.post(
+        "/v1/query",
+        json={"query": cache_entry.normalized_query},
+    )
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "cache unavailable"}
+    assert response.headers["X-Request-ID"]
+    repository.simulate_connection_loss = False
+    _cleanup_query_hashes([cache_entry.query_hash])
 
 
 def test_insert_and_evict_enforces_postgres_entry_cap(

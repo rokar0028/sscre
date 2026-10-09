@@ -160,10 +160,24 @@ provider measurement. PostgreSQL-specific verification requires
 
 ## Milestone 10 production-readiness limitations
 
-The final report in `docs/MILESTONE_10_FINAL_EXPERIMENT_AND_INTERVIEW_REPORT.md`
+The final report in `docs/internal/reports/MILESTONE_10_FINAL_EXPERIMENT_AND_INTERVIEW_REPORT.md`
 consolidates local container, failure-path, baseline, and load evidence.
 Its latency results use in-process deterministic clients and in-memory storage;
 they do not represent remote provider or PostgreSQL capacity. The held-out
 workload produced no cache hits for the evaluated baselines, so that result is
 reported as observed coverage for that split rather than generalized evidence
 that semantic reuse has zero recall.
+
+## Phase 1 OPS lite (PostgreSQL / multi-process)
+
+Phase 1 closed a **lite** subset of Workstream 8 (not full restart/load/concurrency
+claims). See [`docs/phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md)
+for scope, test name, and paper limitation wording.
+
+- Request-path duplicate-generation coordination is **single-process** (in-process
+  lock); multi-process and cross-host behavior is **unsupported** unless full WS8
+  evidence exists.
+- One PostgreSQL integration smoke test asserts **failure-closed** behavior when
+  lookup fails after a persisted entry exists (HTTP 503, no cache hit).
+- Do not cite Milestone 10 load numbers or this smoke test as production capacity
+  or multi-worker safety guarantees.

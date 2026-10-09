@@ -310,6 +310,23 @@ The held-out report includes no-cache, exact-cache, and embedding-only
 baselines, latency percentiles, and reviewed false-positive examples. Held-out
 labels are used for reporting only, never threshold selection.
 
+### Failure gallery (static HTML from saved reports)
+
+Comparison reports under `artifacts/evaluation/` include redacted
+`failure_gallery` sections and Strategy C `statistics.by_baseline` strata
+(`by_failure_category` counts/rates). Regenerate a browsable HTML export
+without query text:
+
+```powershell
+python -m sscre.gallery_export `
+  artifacts/evaluation/workstream5-held-out-comparison.json `
+  -o artifacts/evaluation/workstream5-held-out-comparison-gallery.html
+```
+
+Equivalent console entry point: `sscre-gallery-export`. Use pair ids and
+approved benchmark JSONL for prompt lookup; the HTML omits reviewed query
+strings by design.
+
 ### Storage footprint companion for Pareto reporting
 
 Generate the storage companion with the same `dataset_version` and the same

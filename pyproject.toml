@@ -18,6 +18,7 @@ sscre-evaluate = "sscre.evaluate:main"
 sscre-storage-evaluate = "sscre.storage_evaluation:main"
 sscre-migrate = "sscre.migrate:main"
 sscre-load-test = "sscre.load_test:main"
+sscre-gallery-export = "sscre.gallery_export:main"
 
 [project.optional-dependencies]
 dev = [

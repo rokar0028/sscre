@@ -1,2 +1,4 @@
 # Benchmark JSONL checksums in split_manifest.json assume LF line endings.
 *.jsonl text eol=lf
+# Migration checksum tests and Linux CI read raw LF bytes.
+migrations/*.sql text eol=lf

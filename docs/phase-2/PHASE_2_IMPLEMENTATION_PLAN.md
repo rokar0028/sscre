@@ -417,9 +417,14 @@ Add aggregate metrics by category so the gallery is not only anecdotal.
 
 Acceptance criteria:
 
-- [ ] Every false positive in the selected evaluation sample has a category.
-- [ ] Failure counts and rates are included in the final report.
-- [ ] Gallery rendering does not expose secrets or unapproved data.
+- [x] Every false positive in the selected evaluation sample has a category.
+  (Phase 1 carryover: held-out comparison sample — reviewed `reason`, outcome
+  `failure_category`, benchmark strata in statistics; see
+  [`PHASE1_CARRYOVERS_IMPLEMENTATION_PLAN.md`](../internal/PHASE1_CARRYOVERS_IMPLEMENTATION_PLAN.md).)
+- [x] Failure counts and rates are included in the final report.
+  (WS5/WS6 `statistics.strata.by_failure_category`; unchanged in Phase 1.)
+- [x] Gallery rendering does not expose secrets or unapproved data.
+  (`sscre.gallery_export`, serialization redaction tests.)
 
 ## Workstream 8 — Operational verification
 
@@ -441,7 +446,10 @@ throughput, errors, timeouts, storage growth, and evictions.
 Acceptance criteria:
 
 - [ ] No restart path serves an expired, unsafe, or unauthorized result.
-- [ ] Multi-process behavior is verified or explicitly marked unsupported.
+  (Phase 1 **lite:** lookup failure-closed on simulated connection loss only —
+  [`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](./WORKSTREAM_8_OPS_LITE_EVIDENCE.md).)
+- [x] Multi-process behavior is verified or explicitly marked unsupported.
+  (Documented unsupported; in-process generation lock only.)
 - [ ] The first measured bottleneck is documented.
 - [ ] Load results include environment and workload limits.
 
@@ -493,8 +501,10 @@ Acceptance criteria:
   - [x] Confidence intervals and Pareto artifacts (Workstream 5).
   - [x] Freshness policy experiments (Workstream 6;
     [WORKSTREAM_6_EVIDENCE.md](./WORKSTREAM_6_EVIDENCE.md), 2026-10-09).
-8. [ ] Build the failure gallery and update the final report.
-9. [ ] Run PostgreSQL restart and concurrency verification.
+8. [x] Build the failure gallery and update the final report.
+  (Phase 1: static HTML via `sscre.gallery_export`; not full WS7 API dashboard.)
+9. [x] Run PostgreSQL restart and concurrency verification.
+  (Phase 1 **lite** only; full WS8 load/concurrency still open.)
 10. [ ] Add the dashboard or dual-model experiment only if its gate is met.
 
 ## Verification commands
