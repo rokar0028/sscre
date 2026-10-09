@@ -31,3 +31,13 @@ alwaysApply: true
   baseline** (especially **Open baseline gaps** and the canonical module table)
   so the plan does not still describe the pre-step codebase. Do not rely on a
   later review to discover drift.
+- When a plan mixes **documentation authoring** with a later **user-gated** step
+  (e.g. “OK to start Phase N code”), split **Goal / Exit** and **Verification**
+  into two labeled gates. Mark authoring **closed** only after deliverable docs
+  exist; leave explicit user-approval checkboxes unchecked until the user
+  approves in writing. Do not use a single “Phase complete” verdict that blurs
+  the two.
+- On close, align **Status**, parent transition-doc section numbers (e.g. § 2.4
+  exit criteria), and **Acceptance criteria** so section references and status
+  strings (`draft`, `planning-complete`, `closed (authoring)`) match the linked
+  child plan.
