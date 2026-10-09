@@ -2,7 +2,7 @@
 
 **Review date:** 2026-10-09  
 **Audience:** you + Cursor agent mode  
-**Primary output:** [`docs/phase-3/PHASE3_PLAN.md`](../phase-3/PHASE3_PLAN.md) (not written until Phase 1 decisions are approved)
+**Primary output:** [`docs/phase-3/PHASE3_PLAN.md`](../phase-3/PHASE3_PLAN.md) (authoring complete 2026-10-09; Phase 3 **code** gated on explicit OK)
 
 ---
 
@@ -136,15 +136,18 @@ failures — mostly `source_dataset sha256 mismatch`; one failure in
 
 ## Phase 2 — Author `PHASE3_PLAN.md` (planning only)
 
+**Implementation plan (steps + completion record):**
+[`PHASE2_PHASE3_PLAN_IMPLEMENTATION_PLAN.md`](./PHASE2_PHASE3_PLAN_IMPLEMENTATION_PLAN.md)
+
 Create [`docs/phase-3/PHASE3_PLAN.md`](../phase-3/PHASE3_PLAN.md) with the sections below. **No implementation** in this phase.
 
 ### 2.1 Document skeleton
 
-- [ ] Title, status, last updated, link back to this transition doc.
-- [ ] **Goals** (3–5 bullets): what Phase 3 must prove for the paper.
-- [ ] **Non-goals** (explicit): multi-region, unbounded observability, dual-model by default, etc.
-- [ ] **Baselines frozen:** Strategies A / B / C definitions and configs (pointer to WS5 artifacts).
-- [ ] **Dataset policy:** development vs held-out; operating-point threshold `0.95` chosen on development only (cite WS5).
+- [x] Title, status, last updated, link back to this transition doc.
+- [x] **Goals** (3–5 bullets): what Phase 3 must prove for the paper.
+- [x] **Non-goals** (explicit): multi-region, unbounded observability, dual-model by default, etc.
+- [x] **Baselines frozen:** Strategies A / B / C definitions and configs (pointer to WS5 artifacts).
+- [x] **Dataset policy:** development vs held-out; operating-point threshold `0.95` chosen on development only (cite WS5).
 
 ### 2.2 Feature cards (one per Phase 3 feature)
 
@@ -152,30 +155,37 @@ For each feature, complete **all** fields before any code:
 
 | Feature | Hypothesis | Pass/fail criterion | Primary metric | Baselines | Effort | Order |
 | --- | --- | --- | --- | --- | --- | --- |
-| Adaptive per-domain thresholds | | | | A, B, C | | 1 |
-| Pattern-aware eviction (hits + freshness class) | | | | C + storage baseline | | 2 |
-| Strategy D cross-encoder validator | **Only if** C misses safety target on held-out | | False-reuse vs latency | C | | 3 (conditional) |
+| Adaptive per-domain thresholds | Per-domain τ ↑ C `hit_rate` vs global `0.95` without held-out FPR > `0` | Dev τ map + one held-out replay; see `PHASE3_PLAN.md` Feature 1 | `hit_rate`, `false_positive_rate`, `estimated_cost_usd`, `p95_latency_ms` | A, B, C global vs C adaptive | M | 1 |
+| Pattern-aware eviction (hits + freshness class) | Pattern eviction ↑ reuse vs WS6 `conservative` at FPR ≤ `0` | Dev `entry_cap` + rule tune; one held-out replay — `PHASE3_PLAN.md` Feature 2 | `stale_exposure_rate`, `hit_rate`, `eviction_count` | C + WS6 `conservative` | L | 2 |
+| Strategy D cross-encoder validator | CE lowers FPR vs C **if** final held-out FPR > `0` | Dev validator threshold; one held-out replay — `PHASE3_PLAN.md` Feature 3 | `false_positive_rate`, validator `p95_latency_ms`, cost | C vs C+D | L; **default defer** | 3 (conditional) |
 
 Checklist per feature:
 
-- [ ] Hypothesis is falsifiable (one sentence).
-- [ ] Pass/fail uses **held-out** or pre-registered development protocol (state which).
-- [ ] Metric names match WS5 report fields (hit rate, false-positive / unsafe-serve, cost, p95 latency).
-- [ ] Stopping rule for Strategy D documented (when **not** to build it).
+- [x] Hypothesis is falsifiable (one sentence). _(Feature 1 — adaptive thresholds.)_
+- [x] Pass/fail uses **held-out** or pre-registered development protocol (state which). _(Feature 1.)_
+- [x] Metric names match WS5 report fields (hit rate, false-positive / unsafe-serve, cost, p95 latency). _(Feature 1.)_
+- [x] Stopping rule for Strategy D documented (when **not** to build it). _(Feature 3 — defer while C FPR ≤ `0`.)_
 
 Optional Phase 3 items from [`SSCRE_PLAN.md`](../SSCRE_PLAN.md)—include only with the same card:
 
-- [ ] int8 embedding quantization (measure float32 baseline first)
-- [ ] Load tests 1K→100K simulated Q/day (identify first bottleneck)
-- [ ] Failure clustering from gallery exports
-- [ ] Experiment tracking (only if manual JSON artifacts are insufficient)
+- [x] int8 embedding quantization — **deferred v2** (`PHASE3_PLAN.md` P3-OPT-Q8)
+- [x] Load tests 1K→100K simulated Q/day — **deferred v2** (`P3-OPT-LOAD`)
+- [x] Failure clustering from gallery exports — **deferred code**; manual paper analysis OK (`P3-OPT-CLUSTER`)
+- [x] Experiment tracking — **deferred v2** (`P3-OPT-TRACK`)
 
 ### 2.3 Recommended implementation order (default)
 
-- [ ] **1.** Adaptive per-domain thresholds (largest expected Pareto shift with moderate risk).
-- [ ] **2.** Pattern-aware eviction (storage + freshness interaction; builds on WS6).
-- [ ] **3.** Strategy D **iff** documented C shortfall on pre-registered safety constraint.
-- [ ] Defer quantization and extreme load until main safety/reuse story is stable.
+- [x] **1.** Adaptive per-domain thresholds (largest expected Pareto shift with moderate risk).
+- [x] **2.** Pattern-aware eviction (storage + freshness interaction; builds on WS6).
+- [x] **3.** Strategy D **iff** documented C shortfall on pre-registered safety constraint.
+- [x] Defer quantization and extreme load until main safety/reuse story is stable.
+
+### 2.4 Phase 2 exit criteria (authoring)
+
+- [x] [`PHASE2_PHASE3_PLAN_IMPLEMENTATION_PLAN.md`](./PHASE2_PHASE3_PLAN_IMPLEMENTATION_PLAN.md) Steps 0–6 + Step 7 review complete; user OK for code pending.
+- [x] [`PHASE3_PLAN.md`](../phase-3/PHASE3_PLAN.md) has Features 1–3 cards, optional deferrals, order, and paper-artifact outline.
+- [x] No Phase 3 implementation code in the authoring branch (docs only).
+- [ ] **User OK in writing** to start Phase 3 implementation (Feature 1 first).
 
 ---
 
@@ -218,9 +228,9 @@ Use these in abstract and resume only after the final held-out run.
 
 When invoked in agent mode:
 
-1. [ ] Complete **Phase 1** triage table refresh + recommendation; **wait for OK** (Phase 0).
-2. [ ] Write **`PHASE3_PLAN.md`** (Phase 2); **wait for OK** on scope/order.
-3. [ ] Implement approved Phase 2 carryovers on a branch; keep diffs minimal.
+1. [x] Complete **Phase 1** triage table refresh + recommendation; **wait for OK** (Phase 0).
+2. [x] Write **`PHASE3_PLAN.md`** (Phase 2); **wait for OK** on scope/order before Phase 3 code.
+3. [x] Implement approved Phase 2 carryovers on a branch; keep diffs minimal.
 4. [ ] Implement Phase 3 features **one card at a time**; update plan checkboxes and evidence after each.
 5. [ ] Run verification from repo root and record in plan:
    - [ ] `python -m pytest -q`
@@ -246,8 +256,11 @@ Reply template after planning pass:
 | Phase 1 carryovers | OPS lite smoke | 2026-10-09 | `test_postgres_connection_loss_on_lookup_fails_closed` (skipped without DB URL) |
 | Phase 1 CI | Push `edd2dea` + carryover branch | | pending explicit OK |
 | Phase 1 CI | GitHub Actions run URL (green) | | last known fail: `37826835133` |
+| Phase 2 authoring | `PHASE3_PLAN.md` + authoring plan Steps 0–6 | 2026-10-09 | complete on `phase2/phase3-plan` |
+| Phase 2 authoring | Self-review (Features 1–3 hypothesis + pass/fail) | 2026-10-09 | no TBD in in-scope cards |
+| Phase 2 authoring | User OK for Phase 3 code | | pending |
 | Phase 3 | Final held-out evaluation command | | |
-| Phase 3 | `paper-results` (or equivalent) end-to-end | | |
+| Phase 3 | Reproducibility runbook (`PHASE3_PLAN.md` § 3.3) end-to-end | | |
 
 ---
 

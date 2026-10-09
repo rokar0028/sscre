@@ -9,7 +9,7 @@ latency, freshness, and storage.
 Phase 2 is an evaluation-depth milestone. It does not include cross-encoders,
 adaptive thresholds, large-scale infrastructure, or multi-region deployment.
 Those are Phase 3 work and require a separate hypothesis and pass/fail
-criterion.
+criterion in [`docs/phase-3/PHASE3_PLAN.md`](../phase-3/PHASE3_PLAN.md).
 
 ## Source of truth
 
