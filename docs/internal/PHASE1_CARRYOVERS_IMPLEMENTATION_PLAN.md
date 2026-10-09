@@ -188,17 +188,17 @@ Checklist for rendered gallery:
 
 _Date completed: 2026-10-09_
 
-**Closure note:** P2-GALLERY and P2-OPS-lite delivered on `phase1/carryovers`. P2-CI verified locally (`edd2dea` + uncommitted `.gitattributes` migrations LF); merge to `origin/main` and green Actions run remain **user-gated** (no push without OK).
+**Closure note:** P2-GALLERY and P2-OPS-lite delivered on `phase1/carryovers` (`eea10a5`). P2-CI verified locally; **push + green GitHub Actions** remain user-gated (no push without OK).
 
 ### Branch
 
 **Name:** `phase1/carryovers`  
-**Base commit:** `edd2dea` (`edd2dead86d9c8e3a7774fbc55b6372638c33c3c`) — manifest/LF fix on local `main`, not yet on `origin/main`  
-**Merge / PR:** (after explicit OK)
+**Base commit:** `edd2dea` (manifest/LF); **carryover tip:** `eea10a5` (gallery + OPS lite + plan docs)  
+**Merge / PR:** (after explicit OK + CI green)
 
 ### P2-CI
 
-**Manifest / gitattributes commit(s):** `edd2dea` (manifest + `*.jsonl` LF); carryover commit adds `migrations/*.sql text eol=lf`  
+**Manifest / gitattributes commit(s):** `edd2dea` (manifest + `*.jsonl` LF); `eea10a5` (`migrations/*.sql text eol=lf` + gallery/OPS)  
 **Migration test fix commit(s):** already on `origin/main` — LF `write_text` + hash `d3cd5042…` in `tests/test_migrate.py` (no code change required)  
 **GitHub Actions URL (green):** pending — push branch (includes `edd2dea`; `origin/main` manifest still `84d8c6fd…`)  
 
