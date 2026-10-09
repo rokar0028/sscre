@@ -1,0 +1,26 @@
+---
+description: Where to create and index SSCRE markdown documentation
+globs:
+  - docs/**/*.md
+  - "*.md"
+alwaysApply: false
+---
+
+# Documentation layout
+
+- Do not create planning, release, agent-brief, or checklist markdown at the
+  repository root. Put it under `docs/` using
+  `docs/README.md` (directory map).
+- Only these four trackers live directly under `docs/`:
+  `SSCRE_PLAN.md`, `SSCRE_PROJECT_ANALYSIS.md`,
+  `SSCRE_LEARNING_AND_EXECUTION_GUIDE.md`, `SSCRE_SYSTEM_DESIGN.md`.
+- Use `docs/internal/` for release prep and private briefs, `docs/reference/`
+  for technical specs, `docs/setup/` for environment setup, `docs/phase-1/` and
+  `docs/phase-2/` for milestone and workstream material.
+- Keep new Phase 2 filenames in `docs/phase-2/` (flat folder). Code and
+  benchmarks reference those paths; do not nest phase-2 files without updating
+  every reference.
+- When adding a notable file under `docs/phase-1/`, `docs/phase-2/`, or
+  `docs/internal/`, add a row to that folder's `README.md` index.
+- When moving or renaming docs, search the repo for the old path and update
+  links in markdown, Python docstrings, and JSON metadata.
