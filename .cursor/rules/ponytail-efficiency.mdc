@@ -26,6 +26,8 @@ alwaysApply: true
 
 ## Git hygiene (when the user requests commits)
 
+- For **`/commit`** or **`/push`**, follow
+  `.cursor/skills/professional-git/SKILL.md` (project slash commands).
 - Propose an ordered commit plan first: purpose, file paths, and message per
   commit. Run `git commit` only after the user confirms, unless they already
   approved that exact plan in the same request.
