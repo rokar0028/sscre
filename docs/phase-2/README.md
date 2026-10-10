@@ -22,6 +22,7 @@ sections below to find what you need without reading every filename.
 | 4 | [WORKSTREAM_4_IMPLEMENTATION_PLAN.md](./WORKSTREAM_4_IMPLEMENTATION_PLAN.md) |
 | 5 | [WORKSTREAM_5_IMPLEMENTATION_PLAN.md](./WORKSTREAM_5_IMPLEMENTATION_PLAN.md) |
 | 6 | [WORKSTREAM_6_IMPLEMENTATION_PLAN.md](./WORKSTREAM_6_IMPLEMENTATION_PLAN.md) |
+| 7 | [WORKSTREAM_7_IMPLEMENTATION_PLAN.md](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md) |
 
 ## Frozen evaluation contracts (v1)
 
@@ -34,6 +35,10 @@ Referenced from `src/sscre/` — do not fork a second decision or trace model.
 | API / log / report JSON | [SERIALIZATION_BOUNDARY_v1.md](./SERIALIZATION_BOUNDARY_v1.md) |
 | Statistics attachment | [EVALUATION_STATISTICS_CONTRACT_v1.md](./EVALUATION_STATISTICS_CONTRACT_v1.md) |
 | Freshness experiments | [FRESHNESS_EVALUATION_CONTRACT_v1.md](./FRESHNESS_EVALUATION_CONTRACT_v1.md) |
+
+Failure gallery contract: planned in
+[WORKSTREAM_7_IMPLEMENTATION_PLAN.md](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md)
+(Step 2 → `FAILURE_GALLERY_CONTRACT_v1.md`).
 
 ## Completion evidence
 
@@ -54,6 +59,7 @@ Referenced from `src/sscre/` — do not fork a second decision or trace model.
 | [WORKSTREAM_3_STEP1_AUDIT.md](./WORKSTREAM_3_STEP1_AUDIT.md) | WS3 step 1 |
 | [WORKSTREAM_4_STEP1_AUDIT.md](./WORKSTREAM_4_STEP1_AUDIT.md) | WS4 step 1 |
 | [WORKSTREAM_5_STEP1_AUDIT.md](./WORKSTREAM_5_STEP1_AUDIT.md) | WS5 step 1 |
+| [WORKSTREAM_7_STEP1_AUDIT.md](./WORKSTREAM_7_STEP1_AUDIT.md) | WS7 step 1 |
 | [WORKSTREAM_5_ITERATION1_REVIEW_AUDIT.md](./WORKSTREAM_5_ITERATION1_REVIEW_AUDIT.md) | WS5 iteration 1 |
 
 ## Policies and benchmark scale-up

@@ -402,6 +402,10 @@ Acceptance criteria:
 
 ## Workstream 7 — Failure gallery and quality analysis
 
+Implementation plan:
+[`WORKSTREAM_7_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md)
+(Phase 2 full package; Phase 1 **P2-GALLERY** carryover is lite scope only).
+
 Create a browsable or static failure gallery after the data/report contract is
 stable. Each example should include:
 
