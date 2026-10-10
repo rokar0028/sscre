@@ -1,8 +1,7 @@
 """WS8 protocol ``ws8-contention-v1``: uniqueness, transactions, eviction.
 
 Bounded concurrent PostgreSQL writes and reads. Does not claim production
-capacity. Eviction uses a relative cap window so the run does not shrink the
-pre-existing table below its prior size.
+capacity. Eviction and expiry cleanup delete only this run's query hashes.
 """
 
 from __future__ import annotations
@@ -22,12 +21,16 @@ from sscre.cache import (
 )
 from sscre.config import Settings
 from sscre.llm import MockLLMClient
-from sscre.postgres_cache import PostgresExactCacheRepository
+from sscre.postgres_cache import (
+    PostgresExactCacheRepository,
+    ScopedPostgresExactCacheRepository,
+)
 from sscre.query import hash_query
 from sscre.safety import QueryMetadata
 from tests.ws8_postgres_helpers import (
     DATABASE_URL,
     WS8_CONTENTION_MARKS,
+    cache_query_hashes,
     cleanup_query_hashes,
     count_all_cache_entries,
     count_rows_for_query_hash,
@@ -164,11 +167,10 @@ def test_ct_mixed_rw_concurrent_insert_and_lookup() -> None:
 
 
 def test_ct_evict_cap_holds_under_concurrent_writes() -> None:
-    """CT-evict-cap: eight threads, Phase 4 entry/byte windows as added caps."""
+    """CT-evict-cap: eight threads, cap applies only to this run's hashes."""
     repo = _repo()
     before = repo.storage_stats()
-    max_entries = before.entries + PHASE4_ENTRY_CAP
-    max_bytes = before.total_bytes + PHASE4_BYTE_CAP
+    foreign_hashes = cache_query_hashes()
     entries = [
         _entry(f"ws8 ct-evict {uuid4()}", f"evict-answer-{index}")
         for index in range(EVICT_THREADS * 2)
@@ -179,8 +181,18 @@ def test_ct_evict_cap_holds_under_concurrent_writes() -> None:
     def write(index: int) -> BaseException | None:
         barrier.wait()
         try:
-            repo.insert_and_evict(entries[index * 2], max_entries, max_bytes)
-            repo.insert_and_evict(entries[index * 2 + 1], max_entries, max_bytes)
+            repo.insert_and_evict(
+                entries[index * 2],
+                PHASE4_ENTRY_CAP,
+                PHASE4_BYTE_CAP,
+                only_query_hashes=hashes,
+            )
+            repo.insert_and_evict(
+                entries[index * 2 + 1],
+                PHASE4_ENTRY_CAP,
+                PHASE4_BYTE_CAP,
+                only_query_hashes=hashes,
+            )
         except Exception as exc:
             return exc
         return None
@@ -190,12 +202,16 @@ def test_ct_evict_cap_holds_under_concurrent_writes() -> None:
             errors = list(pool.map(write, range(EVICT_THREADS)))
         assert all(exc is None for exc in errors)
         after = repo.storage_stats()
+        present_hashes = cache_query_hashes()
+        assert foreign_hashes <= present_hashes
+        scoped_present = [query_hash for query_hash in hashes if query_hash in present_hashes]
         assert after.entries == count_all_cache_entries()
-        assert after.entries <= max_entries
-        assert after.total_bytes <= max_bytes
+        assert len(scoped_present) <= PHASE4_ENTRY_CAP
+        assert after.total_bytes - before.total_bytes <= PHASE4_BYTE_CAP
         evicted = after.evictions - before.evictions
-        assert after.entries == before.entries + len(entries) - evicted
+        assert len(scoped_present) == len(entries) - evicted
         assert evicted >= len(entries) - PHASE4_ENTRY_CAP
+        assert after.entries == before.entries + len(scoped_present)
         remaining = [
             repo.get_by_query_hash(entry.query_hash) for entry in entries
         ]
@@ -238,13 +254,17 @@ def test_ct_cleanup_race_does_not_remove_fresh_entry() -> None:
         for index in range(2)
     ]
     hashes = [entry.query_hash for entry in (*stale, *fresh, *extra_fresh)]
+    foreign_hashes = cache_query_hashes()
     barrier = Barrier(CLEANUP_THREADS)
 
     def work(index: int) -> tuple[str, object]:
         barrier.wait()
         try:
             if index < 2:
-                return ("cleanup", repo.cleanup_expired(limit=50))
+                return (
+                    "cleanup",
+                    repo.cleanup_expired(limit=50, only_query_hashes=hashes),
+                )
             repo.insert(extra_fresh[index - 2])
             return ("insert_fresh", extra_fresh[index - 2].query_hash)
         except Exception as exc:
@@ -266,6 +286,7 @@ def test_ct_cleanup_race_does_not_remove_fresh_entry() -> None:
             assert stored.answer == entry.answer
         for entry in stale:
             assert repo.get_by_query_hash(entry.query_hash) is None
+        assert foreign_hashes <= cache_query_hashes()
     finally:
         cleanup_query_hashes(hashes)
 
@@ -297,7 +318,8 @@ def test_expired_and_disallowed_cannot_win_concurrent_lookup() -> None:
         ),
         ttl_expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
     )
-    repo = _repo()
+    hashes = [expired.query_hash, missing_meta.query_hash, incompatible.query_hash]
+    repo = ScopedPostgresExactCacheRepository(DATABASE_URL, hashes)
     client = TestClient(
         create_app(
             repository=repo,
@@ -311,7 +333,6 @@ def test_expired_and_disallowed_cannot_win_concurrent_lookup() -> None:
             semantic_strategy="C",
         )
     )
-    hashes = [expired.query_hash, missing_meta.query_hash, incompatible.query_hash]
     cases = (
         (expired_query, "expired-stale-answer"),
         (missing_meta_query, "metadata-less-stale-answer"),
@@ -356,7 +377,12 @@ def test_database_errors_recorded_separately_from_validation() -> None:
         barrier.wait()
         try:
             if kind == "validation":
-                repo.insert_and_evict(valid, 0, PHASE4_BYTE_CAP)
+                repo.insert_and_evict(
+                    valid,
+                    0,
+                    PHASE4_BYTE_CAP,
+                    only_query_hashes=[valid.query_hash],
+                )
             elif kind == "database":
                 repo.insert(
                     CacheEntry(

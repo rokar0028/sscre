@@ -84,7 +84,12 @@ class _InsertAccountingRepository:
 
     def insert_and_evict(self, entry, max_entries: int, max_bytes: int) -> None:
         self._record(
-            lambda: self._inner.insert_and_evict(entry, max_entries, max_bytes)
+            lambda: self._inner.insert_and_evict(
+                entry,
+                max_entries,
+                max_bytes,
+                only_query_hashes=(entry.query_hash,),
+            )
         )
 
     def _record(self, write) -> None:

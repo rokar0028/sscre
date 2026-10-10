@@ -48,6 +48,44 @@ def _entry_storage_bytes(entry: CacheEntry) -> int:
     )
 
 
+def _delete_unreferenced_canonical(cursor: object, canonical_hash: str | None) -> None:
+    if not canonical_hash:
+        return
+    cursor.execute(
+        """
+        DELETE FROM canonical_answers AS ca
+        WHERE ca.answer_hash = %s
+          AND NOT EXISTS (
+              SELECT 1
+              FROM cache_entries
+              WHERE canonical_answer_hash = ca.answer_hash
+          )
+        """,
+        (canonical_hash,),
+    )
+
+
+def delete_entries_by_query_hashes(
+    database_url: str,
+    query_hashes: Sequence[str],
+) -> None:
+    """Delete specific cache rows and only their unreferenced canonical answers."""
+    if not query_hashes:
+        return
+    with psycopg.connect(database_url) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM cache_entries
+                WHERE query_hash = ANY(%s)
+                RETURNING canonical_answer_hash
+                """,
+                (list(query_hashes),),
+            )
+            for row in cursor.fetchall():
+                _delete_unreferenced_canonical(cursor, row[0])
+
+
 def _parse_metadata(value: object) -> QueryMetadata | None:
     if value is None:
         return None
@@ -207,57 +245,97 @@ class PostgresExactCacheRepository(ExactCacheRepository):
         cursor: object,
         max_entries: int,
         max_bytes: int,
+        only_query_hashes: Sequence[str] | None = None,
     ) -> int:
+        scope = None if only_query_hashes is None else list(only_query_hashes)
         evicted = 0
+        if scope is not None and not scope:
+            return 0
         while True:
-            cursor.execute(
-                            """
-                            SELECT
-                                (SELECT count(*) FROM cache_entries),
-                                COALESCE(
-                                    (SELECT sum(storage_bytes)
-                                     FROM cache_entries),
-                                    0
-                                )
-                                + COALESCE(
-                                    (SELECT sum(octet_length(answer))
-                                     FROM canonical_answers),
-                                    0
-                                )
-                            """
+            if scope is None:
+                cursor.execute(
+                    """
+                    SELECT
+                        (SELECT count(*) FROM cache_entries),
+                        COALESCE(
+                            (SELECT sum(storage_bytes) FROM cache_entries),
+                            0
                         )
+                        + COALESCE(
+                            (SELECT sum(octet_length(answer))
+                             FROM canonical_answers),
+                            0
+                        )
+                    """
+                )
+            else:
+                cursor.execute(
+                    """
+                    SELECT
+                        (
+                            SELECT count(*)
+                            FROM cache_entries
+                            WHERE query_hash = ANY(%s)
+                        ),
+                        COALESCE(
+                            (
+                                SELECT sum(storage_bytes)
+                                FROM cache_entries
+                                WHERE query_hash = ANY(%s)
+                            ),
+                            0
+                        )
+                        + COALESCE(
+                            (
+                                SELECT sum(octet_length(ca.answer))
+                                FROM canonical_answers AS ca
+                                WHERE ca.answer_hash IN (
+                                    SELECT canonical_answer_hash
+                                    FROM cache_entries
+                                    WHERE query_hash = ANY(%s)
+                                      AND canonical_answer_hash IS NOT NULL
+                                )
+                            ),
+                            0
+                        )
+                    """,
+                    (scope, scope, scope),
+                )
             entry_count, byte_count = cursor.fetchone()
             if entry_count <= max_entries and byte_count <= max_bytes:
                 break
-            cursor.execute(
-                            """
-                            DELETE FROM cache_entries
-                            WHERE query_hash = (
-                                SELECT query_hash
-                                FROM cache_entries
-                                ORDER BY last_accessed_at ASC, query_hash ASC
-                                LIMIT 1
-                            )
-                            RETURNING canonical_answer_hash
-                            """
-                        )
+            if scope is None:
+                cursor.execute(
+                    """
+                    DELETE FROM cache_entries
+                    WHERE query_hash = (
+                        SELECT query_hash
+                        FROM cache_entries
+                        ORDER BY last_accessed_at ASC, query_hash ASC
+                        LIMIT 1
+                    )
+                    RETURNING canonical_answer_hash
+                    """
+                )
+            else:
+                cursor.execute(
+                    """
+                    DELETE FROM cache_entries
+                    WHERE query_hash = (
+                        SELECT query_hash
+                        FROM cache_entries
+                        WHERE query_hash = ANY(%s)
+                        ORDER BY last_accessed_at ASC, query_hash ASC
+                        LIMIT 1
+                    )
+                    RETURNING canonical_answer_hash
+                    """,
+                    (scope,),
+                )
             deleted = cursor.fetchone()
             if deleted is None:
                 break
-            canonical_hash = deleted[0]
-            if canonical_hash:
-                cursor.execute(
-                                """
-                                DELETE FROM canonical_answers AS ca
-                                WHERE ca.answer_hash = %s
-                                  AND NOT EXISTS (
-                                      SELECT 1
-                                      FROM cache_entries
-                                      WHERE canonical_answer_hash = ca.answer_hash
-                                  )
-                                """,
-                                (canonical_hash,),
-                            )
+            _delete_unreferenced_canonical(cursor, deleted[0])
             evicted += 1
         if evicted:
             cursor.execute(
@@ -334,45 +412,70 @@ class PostgresExactCacheRepository(ExactCacheRepository):
             with psycopg.connect(self._database_url) as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "DELETE FROM cache_entries WHERE query_hash = %s",
+                        """
+                        DELETE FROM cache_entries
+                        WHERE query_hash = %s
+                        RETURNING canonical_answer_hash
+                        """,
                         (query_hash,),
                     )
-                    cursor.execute(
-                        """
-                        DELETE FROM canonical_answers AS ca
-                        WHERE NOT EXISTS (
-                            SELECT 1
-                            FROM cache_entries
-                            WHERE canonical_answer_hash = ca.answer_hash
-                        )
-                        """
-                    )
+                    row = cursor.fetchone()
+                    if row is not None:
+                        _delete_unreferenced_canonical(cursor, row[0])
         except psycopg.Error as exc:
             raise CacheRepositoryError(
                 "failed to delete PostgreSQL cache entry"
             ) from exc
 
-    def cleanup_expired(self, limit: int = 100) -> int:
+    def cleanup_expired(
+        self,
+        limit: int = 100,
+        *,
+        only_query_hashes: Sequence[str] | None = None,
+    ) -> int:
         if limit <= 0:
             raise ValueError("cleanup limit must be positive")
+        scope = None if only_query_hashes is None else list(only_query_hashes)
+        if scope is not None and not scope:
+            return 0
         try:
             with psycopg.connect(self._database_url) as connection:
                 with connection.cursor() as cursor:
-                    cursor.execute(
-                        """
-                        DELETE FROM cache_entries
-                        WHERE query_hash IN (
-                            SELECT query_hash
-                            FROM cache_entries
-                            WHERE ttl_expires_at IS NOT NULL
-                              AND ttl_expires_at <= now()
-                            ORDER BY ttl_expires_at ASC, query_hash ASC
-                            LIMIT %s
+                    if scope is None:
+                        cursor.execute(
+                            """
+                            DELETE FROM cache_entries
+                            WHERE query_hash IN (
+                                SELECT query_hash
+                                FROM cache_entries
+                                WHERE ttl_expires_at IS NOT NULL
+                                  AND ttl_expires_at <= now()
+                                ORDER BY ttl_expires_at ASC, query_hash ASC
+                                LIMIT %s
+                            )
+                            RETURNING canonical_answer_hash
+                            """,
+                            (limit,),
                         )
-                        """,
-                        (limit,),
-                    )
-                    deleted = cursor.rowcount
+                    else:
+                        cursor.execute(
+                            """
+                            DELETE FROM cache_entries
+                            WHERE query_hash IN (
+                                SELECT query_hash
+                                FROM cache_entries
+                                WHERE ttl_expires_at IS NOT NULL
+                                  AND ttl_expires_at <= now()
+                                  AND query_hash = ANY(%s)
+                                ORDER BY ttl_expires_at ASC, query_hash ASC
+                                LIMIT %s
+                            )
+                            RETURNING canonical_answer_hash
+                            """,
+                            (scope, limit),
+                        )
+                    removed = cursor.fetchall()
+                    deleted = len(removed)
                     cursor.execute(
                         """
                         UPDATE cache_lifecycle_counters
@@ -381,16 +484,8 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                         """,
                         (deleted,),
                     )
-                    cursor.execute(
-                        """
-                        DELETE FROM canonical_answers AS ca
-                        WHERE NOT EXISTS (
-                            SELECT 1
-                            FROM cache_entries
-                            WHERE canonical_answer_hash = ca.answer_hash
-                        )
-                        """
-                    )
+                    for row in removed:
+                        _delete_unreferenced_canonical(cursor, row[0])
         except psycopg.Error as exc:
             raise CacheRepositoryError(
                 "failed to clean up expired PostgreSQL cache entries"
@@ -469,9 +564,14 @@ class PostgresExactCacheRepository(ExactCacheRepository):
         entry: CacheEntry,
         max_entries: int,
         max_bytes: int,
+        *,
+        only_query_hashes: Sequence[str] | None = None,
     ) -> None:
         if max_entries <= 0 or max_bytes <= 0:
             raise ValueError("cache limits must be positive")
+        scope = only_query_hashes
+        if scope is not None:
+            scope = list(dict.fromkeys([*scope, entry.query_hash]))
         try:
             with psycopg.connect(self._database_url) as connection:
                 with connection.cursor() as cursor:
@@ -480,7 +580,7 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                         ("sscre.cache.write",),
                     )
                     self._insert_cursor(cursor, entry)
-                    self._evict_cursor(cursor, max_entries, max_bytes)
+                    self._evict_cursor(cursor, max_entries, max_bytes, scope)
         except UniqueViolation as exc:
             raise DuplicateCacheEntryError(
                 f"query hash already exists: {entry.query_hash}"
@@ -552,4 +652,36 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                 similarity=float(row[8]),
             )
             for row in rows
+        )
+
+
+class ScopedPostgresExactCacheRepository(PostgresExactCacheRepository):
+    """Apply cache caps and expiry cleanup only to an explicit set of hashes.
+
+    The application repository still evicts across the whole table. Tests and
+    the bounded load runner use this type so a small cap cannot delete rows
+    they do not own. The written row is always included in the eviction set.
+    """
+
+    def __init__(self, database_url: str, query_hashes: Sequence[str]) -> None:
+        super().__init__(database_url)
+        self._scoped_query_hashes = tuple(query_hashes)
+
+    def insert_and_evict(
+        self,
+        entry: CacheEntry,
+        max_entries: int,
+        max_bytes: int,
+    ) -> None:
+        super().insert_and_evict(
+            entry,
+            max_entries,
+            max_bytes,
+            only_query_hashes=(*self._scoped_query_hashes, entry.query_hash),
+        )
+
+    def cleanup_expired(self, limit: int = 100) -> int:
+        return super().cleanup_expired(
+            limit,
+            only_query_hashes=self._scoped_query_hashes,
         )

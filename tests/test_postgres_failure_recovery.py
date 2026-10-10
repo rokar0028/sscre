@@ -151,7 +151,10 @@ def test_fr_cleanup_failure_raises_and_leaves_expired_row() -> None:
     )
     try:
         with pytest.raises(CacheRepositoryError, match="cleanup"):
-            repository.cleanup_expired(limit=10)
+            repository.cleanup_expired(
+                limit=10,
+                only_query_hashes=[entry.query_hash],
+            )
 
         assert row_exists(entry.query_hash)
         assert config.events[-1]["scenario_id"] == "FR-cleanup"

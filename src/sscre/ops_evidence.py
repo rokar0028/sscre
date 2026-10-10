@@ -221,8 +221,9 @@ def recorded_protocol_results() -> dict[str, Any]:
                 "validation_error",
             ],
             "limitations": [
-                "Relative cap windows avoid shrinking a pre-existing table. "
-                "Not a production eviction-capacity claim.",
+                "Eviction and cleanup delete only the run's query hashes. "
+                "The 2026-10-10 measurement used a relative cap window before "
+                "that guard. Not a production eviction-capacity claim.",
             ],
         },
     }

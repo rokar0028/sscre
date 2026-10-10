@@ -7,6 +7,7 @@ labeled separately from simulated drops in evidence artifacts.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
@@ -123,11 +124,24 @@ class PostgresFailureInjectionRepository(PostgresExactCacheRepository):
         max_bytes: int,
     ) -> None:
         self._maybe_fail(FailureOperation.INSERT_AND_EVICT)
-        super().insert_and_evict(entry, max_entries, max_bytes)
+        super().insert_and_evict(
+            entry,
+            max_entries,
+            max_bytes,
+            only_query_hashes=(entry.query_hash,),
+        )
 
-    def cleanup_expired(self, limit: int = 100) -> int:
+    def cleanup_expired(
+        self,
+        limit: int = 100,
+        *,
+        only_query_hashes: Sequence[str] | None = None,
+    ) -> int:
         self._maybe_fail(FailureOperation.CLEANUP)
-        return super().cleanup_expired(limit)
+        return super().cleanup_expired(
+            limit,
+            only_query_hashes=only_query_hashes,
+        )
 
     def search_by_embedding(
         self,
