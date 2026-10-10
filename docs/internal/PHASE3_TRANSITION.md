@@ -12,8 +12,9 @@
 | --- | --- | --- |
 | Phase 1 | **25/25** | Milestones 1–10 implemented per plans. |
 | Phase 2 | **~40 / 55** | Workstreams **1–6** complete with evidence; **7–9** and several definition-of-done items open. |
-| Phase 3 | **0 / 20** (planned) | No implementation; scope lives in [`SSCRE_PLAN.md`](../SSCRE_PLAN.md) § Phase 3. |
-| **In-scope total** | **~70 / 100** | |
+| Phase 3 | **implementation-complete** | Feature 1 passed; Feature 2 and Strategy D were deferred by their pre-registered gates. |
+| Phase 4 | **validation-complete with documented deferrals** | Pareto follow-up, bounded scale profiling, release audit, and artifact manifest complete; credentialed provider run unavailable. |
+| **In-scope total** | **historical pre-Phase 3 snapshot** | The earlier ~70 / 100 score is retained only as the planning baseline. |
 
 **Strategic decision (confirmed):** Do **not** finish every remaining Phase 2 item. Close **at most 2–3** high-leverage gaps, then start Phase 3 (hypothesis-driven features that produce publishable numbers).
 
@@ -53,12 +54,12 @@ local CPU inference is the bottleneck.
 
 ## Non-negotiable rules (agents and humans)
 
-- [ ] Read [`SSCRE_PLAN.md`](../SSCRE_PLAN.md), [`PHASE_2_IMPLEMENTATION_PLAN.md`](../phase-2/PHASE_2_IMPLEMENTATION_PLAN.md), and relevant `WORKSTREAM_*_EVIDENCE.md` before changing code.
-- [ ] **No Phase 3 code** until each feature has a written **hypothesis** and **pass/fail criterion** in `PHASE3_PLAN.md` (per master plan).
-- [ ] **No invented numbers.** Every table/plot traces to a recorded command, config, dataset version (`reviewed-query-pairs-2.0`), and seed.
-- [ ] **Held-out split (`benchmarks/held_out_test.jsonl`, 215 pairs):** development-only tuning; **one** final held-out report for the paper unless you explicitly reset the protocol in writing.
-- [ ] Work on a **feature branch**; do not commit to `main` or **push** without explicit approval.
-- [ ] Prefer vertical slices over new infrastructure (YAGNI); experiment tracking only if manual artifacts are insufficient.
+- [x] Read [`SSCRE_PLAN.md`](../SSCRE_PLAN.md), [`PHASE_2_IMPLEMENTATION_PLAN.md`](../phase-2/PHASE_2_IMPLEMENTATION_PLAN.md), and relevant `WORKSTREAM_*_EVIDENCE.md` before changing code.
+- [x] **No Phase 3 code** until each feature has a written **hypothesis** and **pass/fail criterion** in `PHASE3_PLAN.md` (per master plan).
+- [x] **No invented numbers.** Every table/plot traces to a recorded command, config, dataset version (`reviewed-query-pairs-2.0`), and seed.
+- [x] **Held-out split (`benchmarks/held_out_test.jsonl`, 215 pairs):** development-only tuning; the additional Phase 4 reference replay was explicitly reset and separately labelled.
+- [x] Work on a **feature branch**; do not commit to `main` or **push** without explicit approval.
+- [x] Prefer vertical slices over new infrastructure (YAGNI); experiment tracking only if manual artifacts are insufficient.
 
 ---
 
@@ -262,7 +263,7 @@ explicitly deferred to avoid an additional held-out run.
 
 **Status:** implementation and evidence package complete on `phase4/setup`;
 credentialed live-provider validation is unavailable, and clean-checkout replay
-is deferred until the Step 3 profiling changes are committed.
+remains deferred even though the Step 3 profiling changes are committed locally.
 
 Plan and evidence:
 

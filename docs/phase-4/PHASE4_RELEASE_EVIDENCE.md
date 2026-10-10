@@ -16,6 +16,8 @@
   credentials and does not substitute synthetic values for live measurements.
 - [x] Confirmed the documentation limits claims to synthetic replay, bounded
   local workloads, and the recorded Phase 4 protocol reset.
+- [x] Artifact provenance records the exact generation commit and dirty-worktree
+  state; later documentation-only commits do not alter those measurements.
 - [x] No dashboard, tracker, GPU, provider dependency, or unrelated product
   feature was added.
 
@@ -62,4 +64,5 @@ are therefore recorded rather than implied away.
 - Scale results cover only the bounded synthetic in-memory workload recorded in
   `PHASE4_SCALE_EVIDENCE.md`.
 - A clean-checkout replay should be run after the Step 3 changes are committed
-  if release policy requires that additional verification.
+  if release policy requires that additional verification; the changes are now
+  committed locally, but the replay itself remains unrun.

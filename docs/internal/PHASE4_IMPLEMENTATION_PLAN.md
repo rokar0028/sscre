@@ -11,10 +11,9 @@
 
 The current transition document does not define a Phase 4 feature set. This plan
 therefore treats Phase 4 as **post-Phase 3 validation**, not as an automatic
-expansion of the cache architecture. The default recommendation is to complete
-only the protocol-approved Pareto follow-up. Live-provider and scale experiments
-remain optional tracks because their claims require different evidence and may
-require external services.
+expansion of the cache architecture. The approved execution completed the
+protocol follow-up, bounded local profiling, and release/evidence audit. Live
+provider execution remains unavailable and deferred.
 
 **Exit:** every approved track has a written protocol, reproducible evidence,
 updated limitations, and passing regression checks. Unapproved tracks remain
@@ -33,18 +32,18 @@ explicitly deferred.
 
 ## Non-negotiable gates
 
-- [ ] Obtain explicit written approval for the selected Phase 4 tracks and their
+- [x] Obtain explicit written approval for the selected Phase 4 tracks and their
   pass/fail criteria before code or external-service work.
-- [ ] Create a feature branch from the reviewed Phase 3 baseline; do not commit to
+- [x] Create a feature branch from the reviewed Phase 3 baseline; do not commit to
   `main` or push without explicit approval.
-- [ ] Read the Phase 3 final evidence and current benchmark/evaluation contracts
+- [x] Read the Phase 3 final evidence and current benchmark/evaluation contracts
   before changing evaluation or cache behavior.
-- [ ] Treat any new held-out evaluation as a new protocol: record the reason,
+- [x] Treat any new held-out evaluation as a new protocol: record the reason,
   dataset version, split, seed, config hash, and reset decision before running it.
-- [ ] Never combine synthetic-replay and live-provider numbers in one result table.
-- [ ] Do not rent a GPU or add a provider dependency until profiling shows that it
+- [x] Never combine synthetic-replay and live-provider numbers in one result table.
+- [x] Do not rent a GPU or add a provider dependency until profiling shows that it
   is required by an approved experiment.
-- [ ] Preserve fail-closed behavior, validation, authorization, tenancy checks,
+- [x] Preserve fail-closed behavior, validation, authorization, tenancy checks,
   accessibility, and data-loss protections while making operational changes.
 
 ## Phase 4 decision gate
@@ -62,9 +61,9 @@ recorded in this plan:
   handoff is part of the deliverable.
 - [x] Confirm the final order and whether any track is explicitly deferred.
 
-**Recorded decision (2026-10-10):** implement `P4-PARETO` only. Defer
-`P4-PROVIDER`, `P4-SCALE`, and `P4-RELEASE` until a paper or deployment
-requirement justifies them.
+**Recorded decision (2026-10-10):** execute `P4-PARETO`, then approve the
+bounded `P4-SCALE` and `P4-RELEASE` tracks. Attempt `P4-PROVIDER` only through
+the fail-closed measurement boundary; no credentialed run was available.
 
 ## Prerequisites (read-only)
 
@@ -80,8 +79,9 @@ requirement justifies them.
   dependencies are recorded before implementation.
 - [x] Phase 4 work is on `phase4/setup`, created from the Phase 3 implementation
   baseline without staging or discarding pre-existing changes.
-- [ ] Any external provider or compute budget, if applicable, is approved outside
-  the repository and will not be stored in artifacts.
+- [x] No external provider or compute budget was used. Any future provider or
+  compute budget must be approved outside the repository and excluded from
+  artifacts.
 
 ## Step 0 — Branch, baseline, and protocol reset
 
@@ -98,19 +98,21 @@ requirement justifies them.
   - [x] `docker compose config` with the non-secret CI sample environment
 - [x] Record the Phase 3 artifact manifest, config hash, dataset version, split
   manifest hash, and retained-stack configuration.
-- [ ] For every selected track, write the workload, hypothesis, primary metric,
+- [x] For every selected track, write the workload, hypothesis, primary metric,
   pass/fail criterion, stopping rule, and artifact names before running it.
-- [ ] If a new held-out run is selected, append a protocol-reset record before
+- [x] If a new held-out run is selected, append a protocol-reset record before
   accessing held-out outcomes.
 
-## Step 1 — Protocol follow-up: selected-stack Pareto
+## Step 1 — Protocol follow-up: reference Pareto and retained adaptive point
 
 **Track ID:** `P4-PARETO` · **Default order:** 1 · **Effort:** S–M
 
 ### Purpose
 
-Complete the explicitly deferred selected-stack Pareto curve without silently
-claiming that it belongs to the original Phase 3 single-held-out protocol.
+Complete the explicitly deferred reference Pareto curve and attach the retained
+adaptive-stack point without silently claiming that this is a full adaptive
+threshold curve or that it belongs to the original Phase 3 single-held-out
+protocol.
 
 ### Protocol
 
@@ -134,8 +136,9 @@ Strategy D tuning is performed from Phase 4 held-out outcomes.
 
 ### Pass/fail criterion
 
-- [x] Pass only if the generated curve contains complete configuration and
-  provenance metadata and does not violate the declared safety constraint.
+- [x] Pass only if the generated reference curve and retained adaptive point
+  contain complete configuration and provenance metadata and do not violate the
+  declared safety constraint.
 - [x] If the curve is incomplete, unstable, or requires post-hoc tuning, publish
   it as diagnostic-only and retain the Phase 3 selected-stack result.
 
@@ -245,8 +248,8 @@ comparison was run.
 - [x] Confirm generated artifacts exclude credentials, local absolute paths where
   inappropriate, and unexplained machine-specific state.
 - [x] Run the documented verification sequence from the current environment;
-  clean-checkout replay is explicitly deferred until Step 3 changes are
-  committed.
+  clean-checkout replay remains deferred even though Step 3 changes are now
+  committed locally, because the replay has not been run.
 - [x] Add only the minimum release/readiness documentation needed for the
   approved handoff; do not add dashboards, tracking infrastructure, or product
   features without a measured requirement.
@@ -296,10 +299,12 @@ _Date completed:_
 
 **Approved tracks:** `P4-PARETO` complete; `P4-PROVIDER` attempted and unavailable;
 `P4-SCALE` complete; `P4-RELEASE` complete with clean-checkout replay deferred
-**User approval date / message:** Phase 4 Step 5 implementation requested in chat on 2026-10-10
+**User approval date / message:** Phase 4 Steps 0–5 implementation requested in chat on 2026-10-10
 **Branch:** `phase4/setup`  
 **Base commit:** `8c65926227fbdc923a23994c183ac33ba378694f`  
 **Merge / PR:** [PR #1](https://github.com/rokar0028/sscre/pull/1)  
+**PR sync:** PR #1 currently ends at `dc451fe`; later documentation/artifact
+commits are local and require a separate push approval.
 
 **Working tree at setup:** pre-existing Phase 3 implementation, artifact, and
 documentation changes retained; nothing staged or discarded by Step 0.  
@@ -311,8 +316,8 @@ evaluation config SHA-256
 `5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8`;
 retained stack is Feature 1 adaptive thresholds with default/WS6-conservative
 eviction.  
-**Protocol reset decision:** not required; bounded local profiling used existing
-synthetic workloads and did not access held-out data
+**Protocol reset decision:** required for P4-PARETO and recorded; bounded local
+profiling used existing synthetic workloads and did not access held-out data
 
 ### Track decisions
 
