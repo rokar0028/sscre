@@ -492,6 +492,9 @@ Acceptance criteria:
 
 ## Workstream 9 — Dashboard and dual-model experiment gates
 
+Implementation plan:
+[`WORKSTREAM_9_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_9_IMPLEMENTATION_PLAN.md).
+
 ### Dashboard
 
 Add a dashboard only after report data is stable. It should read generated
