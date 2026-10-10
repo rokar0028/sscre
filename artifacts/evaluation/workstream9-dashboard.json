@@ -1,0 +1,4400 @@
+{
+  "artifact_kind": "workstream9-dashboard",
+  "dashboard_schema_version": "workstream9-dashboard-1.0",
+  "export_policy": {
+    "metadata_mismatch_override": false,
+    "metric_source": "upstream_artifacts"
+  },
+  "generation": {
+    "generated_at": "2026-10-10T23:19:55.714474+00:00",
+    "git_commit": "74c772d8e08b954111a6c524b8745cbf387bf895",
+    "git_worktree_dirty": true
+  },
+  "input_artifacts": {
+    "comparison": {
+      "dataset_version": "reviewed-query-pairs-2.0",
+      "evaluation_split": "held-out",
+      "measurement_environment": "synthetic_replay",
+      "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream5-held-out-comparison.json",
+      "present": true,
+      "schema_versions": {
+        "failure_gallery_schema_version": "failure-gallery-1.0",
+        "schema_version": "1.0.0",
+        "statistics_schema_version": "evaluation-statistics-1.0"
+      },
+      "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+      "timestamp": "2026-10-10T15:07:16.191026+00:00"
+    },
+    "freshness_development": {
+      "dataset_version": "reviewed-query-pairs-2.0",
+      "evaluation_split": "development",
+      "measurement_environment": "synthetic_replay",
+      "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream6-development-freshness.json",
+      "present": true,
+      "schema_versions": {
+        "artifact_package_version": "1.0",
+        "freshness_evaluation_schema_version": "freshness-evaluation-1.0",
+        "schema_version": "1.0.0",
+        "statistics_schema_version": "evaluation-statistics-1.0"
+      },
+      "split_manifest_sha256": "c0109b36346442858d712ec13c183c8178ebb3e244b082f845cb7426750d8bbd",
+      "timestamp": "2026-10-08T18:12:14.818822+00:00"
+    },
+    "freshness_held_out": {
+      "dataset_version": "reviewed-query-pairs-2.0",
+      "evaluation_split": "held-out",
+      "measurement_environment": "synthetic_replay",
+      "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream6-held-out-freshness.json",
+      "present": true,
+      "schema_versions": {
+        "artifact_package_version": "1.0",
+        "freshness_evaluation_schema_version": "freshness-evaluation-1.0",
+        "schema_version": "1.0.0",
+        "statistics_schema_version": "evaluation-statistics-1.0"
+      },
+      "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+      "timestamp": "2026-10-10T15:08:01.377467+00:00"
+    },
+    "invalidation": {
+      "artifact_kind": "workstream6_invalidation",
+      "dataset_version": "reviewed-query-pairs-2.0",
+      "measurement_environment": "synthetic_repository",
+      "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream6-invalidation.json",
+      "present": true,
+      "schema_versions": {
+        "definition_version": "1.0"
+      }
+    },
+    "operations": {
+      "artifact_kind": "workstream8-operational-verification",
+      "path": "C:/Users/Admin/Desktop/major/artifacts/operations/workstream8-operational-verification.json",
+      "present": true,
+      "schema_versions": {
+        "schema_version": "ws8-ops-1.0"
+      },
+      "timestamp": "2026-10-10T16:31:04.756865+00:00"
+    },
+    "pareto": {
+      "dataset_version": "reviewed-query-pairs-2.0",
+      "evaluation_split": "held-out",
+      "measurement_environment": "synthetic_replay",
+      "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream5-held-out-pareto.json",
+      "present": true,
+      "schema_versions": {
+        "pareto_schema_version": "evaluation-pareto-1.0"
+      }
+    },
+    "provider_comparison": {
+      "dataset_version": "reviewed-query-pairs-1.1",
+      "evaluation_split": "development",
+      "measurement_environment": "comparison",
+      "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream4-provider-comparison.json",
+      "present": true,
+      "schema_versions": {
+        "schema_version": "provider-measurement-comparison-1.0"
+      },
+      "timestamp": "2026-10-07T17:06:49.445525+00:00"
+    },
+    "provider_unavailable": {
+      "artifact_status": "unavailable",
+      "dataset_version": "reviewed-query-pairs-1.1",
+      "evaluation_split": "development",
+      "measurement_environment": "real_provider",
+      "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream4-real-provider-unavailable.json",
+      "present": true,
+      "schema_versions": {
+        "schema_version": "real-provider-measurement-1.0"
+      },
+      "timestamp": "2026-10-07T16:43:08.937690+00:00"
+    },
+    "quality": {
+      "artifact_kind": "workstream7-quality-analysis",
+      "dataset_version": "reviewed-query-pairs-2.0",
+      "evaluation_split": "held-out",
+      "measurement_environment": "synthetic_replay",
+      "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream7-quality-analysis.json",
+      "present": true,
+      "schema_versions": {
+        "failure_gallery_schema_version": "failure-gallery-1.0"
+      },
+      "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+      "timestamp": "2026-10-10T15:08:29.186282+00:00"
+    }
+  },
+  "primary_evaluation_identity": {
+    "dataset_version": "reviewed-query-pairs-2.0",
+    "evaluation_split": "held-out",
+    "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51"
+  },
+  "sections": {
+    "baseline_comparison": {
+      "data": {
+        "baselines": {
+          "compatibility-cache": {
+            "average_latency_ms": 0.0,
+            "cache_hits": 1,
+            "cache_misses": 429,
+            "embedding_tokens": 3128,
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "generated_requests": 429,
+            "hit_rate": 0.002325581395348837,
+            "input_tokens": 3121,
+            "output_tokens": 4408,
+            "p50_latency_ms": 0.0,
+            "p95_latency_ms": 0.0,
+            "p99_latency_ms": 0.0,
+            "precision": 1.0,
+            "recall": 0.011764705882352941,
+            "request_count": 430,
+            "safe_reuse_coverage": 0.011764705882352941,
+            "tokens_saved": 17
+          },
+          "embedding-cache": {
+            "average_latency_ms": 0.14186046511627906,
+            "cache_hits": 27,
+            "cache_misses": 403,
+            "embedding_tokens": 3128,
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.48148148148148145,
+            "generated_requests": 403,
+            "hit_rate": 0.06279069767441861,
+            "input_tokens": 3030,
+            "output_tokens": 4239,
+            "p50_latency_ms": 0.0,
+            "p95_latency_ms": 0.0,
+            "p99_latency_ms": 4.7099999999999795,
+            "precision": 0.13333333333333333,
+            "recall": 0.023529411764705882,
+            "request_count": 430,
+            "safe_reuse_coverage": 0.023529411764705882,
+            "tokens_saved": 284
+          },
+          "exact-cache": {
+            "average_latency_ms": 0.0,
+            "cache_hits": 23,
+            "cache_misses": 407,
+            "estimated_cost_usd": 0.0,
+            "generated_requests": 407,
+            "hit_rate": 0.053488372093023255,
+            "input_tokens": 3066,
+            "output_tokens": 4287,
+            "request_count": 430,
+            "safe_reuse_coverage": 0.011764705882352941,
+            "tokens_saved": 193
+          },
+          "no-cache": {
+            "average_latency_ms": 0.0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "estimated_cost_usd": 0.0,
+            "generated_requests": 430,
+            "hit_rate": 0.0,
+            "input_tokens": 3128,
+            "output_tokens": 4418,
+            "request_count": 430,
+            "safe_reuse_coverage": 0.0,
+            "tokens_saved": 0
+          }
+        }
+      },
+      "source_artifacts": [
+        {
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "held-out",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream5-held-out-comparison.json",
+          "present": true,
+          "schema_versions": {
+            "failure_gallery_schema_version": "failure-gallery-1.0",
+            "schema_version": "1.0.0",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+          "timestamp": "2026-10-10T15:07:16.191026+00:00"
+        }
+      ],
+      "status": "available"
+    },
+    "confidence_intervals": {
+      "data": {
+        "by_baseline": {
+          "compatibility-cache": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 23.316279069767443,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 24.78372093023256,
+                "upper": 26.21395348837209
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "decision_rate_safe": {
+                "confidence_level": 0.95,
+                "lower": 0.0004106402465101173,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.002325581395348837,
+                "upper": 0.013053860902303305
+              },
+              "decision_rate_uncertain": {
+                "confidence_level": 0.95,
+                "lower": 0.04159377226681188,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.06046511627906977,
+                "upper": 0.08712020304685977
+              },
+              "decision_rate_unsafe": {
+                "confidence_level": 0.95,
+                "lower": 0.9101850974303647,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.9372093023255814,
+                "upper": 0.9564909482893693
+              },
+              "false_positive_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 0.0,
+                "upper": 1.0
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0004106402465101173,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.002325581395348837,
+                "upper": 0.013053860902303305
+              },
+              "precision_of_served_reuse": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 1.0,
+                "upper": 1.0
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": 0.0008215168205938875,
+                "method": "wilson",
+                "n": 215,
+                "point": 0.004651162790697674,
+                "upper": 0.025871134801146015
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 430,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "embedding-cache": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.07209302325581396,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.14186046511627906,
+                "upper": 0.22093023255813954
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 1.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 2.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 4.7099999999999795,
+                "upper": 7.419999999999959
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 22.85348837209302,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 24.17906976744186,
+                "upper": 25.73488372093023
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "false_positive_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.30743226976218463,
+                "method": "wilson",
+                "n": 27,
+                "point": 0.48148148148148145,
+                "upper": 0.6601438424504772
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.04350905171063067,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.06279069767441861,
+                "upper": 0.08981490256963533
+              },
+              "precision_of_served_reuse": {
+                "confidence_level": 0.95,
+                "lower": 0.020554654060988636,
+                "method": "wilson",
+                "n": 27,
+                "point": 0.07407407407407407,
+                "upper": 0.23369592683023152
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": 0.0025547510706895437,
+                "method": "wilson",
+                "n": 215,
+                "point": 0.009302325581395349,
+                "upper": 0.033276936686057496
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 430,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "exact-cache": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 16.06046511627907,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 17.1,
+                "upper": 18.151162790697676
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "false_positive_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.29237157416646653,
+                "method": "wilson",
+                "n": 23,
+                "point": 0.4782608695652174,
+                "upper": 0.6703726266357259
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.035903391997914355,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.053488372093023255,
+                "upper": 0.07898064641597431
+              },
+              "precision_of_served_reuse": {
+                "confidence_level": 0.95,
+                "lower": 0.007716666143453163,
+                "method": "wilson",
+                "n": 23,
+                "point": 0.043478260869565216,
+                "upper": 0.20991155070258882
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": 0.0008215168205938875,
+                "method": "wilson",
+                "n": 215,
+                "point": 0.004651162790697674,
+                "upper": 0.025871134801146015
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 430,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "no-cache": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 16.665116279069768,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 17.548837209302327,
+                "upper": 18.64651162790698
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.008854522182219092
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 215,
+                "point": 0.0,
+                "upper": 0.017553615486732763
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 430,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          }
+        },
+        "measurement_environment": "synthetic_replay",
+        "overall": {
+          "bootstrap_iterations": 1000,
+          "confidence_level": 0.95,
+          "distributions": {
+            "estimated_cost_usd_mean": {
+              "confidence_level": 0.95,
+              "lower": 0.0,
+              "method": "bootstrap_percentile",
+              "n": 430,
+              "point": 0.0,
+              "upper": 0.0
+            },
+            "latency_ms_mean": {
+              "confidence_level": 0.95,
+              "lower": 0.0,
+              "method": "bootstrap_percentile",
+              "n": 430,
+              "point": 0.0,
+              "upper": 0.0
+            },
+            "latency_ms_p50": {
+              "confidence_level": 0.95,
+              "lower": 0.0,
+              "method": "bootstrap_percentile",
+              "n": 430,
+              "point": 0.0,
+              "upper": 0.0
+            },
+            "latency_ms_p95": {
+              "confidence_level": 0.95,
+              "lower": 0.0,
+              "method": "bootstrap_percentile",
+              "n": 430,
+              "point": 0.0,
+              "upper": 0.0
+            },
+            "latency_ms_p99": {
+              "confidence_level": 0.95,
+              "lower": 0.0,
+              "method": "bootstrap_percentile",
+              "n": 430,
+              "point": 0.0,
+              "upper": 0.0
+            },
+            "request_tokens_mean": {
+              "confidence_level": 0.95,
+              "lower": 23.316279069767443,
+              "method": "bootstrap_percentile",
+              "n": 430,
+              "point": 24.78372093023256,
+              "upper": 26.21395348837209
+            }
+          },
+          "interval_methods": {
+            "distribution_metrics": "bootstrap_percentile",
+            "proportion_metrics": "wilson"
+          },
+          "minimum_n_bootstrap": 5,
+          "minimum_n_proportion": 1,
+          "proportions": {
+            "decision_rate_safe": {
+              "confidence_level": 0.95,
+              "lower": 0.0004106402465101173,
+              "method": "wilson",
+              "n": 430,
+              "point": 0.002325581395348837,
+              "upper": 0.013053860902303305
+            },
+            "decision_rate_uncertain": {
+              "confidence_level": 0.95,
+              "lower": 0.04159377226681188,
+              "method": "wilson",
+              "n": 430,
+              "point": 0.06046511627906977,
+              "upper": 0.08712020304685977
+            },
+            "decision_rate_unsafe": {
+              "confidence_level": 0.95,
+              "lower": 0.9101850974303647,
+              "method": "wilson",
+              "n": 430,
+              "point": 0.9372093023255814,
+              "upper": 0.9564909482893693
+            },
+            "false_positive_rate": {
+              "confidence_level": 0.95,
+              "lower": 0.0,
+              "method": "wilson",
+              "n": 1,
+              "point": 0.0,
+              "upper": 1.0
+            },
+            "hit_rate": {
+              "confidence_level": 0.95,
+              "lower": 0.0004106402465101173,
+              "method": "wilson",
+              "n": 430,
+              "point": 0.002325581395348837,
+              "upper": 0.013053860902303305
+            },
+            "precision_of_served_reuse": {
+              "confidence_level": 0.95,
+              "lower": 0.0,
+              "method": "wilson",
+              "n": 1,
+              "point": 1.0,
+              "upper": 1.0
+            },
+            "safe_reuse_coverage": {
+              "confidence_level": 0.95,
+              "lower": 0.0008215168205938875,
+              "method": "wilson",
+              "n": 215,
+              "point": 0.004651162790697674,
+              "upper": 0.025871134801146015
+            }
+          },
+          "random_seed": 42,
+          "sample_count": 430,
+          "sample_unit": "directed_request",
+          "statistics_schema_version": "evaluation-statistics-1.0"
+        },
+        "sample_unit": "directed_request"
+      },
+      "source_artifacts": [
+        {
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "held-out",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream5-held-out-comparison.json",
+          "present": true,
+          "schema_versions": {
+            "failure_gallery_schema_version": "failure-gallery-1.0",
+            "schema_version": "1.0.0",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+          "timestamp": "2026-10-10T15:07:16.191026+00:00"
+        }
+      ],
+      "status": "available"
+    },
+    "failure_categories": {
+      "data": {
+        "by_failure_category": {
+          "ambiguity": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 1,
+                "point": 0.0,
+                "reason": "n_below_minimum_bootstrap",
+                "upper": null
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 1,
+                "point": 0.0,
+                "reason": "n_below_minimum_bootstrap",
+                "upper": null
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 1,
+                "point": 0.0,
+                "reason": "n_below_minimum_bootstrap",
+                "upper": null
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 1,
+                "point": 0.0,
+                "reason": "n_below_minimum_bootstrap",
+                "upper": null
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 1,
+                "point": 0.0,
+                "reason": "n_below_minimum_bootstrap",
+                "upper": null
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 1,
+                "point": 24.0,
+                "reason": "n_below_minimum_bootstrap",
+                "upper": null
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "decision_rate_safe": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 0.0,
+                "upper": 1.0
+              },
+              "decision_rate_uncertain": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 0.0,
+                "upper": 1.0
+              },
+              "decision_rate_unsafe": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 1.0,
+                "upper": 1.0
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 0.0,
+                "upper": 1.0
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 0,
+                "point": null,
+                "reason": "no_b_to_a_samples",
+                "upper": null
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 1,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "constraint_mismatch": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 49,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 49,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 49,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 49,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 49,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 25.102040816326532,
+                "method": "bootstrap_percentile",
+                "n": 49,
+                "point": 28.775510204081634,
+                "upper": 33.06122448979592
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "decision_rate_safe": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 49,
+                "point": 0.0,
+                "upper": 0.07269781922049641
+              },
+              "decision_rate_uncertain": {
+                "confidence_level": 0.95,
+                "lower": 0.02104014667296747,
+                "method": "wilson",
+                "n": 49,
+                "point": 0.061224489795918366,
+                "upper": 0.16520487835726405
+              },
+              "decision_rate_unsafe": {
+                "confidence_level": 0.95,
+                "lower": 0.8347951216427361,
+                "method": "wilson",
+                "n": 49,
+                "point": 0.9387755102040817,
+                "upper": 0.9789598533270325
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 49,
+                "point": 0.0,
+                "upper": 0.07269781922049641
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 0,
+                "point": null,
+                "reason": "no_b_to_a_samples",
+                "upper": null
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 49,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "entity_mismatch": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 12,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 12,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 12,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 12,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 12,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 18.75,
+                "method": "bootstrap_percentile",
+                "n": 12,
+                "point": 22.0,
+                "upper": 25.0
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "decision_rate_safe": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 12,
+                "point": 0.0,
+                "upper": 0.24249400665524096
+              },
+              "decision_rate_uncertain": {
+                "confidence_level": 0.95,
+                "lower": 0.014865094404917095,
+                "method": "wilson",
+                "n": 12,
+                "point": 0.08333333333333333,
+                "upper": 0.35387991114111705
+              },
+              "decision_rate_unsafe": {
+                "confidence_level": 0.95,
+                "lower": 0.646120088858883,
+                "method": "wilson",
+                "n": 12,
+                "point": 0.9166666666666666,
+                "upper": 0.9851349055950829
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 12,
+                "point": 0.0,
+                "upper": 0.24249400665524096
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 0,
+                "point": null,
+                "reason": "no_b_to_a_samples",
+                "upper": null
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 12,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "false_negative": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 84,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 84,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 84,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 84,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 84,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 22.25,
+                "method": "bootstrap_percentile",
+                "n": 84,
+                "point": 24.678571428571427,
+                "upper": 27.107142857142858
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "decision_rate_safe": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 84,
+                "point": 0.0,
+                "upper": 0.0437317284146599
+              },
+              "decision_rate_uncertain": {
+                "confidence_level": 0.95,
+                "lower": 0.002104583087549218,
+                "method": "wilson",
+                "n": 84,
+                "point": 0.011904761904761904,
+                "upper": 0.06439543750771401
+              },
+              "decision_rate_unsafe": {
+                "confidence_level": 0.95,
+                "lower": 0.935604562492286,
+                "method": "wilson",
+                "n": 84,
+                "point": 0.9880952380952381,
+                "upper": 0.9978954169124508
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 84,
+                "point": 0.0,
+                "upper": 0.0437317284146599
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 84,
+                "point": 0.0,
+                "upper": 0.0437317284146599
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 84,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "format_mismatch": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 1,
+                "point": 0.0,
+                "reason": "n_below_minimum_bootstrap",
+                "upper": null
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 1,
+                "point": 0.0,
+                "reason": "n_below_minimum_bootstrap",
+                "upper": null
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 1,
+                "point": 0.0,
+                "reason": "n_below_minimum_bootstrap",
+                "upper": null
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 1,
+                "point": 0.0,
+                "reason": "n_below_minimum_bootstrap",
+                "upper": null
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 1,
+                "point": 0.0,
+                "reason": "n_below_minimum_bootstrap",
+                "upper": null
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 1,
+                "point": 27.0,
+                "reason": "n_below_minimum_bootstrap",
+                "upper": null
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "decision_rate_safe": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 0.0,
+                "upper": 1.0
+              },
+              "decision_rate_uncertain": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 0.0,
+                "upper": 1.0
+              },
+              "decision_rate_unsafe": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 1.0,
+                "upper": 1.0
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 0.0,
+                "upper": 1.0
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 0,
+                "point": null,
+                "reason": "no_b_to_a_samples",
+                "upper": null
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 1,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "insufficient_evidence": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 11,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 11,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 11,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 11,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 11,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 6.0,
+                "method": "bootstrap_percentile",
+                "n": 11,
+                "point": 7.363636363636363,
+                "upper": 9.0
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "decision_rate_safe": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 11,
+                "point": 0.0,
+                "upper": 0.2588329669680318
+              },
+              "decision_rate_uncertain": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 11,
+                "point": 0.0,
+                "upper": 0.2588329669680318
+              },
+              "decision_rate_unsafe": {
+                "confidence_level": 0.95,
+                "lower": 0.7411670330319682,
+                "method": "wilson",
+                "n": 11,
+                "point": 1.0,
+                "upper": 1.0
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 11,
+                "point": 0.0,
+                "upper": 0.2588329669680318
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 0,
+                "point": null,
+                "reason": "no_b_to_a_samples",
+                "upper": null
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 11,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "intent_mismatch": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 56,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 56,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 56,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 56,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 56,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 18.75,
+                "method": "bootstrap_percentile",
+                "n": 56,
+                "point": 21.964285714285715,
+                "upper": 25.714285714285715
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "decision_rate_safe": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 56,
+                "point": 0.0,
+                "upper": 0.06419393671876344
+              },
+              "decision_rate_uncertain": {
+                "confidence_level": 0.95,
+                "lower": 0.0387421484495869,
+                "method": "wilson",
+                "n": 56,
+                "point": 0.08928571428571429,
+                "upper": 0.19256001385511165
+              },
+              "decision_rate_unsafe": {
+                "confidence_level": 0.95,
+                "lower": 0.8074399861448884,
+                "method": "wilson",
+                "n": 56,
+                "point": 0.9107142857142857,
+                "upper": 0.9612578515504131
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 56,
+                "point": 0.0,
+                "upper": 0.06419393671876344
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": null,
+                "method": "unavailable",
+                "n": 0,
+                "point": null,
+                "reason": "no_b_to_a_samples",
+                "upper": null
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 56,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "none": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 86,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 86,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 86,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 86,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 86,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 21.91860465116279,
+                "method": "bootstrap_percentile",
+                "n": 86,
+                "point": 24.709302325581394,
+                "upper": 27.593023255813954
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "decision_rate_safe": {
+                "confidence_level": 0.95,
+                "lower": 0.0020555686652495644,
+                "method": "wilson",
+                "n": 86,
+                "point": 0.011627906976744186,
+                "upper": 0.06296406589291728
+              },
+              "decision_rate_uncertain": {
+                "confidence_level": 0.95,
+                "lower": 0.011933798077408374,
+                "method": "wilson",
+                "n": 86,
+                "point": 0.03488372093023256,
+                "upper": 0.09760871102560767
+              },
+              "decision_rate_unsafe": {
+                "confidence_level": 0.95,
+                "lower": 0.8864300218628802,
+                "method": "wilson",
+                "n": 86,
+                "point": 0.9534883720930233,
+                "upper": 0.9817660317616792
+              },
+              "false_positive_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 0.0,
+                "upper": 1.0
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0020555686652495644,
+                "method": "wilson",
+                "n": 86,
+                "point": 0.011627906976744186,
+                "upper": 0.06296406589291728
+              },
+              "precision_of_served_reuse": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 1.0,
+                "upper": 1.0
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 1.0,
+                "upper": 1.0
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 86,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "unnecessary_abstention": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 13,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 13,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 13,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 13,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 13,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 6.230769230769231,
+                "method": "bootstrap_percentile",
+                "n": 13,
+                "point": 8.307692307692308,
+                "upper": 11.076923076923077
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "decision_rate_safe": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 13,
+                "point": 0.0,
+                "upper": 0.22809537235419847
+              },
+              "decision_rate_uncertain": {
+                "confidence_level": 0.95,
+                "lower": 0.7719046276458015,
+                "method": "wilson",
+                "n": 13,
+                "point": 1.0,
+                "upper": 1.0
+              },
+              "decision_rate_unsafe": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 13,
+                "point": 0.0,
+                "upper": 0.22809537235419847
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 13,
+                "point": 0.0,
+                "upper": 0.22809537235419847
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 13,
+                "point": 0.0,
+                "upper": 0.22809537235419847
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 13,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          }
+        },
+        "by_freshness_class": {
+          "stable": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 23.43953488372093,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 24.78372093023256,
+                "upper": 26.325581395348838
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "decision_rate_safe": {
+                "confidence_level": 0.95,
+                "lower": 0.0004106402465101173,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.002325581395348837,
+                "upper": 0.013053860902303305
+              },
+              "decision_rate_uncertain": {
+                "confidence_level": 0.95,
+                "lower": 0.04159377226681188,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.06046511627906977,
+                "upper": 0.08712020304685977
+              },
+              "decision_rate_unsafe": {
+                "confidence_level": 0.95,
+                "lower": 0.9101850974303647,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.9372093023255814,
+                "upper": 0.9564909482893693
+              },
+              "false_positive_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 0.0,
+                "upper": 1.0
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0004106402465101173,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.002325581395348837,
+                "upper": 0.013053860902303305
+              },
+              "precision_of_served_reuse": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 1.0,
+                "upper": 1.0
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": 0.0008215168205938875,
+                "method": "wilson",
+                "n": 215,
+                "point": 0.004651162790697674,
+                "upper": 0.025871134801146015
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 430,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          }
+        },
+        "sample_unit": "directed_request",
+        "source_baseline": "compatibility-cache",
+        "statistics_schema_version": "evaluation-statistics-1.0"
+      },
+      "source_artifacts": [
+        {
+          "artifact_kind": "workstream7-quality-analysis",
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "held-out",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream7-quality-analysis.json",
+          "present": true,
+          "schema_versions": {
+            "failure_gallery_schema_version": "failure-gallery-1.0"
+          },
+          "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+          "timestamp": "2026-10-10T15:08:29.186282+00:00"
+        }
+      ],
+      "status": "available"
+    },
+    "freshness": {
+      "data": {
+        "development_selection": {
+          "alignment": "provenance_only_manifest_mismatch",
+          "reason": "evaluation_split mismatch: expected 'held-out', got 'development'",
+          "source": {
+            "dataset_version": "reviewed-query-pairs-2.0",
+            "evaluation_split": "development",
+            "measurement_environment": "synthetic_replay",
+            "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream6-development-freshness.json",
+            "present": true,
+            "schema_versions": {
+              "artifact_package_version": "1.0",
+              "freshness_evaluation_schema_version": "freshness-evaluation-1.0",
+              "schema_version": "1.0.0",
+              "statistics_schema_version": "evaluation-statistics-1.0"
+            },
+            "split_manifest_sha256": "c0109b36346442858d712ec13c183c8178ebb3e244b082f845cb7426750d8bbd",
+            "timestamp": "2026-10-08T18:12:14.818822+00:00"
+          },
+          "status": "available"
+        },
+        "held_out_freshness_scope": {
+          "dynamic": "unavailable",
+          "reason": "Held-out split has zero reviewed semi-dynamic and zero dynamic pairs (WS6 Step 1 audit); Option A development-only scope.",
+          "semi_dynamic": "unavailable",
+          "stable": "evaluated"
+        },
+        "invalidation": {
+          "constraint_satisfied": true,
+          "definition_version": "1.0",
+          "invalidation_method": "delete_by_query_hash",
+          "measurement_environment": "synthetic_repository",
+          "notes": [
+            "cleanup_expired was not invoked; deletion is explicit invalidation only."
+          ],
+          "policy_name": "invalidation-probe",
+          "postgresql_integration": {
+            "reason": "Step 7 uses in-memory repository boundary; PostgreSQL delete_by_query_hash is documented but not exercised here.",
+            "status": "not_run"
+          },
+          "repository": "in_memory_exact_cache",
+          "repository_capabilities": {
+            "in_memory_exact_cache": {
+              "delete_by_query_hash": true,
+              "semantic_retrieval_after_delete": "entry_removed_from_index"
+            },
+            "postgresql_cache": {
+              "delete_by_query_hash": true,
+              "integration_evaluated": false
+            }
+          },
+          "scope": "repository_boundary_only",
+          "sequence": {
+            "exact_lookup_before_invalidation": true,
+            "exact_lookup_empty_after_invalidation": true,
+            "fresh_reuse_eligible_before_invalidation": true,
+            "insert_verified": true,
+            "invalidation_latency_ms": 0.0053,
+            "regeneration_verified": true,
+            "semantic_retrieval_excludes_invalidated_entry": true,
+            "semantic_retrieval_includes_entry_before_invalidation": true
+          },
+          "status": "evaluated",
+          "storage_after_invalidation": {
+            "canonical_answers": 0,
+            "entries": 0,
+            "total_bytes": 0
+          },
+          "storage_after_regeneration": {
+            "canonical_answers": 1,
+            "entries": 1,
+            "total_bytes": 194
+          },
+          "ttl_expiration_used": false
+        },
+        "invalidation_artifact": {
+          "constraint_satisfied": true,
+          "definition_version": "1.0",
+          "invalidation_method": "delete_by_query_hash",
+          "measurement_environment": "synthetic_repository",
+          "notes": [
+            "cleanup_expired was not invoked; deletion is explicit invalidation only."
+          ],
+          "policy_name": "invalidation-probe",
+          "postgresql_integration": {
+            "reason": "Step 7 uses in-memory repository boundary; PostgreSQL delete_by_query_hash is documented but not exercised here.",
+            "status": "not_run"
+          },
+          "repository": "in_memory_exact_cache",
+          "repository_capabilities": {
+            "in_memory_exact_cache": {
+              "delete_by_query_hash": true,
+              "semantic_retrieval_after_delete": "entry_removed_from_index"
+            },
+            "postgresql_cache": {
+              "delete_by_query_hash": true,
+              "integration_evaluated": false
+            }
+          },
+          "scope": "repository_boundary_only",
+          "sequence": {
+            "exact_lookup_before_invalidation": true,
+            "exact_lookup_empty_after_invalidation": true,
+            "fresh_reuse_eligible_before_invalidation": true,
+            "insert_verified": true,
+            "invalidation_latency_ms": 0.0051,
+            "regeneration_verified": true,
+            "semantic_retrieval_excludes_invalidated_entry": true,
+            "semantic_retrieval_includes_entry_before_invalidation": true
+          },
+          "status": "evaluated",
+          "storage_after_invalidation": {
+            "canonical_answers": 0,
+            "entries": 0,
+            "total_bytes": 0
+          },
+          "storage_after_regeneration": {
+            "canonical_answers": 1,
+            "entries": 1,
+            "total_bytes": 194
+          },
+          "ttl_expiration_used": false
+        },
+        "metrics_overall": {
+          "cache_control_outcome_counts": {
+            "fresh": 2131
+          },
+          "cache_hit_rate": 0.002325581395348837,
+          "candidate_count": 2131,
+          "decision_counts": {
+            "SAFE": 1,
+            "UNCERTAIN": 26,
+            "UNSAFE": 403
+          },
+          "decision_rate_safe": 0.002325581395348837,
+          "decision_rate_uncertain": 0.06046511627906977,
+          "decision_rate_unsafe": 0.9372093023255814,
+          "dynamic_disabled_blocked_count": 0,
+          "dynamic_disabled_blocked_rate": 0.0,
+          "dynamic_reuse_served_count": 0,
+          "dynamic_reuse_served_rate": 0.0,
+          "embedding_tokens": 3128,
+          "estimated_cost_usd": 0.0,
+          "expired_candidate_blocked_count": 0,
+          "expired_candidate_blocked_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "freshness_violation_count": 0,
+          "freshness_violation_rate": 0.0,
+          "generated_request_count": 429,
+          "input_tokens": 3121,
+          "invalid_expiration_count": 0,
+          "measurement_environment": "synthetic_replay",
+          "missing_expiration_count": 0,
+          "output_tokens": 4408,
+          "p50_latency_ms": 0.0,
+          "p95_latency_ms": 0.0,
+          "p99_latency_ms": 0.0,
+          "policy_name": "conservative",
+          "request_count": 430,
+          "reviewed_stale_answer_violation_count": 0,
+          "reviewed_stale_answer_violation_rate": 0.0,
+          "safe_reuse_coverage": 0.011764705882352941,
+          "served_reuse_count": 1,
+          "stale_exposure_count": 0,
+          "stale_exposure_rate": 0.0,
+          "statistics": {
+            "bootstrap_iterations": 1000,
+            "confidence_level": 0.95,
+            "distributions": {
+              "estimated_cost_usd_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_mean": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p50": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p95": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "latency_ms_p99": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.0
+              },
+              "request_tokens_mean": {
+                "confidence_level": 0.95,
+                "lower": 23.42093023255814,
+                "method": "bootstrap_percentile",
+                "n": 430,
+                "point": 24.78372093023256,
+                "upper": 26.35348837209302
+              }
+            },
+            "interval_methods": {
+              "distribution_metrics": "bootstrap_percentile",
+              "proportion_metrics": "wilson"
+            },
+            "minimum_n_bootstrap": 5,
+            "minimum_n_proportion": 1,
+            "proportions": {
+              "decision_rate_safe": {
+                "confidence_level": 0.95,
+                "lower": 0.0004106402465101173,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.002325581395348837,
+                "upper": 0.013053860902303305
+              },
+              "decision_rate_uncertain": {
+                "confidence_level": 0.95,
+                "lower": 0.04159377226681188,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.06046511627906977,
+                "upper": 0.08712020304685977
+              },
+              "decision_rate_unsafe": {
+                "confidence_level": 0.95,
+                "lower": 0.9101850974303647,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.9372093023255814,
+                "upper": 0.9564909482893693
+              },
+              "dynamic_reuse_served_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.008854522182219092
+              },
+              "false_positive_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 0.0,
+                "upper": 1.0
+              },
+              "freshness_violation_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.008854522182219092
+              },
+              "hit_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0004106402465101173,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.002325581395348837,
+                "upper": 0.013053860902303305
+              },
+              "precision_of_served_reuse": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 1,
+                "point": 1.0,
+                "upper": 1.0
+              },
+              "safe_reuse_coverage": {
+                "confidence_level": 0.95,
+                "lower": 0.0008215168205938875,
+                "method": "wilson",
+                "n": 215,
+                "point": 0.004651162790697674,
+                "upper": 0.025871134801146015
+              },
+              "stale_exposure_rate": {
+                "confidence_level": 0.95,
+                "lower": 0.0,
+                "method": "wilson",
+                "n": 430,
+                "point": 0.0,
+                "upper": 0.008854522182219092
+              }
+            },
+            "random_seed": 42,
+            "sample_count": 430,
+            "sample_unit": "directed_request",
+            "statistics_schema_version": "evaluation-statistics-1.0",
+            "strata": {
+              "by_failure_category": {
+                "ambiguity": {
+                  "bootstrap_iterations": 1000,
+                  "confidence_level": 0.95,
+                  "distributions": {
+                    "estimated_cost_usd_mean": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 1,
+                      "point": 0.0,
+                      "reason": "n_below_minimum_bootstrap",
+                      "upper": null
+                    },
+                    "latency_ms_mean": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 1,
+                      "point": 0.0,
+                      "reason": "n_below_minimum_bootstrap",
+                      "upper": null
+                    },
+                    "latency_ms_p50": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 1,
+                      "point": 0.0,
+                      "reason": "n_below_minimum_bootstrap",
+                      "upper": null
+                    },
+                    "latency_ms_p95": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 1,
+                      "point": 0.0,
+                      "reason": "n_below_minimum_bootstrap",
+                      "upper": null
+                    },
+                    "latency_ms_p99": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 1,
+                      "point": 0.0,
+                      "reason": "n_below_minimum_bootstrap",
+                      "upper": null
+                    },
+                    "request_tokens_mean": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 1,
+                      "point": 24.0,
+                      "reason": "n_below_minimum_bootstrap",
+                      "upper": null
+                    }
+                  },
+                  "interval_methods": {
+                    "distribution_metrics": "bootstrap_percentile",
+                    "proportion_metrics": "wilson"
+                  },
+                  "minimum_n_bootstrap": 5,
+                  "minimum_n_proportion": 1,
+                  "proportions": {
+                    "decision_rate_safe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 0.0,
+                      "upper": 1.0
+                    },
+                    "decision_rate_uncertain": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 0.0,
+                      "upper": 1.0
+                    },
+                    "decision_rate_unsafe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 1.0,
+                      "upper": 1.0
+                    },
+                    "hit_rate": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 0.0,
+                      "upper": 1.0
+                    },
+                    "safe_reuse_coverage": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 0,
+                      "point": null,
+                      "reason": "no_b_to_a_samples",
+                      "upper": null
+                    }
+                  },
+                  "random_seed": 42,
+                  "sample_count": 1,
+                  "sample_unit": "directed_request",
+                  "statistics_schema_version": "evaluation-statistics-1.0"
+                },
+                "constraint_mismatch": {
+                  "bootstrap_iterations": 1000,
+                  "confidence_level": 0.95,
+                  "distributions": {
+                    "estimated_cost_usd_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 49,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 49,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p50": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 49,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p95": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 49,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p99": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 49,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "request_tokens_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 25.040816326530614,
+                      "method": "bootstrap_percentile",
+                      "n": 49,
+                      "point": 28.775510204081634,
+                      "upper": 33.12244897959184
+                    }
+                  },
+                  "interval_methods": {
+                    "distribution_metrics": "bootstrap_percentile",
+                    "proportion_metrics": "wilson"
+                  },
+                  "minimum_n_bootstrap": 5,
+                  "minimum_n_proportion": 1,
+                  "proportions": {
+                    "decision_rate_safe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 49,
+                      "point": 0.0,
+                      "upper": 0.07269781922049641
+                    },
+                    "decision_rate_uncertain": {
+                      "confidence_level": 0.95,
+                      "lower": 0.02104014667296747,
+                      "method": "wilson",
+                      "n": 49,
+                      "point": 0.061224489795918366,
+                      "upper": 0.16520487835726405
+                    },
+                    "decision_rate_unsafe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.8347951216427361,
+                      "method": "wilson",
+                      "n": 49,
+                      "point": 0.9387755102040817,
+                      "upper": 0.9789598533270325
+                    },
+                    "hit_rate": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 49,
+                      "point": 0.0,
+                      "upper": 0.07269781922049641
+                    },
+                    "safe_reuse_coverage": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 0,
+                      "point": null,
+                      "reason": "no_b_to_a_samples",
+                      "upper": null
+                    }
+                  },
+                  "random_seed": 42,
+                  "sample_count": 49,
+                  "sample_unit": "directed_request",
+                  "statistics_schema_version": "evaluation-statistics-1.0"
+                },
+                "entity_mismatch": {
+                  "bootstrap_iterations": 1000,
+                  "confidence_level": 0.95,
+                  "distributions": {
+                    "estimated_cost_usd_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 12,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 12,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p50": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 12,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p95": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 12,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p99": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 12,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "request_tokens_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 18.75,
+                      "method": "bootstrap_percentile",
+                      "n": 12,
+                      "point": 22.0,
+                      "upper": 25.0
+                    }
+                  },
+                  "interval_methods": {
+                    "distribution_metrics": "bootstrap_percentile",
+                    "proportion_metrics": "wilson"
+                  },
+                  "minimum_n_bootstrap": 5,
+                  "minimum_n_proportion": 1,
+                  "proportions": {
+                    "decision_rate_safe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 12,
+                      "point": 0.0,
+                      "upper": 0.24249400665524096
+                    },
+                    "decision_rate_uncertain": {
+                      "confidence_level": 0.95,
+                      "lower": 0.014865094404917095,
+                      "method": "wilson",
+                      "n": 12,
+                      "point": 0.08333333333333333,
+                      "upper": 0.35387991114111705
+                    },
+                    "decision_rate_unsafe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.646120088858883,
+                      "method": "wilson",
+                      "n": 12,
+                      "point": 0.9166666666666666,
+                      "upper": 0.9851349055950829
+                    },
+                    "hit_rate": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 12,
+                      "point": 0.0,
+                      "upper": 0.24249400665524096
+                    },
+                    "safe_reuse_coverage": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 0,
+                      "point": null,
+                      "reason": "no_b_to_a_samples",
+                      "upper": null
+                    }
+                  },
+                  "random_seed": 42,
+                  "sample_count": 12,
+                  "sample_unit": "directed_request",
+                  "statistics_schema_version": "evaluation-statistics-1.0"
+                },
+                "false_negative": {
+                  "bootstrap_iterations": 1000,
+                  "confidence_level": 0.95,
+                  "distributions": {
+                    "estimated_cost_usd_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 84,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 84,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p50": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 84,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p95": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 84,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p99": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 84,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "request_tokens_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 22.107142857142858,
+                      "method": "bootstrap_percentile",
+                      "n": 84,
+                      "point": 24.678571428571427,
+                      "upper": 27.107142857142858
+                    }
+                  },
+                  "interval_methods": {
+                    "distribution_metrics": "bootstrap_percentile",
+                    "proportion_metrics": "wilson"
+                  },
+                  "minimum_n_bootstrap": 5,
+                  "minimum_n_proportion": 1,
+                  "proportions": {
+                    "decision_rate_safe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 84,
+                      "point": 0.0,
+                      "upper": 0.0437317284146599
+                    },
+                    "decision_rate_uncertain": {
+                      "confidence_level": 0.95,
+                      "lower": 0.002104583087549218,
+                      "method": "wilson",
+                      "n": 84,
+                      "point": 0.011904761904761904,
+                      "upper": 0.06439543750771401
+                    },
+                    "decision_rate_unsafe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.935604562492286,
+                      "method": "wilson",
+                      "n": 84,
+                      "point": 0.9880952380952381,
+                      "upper": 0.9978954169124508
+                    },
+                    "hit_rate": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 84,
+                      "point": 0.0,
+                      "upper": 0.0437317284146599
+                    },
+                    "safe_reuse_coverage": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 84,
+                      "point": 0.0,
+                      "upper": 0.0437317284146599
+                    }
+                  },
+                  "random_seed": 42,
+                  "sample_count": 84,
+                  "sample_unit": "directed_request",
+                  "statistics_schema_version": "evaluation-statistics-1.0"
+                },
+                "format_mismatch": {
+                  "bootstrap_iterations": 1000,
+                  "confidence_level": 0.95,
+                  "distributions": {
+                    "estimated_cost_usd_mean": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 1,
+                      "point": 0.0,
+                      "reason": "n_below_minimum_bootstrap",
+                      "upper": null
+                    },
+                    "latency_ms_mean": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 1,
+                      "point": 0.0,
+                      "reason": "n_below_minimum_bootstrap",
+                      "upper": null
+                    },
+                    "latency_ms_p50": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 1,
+                      "point": 0.0,
+                      "reason": "n_below_minimum_bootstrap",
+                      "upper": null
+                    },
+                    "latency_ms_p95": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 1,
+                      "point": 0.0,
+                      "reason": "n_below_minimum_bootstrap",
+                      "upper": null
+                    },
+                    "latency_ms_p99": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 1,
+                      "point": 0.0,
+                      "reason": "n_below_minimum_bootstrap",
+                      "upper": null
+                    },
+                    "request_tokens_mean": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 1,
+                      "point": 27.0,
+                      "reason": "n_below_minimum_bootstrap",
+                      "upper": null
+                    }
+                  },
+                  "interval_methods": {
+                    "distribution_metrics": "bootstrap_percentile",
+                    "proportion_metrics": "wilson"
+                  },
+                  "minimum_n_bootstrap": 5,
+                  "minimum_n_proportion": 1,
+                  "proportions": {
+                    "decision_rate_safe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 0.0,
+                      "upper": 1.0
+                    },
+                    "decision_rate_uncertain": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 0.0,
+                      "upper": 1.0
+                    },
+                    "decision_rate_unsafe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 1.0,
+                      "upper": 1.0
+                    },
+                    "hit_rate": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 0.0,
+                      "upper": 1.0
+                    },
+                    "safe_reuse_coverage": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 0,
+                      "point": null,
+                      "reason": "no_b_to_a_samples",
+                      "upper": null
+                    }
+                  },
+                  "random_seed": 42,
+                  "sample_count": 1,
+                  "sample_unit": "directed_request",
+                  "statistics_schema_version": "evaluation-statistics-1.0"
+                },
+                "insufficient_evidence": {
+                  "bootstrap_iterations": 1000,
+                  "confidence_level": 0.95,
+                  "distributions": {
+                    "estimated_cost_usd_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 11,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 11,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p50": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 11,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p95": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 11,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p99": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 11,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "request_tokens_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 6.0,
+                      "method": "bootstrap_percentile",
+                      "n": 11,
+                      "point": 7.363636363636363,
+                      "upper": 9.272727272727273
+                    }
+                  },
+                  "interval_methods": {
+                    "distribution_metrics": "bootstrap_percentile",
+                    "proportion_metrics": "wilson"
+                  },
+                  "minimum_n_bootstrap": 5,
+                  "minimum_n_proportion": 1,
+                  "proportions": {
+                    "decision_rate_safe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 11,
+                      "point": 0.0,
+                      "upper": 0.2588329669680318
+                    },
+                    "decision_rate_uncertain": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 11,
+                      "point": 0.0,
+                      "upper": 0.2588329669680318
+                    },
+                    "decision_rate_unsafe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.7411670330319682,
+                      "method": "wilson",
+                      "n": 11,
+                      "point": 1.0,
+                      "upper": 1.0
+                    },
+                    "hit_rate": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 11,
+                      "point": 0.0,
+                      "upper": 0.2588329669680318
+                    },
+                    "safe_reuse_coverage": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 0,
+                      "point": null,
+                      "reason": "no_b_to_a_samples",
+                      "upper": null
+                    }
+                  },
+                  "random_seed": 42,
+                  "sample_count": 11,
+                  "sample_unit": "directed_request",
+                  "statistics_schema_version": "evaluation-statistics-1.0"
+                },
+                "intent_mismatch": {
+                  "bootstrap_iterations": 1000,
+                  "confidence_level": 0.95,
+                  "distributions": {
+                    "estimated_cost_usd_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 56,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 56,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p50": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 56,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p95": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 56,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p99": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 56,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "request_tokens_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 18.589285714285715,
+                      "method": "bootstrap_percentile",
+                      "n": 56,
+                      "point": 21.964285714285715,
+                      "upper": 25.660714285714285
+                    }
+                  },
+                  "interval_methods": {
+                    "distribution_metrics": "bootstrap_percentile",
+                    "proportion_metrics": "wilson"
+                  },
+                  "minimum_n_bootstrap": 5,
+                  "minimum_n_proportion": 1,
+                  "proportions": {
+                    "decision_rate_safe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 56,
+                      "point": 0.0,
+                      "upper": 0.06419393671876344
+                    },
+                    "decision_rate_uncertain": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0387421484495869,
+                      "method": "wilson",
+                      "n": 56,
+                      "point": 0.08928571428571429,
+                      "upper": 0.19256001385511165
+                    },
+                    "decision_rate_unsafe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.8074399861448884,
+                      "method": "wilson",
+                      "n": 56,
+                      "point": 0.9107142857142857,
+                      "upper": 0.9612578515504131
+                    },
+                    "hit_rate": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 56,
+                      "point": 0.0,
+                      "upper": 0.06419393671876344
+                    },
+                    "safe_reuse_coverage": {
+                      "confidence_level": 0.95,
+                      "lower": null,
+                      "method": "unavailable",
+                      "n": 0,
+                      "point": null,
+                      "reason": "no_b_to_a_samples",
+                      "upper": null
+                    }
+                  },
+                  "random_seed": 42,
+                  "sample_count": 56,
+                  "sample_unit": "directed_request",
+                  "statistics_schema_version": "evaluation-statistics-1.0"
+                },
+                "none": {
+                  "bootstrap_iterations": 1000,
+                  "confidence_level": 0.95,
+                  "distributions": {
+                    "estimated_cost_usd_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 86,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 86,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p50": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 86,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p95": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 86,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p99": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 86,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "request_tokens_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 21.976744186046513,
+                      "method": "bootstrap_percentile",
+                      "n": 86,
+                      "point": 24.709302325581394,
+                      "upper": 27.709302325581394
+                    }
+                  },
+                  "interval_methods": {
+                    "distribution_metrics": "bootstrap_percentile",
+                    "proportion_metrics": "wilson"
+                  },
+                  "minimum_n_bootstrap": 5,
+                  "minimum_n_proportion": 1,
+                  "proportions": {
+                    "decision_rate_safe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0020555686652495644,
+                      "method": "wilson",
+                      "n": 86,
+                      "point": 0.011627906976744186,
+                      "upper": 0.06296406589291728
+                    },
+                    "decision_rate_uncertain": {
+                      "confidence_level": 0.95,
+                      "lower": 0.011933798077408374,
+                      "method": "wilson",
+                      "n": 86,
+                      "point": 0.03488372093023256,
+                      "upper": 0.09760871102560767
+                    },
+                    "decision_rate_unsafe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.8864300218628802,
+                      "method": "wilson",
+                      "n": 86,
+                      "point": 0.9534883720930233,
+                      "upper": 0.9817660317616792
+                    },
+                    "false_positive_rate": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 0.0,
+                      "upper": 1.0
+                    },
+                    "hit_rate": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0020555686652495644,
+                      "method": "wilson",
+                      "n": 86,
+                      "point": 0.011627906976744186,
+                      "upper": 0.06296406589291728
+                    },
+                    "precision_of_served_reuse": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 1.0,
+                      "upper": 1.0
+                    },
+                    "safe_reuse_coverage": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 1.0,
+                      "upper": 1.0
+                    }
+                  },
+                  "random_seed": 42,
+                  "sample_count": 86,
+                  "sample_unit": "directed_request",
+                  "statistics_schema_version": "evaluation-statistics-1.0"
+                },
+                "unnecessary_abstention": {
+                  "bootstrap_iterations": 1000,
+                  "confidence_level": 0.95,
+                  "distributions": {
+                    "estimated_cost_usd_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 13,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 13,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p50": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 13,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p95": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 13,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p99": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 13,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "request_tokens_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 6.230769230769231,
+                      "method": "bootstrap_percentile",
+                      "n": 13,
+                      "point": 8.307692307692308,
+                      "upper": 11.076923076923077
+                    }
+                  },
+                  "interval_methods": {
+                    "distribution_metrics": "bootstrap_percentile",
+                    "proportion_metrics": "wilson"
+                  },
+                  "minimum_n_bootstrap": 5,
+                  "minimum_n_proportion": 1,
+                  "proportions": {
+                    "decision_rate_safe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 13,
+                      "point": 0.0,
+                      "upper": 0.22809537235419847
+                    },
+                    "decision_rate_uncertain": {
+                      "confidence_level": 0.95,
+                      "lower": 0.7719046276458015,
+                      "method": "wilson",
+                      "n": 13,
+                      "point": 1.0,
+                      "upper": 1.0
+                    },
+                    "decision_rate_unsafe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 13,
+                      "point": 0.0,
+                      "upper": 0.22809537235419847
+                    },
+                    "hit_rate": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 13,
+                      "point": 0.0,
+                      "upper": 0.22809537235419847
+                    },
+                    "safe_reuse_coverage": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 13,
+                      "point": 0.0,
+                      "upper": 0.22809537235419847
+                    }
+                  },
+                  "random_seed": 42,
+                  "sample_count": 13,
+                  "sample_unit": "directed_request",
+                  "statistics_schema_version": "evaluation-statistics-1.0"
+                }
+              },
+              "by_freshness_class": {
+                "stable": {
+                  "bootstrap_iterations": 1000,
+                  "confidence_level": 0.95,
+                  "distributions": {
+                    "estimated_cost_usd_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 430,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 430,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p50": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 430,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p95": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 430,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "latency_ms_p99": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "bootstrap_percentile",
+                      "n": 430,
+                      "point": 0.0,
+                      "upper": 0.0
+                    },
+                    "request_tokens_mean": {
+                      "confidence_level": 0.95,
+                      "lower": 23.330232558139535,
+                      "method": "bootstrap_percentile",
+                      "n": 430,
+                      "point": 24.78372093023256,
+                      "upper": 26.311627906976746
+                    }
+                  },
+                  "interval_methods": {
+                    "distribution_metrics": "bootstrap_percentile",
+                    "proportion_metrics": "wilson"
+                  },
+                  "minimum_n_bootstrap": 5,
+                  "minimum_n_proportion": 1,
+                  "proportions": {
+                    "decision_rate_safe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0004106402465101173,
+                      "method": "wilson",
+                      "n": 430,
+                      "point": 0.002325581395348837,
+                      "upper": 0.013053860902303305
+                    },
+                    "decision_rate_uncertain": {
+                      "confidence_level": 0.95,
+                      "lower": 0.04159377226681188,
+                      "method": "wilson",
+                      "n": 430,
+                      "point": 0.06046511627906977,
+                      "upper": 0.08712020304685977
+                    },
+                    "decision_rate_unsafe": {
+                      "confidence_level": 0.95,
+                      "lower": 0.9101850974303647,
+                      "method": "wilson",
+                      "n": 430,
+                      "point": 0.9372093023255814,
+                      "upper": 0.9564909482893693
+                    },
+                    "false_positive_rate": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 0.0,
+                      "upper": 1.0
+                    },
+                    "hit_rate": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0004106402465101173,
+                      "method": "wilson",
+                      "n": 430,
+                      "point": 0.002325581395348837,
+                      "upper": 0.013053860902303305
+                    },
+                    "precision_of_served_reuse": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0,
+                      "method": "wilson",
+                      "n": 1,
+                      "point": 1.0,
+                      "upper": 1.0
+                    },
+                    "safe_reuse_coverage": {
+                      "confidence_level": 0.95,
+                      "lower": 0.0008215168205938875,
+                      "method": "wilson",
+                      "n": 215,
+                      "point": 0.004651162790697674,
+                      "upper": 0.025871134801146015
+                    }
+                  },
+                  "random_seed": 42,
+                  "sample_count": 430,
+                  "sample_unit": "directed_request",
+                  "statistics_schema_version": "evaluation-statistics-1.0"
+                }
+              }
+            }
+          },
+          "storage": {
+            "reason": "storage_policy_pairing_not_run",
+            "status": "unavailable"
+          },
+          "tokens_saved": 17
+        },
+        "selected_policy": {
+          "config_version": "evaluation-config-1.0",
+          "constraint_satisfied": true,
+          "constraints": {
+            "max_dynamic_reuse_served_rate": 0.0,
+            "max_false_positive_rate": 0.0,
+            "max_stale_exposure_rate": 0.0
+          },
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "git_commit": "88997ed1d7463c90fb57a2beee39b2b0a78f4b7c",
+          "git_worktree_dirty": true,
+          "held_out_constraint_satisfied": true,
+          "held_out_constraint_violations": [],
+          "held_out_evaluation_split": "held-out",
+          "held_out_metrics_summary": {
+            "dynamic_reuse_served_rate": 0.0,
+            "false_positive_rate": 0.0,
+            "request_count": 430,
+            "safe_reuse_coverage": 0.011764705882352941,
+            "stale_exposure_rate": 0.0
+          },
+          "name": "conservative",
+          "objective": "safe_reuse_coverage",
+          "policy": {
+            "allow_dynamic_entries": false,
+            "dynamic_ttl_seconds": null,
+            "name": "conservative",
+            "semi_dynamic_ttl_seconds": 600,
+            "stable_ttl_seconds": 3600
+          },
+          "selection_rule": "constraint_first_then_maximize_safe_reuse_coverage",
+          "selection_split": "development"
+        },
+        "selected_policy_name": "conservative",
+        "stale_exposure_accounting": {
+          "allow_dynamic_entries": false,
+          "answer_level_stale_exposure": {
+            "reason": "answer_availability_none",
+            "status": "unavailable"
+          },
+          "definition_version": "1.0",
+          "denominators": {
+            "candidate_evaluation_count": 2131,
+            "directed_request_count": 430,
+            "reviewed_stale_labeled_request_count": 0
+          },
+          "intervals": {
+            "dynamic_reuse_served_per_directed_request": {
+              "confidence_level": 0.95,
+              "lower": 0.0,
+              "method": "wilson",
+              "n": 430,
+              "point": 0.0,
+              "upper": 0.008854522182219092
+            },
+            "served_reviewed_stale_exposure_per_directed_request": {
+              "confidence_level": 0.95,
+              "lower": 0.0,
+              "method": "wilson",
+              "n": 430,
+              "point": 0.0,
+              "upper": 0.008854522182219092
+            },
+            "served_reviewed_stale_exposure_per_labeled_request": {
+              "confidence_level": 0.95,
+              "lower": null,
+              "method": "unavailable",
+              "n": 0,
+              "point": null,
+              "reason": "no_labeled_requests",
+              "upper": null
+            }
+          },
+          "measurement_environment": "synthetic_replay",
+          "numerators": {
+            "dynamic_reuse_served_count": 0,
+            "served_reviewed_stale_exposure_count": 0
+          },
+          "policy_name": "conservative",
+          "protection_counts": {
+            "dynamic_reuse_blocked_count": 0,
+            "expired_candidate_blocked_count": 0,
+            "invalid_expiration_count": 0,
+            "missing_expiration_count": 0
+          },
+          "rates": {
+            "dynamic_reuse_served_per_directed_request": 0.0,
+            "served_reviewed_stale_exposure_per_directed_request": 0.0,
+            "served_reviewed_stale_exposure_per_labeled_request": null
+          }
+        },
+        "storage_overall": {
+          "canonical_answers": 407,
+          "config_version": "evaluation-config-1.0",
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "definition_version": "1.0",
+          "distinction": {
+            "lazy_expired_rejection": "read-path cache_control rejects expired candidates without deleting entries during replay",
+            "physical_expiration_cleanup": "post-replay cleanup_expired removes expired rows from storage"
+          },
+          "entries": 407,
+          "entries_after_physical_cleanup": 0,
+          "eviction_count": 0,
+          "expiration_counter": 0,
+          "lazy_expired_rejection_count": 0,
+          "measurement_environment": "synthetic_storage_simulation",
+          "physical_expiration_cleanup_count": 407,
+          "policy_name": "conservative",
+          "policy_ttl": {
+            "allow_dynamic_entries": false,
+            "dynamic_ttl_seconds": null,
+            "name": "conservative",
+            "semi_dynamic_ttl_seconds": 600,
+            "stable_ttl_seconds": 3600
+          },
+          "status": "evaluated",
+          "total_bytes": 104560,
+          "total_bytes_after_physical_cleanup": 0
+        }
+      },
+      "source_artifacts": [
+        {
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "held-out",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream6-held-out-freshness.json",
+          "present": true,
+          "schema_versions": {
+            "artifact_package_version": "1.0",
+            "freshness_evaluation_schema_version": "freshness-evaluation-1.0",
+            "schema_version": "1.0.0",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+          "timestamp": "2026-10-10T15:08:01.377467+00:00"
+        },
+        {
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "development",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream6-development-freshness.json",
+          "present": true,
+          "schema_versions": {
+            "artifact_package_version": "1.0",
+            "freshness_evaluation_schema_version": "freshness-evaluation-1.0",
+            "schema_version": "1.0.0",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "split_manifest_sha256": "c0109b36346442858d712ec13c183c8178ebb3e244b082f845cb7426750d8bbd",
+          "timestamp": "2026-10-08T18:12:14.818822+00:00"
+        },
+        {
+          "artifact_kind": "workstream6_invalidation",
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "measurement_environment": "synthetic_repository",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream6-invalidation.json",
+          "present": true,
+          "schema_versions": {
+            "definition_version": "1.0"
+          }
+        }
+      ],
+      "status": "available"
+    },
+    "limitations": {
+      "data": {
+        "limitations": [
+          "synthetic_replay: compatibility and freshness metrics are replay-only",
+          "correctness_labeled_failures",
+          "real_provider_failures",
+          "universal production capacity or SLA",
+          "1K-100K queries/day",
+          "multi-host or distributed-cache coordination",
+          "live process or container restart during write",
+          "duplicate generation prevention across processes",
+          "real-provider cost or latency",
+          "Kubernetes, cloud failover, multi-region, or managed PostgreSQL",
+          "No credentialed real-provider request was made.",
+          "Synthetic measurements were not substituted.",
+          "Quality, latency, token, and cost conclusions remain unavailable.",
+          "No credentialed real-provider request was made.",
+          "Synthetic measurements were not substituted.",
+          "Quality, latency, token, and cost conclusions remain unavailable."
+        ],
+        "unavailable_source_names": []
+      },
+      "source_artifacts": [
+        {
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "held-out",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream5-held-out-comparison.json",
+          "present": true,
+          "schema_versions": {
+            "failure_gallery_schema_version": "failure-gallery-1.0",
+            "schema_version": "1.0.0",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+          "timestamp": "2026-10-10T15:07:16.191026+00:00"
+        },
+        {
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "held-out",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream5-held-out-pareto.json",
+          "present": true,
+          "schema_versions": {
+            "pareto_schema_version": "evaluation-pareto-1.0"
+          }
+        },
+        {
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "development",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream6-development-freshness.json",
+          "present": true,
+          "schema_versions": {
+            "artifact_package_version": "1.0",
+            "freshness_evaluation_schema_version": "freshness-evaluation-1.0",
+            "schema_version": "1.0.0",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "split_manifest_sha256": "c0109b36346442858d712ec13c183c8178ebb3e244b082f845cb7426750d8bbd",
+          "timestamp": "2026-10-08T18:12:14.818822+00:00"
+        },
+        {
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "held-out",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream6-held-out-freshness.json",
+          "present": true,
+          "schema_versions": {
+            "artifact_package_version": "1.0",
+            "freshness_evaluation_schema_version": "freshness-evaluation-1.0",
+            "schema_version": "1.0.0",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+          "timestamp": "2026-10-10T15:08:01.377467+00:00"
+        },
+        {
+          "artifact_kind": "workstream6_invalidation",
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "measurement_environment": "synthetic_repository",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream6-invalidation.json",
+          "present": true,
+          "schema_versions": {
+            "definition_version": "1.0"
+          }
+        },
+        {
+          "artifact_kind": "workstream7-quality-analysis",
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "held-out",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream7-quality-analysis.json",
+          "present": true,
+          "schema_versions": {
+            "failure_gallery_schema_version": "failure-gallery-1.0"
+          },
+          "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+          "timestamp": "2026-10-10T15:08:29.186282+00:00"
+        },
+        {
+          "artifact_kind": "workstream8-operational-verification",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/operations/workstream8-operational-verification.json",
+          "present": true,
+          "schema_versions": {
+            "schema_version": "ws8-ops-1.0"
+          },
+          "timestamp": "2026-10-10T16:31:04.756865+00:00"
+        },
+        {
+          "dataset_version": "reviewed-query-pairs-1.1",
+          "evaluation_split": "development",
+          "measurement_environment": "comparison",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream4-provider-comparison.json",
+          "present": true,
+          "schema_versions": {
+            "schema_version": "provider-measurement-comparison-1.0"
+          },
+          "timestamp": "2026-10-07T17:06:49.445525+00:00"
+        },
+        {
+          "artifact_status": "unavailable",
+          "dataset_version": "reviewed-query-pairs-1.1",
+          "evaluation_split": "development",
+          "measurement_environment": "real_provider",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream4-real-provider-unavailable.json",
+          "present": true,
+          "schema_versions": {
+            "schema_version": "real-provider-measurement-1.0"
+          },
+          "timestamp": "2026-10-07T16:43:08.937690+00:00"
+        }
+      ],
+      "status": "available"
+    },
+    "operating_point": {
+      "data": {
+        "constraint_satisfied": false,
+        "development_provenance": {
+          "alignment": "provenance_only_manifest_mismatch",
+          "source": {
+            "dataset_version": "reviewed-query-pairs-2.0",
+            "evaluation_split": "development",
+            "measurement_environment": "synthetic_replay",
+            "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream6-development-freshness.json",
+            "present": true,
+            "schema_versions": {
+              "artifact_package_version": "1.0",
+              "freshness_evaluation_schema_version": "freshness-evaluation-1.0",
+              "schema_version": "1.0.0",
+              "statistics_schema_version": "evaluation-statistics-1.0"
+            },
+            "split_manifest_sha256": "c0109b36346442858d712ec13c183c8178ebb3e244b082f845cb7426750d8bbd",
+            "timestamp": "2026-10-08T18:12:14.818822+00:00"
+          },
+          "status": "available"
+        },
+        "selected_threshold": 0.95,
+        "selection_rule": "maximize safe reuse coverage subject to the development false-positive rate <= 0.0",
+        "selection_split": "development",
+        "statistics": {
+          "baseline": "compatibility-cache",
+          "constraint_satisfied": true,
+          "max_false_positive_rate": 0.0,
+          "observed_false_positive_rate": 0.0,
+          "selected_threshold": 0.95,
+          "selection_rule": "maximize safe reuse coverage subject to the development false-positive rate <= 0.0"
+        }
+      },
+      "source_artifacts": [
+        {
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "held-out",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream5-held-out-comparison.json",
+          "present": true,
+          "schema_versions": {
+            "failure_gallery_schema_version": "failure-gallery-1.0",
+            "schema_version": "1.0.0",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+          "timestamp": "2026-10-10T15:07:16.191026+00:00"
+        },
+        {
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "development",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream6-development-freshness.json",
+          "present": true,
+          "schema_versions": {
+            "artifact_package_version": "1.0",
+            "freshness_evaluation_schema_version": "freshness-evaluation-1.0",
+            "schema_version": "1.0.0",
+            "statistics_schema_version": "evaluation-statistics-1.0"
+          },
+          "split_manifest_sha256": "c0109b36346442858d712ec13c183c8178ebb3e244b082f845cb7426750d8bbd",
+          "timestamp": "2026-10-08T18:12:14.818822+00:00"
+        }
+      ],
+      "status": "available"
+    },
+    "operations": {
+      "data": {
+        "environment": {
+          "cpu_count": 8,
+          "database_mode": "postgres",
+          "machine": "AMD64",
+          "measured_at": "2026-10-10T16:31:04.756865+00:00",
+          "os": "Windows-11-10.0.26200-SP0",
+          "postgresql_version": "16.15 (Debian 16.15-1.pgdg12+2)",
+          "process_count": 1,
+          "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+          "python": "3.14.5",
+          "python_implementation": "cpython",
+          "worker_count": 1
+        },
+        "limitation": "Bounded local PostgreSQL operational verification for declared WS8 protocols. Not a production capacity, SLA, multi-host, multi-region, or managed-PostgreSQL guarantee.",
+        "protocol_id": "ws8-operational-verification-v1",
+        "protocols": {
+          "ws8-contention-v1": {
+            "error_classes_separated": [
+              "duplicate_conflict",
+              "database_error",
+              "validation_error"
+            ],
+            "expired_and_disallowed_cannot_win_lookup": true,
+            "limitations": [
+              "Eviction and cleanup delete only the run's query hashes. The 2026-10-10 measurement used a relative cap window before that guard. Not a production eviction-capacity claim."
+            ],
+            "measured_on": "2026-10-10",
+            "process_count": 1,
+            "status": "measured",
+            "worker_count": 1,
+            "workloads": [
+              {
+                "duplicate_conflict": 7,
+                "insert_success": 1,
+                "surviving_rows": 1,
+                "threads": 8,
+                "workload_id": "CT-dup-key"
+              },
+              {
+                "inserts": 4,
+                "lookup_hits": 4,
+                "threads": 8,
+                "workload_id": "CT-mixed-rw"
+              },
+              {
+                "fresh_rows_retained": true,
+                "stale_rows_removed": true,
+                "threads": 4,
+                "workload_id": "CT-cleanup-race"
+              },
+              {
+                "byte_window": 10000,
+                "cap_held": true,
+                "entry_window": 8,
+                "row_count_matches_storage_stats": true,
+                "threads": 8,
+                "workload_id": "CT-evict-cap"
+              }
+            ]
+          },
+          "ws8-failure-recovery-v1": {
+            "concurrency": 1,
+            "event_classes": [
+              "simulated_drop",
+              "simulated_repository_failure"
+            ],
+            "limitations": [
+              "Simulated connection drop and repository failure are not a live PostgreSQL process or container restart.",
+              "Live container restart remains unmeasured in this package."
+            ],
+            "live_container_restart": {
+              "event_class": "container_restart",
+              "gate": "SSCRE_WS8_LIVE_POSTGRES_RESTART",
+              "reason": "opt-in environment variable unset during packaging",
+              "status": "skipped"
+            },
+            "process_count": 1,
+            "scenarios": [
+              {
+                "cache_hit": false,
+                "event_class": "simulated_drop",
+                "http_status": 503,
+                "injection_point": "lookup",
+                "request_id_present": true,
+                "scenario_id": "FR-lookup-drop"
+              },
+              {
+                "cache_hit": false,
+                "event_class": "simulated_repository_failure",
+                "http_status": 503,
+                "injection_point": "lookup",
+                "scenario_id": "FR-lookup-simulated-failure"
+              },
+              {
+                "event_class": "simulated_drop",
+                "http_status": 200,
+                "injection_point": "insert_and_evict_after_generation",
+                "persisted": false,
+                "scenario_id": "FR-gen-persist",
+                "source": "generated"
+              },
+              {
+                "event_class": "simulated_repository_failure",
+                "http_status": 200,
+                "injection_point": "insert",
+                "persisted": false,
+                "scenario_id": "FR-insert",
+                "source": "generated"
+              },
+              {
+                "cleanup_raised": true,
+                "event_class": "simulated_drop",
+                "expired_row_remained": true,
+                "injection_point": "cleanup_expired",
+                "scenario_id": "FR-cleanup"
+              },
+              {
+                "disallowed_not_served": true,
+                "event_class": "simulated_drop",
+                "expired_not_served": true,
+                "failed_http_status": 503,
+                "generation_failure_does_not_persist": true,
+                "injection_point": "lookup_fail_once_then_restore",
+                "recovered_http_status": 200,
+                "recovered_source": "cache",
+                "scenario_id": "FR-recovery",
+                "validation_and_admin_auth_preserved": true
+              }
+            ],
+            "status": "measured_simulated",
+            "worker_count": 1
+          },
+          "ws8-multiprocess-dup-v1": {
+            "concurrency": 2,
+            "coordination": "in_process_lock_only",
+            "duplicate_generation_prevented": false,
+            "duplicate_insert_prevented": true,
+            "final_row_count": 1,
+            "insert_conflict": {
+              "max": 1,
+              "min": 1
+            },
+            "insert_error": 0,
+            "insert_success": {
+              "max": 1,
+              "min": 1
+            },
+            "limitations": [
+              "Both processes generate. PostgreSQL UNIQUE accepts one insert and rejects the other. No distributed generation lock exists.",
+              "Not a multi-host or multi-worker production guarantee."
+            ],
+            "measured_on": "2026-10-10",
+            "process_count": 2,
+            "provider_generations": {
+              "max": 2,
+              "min": 2
+            },
+            "run_count": 3,
+            "status": "measured",
+            "worker_count": 2
+          },
+          "ws8-pg-load-v1": {
+            "bottleneck": {
+              "environment": {
+                "concurrency": 4,
+                "postgresql_version": "16.15 (Debian 16.15-1.pgdg12+2)",
+                "provider_data": "synthetic",
+                "storage": "postgresql"
+              },
+              "first_measured_bottleneck": "not_reached",
+              "measured_components": {
+                "average_llm_latency_ms": 0.0,
+                "average_wrapper_overhead_ms": 66.009,
+                "end_to_end_average_ms": 75.257,
+                "pass_latency_ms": [
+                  {
+                    "mode": "cold",
+                    "p50": 63.362,
+                    "p95": 199.509,
+                    "p99": 262.84,
+                    "throughput_requests_per_second": 40.334
+                  },
+                  {
+                    "mode": "warm",
+                    "p50": 57.953,
+                    "p95": 72.355,
+                    "p99": 73.557,
+                    "throughput_requests_per_second": 64.284
+                  },
+                  {
+                    "mode": "cold",
+                    "p50": 69.22,
+                    "p95": 235.787,
+                    "p99": 306.064,
+                    "throughput_requests_per_second": 37.968
+                  },
+                  {
+                    "mode": "warm",
+                    "p50": 56.916,
+                    "p95": 81.719,
+                    "p99": 84.315,
+                    "throughput_requests_per_second": 69.02
+                  }
+                ]
+              },
+              "optimization": "No production optimization selected; wrapper versus synthetic LLM latency is not an actionable bottleneck.",
+              "optimization_decision": "none",
+              "protocol_id": "ws8-pg-load-v1",
+              "rationale": "Declared ws8-pg-load-v1 workload completed without a stop condition. Synthetic provider latency is 0 ms, so wrapper overhead is not an actionable bottleneck. Repository, embedding, and live-provider spans were not instrumented.",
+              "result_class": "observation",
+              "source_artifact": "artifacts/operations/workstream8-pg-load-v1.json",
+              "stop_conditions": {
+                "error_rate_limit": 0.1,
+                "p99_to_p50_limit": 5.0,
+                "stopped_reason": null,
+                "timeout_rate_limit": 0.05
+              },
+              "unavailable_components": [
+                "repository_database_span",
+                "embedding_span",
+                "real_provider_latency"
+              ]
+            },
+            "concurrency": 4,
+            "limitation": "Bounded local PostgreSQL result for protocol ws8-pg-load-v1. Not a production capacity, SLA, or multi-host guarantee. Absolute cache caps apply to the whole database and may evict unrelated oldest rows.",
+            "limitations": [
+              "Bounded local result. Not a production capacity or SLA guarantee.",
+              "Synthetic provider latency is 0 ms. Wrapper overhead is not an actionable bottleneck."
+            ],
+            "measured_on": "2026-10-10",
+            "passes": {
+              "exact_cache": [
+                {
+                  "cache_hits": 17,
+                  "cache_misses": 15,
+                  "cache_mode": "exact_cache",
+                  "concurrency": 4,
+                  "elapsed_seconds": 0.793367,
+                  "errors": {
+                    "count": 3,
+                    "rate": 0.09375,
+                    "timeout_rate": 0.0,
+                    "timeouts": 0
+                  },
+                  "generated_requests": 12,
+                  "latency_ms": {
+                    "max": 280.8,
+                    "p50": 63.362,
+                    "p95": 199.509,
+                    "p99": 262.84
+                  },
+                  "mode": "cold",
+                  "reasons": {
+                    "answer_too_large": 3,
+                    "dynamic_entries_disabled": 3,
+                    "exact_query_hash_match": 17,
+                    "no candidates were retrieved": 6,
+                    "response generation failed": 3
+                  },
+                  "request_count": 32,
+                  "sources": {
+                    "cache": 17,
+                    "error": 3,
+                    "generated": 12
+                  },
+                  "storage": {
+                    "bytes": 1782,
+                    "bytes_delta": 1782,
+                    "canonical_answers": 6,
+                    "entries": 6,
+                    "entries_delta": 6,
+                    "evictions": 31,
+                    "evictions_delta": 0,
+                    "expirations": 6
+                  },
+                  "synthetic_provider_data": true,
+                  "throughput_requests_per_second": 40.334,
+                  "warmup_error_rate": 0.0,
+                  "warmup_requests": 0,
+                  "workload_labels": {
+                    "dynamic_query": 3,
+                    "embedding_failure": 3,
+                    "eviction_candidate": 6,
+                    "exact_hit": 8,
+                    "generation_failure": 3,
+                    "oversized_answer": 3,
+                    "semantic_hit": 6
+                  }
+                },
+                {
+                  "cache_hits": 23,
+                  "cache_misses": 9,
+                  "cache_mode": "exact_cache",
+                  "concurrency": 4,
+                  "elapsed_seconds": 0.497794,
+                  "errors": {
+                    "count": 3,
+                    "rate": 0.09375,
+                    "timeout_rate": 0.0,
+                    "timeouts": 0
+                  },
+                  "generated_requests": 6,
+                  "latency_ms": {
+                    "max": 73.579,
+                    "p50": 57.953,
+                    "p95": 72.355,
+                    "p99": 73.557
+                  },
+                  "mode": "warm",
+                  "reasons": {
+                    "answer_too_large": 3,
+                    "dynamic_entries_disabled": 3,
+                    "exact_query_hash_match": 23,
+                    "response generation failed": 3
+                  },
+                  "request_count": 32,
+                  "sources": {
+                    "cache": 23,
+                    "error": 3,
+                    "generated": 6
+                  },
+                  "storage": {
+                    "bytes": 1782,
+                    "bytes_delta": 0,
+                    "canonical_answers": 6,
+                    "entries": 6,
+                    "entries_delta": 0,
+                    "evictions": 31,
+                    "evictions_delta": 0,
+                    "expirations": 6
+                  },
+                  "synthetic_provider_data": true,
+                  "throughput_requests_per_second": 64.284,
+                  "warmup_error_rate": 0.125,
+                  "warmup_requests": 8,
+                  "workload_labels": {
+                    "dynamic_query": 3,
+                    "embedding_failure": 3,
+                    "eviction_candidate": 6,
+                    "exact_hit": 8,
+                    "generation_failure": 3,
+                    "oversized_answer": 3,
+                    "semantic_hit": 6
+                  }
+                },
+                {
+                  "cache_hits": 17,
+                  "cache_misses": 15,
+                  "cache_mode": "exact_cache",
+                  "concurrency": 4,
+                  "elapsed_seconds": 0.842804,
+                  "errors": {
+                    "count": 3,
+                    "rate": 0.09375,
+                    "timeout_rate": 0.0,
+                    "timeouts": 0
+                  },
+                  "generated_requests": 12,
+                  "latency_ms": {
+                    "max": 329.62,
+                    "p50": 69.22,
+                    "p95": 235.787,
+                    "p99": 306.064
+                  },
+                  "mode": "cold",
+                  "reasons": {
+                    "answer_too_large": 3,
+                    "dynamic_entries_disabled": 3,
+                    "exact_query_hash_match": 17,
+                    "no candidates were retrieved": 6,
+                    "response generation failed": 3
+                  },
+                  "request_count": 32,
+                  "sources": {
+                    "cache": 17,
+                    "error": 3,
+                    "generated": 12
+                  },
+                  "storage": {
+                    "bytes": 1782,
+                    "bytes_delta": 1782,
+                    "canonical_answers": 6,
+                    "entries": 6,
+                    "entries_delta": 6,
+                    "evictions": 31,
+                    "evictions_delta": 0,
+                    "expirations": 6
+                  },
+                  "synthetic_provider_data": true,
+                  "throughput_requests_per_second": 37.968,
+                  "warmup_error_rate": 0.0,
+                  "warmup_requests": 0,
+                  "workload_labels": {
+                    "dynamic_query": 3,
+                    "embedding_failure": 3,
+                    "eviction_candidate": 6,
+                    "exact_hit": 8,
+                    "generation_failure": 3,
+                    "oversized_answer": 3,
+                    "semantic_hit": 6
+                  }
+                },
+                {
+                  "cache_hits": 23,
+                  "cache_misses": 9,
+                  "cache_mode": "exact_cache",
+                  "concurrency": 4,
+                  "elapsed_seconds": 0.463632,
+                  "errors": {
+                    "count": 3,
+                    "rate": 0.09375,
+                    "timeout_rate": 0.0,
+                    "timeouts": 0
+                  },
+                  "generated_requests": 6,
+                  "latency_ms": {
+                    "max": 84.736,
+                    "p50": 56.916,
+                    "p95": 81.719,
+                    "p99": 84.315
+                  },
+                  "mode": "warm",
+                  "reasons": {
+                    "answer_too_large": 3,
+                    "dynamic_entries_disabled": 3,
+                    "exact_query_hash_match": 23,
+                    "response generation failed": 3
+                  },
+                  "request_count": 32,
+                  "sources": {
+                    "cache": 23,
+                    "error": 3,
+                    "generated": 6
+                  },
+                  "storage": {
+                    "bytes": 1782,
+                    "bytes_delta": 0,
+                    "canonical_answers": 6,
+                    "entries": 6,
+                    "entries_delta": 0,
+                    "evictions": 31,
+                    "evictions_delta": 0,
+                    "expirations": 6
+                  },
+                  "synthetic_provider_data": true,
+                  "throughput_requests_per_second": 69.02,
+                  "warmup_error_rate": 0.125,
+                  "warmup_requests": 8,
+                  "workload_labels": {
+                    "dynamic_query": 3,
+                    "embedding_failure": 3,
+                    "eviction_candidate": 6,
+                    "exact_hit": 8,
+                    "generation_failure": 3,
+                    "oversized_answer": 3,
+                    "semantic_hit": 6
+                  }
+                }
+              ]
+            },
+            "process_count": 1,
+            "request_count": 32,
+            "status": "measured",
+            "stopped_reason": null,
+            "warmup_requests": 8,
+            "worker_count": 1
+          }
+        },
+        "unsupported_claims": [
+          "universal production capacity or SLA",
+          "1K-100K queries/day",
+          "multi-host or distributed-cache coordination",
+          "live process or container restart during write",
+          "duplicate generation prevention across processes",
+          "real-provider cost or latency",
+          "Kubernetes, cloud failover, multi-region, or managed PostgreSQL"
+        ]
+      },
+      "source_artifacts": [
+        {
+          "artifact_kind": "workstream8-operational-verification",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/operations/workstream8-operational-verification.json",
+          "present": true,
+          "schema_versions": {
+            "schema_version": "ws8-ops-1.0"
+          },
+          "timestamp": "2026-10-10T16:31:04.756865+00:00"
+        }
+      ],
+      "status": "available"
+    },
+    "pareto": {
+      "data": {
+        "dominance": {
+          "cost_vs_safety": {
+            "x": {
+              "direction": "minimize",
+              "metric": "estimated_cost_usd"
+            },
+            "y": {
+              "direction": "minimize",
+              "metric": "false_positive_rate"
+            }
+          },
+          "false_positives_vs_tokens_saved": {
+            "x": {
+              "direction": "minimize",
+              "metric": "false_positive_rate"
+            },
+            "y": {
+              "direction": "maximize",
+              "metric": "tokens_saved"
+            }
+          },
+          "latency_vs_cost": {
+            "x": {
+              "direction": "minimize",
+              "metric": "p95_latency_ms"
+            },
+            "y": {
+              "direction": "minimize",
+              "metric": "estimated_cost_usd"
+            }
+          },
+          "reuse_vs_storage": {
+            "x": {
+              "direction": "maximize",
+              "metric": "safe_reuse_coverage"
+            },
+            "y": {
+              "direction": "minimize",
+              "metric": "total_bytes"
+            }
+          },
+          "safety_vs_reuse": {
+            "x": {
+              "direction": "minimize",
+              "metric": "false_positive_rate"
+            },
+            "y": {
+              "direction": "maximize",
+              "metric": "safe_reuse_coverage"
+            }
+          }
+        },
+        "manifest_status": "not_recorded",
+        "points": [
+          {
+            "constraint": {
+              "limit": 0.0,
+              "name": "max_false_positive_rate",
+              "observed": 0.0,
+              "satisfied": true
+            },
+            "metrics": {
+              "embedding_false_positive_rate": 0.2936170212765957,
+              "embedding_safe_reuse_coverage": 0.5833333333333334,
+              "estimated_cost_usd": 0.0,
+              "false_positive_rate": 0.0,
+              "p95_latency_ms": 0.0,
+              "safe_reuse_coverage": 0.0,
+              "tokens_saved": 0.0
+            },
+            "selected": false,
+            "threshold": 0.8
+          },
+          {
+            "constraint": {
+              "limit": 0.0,
+              "name": "max_false_positive_rate",
+              "observed": 0.0,
+              "satisfied": true
+            },
+            "metrics": {
+              "embedding_false_positive_rate": 0.3287671232876712,
+              "embedding_safe_reuse_coverage": 0.16666666666666666,
+              "estimated_cost_usd": 0.0,
+              "false_positive_rate": 0.0,
+              "p95_latency_ms": 0.0,
+              "safe_reuse_coverage": 0.0,
+              "tokens_saved": 0.0
+            },
+            "selected": false,
+            "threshold": 0.9
+          },
+          {
+            "constraint": {
+              "limit": 0.0,
+              "name": "max_false_positive_rate",
+              "observed": 0.0,
+              "satisfied": true
+            },
+            "metrics": {
+              "embedding_false_positive_rate": 0.35714285714285715,
+              "embedding_safe_reuse_coverage": 0.11904761904761904,
+              "estimated_cost_usd": 0.0,
+              "false_positive_rate": 0.0,
+              "p95_latency_ms": 0.0,
+              "safe_reuse_coverage": 0.0,
+              "tokens_saved": 0.0
+            },
+            "selected": true,
+            "threshold": 0.95
+          }
+        ],
+        "selected_constraint": {
+          "limit": 0.0,
+          "name": "max_false_positive_rate",
+          "observed": 0.0,
+          "satisfied": true
+        },
+        "selected_threshold": 0.95,
+        "storage_measurement_environment": "unavailable",
+        "storage_reason": "held_out_aligned_storage_artifact_unavailable",
+        "storage_status": "unavailable"
+      },
+      "source_artifacts": [
+        {
+          "dataset_version": "reviewed-query-pairs-2.0",
+          "evaluation_split": "held-out",
+          "measurement_environment": "synthetic_replay",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream5-held-out-pareto.json",
+          "present": true,
+          "schema_versions": {
+            "pareto_schema_version": "evaluation-pareto-1.0"
+          }
+        }
+      ],
+      "status": "available"
+    },
+    "provider_measurements": {
+      "data": {
+        "comparison_status": "dataset_or_split_not_aligned",
+        "real_provider_status": "unavailable",
+        "rows": {
+          "real_provider": {
+            "source": {
+              "artifact_status": "unavailable",
+              "dataset_version": "reviewed-query-pairs-1.1",
+              "evaluation_split": "development",
+              "measurement_environment": "real_provider",
+              "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream4-real-provider-unavailable.json",
+              "present": true,
+              "schema_versions": {
+                "schema_version": "real-provider-measurement-1.0"
+              },
+              "timestamp": "2026-10-07T16:43:08.937690+00:00"
+            },
+            "status": "unavailable"
+          },
+          "synthetic": {
+            "source": {
+              "dataset_version": "reviewed-query-pairs-1.1",
+              "evaluation_split": "development",
+              "measurement_environment": "comparison",
+              "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream4-provider-comparison.json",
+              "present": true,
+              "schema_versions": {
+                "schema_version": "provider-measurement-comparison-1.0"
+              },
+              "timestamp": "2026-10-07T17:06:49.445525+00:00"
+            },
+            "status": "not_comparable"
+          }
+        }
+      },
+      "reason": "available provider artifacts use reviewed-query-pairs-1.1 development scope and cannot be merged with the Phase 2 held-out package",
+      "source_artifacts": [
+        {
+          "dataset_version": "reviewed-query-pairs-1.1",
+          "evaluation_split": "development",
+          "measurement_environment": "comparison",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream4-provider-comparison.json",
+          "present": true,
+          "schema_versions": {
+            "schema_version": "provider-measurement-comparison-1.0"
+          },
+          "timestamp": "2026-10-07T17:06:49.445525+00:00"
+        },
+        {
+          "artifact_status": "unavailable",
+          "dataset_version": "reviewed-query-pairs-1.1",
+          "evaluation_split": "development",
+          "measurement_environment": "real_provider",
+          "path": "C:/Users/Admin/Desktop/major/artifacts/evaluation/workstream4-real-provider-unavailable.json",
+          "present": true,
+          "schema_versions": {
+            "schema_version": "real-provider-measurement-1.0"
+          },
+          "timestamp": "2026-10-07T16:43:08.937690+00:00"
+        }
+      ],
+      "status": "not_comparable"
+    }
+  }
+}
