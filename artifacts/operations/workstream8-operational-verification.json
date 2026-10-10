@@ -1,0 +1,549 @@
+{
+  "configuration": {
+    "cache_policy": {
+      "max_bytes": 10000,
+      "max_entries": 8
+    },
+    "process_count": 1,
+    "repository": "postgres",
+    "strategies": [
+      "exact_cache"
+    ],
+    "worker_count": 1
+  },
+  "environment": {
+    "cpu_count": 8,
+    "database_mode": "postgres",
+    "git_commit": "4997e6670bc6a2609cb9351bdf3bae882d61c01c",
+    "machine": "AMD64",
+    "measured_at": "2026-10-10T16:31:04.756865+00:00",
+    "os": "Windows-11-10.0.26200-SP0",
+    "postgresql_version": "16.15 (Debian 16.15-1.pgdg12+2)",
+    "process_count": 1,
+    "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+    "python": "3.14.5",
+    "python_implementation": "cpython",
+    "worker_count": 1
+  },
+  "git_commit": "4997e6670bc6a2609cb9351bdf3bae882d61c01c",
+  "human_evidence": "docs/phase-2/WORKSTREAM_8_EVIDENCE.md",
+  "kind": "workstream8-operational-verification",
+  "limitation": "Bounded local PostgreSQL operational verification for declared WS8 protocols. Not a production capacity, SLA, multi-host, multi-region, or managed-PostgreSQL guarantee.",
+  "measured_at": "2026-10-10T16:31:04.756865+00:00",
+  "packaged_at": "2026-10-10T20:56:38.003957+00:00",
+  "protocol_id": "ws8-operational-verification-v1",
+  "protocols": {
+    "ws8-contention-v1": {
+      "error_classes_separated": [
+        "duplicate_conflict",
+        "database_error",
+        "validation_error"
+      ],
+      "expired_and_disallowed_cannot_win_lookup": true,
+      "limitations": [
+        "Relative cap windows avoid shrinking a pre-existing table. Not a production eviction-capacity claim."
+      ],
+      "measured_on": "2026-10-10",
+      "process_count": 1,
+      "status": "measured",
+      "worker_count": 1,
+      "workloads": [
+        {
+          "duplicate_conflict": 7,
+          "insert_success": 1,
+          "surviving_rows": 1,
+          "threads": 8,
+          "workload_id": "CT-dup-key"
+        },
+        {
+          "inserts": 4,
+          "lookup_hits": 4,
+          "threads": 8,
+          "workload_id": "CT-mixed-rw"
+        },
+        {
+          "fresh_rows_retained": true,
+          "stale_rows_removed": true,
+          "threads": 4,
+          "workload_id": "CT-cleanup-race"
+        },
+        {
+          "byte_window": 10000,
+          "cap_held": true,
+          "entry_window": 8,
+          "row_count_matches_storage_stats": true,
+          "threads": 8,
+          "workload_id": "CT-evict-cap"
+        }
+      ]
+    },
+    "ws8-failure-recovery-v1": {
+      "concurrency": 1,
+      "event_classes": [
+        "simulated_drop",
+        "simulated_repository_failure"
+      ],
+      "limitations": [
+        "Simulated connection drop and repository failure are not a live PostgreSQL process or container restart.",
+        "Live container restart remains unmeasured in this package."
+      ],
+      "live_container_restart": {
+        "event_class": "container_restart",
+        "gate": "SSCRE_WS8_LIVE_POSTGRES_RESTART",
+        "reason": "opt-in environment variable unset during packaging",
+        "status": "skipped"
+      },
+      "process_count": 1,
+      "scenarios": [
+        {
+          "cache_hit": false,
+          "event_class": "simulated_drop",
+          "http_status": 503,
+          "injection_point": "lookup",
+          "request_id_present": true,
+          "scenario_id": "FR-lookup-drop"
+        },
+        {
+          "cache_hit": false,
+          "event_class": "simulated_repository_failure",
+          "http_status": 503,
+          "injection_point": "lookup",
+          "scenario_id": "FR-lookup-simulated-failure"
+        },
+        {
+          "event_class": "simulated_drop",
+          "http_status": 200,
+          "injection_point": "insert_and_evict_after_generation",
+          "persisted": false,
+          "scenario_id": "FR-gen-persist",
+          "source": "generated"
+        },
+        {
+          "event_class": "simulated_repository_failure",
+          "http_status": 200,
+          "injection_point": "insert",
+          "persisted": false,
+          "scenario_id": "FR-insert",
+          "source": "generated"
+        },
+        {
+          "cleanup_raised": true,
+          "event_class": "simulated_drop",
+          "expired_row_remained": true,
+          "injection_point": "cleanup_expired",
+          "scenario_id": "FR-cleanup"
+        },
+        {
+          "disallowed_not_served": true,
+          "event_class": "simulated_drop",
+          "expired_not_served": true,
+          "failed_http_status": 503,
+          "generation_failure_does_not_persist": true,
+          "injection_point": "lookup_fail_once_then_restore",
+          "recovered_http_status": 200,
+          "recovered_source": "cache",
+          "scenario_id": "FR-recovery",
+          "validation_and_admin_auth_preserved": true
+        }
+      ],
+      "status": "measured_simulated",
+      "worker_count": 1
+    },
+    "ws8-multiprocess-dup-v1": {
+      "concurrency": 2,
+      "coordination": "in_process_lock_only",
+      "duplicate_generation_prevented": false,
+      "duplicate_insert_prevented": true,
+      "final_row_count": 1,
+      "insert_conflict": {
+        "max": 1,
+        "min": 1
+      },
+      "insert_error": 0,
+      "insert_success": {
+        "max": 1,
+        "min": 1
+      },
+      "limitations": [
+        "Both processes generate. PostgreSQL UNIQUE accepts one insert and rejects the other. No distributed generation lock exists.",
+        "Not a multi-host or multi-worker production guarantee."
+      ],
+      "measured_on": "2026-10-10",
+      "process_count": 2,
+      "provider_generations": {
+        "max": 2,
+        "min": 2
+      },
+      "run_count": 3,
+      "status": "measured",
+      "worker_count": 2
+    },
+    "ws8-pg-load-v1": {
+      "bottleneck": {
+        "environment": {
+          "concurrency": 4,
+          "postgresql_version": "16.15 (Debian 16.15-1.pgdg12+2)",
+          "provider_data": "synthetic",
+          "storage": "postgresql"
+        },
+        "first_measured_bottleneck": "not_reached",
+        "measured_components": {
+          "average_llm_latency_ms": 0.0,
+          "average_wrapper_overhead_ms": 66.009,
+          "end_to_end_average_ms": 75.257,
+          "pass_latency_ms": [
+            {
+              "mode": "cold",
+              "p50": 63.362,
+              "p95": 199.509,
+              "p99": 262.84,
+              "throughput_requests_per_second": 40.334
+            },
+            {
+              "mode": "warm",
+              "p50": 57.953,
+              "p95": 72.355,
+              "p99": 73.557,
+              "throughput_requests_per_second": 64.284
+            },
+            {
+              "mode": "cold",
+              "p50": 69.22,
+              "p95": 235.787,
+              "p99": 306.064,
+              "throughput_requests_per_second": 37.968
+            },
+            {
+              "mode": "warm",
+              "p50": 56.916,
+              "p95": 81.719,
+              "p99": 84.315,
+              "throughput_requests_per_second": 69.02
+            }
+          ]
+        },
+        "optimization": "No production optimization selected; wrapper versus synthetic LLM latency is not an actionable bottleneck.",
+        "optimization_decision": "none",
+        "protocol_id": "ws8-pg-load-v1",
+        "rationale": "Declared ws8-pg-load-v1 workload completed without a stop condition. Synthetic provider latency is 0 ms, so wrapper overhead is not an actionable bottleneck. Repository, embedding, and live-provider spans were not instrumented.",
+        "result_class": "observation",
+        "source_artifact": "artifacts/operations/workstream8-pg-load-v1.json",
+        "stop_conditions": {
+          "error_rate_limit": 0.1,
+          "p99_to_p50_limit": 5.0,
+          "stopped_reason": null,
+          "timeout_rate_limit": 0.05
+        },
+        "unavailable_components": [
+          "repository_database_span",
+          "embedding_span",
+          "real_provider_latency"
+        ]
+      },
+      "concurrency": 4,
+      "limitation": "Bounded local PostgreSQL result for protocol ws8-pg-load-v1. Not a production capacity, SLA, or multi-host guarantee. Absolute cache caps apply to the whole database and may evict unrelated oldest rows.",
+      "limitations": [
+        "Bounded local result. Not a production capacity or SLA guarantee.",
+        "Synthetic provider latency is 0 ms. Wrapper overhead is not an actionable bottleneck."
+      ],
+      "measured_on": "2026-10-10",
+      "passes": {
+        "exact_cache": [
+          {
+            "cache_hits": 17,
+            "cache_misses": 15,
+            "cache_mode": "exact_cache",
+            "concurrency": 4,
+            "elapsed_seconds": 0.793367,
+            "errors": {
+              "count": 3,
+              "rate": 0.09375,
+              "timeout_rate": 0.0,
+              "timeouts": 0
+            },
+            "generated_requests": 12,
+            "latency_ms": {
+              "max": 280.8,
+              "p50": 63.362,
+              "p95": 199.509,
+              "p99": 262.84
+            },
+            "mode": "cold",
+            "reasons": {
+              "answer_too_large": 3,
+              "dynamic_entries_disabled": 3,
+              "exact_query_hash_match": 17,
+              "no candidates were retrieved": 6,
+              "response generation failed": 3
+            },
+            "request_count": 32,
+            "sources": {
+              "cache": 17,
+              "error": 3,
+              "generated": 12
+            },
+            "storage": {
+              "bytes": 1782,
+              "bytes_delta": 1782,
+              "canonical_answers": 6,
+              "entries": 6,
+              "entries_delta": 6,
+              "evictions": 31,
+              "evictions_delta": 0,
+              "expirations": 6
+            },
+            "synthetic_provider_data": true,
+            "throughput_requests_per_second": 40.334,
+            "warmup_error_rate": 0.0,
+            "warmup_requests": 0,
+            "workload_labels": {
+              "dynamic_query": 3,
+              "embedding_failure": 3,
+              "eviction_candidate": 6,
+              "exact_hit": 8,
+              "generation_failure": 3,
+              "oversized_answer": 3,
+              "semantic_hit": 6
+            }
+          },
+          {
+            "cache_hits": 23,
+            "cache_misses": 9,
+            "cache_mode": "exact_cache",
+            "concurrency": 4,
+            "elapsed_seconds": 0.497794,
+            "errors": {
+              "count": 3,
+              "rate": 0.09375,
+              "timeout_rate": 0.0,
+              "timeouts": 0
+            },
+            "generated_requests": 6,
+            "latency_ms": {
+              "max": 73.579,
+              "p50": 57.953,
+              "p95": 72.355,
+              "p99": 73.557
+            },
+            "mode": "warm",
+            "reasons": {
+              "answer_too_large": 3,
+              "dynamic_entries_disabled": 3,
+              "exact_query_hash_match": 23,
+              "response generation failed": 3
+            },
+            "request_count": 32,
+            "sources": {
+              "cache": 23,
+              "error": 3,
+              "generated": 6
+            },
+            "storage": {
+              "bytes": 1782,
+              "bytes_delta": 0,
+              "canonical_answers": 6,
+              "entries": 6,
+              "entries_delta": 0,
+              "evictions": 31,
+              "evictions_delta": 0,
+              "expirations": 6
+            },
+            "synthetic_provider_data": true,
+            "throughput_requests_per_second": 64.284,
+            "warmup_error_rate": 0.125,
+            "warmup_requests": 8,
+            "workload_labels": {
+              "dynamic_query": 3,
+              "embedding_failure": 3,
+              "eviction_candidate": 6,
+              "exact_hit": 8,
+              "generation_failure": 3,
+              "oversized_answer": 3,
+              "semantic_hit": 6
+            }
+          },
+          {
+            "cache_hits": 17,
+            "cache_misses": 15,
+            "cache_mode": "exact_cache",
+            "concurrency": 4,
+            "elapsed_seconds": 0.842804,
+            "errors": {
+              "count": 3,
+              "rate": 0.09375,
+              "timeout_rate": 0.0,
+              "timeouts": 0
+            },
+            "generated_requests": 12,
+            "latency_ms": {
+              "max": 329.62,
+              "p50": 69.22,
+              "p95": 235.787,
+              "p99": 306.064
+            },
+            "mode": "cold",
+            "reasons": {
+              "answer_too_large": 3,
+              "dynamic_entries_disabled": 3,
+              "exact_query_hash_match": 17,
+              "no candidates were retrieved": 6,
+              "response generation failed": 3
+            },
+            "request_count": 32,
+            "sources": {
+              "cache": 17,
+              "error": 3,
+              "generated": 12
+            },
+            "storage": {
+              "bytes": 1782,
+              "bytes_delta": 1782,
+              "canonical_answers": 6,
+              "entries": 6,
+              "entries_delta": 6,
+              "evictions": 31,
+              "evictions_delta": 0,
+              "expirations": 6
+            },
+            "synthetic_provider_data": true,
+            "throughput_requests_per_second": 37.968,
+            "warmup_error_rate": 0.0,
+            "warmup_requests": 0,
+            "workload_labels": {
+              "dynamic_query": 3,
+              "embedding_failure": 3,
+              "eviction_candidate": 6,
+              "exact_hit": 8,
+              "generation_failure": 3,
+              "oversized_answer": 3,
+              "semantic_hit": 6
+            }
+          },
+          {
+            "cache_hits": 23,
+            "cache_misses": 9,
+            "cache_mode": "exact_cache",
+            "concurrency": 4,
+            "elapsed_seconds": 0.463632,
+            "errors": {
+              "count": 3,
+              "rate": 0.09375,
+              "timeout_rate": 0.0,
+              "timeouts": 0
+            },
+            "generated_requests": 6,
+            "latency_ms": {
+              "max": 84.736,
+              "p50": 56.916,
+              "p95": 81.719,
+              "p99": 84.315
+            },
+            "mode": "warm",
+            "reasons": {
+              "answer_too_large": 3,
+              "dynamic_entries_disabled": 3,
+              "exact_query_hash_match": 23,
+              "response generation failed": 3
+            },
+            "request_count": 32,
+            "sources": {
+              "cache": 23,
+              "error": 3,
+              "generated": 6
+            },
+            "storage": {
+              "bytes": 1782,
+              "bytes_delta": 0,
+              "canonical_answers": 6,
+              "entries": 6,
+              "entries_delta": 0,
+              "evictions": 31,
+              "evictions_delta": 0,
+              "expirations": 6
+            },
+            "synthetic_provider_data": true,
+            "throughput_requests_per_second": 69.02,
+            "warmup_error_rate": 0.125,
+            "warmup_requests": 8,
+            "workload_labels": {
+              "dynamic_query": 3,
+              "embedding_failure": 3,
+              "eviction_candidate": 6,
+              "exact_hit": 8,
+              "generation_failure": 3,
+              "oversized_answer": 3,
+              "semantic_hit": 6
+            }
+          }
+        ]
+      },
+      "process_count": 1,
+      "request_count": 32,
+      "status": "measured",
+      "stopped_reason": null,
+      "warmup_requests": 8,
+      "worker_count": 1
+    }
+  },
+  "regeneration_commands": [
+    "python -m pytest -q -m ws8_postgres_failure_recovery tests/test_postgres_failure_recovery.py tests/test_postgres_failure_closed.py",
+    "python -m pytest -q -m ws8_postgres_multiprocess tests/test_postgres_multiprocess_duplicate.py",
+    "python -m pytest -q -m ws8_postgres_contention tests/test_postgres_contention.py",
+    "python -m pytest -q -m ws8_postgres_load tests/test_postgres_pg_load.py",
+    "python -m sscre.load_test --config experiments/workstream8_pg_load_v1.json --output artifacts/operations/workstream8-pg-load-v1.json",
+    "python -m sscre.ops_evidence --output artifacts/operations/workstream8-operational-verification.json",
+    "python -m pytest -q"
+  ],
+  "schema_version": "ws8-ops-1.0",
+  "skipped_or_unavailable": [
+    {
+      "item": "live_container_restart",
+      "protocol_id": "ws8-failure-recovery-v1",
+      "reason": "SSCRE_WS8_LIVE_POSTGRES_RESTART unset; opt-in test skipped"
+    },
+    {
+      "item": "repository_database_span",
+      "protocol_id": "ws8-pg-load-v1",
+      "reason": "not instrumented on the load path"
+    },
+    {
+      "item": "embedding_span",
+      "protocol_id": "ws8-pg-load-v1",
+      "reason": "not instrumented on the load path"
+    },
+    {
+      "item": "real_provider_latency",
+      "protocol_id": "ws8-pg-load-v1",
+      "reason": "synthetic LoadTestLLMClient only; latency 0 ms"
+    },
+    {
+      "item": "default_suite_live_postgres",
+      "protocol_id": "ws8-operational-verification-v1",
+      "reason": "database URL environment unset in the recorded default-suite run; opt-in WS8 markers remain deselected"
+    },
+    {
+      "item": "scale_1k_to_100k_q_per_day",
+      "protocol_id": "ws8-pg-load-v1",
+      "reason": "excluded; requires a separate approved protocol"
+    },
+    {
+      "item": "multi_host_coordination",
+      "protocol_id": "ws8-multiprocess-dup-v1",
+      "reason": "not tested; in-process lock only"
+    }
+  ],
+  "source_artifacts": {
+    "bottleneck": "artifacts/operations/workstream8-bottleneck-v1.json",
+    "load": "artifacts/operations/workstream8-pg-load-v1.json",
+    "load_config": "experiments/workstream8_pg_load_v1.json"
+  },
+  "unsupported_claims": [
+    "universal production capacity or SLA",
+    "1K-100K queries/day",
+    "multi-host or distributed-cache coordination",
+    "live process or container restart during write",
+    "duplicate generation prevention across processes",
+    "real-provider cost or latency",
+    "Kubernetes, cloud failover, multi-region, or managed PostgreSQL"
+  ]
+}
