@@ -31,7 +31,7 @@ baseline replay or policy selection.
 
 ## Status
 
-**In progress (Step 1 complete).** Phase 1 carryover (**P2-GALLERY**) delivered
+**In progress (Step 2 complete).** Phase 1 carryover (**P2-GALLERY**) delivered
 a minimal static HTML exporter and satisfied three parent-plan acceptance boxes
 for the held-out comparison sample only; see
 [`PHASE1_CARRYOVERS_IMPLEMENTATION_PLAN.md`](../internal/PHASE1_CARRYOVERS_IMPLEMENTATION_PLAN.md).
@@ -58,7 +58,9 @@ Open status:
 
 - [x] Audit failure outputs and document the selected evaluation sample scope
   ([`WORKSTREAM_7_STEP1_AUDIT.md`](./WORKSTREAM_7_STEP1_AUDIT.md)).
-- [ ] Freeze the failure-gallery report schema and example record contract.
+- [x] Freeze the failure-gallery report schema and example record contract
+  ([`FAILURE_GALLERY_CONTRACT_v1.md`](./FAILURE_GALLERY_CONTRACT_v1.md),
+  `failure-gallery-1.0` in `sscre.failure_gallery`).
 - [ ] Publish a consolidated workstream7 quality artifact (JSON).
 - [ ] Attach freshness failure companion data from WS6 without recomputing replay.
 - [ ] Regenerate or explicitly annotate WS5 held-out comparison for manifest drift.
@@ -107,7 +109,7 @@ Canonical artifact locations to add or update:
 | Quality artifact | `artifacts/evaluation/workstream7-quality-analysis.json` |
 | Static exports | `artifacts/evaluation/workstream7-quality-gallery.html` |
 | Tests | `tests/test_workstream7_failure_gallery.py`, extend `tests/test_gallery_export.py` |
-| Contract (planned) | `docs/phase-2/FAILURE_GALLERY_CONTRACT_v1.md` |
+| Contract | `docs/phase-2/FAILURE_GALLERY_CONTRACT_v1.md`, `src/sscre/failure_gallery.py` |
 | Completion evidence | `docs/phase-2/WORKSTREAM_7_EVIDENCE.md` |
 
 ## Learning objectives
@@ -235,7 +237,8 @@ Minimum bounded fields after redaction:
 
 ### Open baseline gaps
 
-- [ ] No `FAILURE_GALLERY_CONTRACT_v1.md` or `failure-gallery-1.0` schema version.
+- [x] `FAILURE_GALLERY_CONTRACT_v1.md` and `failure-gallery-1.0` schema version
+  ([Step 2](./FAILURE_GALLERY_CONTRACT_v1.md)).
 - [ ] No consolidated `workstream7-quality-analysis.json` artifact.
 - [ ] No freshness failure section in gallery exports.
 - [ ] No explicit **false-positive category completeness** audit in tests for
@@ -272,12 +275,12 @@ Planned touch points:
 `src/sscre/serialization.py`,
 `tests/test_workstream7_failure_gallery.py`.
 
-- [ ] Add schema version `failure-gallery-1.0` (or attach under evaluation report envelope).
-- [ ] Define section names, example record required keys, and redaction rules.
-- [ ] Define aggregate table shape (`quality_analysis.by_failure_category`, etc.).
-- [ ] Define freshness companion attachment referencing WS6 artifact paths.
-- [ ] Define selected-sample scope (held-out comparison at frozen threshold).
-- [ ] Document unavailable sections (correctness, live provider) explicitly.
+- [x] Add schema version `failure-gallery-1.0` (or attach under evaluation report envelope).
+- [x] Define section names, example record required keys, and redaction rules.
+- [x] Define aggregate table shape (`quality_analysis.by_failure_category`, etc.).
+- [x] Define freshness companion attachment referencing WS6 artifact paths.
+- [x] Define selected-sample scope (held-out comparison at frozen threshold).
+- [x] Document unavailable sections (correctness, live provider) explicitly.
 
 ### 3. Standardize example enrichment and mitigation metadata
 
@@ -504,7 +507,8 @@ Handoff requirements:
 
 1. [x] Audit failure outputs, sample scope, and manifest alignment
    ([`WORKSTREAM_7_STEP1_AUDIT.md`](./WORKSTREAM_7_STEP1_AUDIT.md)).
-2. [ ] Freeze failure gallery contract and schema version.
+2. [x] Freeze failure gallery contract and schema version
+   ([`FAILURE_GALLERY_CONTRACT_v1.md`](./FAILURE_GALLERY_CONTRACT_v1.md)).
 3. [ ] Standardize example enrichment and mitigation metadata.
 4. [ ] Implement read-only quality analysis aggregation.
 5. [ ] Attach WS6 freshness failure companion.

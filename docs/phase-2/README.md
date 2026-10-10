@@ -35,10 +35,7 @@ Referenced from `src/sscre/` — do not fork a second decision or trace model.
 | API / log / report JSON | [SERIALIZATION_BOUNDARY_v1.md](./SERIALIZATION_BOUNDARY_v1.md) |
 | Statistics attachment | [EVALUATION_STATISTICS_CONTRACT_v1.md](./EVALUATION_STATISTICS_CONTRACT_v1.md) |
 | Freshness experiments | [FRESHNESS_EVALUATION_CONTRACT_v1.md](./FRESHNESS_EVALUATION_CONTRACT_v1.md) |
-
-Failure gallery contract: planned in
-[WORKSTREAM_7_IMPLEMENTATION_PLAN.md](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md)
-(Step 2 → `FAILURE_GALLERY_CONTRACT_v1.md`).
+| Failure gallery / quality analysis | [FAILURE_GALLERY_CONTRACT_v1.md](./FAILURE_GALLERY_CONTRACT_v1.md) |
 
 ## Completion evidence
 
