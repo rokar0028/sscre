@@ -100,7 +100,7 @@ _FAILURE_EXAMPLE_LIST_KEYS = frozenset(
 
 
 def _redact_query_text_from_examples(examples: object) -> object:
-    if not isinstance(examples, list):
+    if not isinstance(examples, (list, tuple)):
         return examples
     redacted: list[object] = []
     for item in examples:
@@ -141,6 +141,32 @@ def redact_operational_evaluation_report(
             key: _redact_query_text_from_examples(value)
             for key, value in gallery.items()
         }
+
+    threshold_selection = result.get("threshold_selection")
+    if isinstance(threshold_selection, dict):
+        reports = threshold_selection.get("reports")
+        if isinstance(reports, (list, tuple)):
+            redacted_selection = dict(threshold_selection)
+            redacted_selection["reports"] = [
+                redact_operational_evaluation_report(report)
+                if isinstance(report, dict)
+                else report
+                for report in reports
+            ]
+            result["threshold_selection"] = redacted_selection
+
+    sweep_reports = result.get("reports")
+    if isinstance(sweep_reports, (list, tuple)) and isinstance(
+        result.get("baseline"), str
+    ):
+        baseline_name = result["baseline"]
+        if baseline_name.endswith("threshold-sweep") or baseline_name == "embedding-cache-threshold-sweep":
+            result["reports"] = [
+                redact_operational_evaluation_report(report)
+                if isinstance(report, dict)
+                else report
+                for report in sweep_reports
+            ]
 
     statistics = result.get("statistics")
     if isinstance(statistics, dict):

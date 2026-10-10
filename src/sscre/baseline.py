@@ -24,6 +24,7 @@ from sscre.query import hash_query, normalize_query
 from sscre.serialization import (
     attach_evaluation_report_schema,
     redact_operational_evaluation_report,
+    validate_redacted_report_payload,
     boundary_candidate_traces,
 )
 from sscre.evaluation_labels import (
@@ -1666,11 +1667,12 @@ def _save_report(
         evaluation_config,
         attach_statistics=attach_statistics,
     )
+    if metadata:
+        payload.update(metadata)
     payload = redact_operational_evaluation_report(
         attach_evaluation_report_schema(payload)
     )
-    if metadata:
-        payload.update(metadata)
+    validate_redacted_report_payload(payload)
     report_path = Path(path)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(

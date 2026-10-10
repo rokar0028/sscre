@@ -115,3 +115,54 @@ def test_redact_operational_evaluation_report_removes_query_text() -> None:
     )
     assert "query_a" not in json.dumps(payload)
     assert payload["failure_examples"][0]["id"] == "pair-0001"
+
+
+def test_redact_threshold_selection_sweep_reports() -> None:
+    payload = redact_operational_evaluation_report(
+        {
+            "threshold_selection": {
+                "reports": [
+                    {
+                        "false_positive_examples": [
+                            {"id": "pair-1", "query_a": "a", "query_b": "b"}
+                        ]
+                    }
+                ]
+            }
+        }
+    )
+    assert "query_a" not in json.dumps(payload)
+
+
+def test_redact_embedding_threshold_sweep_top_level_reports_tuple() -> None:
+    payload = redact_operational_evaluation_report(
+        {
+            "baseline": "embedding-cache-threshold-sweep",
+            "reports": (
+                {
+                    "false_positive_examples": [
+                        {"id": "pair-1", "query_a": "a", "query_b": "b"}
+                    ]
+                },
+            ),
+        }
+    )
+    assert "query_a" not in json.dumps(payload)
+
+
+def test_redact_threshold_selection_reports_tuple_from_asdict() -> None:
+    """``dataclasses.asdict`` emits ``reports`` as a tuple; redaction must still run."""
+    payload = redact_operational_evaluation_report(
+        {
+            "threshold_selection": {
+                "reports": (
+                    {
+                        "false_positive_examples": [
+                            {"id": "pair-1", "query_a": "a", "query_b": "b"}
+                        ]
+                    },
+                )
+            }
+        }
+    )
+    assert "query_a" not in json.dumps(payload)
