@@ -1,11 +1,12 @@
 # SSCRE Phase 3 implementation plan
 
-**Status:** `planning-complete` — authoring closed 2026-10-09 per
+**Status:** `implementation-complete` — final held-out package recorded 2026-10-10;
+Feature 2 and Strategy D are deferred by their gates; selected-stack Pareto remains
+deferred to avoid an additional held-out run. Authoring closed 2026-10-09 per
 [`PHASE2_PHASE3_PLAN_IMPLEMENTATION_PLAN.md`](../internal/PHASE2_PHASE3_PLAN_IMPLEMENTATION_PLAN.md)
-Step 7. **Phase 3 code is not authorized** until you approve scope, order, and Strategy D
-precondition in writing (transition § 2.4).
+Step 7; implementation was explicitly requested in chat on 2026-10-10.
 
-**Last updated:** 2026-10-09 (Step 6 order + paper artifact outline)  
+**Last updated:** 2026-10-10 (Step 6 closure)
 **Owner:** Kartik  
 **Parent transition:** [`docs/internal/PHASE3_TRANSITION.md`](../internal/PHASE3_TRANSITION.md)  
 **Master scope:** [`docs/SSCRE_PLAN.md`](../SSCRE_PLAN.md) § Phase 3
@@ -43,6 +44,34 @@ Phase 3 must produce **measured**, reproducible evidence for the paper:
   [`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md)).
 - int8 quantization and 1K→100K simulated Q/day load tests until the core safety/reuse
   story is stable (optional cards may defer; see **Deferred** below).
+
+## Resource requirements and timing
+
+The paper should not depend on paid infrastructure unless the claim being made
+requires it.
+
+- [x] **Phase 2:** Use local CPU, deterministic fake providers, and synthetic
+  replay. A paid LLM API or GPU is not required for the implementation or
+  reproducible tests.
+- [x] **Phase 3:** Use local CPU and synthetic replay for the final paper
+  artifacts. Live provider measurements, large-scale load tests, quantization,
+  and GPU-backed inference are deferred.
+- [x] **Strategy D:** Do not add another LLM or cross-encoder merely to improve
+  the architecture. Add it only after a documented held-out FPR greater than
+  `0.0`; the Phase 3 trigger did not fire.
+- [ ] **Post-Phase 3 optional validation:** If the paper needs real-world
+  provider cost, token, rate-limit, or network-latency claims, run a small
+  separately labelled experiment through the target embedding/LLM API. Record
+  provider and model versions, token usage, cost, and latency without storing
+  credentials.
+- [ ] **Post-Phase 3 optional scaling:** Rent a GPU only if self-hosting,
+  cross-encoder inference, quantization, or a defined high-volume load test is
+  selected and profiling shows CPU/API execution is the bottleneck. This is
+  not needed for the current paper result.
+
+Never combine synthetic and live-provider numbers in one results table. Any
+future live-provider or GPU experiment requires a new scope/protocol decision
+and its own reproducibility metadata.
 
 ---
 
@@ -651,5 +680,73 @@ and **Limitations**; P2-DASH, P2-DUAL, full WS8 under **Non-goals**.
 
 ## Implementation progress
 
-_No Phase 3 code slices started. Update this section after each approved feature with
-commit hash, commands, and artifact paths._
+### Feature 1 — adaptive per-domain thresholds
+
+**Status:** implemented and passed pre-registered evaluation on 2026-10-10.
+
+- Implementation: `src/sscre/baseline.py`, `src/sscre/evaluate.py`
+- Tests: `tests/test_adaptive_thresholds.py`
+- Evidence: [`PHASE3_FEATURE_1_EVIDENCE.md`](./PHASE3_FEATURE_1_EVIDENCE.md)
+- Development map: `artifacts/evaluation/phase3-adaptive-threshold-map.json`
+- Development report: `artifacts/evaluation/phase3-adaptive-development.json`
+- Held-out report: `artifacts/evaluation/phase3-adaptive-held-out.json`
+- Decision: **pass** — adaptive held-out `hit_rate=0.002325581395348837` and
+  `false_positive_rate=0.0`; frozen global Strategy C reference was
+  `hit_rate=0.0` and `false_positive_rate=0.0`.
+
+The implementation remains uncommitted. Feature 2 must not start until this evidence
+has been reviewed and the Feature 1 slice is accepted.
+
+### Feature 2 — pattern-aware eviction
+
+**Status:** implemented and evaluated; **failed pass criterion and deferred from the
+shipped stack** on 2026-10-10.
+
+- Implementation: `src/sscre/cache.py`, `src/sscre/baseline.py`,
+  `src/sscre/phase3_eviction.py`
+- Tests: `tests/test_cache_eviction.py`
+- Development policy: `artifacts/evaluation/phase3-pattern-eviction-policy.json`
+- Development report: `artifacts/evaluation/phase3-development-eviction.json`
+- Held-out report: `artifacts/evaluation/phase3-held-out-eviction.json`
+- Decision: **fail/defer** — FPR and stale exposure were `0.0`, but pattern-aware
+  eviction did not improve hit rate or safe-reuse coverage over default eviction at
+  the same `entry_cap=1`.
+
+The paper stack retains the Feature 1 adaptive threshold map with default/WS6
+conservative eviction. No held-out retuning was performed.
+
+### Feature 3 — Strategy D conditional validator
+
+**Status:** deferred on 2026-10-10; the pre-registered trigger did not fire.
+
+- Evidence: [`PHASE3_FEATURE_3_EVIDENCE.md`](./PHASE3_FEATURE_3_EVIDENCE.md)
+- Retained stack held-out FPR: `0.0`
+- Trigger: held-out FPR `> 0.0`
+- Decision: no cross-encoder implementation, protocol reset, or additional held-out
+  run.
+
+### Step 4 — paper artifact preview package
+
+**Status:** generated on 2026-10-10; final selected-stack held-out package remains
+Step 5.
+
+- Evidence: [`PHASE3_ARTIFACTS_EVIDENCE.md`](./PHASE3_ARTIFACTS_EVIDENCE.md)
+- Generator: `src/sscre/phase3_artifacts.py`
+- Outputs: `artifacts/evaluation/phase3-paper-artifact-manifest.json`,
+  `phase3-results-preview.json`, `phase3-ablations.json`,
+  `phase3-domain-threshold-curves.json`, and `phase3-pareto-reference.json`.
+- Preview gallery: `artifacts/evaluation/phase3-adaptive-held-out-gallery.html`
+- The selected-stack Pareto and final results table are intentionally deferred
+  until the single Step 5 held-out run.
+
+### Step 5 — final held-out package
+
+**Status:** completed on 2026-10-10.
+
+- Evidence: [`PHASE3_FINAL_EVIDENCE.md`](./PHASE3_FINAL_EVIDENCE.md)
+- Final comparison: `artifacts/evaluation/phase3-final-held-out-comparison.json`
+- Final gallery: `artifacts/evaluation/phase3-final-held-out-comparison-gallery.html`
+- Retained stack: Feature 1 adaptive thresholds with default/WS6 conservative
+  eviction; Feature 2 and Strategy D deferred.
+- The final run recorded commit, dirty-worktree state, config hash, dataset version,
+  split-manifest hash, UTC timestamp, and evaluation statistics configuration.

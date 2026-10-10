@@ -23,6 +23,32 @@
 [`SSCRE_PUBLIC_READINESS.md`](./SSCRE_PUBLIC_READINESS.md). Green CI and
 reproducible benchmarks help both paper artifact and future public export.
 
+## Resource decision: APIs, LLMs, and GPUs
+
+This section records when external compute becomes necessary for the research
+paper. It prevents an API key or rented GPU from being introduced merely
+because the project is entering a later phase.
+
+| Need | Phase 2 | Phase 3 | After Phase 3 / optional v2 |
+| --- | --- | --- | --- |
+| Development and reproducible tests | Local CPU + deterministic fake providers | Local CPU + synthetic replay | Keep for regression tests |
+| Real provider cost, token, and network-latency claims | Not required; `P2-PROV` is deferred | Not required; live-provider evidence remains explicitly deferred | Use a small, separately labelled API run before making production-provider claims |
+| LLM API for a demo | Optional, only for a live demonstration | Optional, not part of the paper result | Use a low-volume hosted API if the demo needs generated answers |
+| Additional LLM / cross-encoder validator | Not required | Only if Strategy C’s final held-out FPR exceeds `0.0`; this trigger did not fire | Revisit only under a written protocol reset |
+| Scaling or high-volume load testing | Not required | Deferred; no capacity claim is supported | Run after the workload and target scale are defined |
+| Rented GPU | Not required | Not required | Only for self-hosting, high-volume load tests, local cross-encoder inference, or quantization experiments; profile first |
+
+**Paper rule:** Phase 3 results may be written using the current synthetic
+replay artifacts. If real API evidence is later added, it must be a separate,
+clearly labelled experiment with provider/model version, configuration, token
+usage, cost, latency, rate-limit behavior, and credentials excluded from
+artifacts. Do not mix synthetic and live-provider numbers.
+
+**Recommended next decision:** after Phase 3, run a small real-provider API
+validation only if the paper needs real-world cost/latency claims. Rent a GPU
+only if that experiment or a later scaling experiment shows that API usage or
+local CPU inference is the bottleneck.
+
 ---
 
 ## Non-negotiable rules (agents and humans)
@@ -185,7 +211,8 @@ Optional Phase 3 items from [`SSCRE_PLAN.md`](../SSCRE_PLAN.md)—include only w
 - [x] [`PHASE2_PHASE3_PLAN_IMPLEMENTATION_PLAN.md`](./PHASE2_PHASE3_PLAN_IMPLEMENTATION_PLAN.md) Steps 0–6 + Step 7 review complete; user OK for code pending.
 - [x] [`PHASE3_PLAN.md`](../phase-3/PHASE3_PLAN.md) has Features 1–3 cards, optional deferrals, order, and paper-artifact outline.
 - [x] No Phase 3 implementation code in the authoring branch (docs only).
-- [ ] **User OK in writing** to start Phase 3 implementation (Feature 1 first).
+- [x] **User OK in writing** to start Phase 3 implementation (Feature 1 first);
+  execution requests were provided in chat on 2026-10-10.
 
 ---
 
@@ -195,32 +222,39 @@ These are **deliverables** Phase 3 implementation must produce—not optional po
 
 ### 3.1 Tables and figures
 
-- [ ] **Main results table:** per strategy — hit rate, false-reuse (unsafe-serve) rate, estimated cost savings, p50/p95 latency (held-out + development clearly labeled).
-- [ ] **Threshold sweeps** and **Pareto curves** (coverage vs false-positive rate), overall and **by domain** where adaptive thresholds apply.
-- [ ] **Freshness / eviction** slice: stale exposure vs reuse (extend WS6 metrics if policy changes).
-- [ ] **Ablations:** each Phase 3 feature alone vs full stack vs C baseline.
+- [x] **Main results table:** final comparison records per-strategy hit rate, false-reuse rate, cost, and p50/p95 latency.
+- [x] **Threshold sweeps** and domain threshold curves are recorded.
+- [ ] Selected-stack **Pareto curve** remains deferred to a future protocol-approved rerun.
+- [x] **Freshness / eviction** slice: recorded in `phase3-held-out-eviction.json`.
+- [x] **Ablations:** recorded in `phase3-ablations.json`, including deferred/failed features.
 
 ### 3.2 Statistics and protocol
 
-- [ ] Bootstrap (or documented binomial) **confidence intervals**; fixed seeds recorded.
-- [ ] **Single final held-out run** logged once (config hash, git commit, dataset version).
-- [ ] Limitations section sourced from real gaps (e.g. synthetic provider, deferred live provider, label sparsity).
+- [x] Bootstrap (or documented binomial) **confidence intervals**; fixed seeds recorded.
+- [x] **Single final held-out run** logged once (config hash, git commit, dataset version).
+- [x] Limitations section sourced from real gaps (synthetic provider, deferred labels, OPS-lite, and WS6 freshness scope).
 
 ### 3.3 Reproducibility
 
-- [ ] One entry point regenerates all paper artifacts (e.g. `make paper-results` or documented `python -m sscre ...` sequence)—commands copied into `PHASE3_PLAN.md` and evidence file.
-- [ ] Outputs land under `artifacts/evaluation/` (or agreed path) with names tied to plan version.
+- [x] Documented `python -m sscre ...` sequence regenerates the current paper-artifact package; commands are copied into the evidence files.
+- [x] Outputs land under `artifacts/evaluation/` with `phase3-*` names.
 
 ### 3.4 Headline numbers (draft placeholders — fill after measurement)
 
 Do **not** check until values exist in artifacts:
 
-- [ ] Held-out **hit rate** at selected operating point (Strategy C or best Phase 3 stack).
-- [ ] Held-out **false-reuse / false-positive rate** with 95% CI.
-- [ ] **Estimated token or cost savings** vs no-cache at same quality constraint.
-- [ ] **p95 latency** delta cache-hit vs miss (synthetic provider unless P2-PROV done).
+- [x] Held-out **hit rate** at selected operating point: Strategy C + Feature 1
+  `0.002325581395348837`.
+- [x] Held-out **false-reuse / false-positive rate** with 95% CI: `0.0`.
+- [x] **Estimated token or cost savings** recorded in the final comparison; configured synthetic costs are `0.0`.
+- [x] **p95 latency** recorded in the final comparison: `0.0 ms` under synthetic replay.
 
 Use these in abstract and resume only after the final held-out run.
+
+**Phase 3 execution status (2026-10-10):** implementation and final held-out package
+closed. Feature 1 passed, Feature 2 failed its reuse-improvement criterion and is
+deferred, Strategy D was not triggered, and the selected-stack Pareto curve remains
+explicitly deferred to avoid an additional held-out run.
 
 ---
 
@@ -231,11 +265,11 @@ When invoked in agent mode:
 1. [x] Complete **Phase 1** triage table refresh + recommendation; **wait for OK** (Phase 0).
 2. [x] Write **`PHASE3_PLAN.md`** (Phase 2); **wait for OK** on scope/order before Phase 3 code.
 3. [x] Implement approved Phase 2 carryovers on a branch; keep diffs minimal.
-4. [ ] Implement Phase 3 features **one card at a time**; update plan checkboxes and evidence after each.
-5. [ ] Run verification from repo root and record in plan:
-   - [ ] `python -m pytest -q`
-   - [ ] Paper artifact command(s) from `PHASE3_PLAN.md`
-   - [ ] `docker compose config` (non-secret sample env)
+4. [x] Implement Phase 3 features one card at a time; update plan checkboxes and evidence after each. Feature 2 failed its criterion and Strategy D was deferred by gate.
+5. [x] Run verification from repo root and record in plan:
+   - [x] `python -m pytest -q`
+   - [x] Paper artifact commands from `PHASE3_PLAN.md`
+   - [x] `docker compose config` (non-secret sample env)
 
 Reply template after planning pass:
 
@@ -258,9 +292,9 @@ Reply template after planning pass:
 | Phase 1 CI | GitHub Actions run URL (green) | | last known fail: `37826835133` |
 | Phase 2 authoring | `PHASE3_PLAN.md` + authoring plan Steps 0–6 | 2026-10-09 | complete on `phase2/phase3-plan` |
 | Phase 2 authoring | Self-review (Features 1–3 hypothesis + pass/fail) | 2026-10-09 | no TBD in in-scope cards |
-| Phase 2 authoring | User OK for Phase 3 code | | pending |
-| Phase 3 | Final held-out evaluation command | | |
-| Phase 3 | Reproducibility runbook (`PHASE3_PLAN.md` § 3.3) end-to-end | | |
+| Phase 2 authoring | User OK for Phase 3 code | 2026-10-10 | implementation steps 1–6 explicitly requested in chat |
+| Phase 3 | Final held-out evaluation command | 2026-10-10 | passed once; `phase3-final-held-out-comparison.json` |
+| Phase 3 | Reproducibility runbook (`PHASE3_PLAN.md` § 3.3) end-to-end | 2026-10-10 | development package, gallery, pytest, benchmark validation, and compose checks passed |
 
 ---
 
