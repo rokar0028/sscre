@@ -35,6 +35,7 @@ from sscre.evaluation_statistics import (
     apply_statistics_config_defaults,
     build_comparison_statistics,
 )
+from sscre.failure_quality import enrich_failure_gallery
 from sscre.freshness_artifacts import freshness_companion_artifact_references
 from sscre.freshness_evaluation import (
     DEFAULT_REPLAY_ANCHOR_TIME,
@@ -45,6 +46,7 @@ from sscre.freshness_evaluation import (
 from sscre.serialization import (
     attach_evaluation_report_schema,
     redact_operational_evaluation_report,
+    validate_redacted_report_payload,
 )
 
 _COST_FIELDS = (
@@ -585,15 +587,20 @@ def main(argv: list[str] | None = None) -> int:
                 "measurement_environment": "synthetic_replay",
                 "threshold_selection": asdict(selection),
                 "baselines": baseline_payloads,
-                "failure_gallery": {
-                    "embedding_only_false_positives": (
-                        embedding_report.false_positive_examples
-                    ),
-                    "embedding_only_false_positives_caught_by_strategy_c": (
-                        caught_embedding_false_positives
-                    ),
-                    "strategy_c_failures": compatibility_report.failure_examples,
-                },
+                "failure_gallery": enrich_failure_gallery(
+                    {
+                        "embedding_only_false_positives": (
+                            embedding_report.false_positive_examples
+                        ),
+                        "embedding_only_false_positives_caught_by_strategy_c": (
+                            caught_embedding_false_positives
+                        ),
+                        "strategy_c_failures": (
+                            compatibility_report.failure_examples
+                        ),
+                    },
+                    records,
+                ),
             }
             if attach_statistics:
                 comparison_body["statistics"] = build_comparison_statistics(
@@ -611,6 +618,7 @@ def main(argv: list[str] | None = None) -> int:
             payload = redact_operational_evaluation_report(
                 attach_evaluation_report_schema(comparison_body)
             )
+            validate_redacted_report_payload(payload)
             output_path = Path(args.output)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(
