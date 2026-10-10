@@ -1,0 +1,3254 @@
+{
+  "bottleneck_analysis": {
+    "environment": {
+      "concurrency": 4,
+      "provider_data": "synthetic",
+      "storage": "in-memory"
+    },
+    "first_measured_bottleneck": "wrapper_overhead",
+    "measured_components": {
+      "average_llm_latency_ms": 0.0,
+      "average_wrapper_overhead_ms": 1.819
+    },
+    "optimization": "No production optimization selected; this deterministic in-process run does not justify changing safety-critical request behavior."
+  },
+  "cache_policy": {
+    "max_bytes": 10000,
+    "max_entries": 8
+  },
+  "comparison": {
+    "compatibility": [
+      {
+        "cache_mode": "compatibility",
+        "concurrency": 4,
+        "elapsed_seconds": 0.126908,
+        "errors": {
+          "count": 3,
+          "rate": 0.09375,
+          "timeouts": 0
+        },
+        "latency_ms": {
+          "max": 25.978,
+          "p50": 14.342,
+          "p95": 24.498,
+          "p99": 25.524
+        },
+        "mode": "cold",
+        "reasons": {
+          "all candidates were incompatible": 9,
+          "embedding_unavailable": 3,
+          "no candidate had sufficient compatibility evidence": 15,
+          "no candidates were retrieved": 2,
+          "response generation failed": 3
+        },
+        "request_count": 32,
+        "results": [
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 24.485,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 22.925,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 25.978,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 24.515,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "dynamic_query",
+            "latency_ms": 10.373,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "oversized_answer",
+            "latency_ms": 11.072,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNCERTAIN",
+            "label": "embedding_failure",
+            "latency_ms": 14.225,
+            "llm_latency_ms": 0,
+            "reason": "embedding_unavailable",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 10.127,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 12.202,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 12.912,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 13.924,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 19.124,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "semantic_hit",
+            "latency_ms": 16.41,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 5,
+            "decision": "UNCERTAIN",
+            "label": "semantic_hit",
+            "latency_ms": 15.844,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 5
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "dynamic_query",
+            "latency_ms": 14.459,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "oversized_answer",
+            "latency_ms": 14.56,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "embedding_failure",
+            "latency_ms": 12.014,
+            "llm_latency_ms": 0,
+            "reason": "embedding_unavailable",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 11.221,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "eviction_candidate",
+            "latency_ms": 12.706,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 5,
+            "decision": "UNCERTAIN",
+            "label": "eviction_candidate",
+            "latency_ms": 16.932,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 5
+          },
+          {
+            "api_latency_ms": 6,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 19.773,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 6
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 13.558,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 6,
+            "decision": "UNCERTAIN",
+            "label": "semantic_hit",
+            "latency_ms": 18.267,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 6
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNCERTAIN",
+            "label": "semantic_hit",
+            "latency_ms": 12.766,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "dynamic_query",
+            "latency_ms": 14.654,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "oversized_answer",
+            "latency_ms": 16.975,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "embedding_failure",
+            "latency_ms": 13.637,
+            "llm_latency_ms": 0,
+            "reason": "embedding_unavailable",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 10.243,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNCERTAIN",
+            "label": "eviction_candidate",
+            "latency_ms": 13.916,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNCERTAIN",
+            "label": "eviction_candidate",
+            "latency_ms": 15.914,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 15.021,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 13.38,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          }
+        ],
+        "sources": {
+          "error": 3,
+          "generated": 29
+        },
+        "storage": {
+          "bytes": 1174,
+          "entries": 5
+        },
+        "synthetic_provider_data": true,
+        "throughput_requests_per_second": 252.151,
+        "warmup_requests": 0,
+        "workload_labels": {
+          "dynamic_query": 3,
+          "embedding_failure": 3,
+          "eviction_candidate": 6,
+          "exact_hit": 8,
+          "generation_failure": 3,
+          "oversized_answer": 3,
+          "semantic_hit": 6
+        }
+      },
+      {
+        "cache_mode": "compatibility",
+        "concurrency": 4,
+        "elapsed_seconds": 0.123832,
+        "errors": {
+          "count": 3,
+          "rate": 0.09375,
+          "timeouts": 0
+        },
+        "latency_ms": {
+          "max": 20.088,
+          "p50": 14.709,
+          "p95": 19.115,
+          "p99": 19.869
+        },
+        "mode": "warm",
+        "reasons": {
+          "all candidates were incompatible": 8,
+          "embedding_unavailable": 3,
+          "no candidate had sufficient compatibility evidence": 18,
+          "response generation failed": 3
+        },
+        "request_count": 32,
+        "results": [
+          {
+            "api_latency_ms": 5,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 17.871,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 5
+          },
+          {
+            "api_latency_ms": 6,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 19.383,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 6
+          },
+          {
+            "api_latency_ms": 5,
+            "decision": "UNCERTAIN",
+            "label": "semantic_hit",
+            "latency_ms": 13.938,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 5
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNCERTAIN",
+            "label": "semantic_hit",
+            "latency_ms": 11.368,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "dynamic_query",
+            "latency_ms": 12.954,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "oversized_answer",
+            "latency_ms": 14.415,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "embedding_failure",
+            "latency_ms": 13.999,
+            "llm_latency_ms": 0,
+            "reason": "embedding_unavailable",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 10.548,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 14.736,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 15.541,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 15.105,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 14.449,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "semantic_hit",
+            "latency_ms": 20.088,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 6,
+            "decision": "UNCERTAIN",
+            "label": "semantic_hit",
+            "latency_ms": 17.423,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 6
+          },
+          {
+            "api_latency_ms": 5,
+            "decision": "UNSAFE",
+            "label": "dynamic_query",
+            "latency_ms": 17.361,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 5
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNSAFE",
+            "label": "oversized_answer",
+            "latency_ms": 17.508,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNCERTAIN",
+            "label": "embedding_failure",
+            "latency_ms": 15.439,
+            "llm_latency_ms": 0,
+            "reason": "embedding_unavailable",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 13.354,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNCERTAIN",
+            "label": "eviction_candidate",
+            "latency_ms": 14.209,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "eviction_candidate",
+            "latency_ms": 14.682,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 6,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 17.681,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 6
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 13.407,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 7,
+            "decision": "UNCERTAIN",
+            "label": "semantic_hit",
+            "latency_ms": 18.114,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 7
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNCERTAIN",
+            "label": "semantic_hit",
+            "latency_ms": 18.895,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "dynamic_query",
+            "latency_ms": 13.223,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "oversized_answer",
+            "latency_ms": 12.964,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNCERTAIN",
+            "label": "embedding_failure",
+            "latency_ms": 12.817,
+            "llm_latency_ms": 0,
+            "reason": "embedding_unavailable",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 10.936,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNCERTAIN",
+            "label": "eviction_candidate",
+            "latency_ms": 16.211,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 5,
+            "decision": "UNCERTAIN",
+            "label": "eviction_candidate",
+            "latency_ms": 14.781,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 5
+          },
+          {
+            "api_latency_ms": 6,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 15.148,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 6
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "exact_hit",
+            "latency_ms": 14.102,
+            "llm_latency_ms": 0,
+            "reason": "no candidate had sufficient compatibility evidence",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          }
+        ],
+        "sources": {
+          "error": 3,
+          "generated": 29
+        },
+        "storage": {
+          "bytes": 1174,
+          "entries": 5
+        },
+        "synthetic_provider_data": true,
+        "throughput_requests_per_second": 258.415,
+        "warmup_requests": 8,
+        "workload_labels": {
+          "dynamic_query": 3,
+          "embedding_failure": 3,
+          "eviction_candidate": 6,
+          "exact_hit": 8,
+          "generation_failure": 3,
+          "oversized_answer": 3,
+          "semantic_hit": 6
+        }
+      }
+    ],
+    "embedding_only": [
+      {
+        "cache_mode": "embedding_only",
+        "concurrency": 4,
+        "elapsed_seconds": 0.114551,
+        "errors": {
+          "count": 3,
+          "rate": 0.09375,
+          "timeouts": 0
+        },
+        "latency_ms": {
+          "max": 18.667,
+          "p50": 14.497,
+          "p95": 17.542,
+          "p99": 18.466
+        },
+        "mode": "cold",
+        "reasons": {
+          "all candidates were incompatible": 8,
+          "embedding_unavailable": 3,
+          "exact_query_hash_match": 13,
+          "no candidates were retrieved": 2,
+          "response generation failed": 3,
+          "similarity_threshold_met": 3
+        },
+        "request_count": 32,
+        "results": [
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 16.85,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 18.02,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 14.387,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 14.654,
+            "llm_latency_ms": 0,
+            "reason": "similarity_threshold_met",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "dynamic_query",
+            "latency_ms": 13.211,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "oversized_answer",
+            "latency_ms": 9.904,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "embedding_failure",
+            "latency_ms": 10.864,
+            "llm_latency_ms": 0,
+            "reason": "embedding_unavailable",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 11.651,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 12.777,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 14.586,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 9.1,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 11.443,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 10.993,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 14.583,
+            "llm_latency_ms": 0,
+            "reason": "similarity_threshold_met",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "dynamic_query",
+            "latency_ms": 15.453,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "oversized_answer",
+            "latency_ms": 18.667,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "embedding_failure",
+            "latency_ms": 17.151,
+            "llm_latency_ms": 0,
+            "reason": "embedding_unavailable",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 13.449,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 14.877,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 15.464,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 15.21,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 15.816,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 14.267,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 16.766,
+            "llm_latency_ms": 0,
+            "reason": "similarity_threshold_met",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNSAFE",
+            "label": "dynamic_query",
+            "latency_ms": 15.106,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "oversized_answer",
+            "latency_ms": 14.491,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "embedding_failure",
+            "latency_ms": 14.503,
+            "llm_latency_ms": 0,
+            "reason": "embedding_unavailable",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 13.499,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 15.278,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 11.299,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 12.138,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 7.035,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          }
+        ],
+        "sources": {
+          "cache": 16,
+          "error": 3,
+          "generated": 13
+        },
+        "storage": {
+          "bytes": 932,
+          "entries": 4
+        },
+        "synthetic_provider_data": true,
+        "throughput_requests_per_second": 279.352,
+        "warmup_requests": 0,
+        "workload_labels": {
+          "dynamic_query": 3,
+          "embedding_failure": 3,
+          "eviction_candidate": 6,
+          "exact_hit": 8,
+          "generation_failure": 3,
+          "oversized_answer": 3,
+          "semantic_hit": 6
+        }
+      },
+      {
+        "cache_mode": "embedding_only",
+        "concurrency": 4,
+        "elapsed_seconds": 0.084904,
+        "errors": {
+          "count": 3,
+          "rate": 0.09375,
+          "timeouts": 0
+        },
+        "latency_ms": {
+          "max": 12.695,
+          "p50": 10.213,
+          "p95": 12.543,
+          "p99": 12.684
+        },
+        "mode": "warm",
+        "reasons": {
+          "all candidates were incompatible": 8,
+          "embedding_unavailable": 3,
+          "exact_query_hash_match": 15,
+          "response generation failed": 3,
+          "similarity_threshold_met": 3
+        },
+        "request_count": 32,
+        "results": [
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 9.929,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 10.41,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 10.335,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 10.536,
+            "llm_latency_ms": 0,
+            "reason": "similarity_threshold_met",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "dynamic_query",
+            "latency_ms": 9.636,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "oversized_answer",
+            "latency_ms": 10.592,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNCERTAIN",
+            "label": "embedding_failure",
+            "latency_ms": 11.599,
+            "llm_latency_ms": 0,
+            "reason": "embedding_unavailable",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 8.838,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 9.95,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 11.864,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 8.923,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 12.448,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 10.477,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 9.312,
+            "llm_latency_ms": 0,
+            "reason": "similarity_threshold_met",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "dynamic_query",
+            "latency_ms": 10.426,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "oversized_answer",
+            "latency_ms": 12.695,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNCERTAIN",
+            "label": "embedding_failure",
+            "latency_ms": 12.658,
+            "llm_latency_ms": 0,
+            "reason": "embedding_unavailable",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 10.09,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 8.35,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 9.407,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 9.286,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 11.762,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 9.86,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 11.159,
+            "llm_latency_ms": 0,
+            "reason": "similarity_threshold_met",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "dynamic_query",
+            "latency_ms": 10.879,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "oversized_answer",
+            "latency_ms": 11.676,
+            "llm_latency_ms": 0,
+            "reason": "all candidates were incompatible",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "UNCERTAIN",
+            "label": "embedding_failure",
+            "latency_ms": 11.344,
+            "llm_latency_ms": 0,
+            "reason": "embedding_unavailable",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 10.017,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 9.781,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 9.364,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 8.104,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 5.855,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          }
+        ],
+        "sources": {
+          "cache": 18,
+          "error": 3,
+          "generated": 11
+        },
+        "storage": {
+          "bytes": 932,
+          "entries": 4
+        },
+        "synthetic_provider_data": true,
+        "throughput_requests_per_second": 376.898,
+        "warmup_requests": 8,
+        "workload_labels": {
+          "dynamic_query": 3,
+          "embedding_failure": 3,
+          "eviction_candidate": 6,
+          "exact_hit": 8,
+          "generation_failure": 3,
+          "oversized_answer": 3,
+          "semantic_hit": 6
+        }
+      }
+    ],
+    "exact_cache": [
+      {
+        "cache_mode": "exact_cache",
+        "concurrency": 4,
+        "elapsed_seconds": 0.104428,
+        "errors": {
+          "count": 3,
+          "rate": 0.09375,
+          "timeouts": 0
+        },
+        "latency_ms": {
+          "max": 25.467,
+          "p50": 11.563,
+          "p95": 24.238,
+          "p99": 25.349
+        },
+        "mode": "cold",
+        "reasons": {
+          "answer_too_large": 3,
+          "dynamic_entries_disabled": 3,
+          "exact_query_hash_match": 17,
+          "no candidates were retrieved": 6,
+          "response generation failed": 3
+        },
+        "request_count": 32,
+        "results": [
+          {
+            "api_latency_ms": 4,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 25.087,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 25.467,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 23.543,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 20.053,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 12.213,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 11.619,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "embedding_failure",
+            "latency_ms": 12.362,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 11.221,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 11.655,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 10.374,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 11.223,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 11.613,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 10.679,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 10.244,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 12.431,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 12.516,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "embedding_failure",
+            "latency_ms": 11.657,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 8.334,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 13.346,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 11.342,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 10.36,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 13.726,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 10.441,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 11.514,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 11.655,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 10.803,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "embedding_failure",
+            "latency_ms": 10.52,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 11.438,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 12.849,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 8.876,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 9.249,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 6.668,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          }
+        ],
+        "sources": {
+          "cache": 17,
+          "error": 3,
+          "generated": 12
+        },
+        "storage": {
+          "bytes": 1224,
+          "entries": 6
+        },
+        "synthetic_provider_data": true,
+        "throughput_requests_per_second": 306.431,
+        "warmup_requests": 0,
+        "workload_labels": {
+          "dynamic_query": 3,
+          "embedding_failure": 3,
+          "eviction_candidate": 6,
+          "exact_hit": 8,
+          "generation_failure": 3,
+          "oversized_answer": 3,
+          "semantic_hit": 6
+        }
+      },
+      {
+        "cache_mode": "exact_cache",
+        "concurrency": 4,
+        "elapsed_seconds": 0.090146,
+        "errors": {
+          "count": 3,
+          "rate": 0.09375,
+          "timeouts": 0
+        },
+        "latency_ms": {
+          "max": 12.778,
+          "p50": 11.14,
+          "p95": 12.64,
+          "p99": 12.74
+        },
+        "mode": "warm",
+        "reasons": {
+          "answer_too_large": 3,
+          "dynamic_entries_disabled": 3,
+          "exact_query_hash_match": 21,
+          "no candidates were retrieved": 2,
+          "response generation failed": 3
+        },
+        "request_count": 32,
+        "results": [
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 10.283,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 12.283,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 12.506,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 12.778,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 10.661,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 12.083,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "embedding_failure",
+            "latency_ms": 9.26,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 10.414,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 10.13,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 10.648,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 9.915,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 12.041,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 10.721,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 11.234,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 11.854,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 10.168,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "embedding_failure",
+            "latency_ms": 12.654,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 11.866,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 11.741,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 11.358,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 9.963,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 10.606,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 12.527,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 8.927,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 12.075,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 11.047,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "embedding_failure",
+            "latency_ms": 10.099,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 9.572,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 12.628,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 11.512,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 11.44,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 9.572,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          }
+        ],
+        "sources": {
+          "cache": 21,
+          "error": 3,
+          "generated": 8
+        },
+        "storage": {
+          "bytes": 1224,
+          "entries": 6
+        },
+        "synthetic_provider_data": true,
+        "throughput_requests_per_second": 354.98,
+        "warmup_requests": 8,
+        "workload_labels": {
+          "dynamic_query": 3,
+          "embedding_failure": 3,
+          "eviction_candidate": 6,
+          "exact_hit": 8,
+          "generation_failure": 3,
+          "oversized_answer": 3,
+          "semantic_hit": 6
+        }
+      }
+    ],
+    "no_cache": [
+      {
+        "cache_mode": "no_cache",
+        "concurrency": 4,
+        "elapsed_seconds": 0.16121,
+        "errors": {
+          "count": 3,
+          "rate": 0.09375,
+          "timeouts": 0
+        },
+        "latency_ms": {
+          "max": 44.966,
+          "p50": 16.232,
+          "p95": 43.919,
+          "p99": 44.821
+        },
+        "mode": "cold",
+        "reasons": {
+          "answer_too_large": 3,
+          "dynamic_entries_disabled": 3,
+          "no candidates were retrieved": 23,
+          "response generation failed": 3
+        },
+        "request_count": 32,
+        "results": [
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 43.444,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 5,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 44.499,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 5
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 36.856,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 6,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 44.966,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 6
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 13.817,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 17.392,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "embedding_failure",
+            "latency_ms": 12.808,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 11.657,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 13.205,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 14.111,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 13.657,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 12.893,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 16.589,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 13.866,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 17.08,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 13.733,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "embedding_failure",
+            "latency_ms": 15.669,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 17.943,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 13.154,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 15.874,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 23.051,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 6,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 19.238,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 6
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 20.885,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 21.485,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 19.907,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 5,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 22.91,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 5
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "embedding_failure",
+            "latency_ms": 21.577,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 18.617,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 15.799,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 13.568,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 13.561,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 11.806,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          }
+        ],
+        "sources": {
+          "error": 3,
+          "generated": 29
+        },
+        "storage": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "synthetic_provider_data": true,
+        "throughput_requests_per_second": 198.499,
+        "warmup_requests": 0,
+        "workload_labels": {
+          "dynamic_query": 3,
+          "embedding_failure": 3,
+          "eviction_candidate": 6,
+          "exact_hit": 8,
+          "generation_failure": 3,
+          "oversized_answer": 3,
+          "semantic_hit": 6
+        }
+      },
+      {
+        "cache_mode": "no_cache",
+        "concurrency": 4,
+        "elapsed_seconds": 0.105876,
+        "errors": {
+          "count": 3,
+          "rate": 0.09375,
+          "timeouts": 0
+        },
+        "latency_ms": {
+          "max": 20.729,
+          "p50": 11.774,
+          "p95": 18.741,
+          "p99": 20.182
+        },
+        "mode": "warm",
+        "reasons": {
+          "answer_too_large": 3,
+          "dynamic_entries_disabled": 3,
+          "no candidates were retrieved": 23,
+          "response generation failed": 3
+        },
+        "request_count": 32,
+        "results": [
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 18.559,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 14.716,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 18.964,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 14.726,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 13.477,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 14.489,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "UNSAFE",
+            "label": "embedding_failure",
+            "latency_ms": 15.4,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 20.729,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 17.33,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 4,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 17.166,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 4
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 18.345,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 15.538,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 13.138,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 3,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 16.129,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 3
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 8.085,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 0,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 8.882,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 0
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "embedding_failure",
+            "latency_ms": 13.31,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 12.091,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 11.369,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 11.285,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 10.986,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 11.457,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 11.29,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "semantic_hit",
+            "latency_ms": 10.587,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 8.484,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 10.031,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "embedding_failure",
+            "latency_ms": 9.732,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": null,
+            "decision": null,
+            "label": "generation_failure",
+            "latency_ms": 10.311,
+            "llm_latency_ms": null,
+            "reason": "response generation failed",
+            "source": "error",
+            "status_code": 502,
+            "wrapper_overhead_ms": null
+          },
+          {
+            "api_latency_ms": 2,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 11.136,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 2
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 9.329,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 8.335,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          },
+          {
+            "api_latency_ms": 1,
+            "decision": "UNSAFE",
+            "label": "exact_hit",
+            "latency_ms": 7.773,
+            "llm_latency_ms": 0,
+            "reason": "no candidates were retrieved",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 1
+          }
+        ],
+        "sources": {
+          "error": 3,
+          "generated": 29
+        },
+        "storage": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "synthetic_provider_data": true,
+        "throughput_requests_per_second": 302.24,
+        "warmup_requests": 8,
+        "workload_labels": {
+          "dynamic_query": 3,
+          "embedding_failure": 3,
+          "eviction_candidate": 6,
+          "exact_hit": 8,
+          "generation_failure": 3,
+          "oversized_answer": 3,
+          "semantic_hit": 6
+        }
+      }
+    ]
+  },
+  "dataset_version": "synthetic-production-readiness-v1",
+  "name": "milestone10_failure_load_v1",
+  "phase4_protocol": {
+    "concurrency": 4,
+    "database_mode": "in_memory",
+    "gpu_used": false,
+    "hardware": "local Windows CPU; exact hardware not captured by the existing harness",
+    "max_bytes": 10000,
+    "max_entries": 8,
+    "optimization_selected": false,
+    "protocol_version": "phase4-scale-profile-1.0",
+    "provider_data": "synthetic",
+    "quantization_tested": false,
+    "request_count": 32,
+    "track": "P4-SCALE",
+    "warmup_requests": 8,
+    "workload": "experiments/milestone10_load_v1.json",
+    "workload_scope": "bounded local synthetic profile; not a production capacity claim"
+  },
+  "provenance": {
+    "generated_at_utc": "2026-10-10T13:46:10.222988+00:00",
+    "git_commit": "dc451fed105fe481b6be99ee37ea3683634b848d",
+    "git_worktree_dirty": true,
+    "workload_sha256": "1c681f987c29bae575d52eaa1b053c0f78817cc98580b610ebed84b853747283"
+  },
+  "strategies": [
+    "no_cache",
+    "exact_cache",
+    "embedding_only",
+    "compatibility"
+  ]
+}
