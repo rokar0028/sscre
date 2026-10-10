@@ -75,6 +75,7 @@ def serialize_safety_result_for_boundary(
 
 def attach_evaluation_report_schema(payload: Mapping[str, object]) -> dict[str, object]:
     from sscre.evaluation_statistics import attach_evaluation_statistics_schema
+    from sscre.failure_gallery import attach_failure_gallery_schema
     from sscre.freshness_evaluation import attach_freshness_evaluation_schema
 
     envelope = {
@@ -84,7 +85,8 @@ def attach_evaluation_report_schema(payload: Mapping[str, object]) -> dict[str, 
         **dict(payload),
     }
     with_statistics = attach_evaluation_statistics_schema(envelope)
-    return attach_freshness_evaluation_schema(with_statistics)
+    with_freshness = attach_freshness_evaluation_schema(with_statistics)
+    return attach_failure_gallery_schema(with_freshness)
 
 
 _OPERATIONAL_QUERY_TEXT_KEYS = frozenset({"query_a", "query_b"})
