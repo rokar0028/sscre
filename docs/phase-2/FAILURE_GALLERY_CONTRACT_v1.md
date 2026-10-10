@@ -80,9 +80,14 @@ credential-like fields (`token`, `secret`, `api_key`, …).
 
 Required: `id`, `direction` (`a_to_b` | `b_to_a`), `similarity`.
 
-Optional (Step 3+): `reason` (reviewed pair text where policy permits),
-`failure_category` (reviewed benchmark category or explicit enrichment),
-`category_unavailable`, `mitigation`, `open_limitation`.
+Optional: `reason` (reviewed pair text where policy permits).
+
+After Step 3 enrichment on comparison saves (`enrich_failure_gallery`):
+
+- `failure_category` (reviewed benchmark) **or** `category_unavailable: true`
+- `category_source`: `reviewed_benchmark`
+- `failure_category_display`, `mitigation`, `open_limitation`
+- `evaluation_labels`: compatibility (+ optional annotation) subset only
 
 No `candidate_traces` on embedding-only rows in the current replay path.
 
@@ -95,8 +100,11 @@ Required:
 - `expected_reusable`, `expected_compatibility` (when benchmark labels exist)
 - `failure_category` (runtime outcome category)
 
-Optional: `evaluation_labels`, `candidate_traces` (bounded per trace contract v1),
-`mitigation`, `open_limitation`.
+Optional: `evaluation_labels` (compatibility subset after enrichment),
+`candidate_traces` (bounded per trace contract v1).
+
+After enrichment: `category_source` (`runtime_outcome`), `failure_category_display`,
+`mitigation`, `open_limitation` (rule-based defaults in `failure_quality.py`).
 
 ## Aggregate `quality_analysis`
 
