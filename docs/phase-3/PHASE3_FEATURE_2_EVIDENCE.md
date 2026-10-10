@@ -57,7 +57,7 @@ Held-out decision:
 - Candidate stale exposure: `0.0`.
 - **Result: fail/defer.** Pattern eviction did not strictly improve reuse or
   safe-reuse coverage, so it is not included in the shipped Phase 3 stack.
-- Full suite after implementation: **659 passed**, **15 skipped**, one existing
+- Full suite after implementation: **661 passed**, **15 skipped**, one existing
   Starlette/httpx deprecation warning.
 
 ## Artifacts

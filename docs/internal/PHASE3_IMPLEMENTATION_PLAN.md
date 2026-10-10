@@ -194,7 +194,9 @@ artifacts under `artifacts/evaluation/`, updated evidence, and all relevant test
 
 - [x] Freeze the selected stack, config, threshold map, eviction policy, and optional D
   decision before the final run.
-- [x] Run the final held-out comparison exactly once for the paper stack.
+- [x] Run the final held-out comparison once under the documented protocol;
+  a later rerun was authorized by the protocol reset in
+  [`PHASE3_FINAL_EVIDENCE.md`](../phase-3/PHASE3_FINAL_EVIDENCE.md).
 - [x] Record UTC timestamp, git commit, config SHA-256, dataset version, split-manifest
   SHA-256, seed, commands, and artifact paths.
 - [x] Verify the reproducibility commands from `PHASE3_PLAN.md` from the current clean
@@ -206,7 +208,7 @@ artifacts under `artifacts/evaluation/`, updated evidence, and all relevant test
 
 ## Step 6 — Close Phase 3
 
-- [x] Run `python -m pytest -q` after review fixes: **659 passed**, 15 skipped,
+- [x] Run `python -m pytest -q` after review fixes: **661 passed**, 15 skipped,
   one existing warning.
 - [x] Run `python -m sscre.benchmark_validate --phase2 --production`: passed.
 - [x] Run `docker compose config` with the CI sample environment: passed.
@@ -298,7 +300,7 @@ are present; no Strategy D code was added.
 | P3-FINAL | Final held-out comparison | 2026-10-10 | passed; `phase3-final-held-out-comparison.json`; one run |
 | P3-FINAL | Final gallery export | 2026-10-10 | passed; `phase3-final-held-out-comparison-gallery.html` |
 | P3-FINAL | Final metadata / reproducibility record | 2026-10-10 | passed; config, dataset, split manifest, commit, timestamp, seed recorded |
-| P3-CLOSE | Final pytest / validation / compose checks | 2026-10-10 | pytest **659 passed**, 15 skipped; benchmark validation and compose passed |
+| P3-CLOSE | Final pytest / validation / compose checks | 2026-10-10 | pytest **661 passed**, 15 skipped; benchmark validation and compose passed |
 
 ## Verification gate
 

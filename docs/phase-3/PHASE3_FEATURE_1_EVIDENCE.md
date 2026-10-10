@@ -51,7 +51,7 @@ Results:
   selector behavior, and compatibility safety).
 - Full suite before the review-test additions: **655 passed**, **15 skipped**, one
   existing Starlette/httpx deprecation warning; current suite after those additions:
-  **659 passed**, **15 skipped**.
+  **661 passed**, **15 skipped**.
 - Held-out adaptive Strategy C: `hit_rate=0.002325581395348837`,
   `false_positive_rate=0.0`.
 - Frozen WS5 global Strategy C reference at `0.95`:

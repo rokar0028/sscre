@@ -53,5 +53,5 @@ python -m sscre.phase3_artifacts --output-dir artifacts/evaluation --development
 ## Verification
 
 - [x] Artifact assembly command completed successfully.
-- [x] `python -m pytest -q`: **659 passed**, 15 skipped, one existing warning.
+- [x] `python -m pytest -q`: **661 passed**, 15 skipped, one existing warning.
 - [x] No new held-out evaluation was run for this packaging step.
