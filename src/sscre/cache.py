@@ -131,6 +131,7 @@ class ExactCacheRepository(Protocol):
         entry: CacheEntry,
         max_entries: int,
         max_bytes: int,
+        eviction_strategy: str = "lru",
     ) -> None:
         """Insert and enforce both storage caps atomically."""
         ...
@@ -249,12 +250,17 @@ class InMemoryExactCache:
         entry: CacheEntry,
         max_entries: int,
         max_bytes: int,
+        eviction_strategy: str = "lru",
     ) -> None:
         if max_entries <= 0 or max_bytes <= 0:
             raise ValueError("cache limits must be positive")
         with self._lock:
             self.insert(entry)
-            self._evict_to_limits(max_entries, max_bytes)
+            self._evict_to_limits(
+                max_entries,
+                max_bytes,
+                eviction_strategy=eviction_strategy,
+            )
 
     def record_hit(self, query_hash: str) -> None:
         with self._lock:
@@ -347,7 +353,34 @@ class InMemoryExactCache:
             self._expiration_count += len(expired)
             return len(expired)
 
-    def _evict_to_limits(self, max_entries: int, max_bytes: int) -> int:
+    def _eviction_key(self, query_hash: str, eviction_strategy: str) -> tuple:
+        if eviction_strategy == "lru":
+            return (self._access_order[query_hash], query_hash)
+        if eviction_strategy != "pattern":
+            raise ValueError("eviction_strategy must be lru or pattern")
+        entry = self._entries[query_hash]
+        freshness_rank = {
+            "dynamic": 0,
+            "semi_dynamic": 1,
+            "stable": 2,
+        }.get(
+            entry.metadata.temporal_class if entry.metadata is not None else "stable",
+            2,
+        )
+        return (
+            self._hit_counts[query_hash],
+            freshness_rank,
+            self._access_order[query_hash],
+            query_hash,
+        )
+
+    def _evict_to_limits(
+        self,
+        max_entries: int,
+        max_bytes: int,
+        *,
+        eviction_strategy: str = "lru",
+    ) -> int:
         if max_entries <= 0 or max_bytes <= 0:
             raise ValueError("cache limits must be positive")
         evicted = 0
@@ -357,10 +390,7 @@ class InMemoryExactCache:
         ):
             query_hash = min(
                 self._entries,
-                key=lambda value: (
-                    self._access_order[value],
-                    value,
-                ),
+                key=lambda value: self._eviction_key(value, eviction_strategy),
             )
             entry = self._entries.pop(query_hash)
             self._access_order.pop(query_hash, None)
@@ -375,9 +405,19 @@ class InMemoryExactCache:
         self._eviction_count += evicted
         return evicted
 
-    def evict_to_limits(self, max_entries: int, max_bytes: int) -> int:
+    def evict_to_limits(
+        self,
+        max_entries: int,
+        max_bytes: int,
+        *,
+        eviction_strategy: str = "lru",
+    ) -> int:
         with self._lock:
-            return self._evict_to_limits(max_entries, max_bytes)
+            return self._evict_to_limits(
+                max_entries,
+                max_bytes,
+                eviction_strategy=eviction_strategy,
+            )
 
     def get_canonical_answer(self, answer_hash: str) -> CanonicalAnswer | None:
         with self._lock:

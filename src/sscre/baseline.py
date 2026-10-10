@@ -5,7 +5,7 @@ import math
 from dataclasses import asdict, dataclass, field, replace
 from time import perf_counter
 from pathlib import Path
-from typing import Any, Mapping, Protocol
+from typing import Any, Mapping, Protocol, TypeAlias
 
 from sscre.benchmark import BenchmarkRecord
 from sscre.cache import (
@@ -48,15 +48,46 @@ from sscre.safety import (
     resolve_candidate_traces,
 )
 
+ThresholdPolicy: TypeAlias = float | Mapping[str, float]
+
+
+def _threshold_for_record(
+    threshold: ThresholdPolicy,
+    record: BenchmarkRecord,
+    *,
+    default: float = 0.95,
+) -> float:
+    if isinstance(threshold, Mapping):
+        domain = (record.metadata.domain or "").strip() or "unknown"
+        return float(threshold.get(domain, threshold.get("__default__", default)))
+    return float(threshold)
+
 
 class BaselineLLMClient(Protocol):
     def generate(self, query: str) -> LLMResult:
         ...
 
 
-def _insert_if_absent(cache: InMemoryExactCache, entry: CacheEntry) -> None:
+def _insert_if_absent(
+    cache: InMemoryExactCache,
+    entry: CacheEntry,
+    *,
+    max_entries: int | None = None,
+    max_bytes: int | None = None,
+    eviction_strategy: str = "lru",
+) -> None:
     try:
-        cache.insert(entry)
+        if max_entries is None and max_bytes is None:
+            cache.insert(entry)
+        elif max_entries is not None and max_bytes is not None:
+            cache.insert_and_evict(
+                entry,
+                max_entries,
+                max_bytes,
+                eviction_strategy=eviction_strategy,
+            )
+        else:
+            raise ValueError("max_entries and max_bytes must be provided together")
     except DuplicateCacheEntryError:
         # A reviewed workload may contain the same normalized query more than
         # once. It is already represented by the existing cache entry.
@@ -224,7 +255,7 @@ class EmbeddingThresholdSweepReport:
 class CompatibilityCacheReport:
     baseline: str
     dataset_version: str
-    threshold: float
+    threshold: ThresholdPolicy
     top_k: int
     embedding_model: str
     embedding_dimension: int
@@ -828,7 +859,7 @@ def run_compatibility_cache_baseline(
     records: list[BenchmarkRecord],
     *,
     dataset_version: str,
-    threshold: float,
+    threshold: ThresholdPolicy,
     top_k: int = 5,
     llm_client: BaselineLLMClient | None = None,
     embedding_client: EmbeddingClient | None = None,
@@ -839,12 +870,36 @@ def run_compatibility_cache_baseline(
     preprocessing_cost_usd: float = 0.0,
     collect_request_samples: bool = True,
     freshness_replay_clock: FreshnessReplayClock | None = None,
+    max_entries: int | None = None,
+    max_bytes: int | None = None,
+    eviction_strategy: str = "lru",
 ) -> CompatibilityCacheReport:
     """Replay the workload with rule-based compatibility-aware reuse."""
-    if not math.isfinite(threshold) or not -1.0 <= threshold <= 1.0:
+    if isinstance(threshold, Mapping):
+        if not threshold:
+            raise ValueError("threshold map must not be empty")
+        if any(
+            not isinstance(domain, str)
+            or not domain.strip()
+            or isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(value)
+            or not -1.0 <= value <= 1.0
+            for domain, value in threshold.items()
+        ):
+            raise ValueError("threshold map values must be between -1 and 1")
+    elif not math.isfinite(threshold) or not -1.0 <= threshold <= 1.0:
         raise ValueError("threshold must be between -1 and 1")
     if top_k <= 0:
         raise ValueError("top_k must be positive")
+    if (max_entries is None) != (max_bytes is None):
+        raise ValueError("max_entries and max_bytes must be provided together")
+    if max_entries is not None and max_entries <= 0:
+        raise ValueError("max_entries must be positive")
+    if max_bytes is not None and max_bytes <= 0:
+        raise ValueError("max_bytes must be positive")
+    if eviction_strategy not in {"lru", "pattern"}:
+        raise ValueError("eviction_strategy must be lru or pattern")
     costs = (
         input_cost_per_1k_tokens,
         output_cost_per_1k_tokens,
@@ -1016,7 +1071,10 @@ def run_compatibility_cache_baseline(
                         evaluate_candidate_boundary(
                             query_metadata,
                             candidate,
-                            similarity_threshold=threshold,
+                            similarity_threshold=_threshold_for_record(
+                                threshold,
+                                record,
+                            ),
                         ),
                         candidate_order=index + 1,
                         freshness_class=temporal_class,
@@ -1043,6 +1101,7 @@ def run_compatibility_cache_baseline(
 
             if safe_candidate is not None:
                 cache_hits += 1
+                cache.record_hit(safe_candidate.query_hash)
                 decision_counts["SAFE"] = decision_counts.get("SAFE", 0) + 1
                 record_breakdown(query_metadata, "SAFE")
                 tokens_saved += len(normalized_query.split())
@@ -1269,6 +1328,9 @@ def run_compatibility_cache_baseline(
                     embedding_result=embedding_result,
                     freshness_replay_clock=freshness_replay_clock,
                 ),
+                max_entries=max_entries,
+                max_bytes=max_bytes,
+                eviction_strategy=eviction_strategy,
             )
             if freshness_replay_clock is not None:
                 freshness_replay_clock.advance()
@@ -1386,6 +1448,113 @@ def run_compatibility_cache_baseline(
         policy_storage_snapshot=policy_storage_snapshot,
         request_samples=sample_collector.as_tuple(),
     )
+
+
+def select_adaptive_domain_thresholds(
+    records: list[BenchmarkRecord],
+    *,
+    dataset_version: str,
+    thresholds: list[float],
+    top_k: int = 5,
+    max_false_positive_rate: float = 0.0,
+    minimum_pairs: int = 10,
+    default_threshold: float = 0.95,
+    llm_client: BaselineLLMClient | None = None,
+    embedding_client: EmbeddingClient | None = None,
+    input_cost_per_1k_tokens: float = 0.0,
+    output_cost_per_1k_tokens: float = 0.0,
+    embedding_cost_per_1k_tokens: float = 0.0,
+    cache_lookup_cost_usd: float = 0.0,
+    preprocessing_cost_usd: float = 0.0,
+) -> tuple[dict[str, float], dict[str, object]]:
+    """Select development-only compatibility thresholds per metadata domain."""
+    if not thresholds:
+        raise ValueError("thresholds must not be empty")
+    if minimum_pairs <= 0:
+        raise ValueError("minimum_pairs must be positive")
+    if not 0.0 <= max_false_positive_rate <= 1.0:
+        raise ValueError("max_false_positive_rate must be between 0 and 1")
+    if not -1.0 <= default_threshold <= 1.0:
+        raise ValueError("default_threshold must be between -1 and 1")
+
+    by_domain: dict[str, list[BenchmarkRecord]] = {}
+    for record in records:
+        domain = (record.metadata.domain or "").strip() or "unknown"
+        by_domain.setdefault(domain, []).append(record)
+
+    selected: dict[str, float] = {}
+    diagnostics: dict[str, object] = {
+        "minimum_pairs": minimum_pairs,
+        "default_threshold": default_threshold,
+        "thresholds": [float(value) for value in thresholds],
+        "domains": {},
+    }
+    for domain, domain_records in sorted(by_domain.items()):
+        if len(domain_records) < minimum_pairs:
+            selected[domain] = default_threshold
+            diagnostics["domains"][domain] = {  # type: ignore[index]
+                "pair_count": len(domain_records),
+                "selected_threshold": default_threshold,
+                "selection_rule": "fallback_small_stratum",
+            }
+            continue
+        reports = [
+            run_compatibility_cache_baseline(
+                domain_records,
+                dataset_version=dataset_version,
+                threshold=threshold,
+                top_k=top_k,
+                llm_client=llm_client,
+                embedding_client=embedding_client,
+                input_cost_per_1k_tokens=input_cost_per_1k_tokens,
+                output_cost_per_1k_tokens=output_cost_per_1k_tokens,
+                embedding_cost_per_1k_tokens=embedding_cost_per_1k_tokens,
+                cache_lookup_cost_usd=cache_lookup_cost_usd,
+                preprocessing_cost_usd=preprocessing_cost_usd,
+            )
+            for threshold in thresholds
+        ]
+        eligible = [
+            report
+            for report in reports
+            if report.false_positive_rate <= max_false_positive_rate
+        ]
+        if eligible:
+            chosen = max(
+                eligible,
+                key=lambda report: (report.hit_rate, -report.threshold),
+            )
+            selection_rule = (
+                "maximize hit rate subject to development false-positive "
+                f"rate <= {max_false_positive_rate}; tie-break lowest threshold"
+            )
+        else:
+            chosen = min(
+                reports,
+                key=lambda report: (
+                    report.false_positive_rate,
+                    -report.hit_rate,
+                    report.threshold,
+                ),
+            )
+            selection_rule = "no safe threshold; lowest development FPR fallback"
+        selected[domain] = chosen.threshold
+        diagnostics["domains"][domain] = {  # type: ignore[index]
+            "pair_count": len(domain_records),
+            "selected_threshold": chosen.threshold,
+            "selection_rule": selection_rule,
+            "reports": [
+                {
+                    "threshold": report.threshold,
+                    "hit_rate": report.hit_rate,
+                    "false_positive_rate": report.false_positive_rate,
+                    "estimated_cost_usd": report.estimated_cost_usd,
+                    "p95_latency_ms": report.p95_latency_ms,
+                }
+                for report in reports
+            ],
+        }
+    return selected, diagnostics
 
 
 def select_embedding_threshold(

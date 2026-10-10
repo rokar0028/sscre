@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from sscre.app import create_app
 from sscre.cache import CacheEntry, InMemoryExactCache
 from sscre.config import Settings
+from sscre.safety import QueryMetadata
 
 
 def _entry(query_hash: str, answer: str) -> CacheEntry:
@@ -63,6 +64,38 @@ def test_lru_ties_are_broken_by_query_hash() -> None:
 
     assert cache.get_by_query_hash("a") is None
     assert cache.get_by_query_hash("b") is not None
+
+
+def test_pattern_eviction_prioritizes_low_hits_within_freshness_class() -> None:
+    cache = InMemoryExactCache()
+    cache.insert(
+        CacheEntry(
+            query_hash="stable",
+            normalized_query="stable",
+            answer="stable answer",
+            metadata=QueryMetadata(temporal_class="stable"),
+        )
+    )
+    cache.insert(
+        CacheEntry(
+            query_hash="semi",
+            normalized_query="semi",
+            answer="semi answer",
+            metadata=QueryMetadata(temporal_class="semi_dynamic"),
+        )
+    )
+    cache.record_hit("stable")
+
+    assert (
+        cache.evict_to_limits(
+            max_entries=1,
+            max_bytes=10_000,
+            eviction_strategy="pattern",
+        )
+        == 1
+    )
+    assert cache.get_by_query_hash("stable") is not None
+    assert cache.get_by_query_hash("semi") is None
 
 
 def test_storage_stats_and_bounded_expired_cleanup() -> None:

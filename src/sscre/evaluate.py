@@ -2,6 +2,7 @@
 
 import argparse
 from dataclasses import asdict
+import hashlib
 import json
 import math
 import subprocess
@@ -12,6 +13,7 @@ from typing import Any
 
 from sscre.baseline import (
     run_compatibility_cache_baseline,
+    select_adaptive_domain_thresholds,
     run_exact_cache_baseline,
     run_embedding_cache_baseline,
     run_embedding_threshold_sweep,
@@ -253,6 +255,96 @@ def _select_development_threshold(
     )
 
 
+def _select_adaptive_thresholds(
+    benchmark_path: Path,
+    config: dict[str, Any],
+) -> tuple[dict[str, float], dict[str, object]]:
+    development_path = benchmark_path.parent / "development.jsonl"
+    development_records = load_benchmark_jsonl(development_path)
+    _validate_split(
+        development_path,
+        "development",
+        config["dataset_version"],
+        development_records,
+        validate_full_dataset=False,
+    )
+    return select_adaptive_domain_thresholds(
+        development_records,
+        dataset_version=config["dataset_version"],
+        thresholds=config["embedding_thresholds"],
+        top_k=config["embedding_top_k"],
+        max_false_positive_rate=config["max_false_positive_rate"],
+        input_cost_per_1k_tokens=config["input_cost_per_1k_tokens"],
+        output_cost_per_1k_tokens=config["output_cost_per_1k_tokens"],
+        embedding_cost_per_1k_tokens=config["embedding_cost_per_1k_tokens"],
+        cache_lookup_cost_usd=config["cache_lookup_cost_usd"],
+        preprocessing_cost_usd=config["preprocessing_cost_usd"],
+    )
+
+
+def _config_sha256(path: str | Path) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def _write_adaptive_threshold_map(
+    path: str | Path,
+    *,
+    config_path: str | Path,
+    config: dict[str, Any],
+    threshold_map: dict[str, float],
+    diagnostics: dict[str, object],
+) -> None:
+    payload = {
+        "schema_version": "phase3-adaptive-thresholds-1.0",
+        "dataset_version": config["dataset_version"],
+        "config_version": config["config_version"],
+        "config_sha256": _config_sha256(config_path),
+        "selection_split": "development",
+        "default_threshold": diagnostics["default_threshold"],
+        "thresholds": diagnostics["thresholds"],
+        "threshold_map": threshold_map,
+        "selection": diagnostics,
+    }
+    output_path = Path(path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _load_adaptive_threshold_map(path: str | Path) -> dict[str, float]:
+    try:
+        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"invalid adaptive threshold map {path}: {exc}") from exc
+    threshold_map = payload.get("threshold_map") if isinstance(payload, dict) else None
+    if not isinstance(threshold_map, dict) or not threshold_map:
+        raise ValueError("adaptive threshold map requires a non-empty threshold_map")
+    default_threshold = payload.get("default_threshold", 0.95)
+    if (
+        isinstance(default_threshold, bool)
+        or not isinstance(default_threshold, (int, float))
+        or not math.isfinite(default_threshold)
+        or not -1.0 <= default_threshold <= 1.0
+    ):
+        raise ValueError("adaptive threshold map default_threshold is invalid")
+    validated: dict[str, float] = {}
+    for domain, threshold in threshold_map.items():
+        if (
+            not isinstance(domain, str)
+            or not domain.strip()
+            or isinstance(threshold, bool)
+            or not isinstance(threshold, (int, float))
+            or not math.isfinite(threshold)
+            or not -1.0 <= threshold <= 1.0
+        ):
+            raise ValueError("adaptive threshold map contains an invalid entry")
+        validated[domain] = float(threshold)
+    validated.setdefault("__default__", float(default_threshold))
+    return validated
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Evaluate an SSCRE benchmark.")
     parser.add_argument("--benchmark", required=True, help="Benchmark JSONL path.")
@@ -276,6 +368,14 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Declared benchmark split; held-out evaluation must be explicit.",
     )
     parser.add_argument("--output", required=True, help="Output report JSON path.")
+    parser.add_argument(
+        "--adaptive-threshold-map",
+        help="Frozen development-selected Strategy C domain threshold map.",
+    )
+    parser.add_argument(
+        "--adaptive-threshold-map-output",
+        help="Write a development-selected Strategy C domain threshold map.",
+    )
     parser.add_argument(
         "--production",
         action="store_true",
@@ -301,6 +401,29 @@ def main(argv: list[str] | None = None) -> int:
             require_final_review=require_final_review,
         )
         config = _load_config(args.config)
+        adaptive_threshold_map = (
+            _load_adaptive_threshold_map(args.adaptive_threshold_map)
+            if args.adaptive_threshold_map
+            else None
+        )
+        adaptive_diagnostics: dict[str, object] | None = None
+        if args.adaptive_threshold_map_output:
+            if args.split != "development":
+                raise ValueError(
+                    "--adaptive-threshold-map-output requires --split development"
+                )
+            selected_map, adaptive_diagnostics = _select_adaptive_thresholds(
+                benchmark_path,
+                config,
+            )
+            _write_adaptive_threshold_map(
+                args.adaptive_threshold_map_output,
+                config_path=args.config,
+                config=config,
+                threshold_map=selected_map,
+                diagnostics=adaptive_diagnostics,
+            )
+            adaptive_threshold_map = selected_map
         attach_statistics = not args.no_statistics
         manifest = _validate_split(
             benchmark_path,
@@ -331,6 +454,7 @@ def main(argv: list[str] | None = None) -> int:
         }
         if args.baseline == "all":
             selection = _select_development_threshold(benchmark_path, config)
+            compatibility_threshold = adaptive_threshold_map or selection.selected_threshold
             no_cache_report = run_no_cache_baseline(records, **common_options)
             exact_cache_report = run_exact_cache_baseline(
                 records,
@@ -352,7 +476,7 @@ def main(argv: list[str] | None = None) -> int:
             compatibility_report = run_compatibility_cache_baseline(
                 records,
                 **common_options,
-                threshold=selection.selected_threshold,
+                threshold=compatibility_threshold,
                 top_k=config["embedding_top_k"],
                 embedding_cost_per_1k_tokens=config[
                     "embedding_cost_per_1k_tokens"
@@ -439,10 +563,13 @@ def main(argv: list[str] | None = None) -> int:
             )
         elif args.baseline == "compatibility-cache":
             selection = _select_development_threshold(benchmark_path, config)
+            compatibility_threshold = (
+                adaptive_threshold_map or selection.selected_threshold
+            )
             report = run_compatibility_cache_baseline(
                 records,
                 **common_options,
-                threshold=selection.selected_threshold,
+                threshold=compatibility_threshold,
                 top_k=config["embedding_top_k"],
                 embedding_cost_per_1k_tokens=config[
                     "embedding_cost_per_1k_tokens"
@@ -452,9 +579,13 @@ def main(argv: list[str] | None = None) -> int:
             )
             metadata.update(
                 {
-                    "selected_threshold": selection.selected_threshold,
+                    "selected_threshold": compatibility_threshold,
                     "threshold_selection_split": "development",
-                    "threshold_selection_rule": selection.selection_rule,
+                    "threshold_selection_rule": (
+                        "frozen adaptive per-domain map"
+                        if adaptive_threshold_map is not None
+                        else selection.selection_rule
+                    ),
                 }
             )
             save_compatibility_cache_report(
