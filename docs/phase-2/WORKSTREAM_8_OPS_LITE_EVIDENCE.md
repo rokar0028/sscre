@@ -2,8 +2,9 @@
 
 **Status:** complete for lite scope (2026-10-09)  
 **Parent:** [`PHASE1_CARRYOVERS_IMPLEMENTATION_PLAN.md`](../internal/PHASE1_CARRYOVERS_IMPLEMENTATION_PLAN.md) Step 3  
-**Full WS8:** deferred per Phase 0 (`P0-CARRYOVER`); see
-[`PHASE_2_IMPLEMENTATION_PLAN.md`](./PHASE_2_IMPLEMENTATION_PLAN.md) Workstream 8.
+**Full WS8 evidence:** [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md)
+(Step 8 package; this lite record is unchanged).  
+**Full WS8 plan:** [`WORKSTREAM_8_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_8_IMPLEMENTATION_PLAN.md).
 
 ## Scope delivered (lite)
 
@@ -16,7 +17,9 @@
 
 - [ ] Multi-process duplicate-generation races verified under PostgreSQL.
 - [ ] Load tests (1K→100K), concurrency sweeps, eviction-under-contention.
-- [ ] Live `pg_ctl`/container restart during insert/generation (future full WS8).
+- [ ] Live `pg_ctl`/container restart during insert/generation.
+  Still skipped after the 2026-10-11 WS8 package; see
+  [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md).
 
 ## Single-process vs multi-process
 
@@ -34,7 +37,8 @@ without full WS8 evidence.
 **Test:** `tests/test_postgres_integration.py::test_postgres_connection_loss_on_lookup_fails_closed`
 
 Simulates PostgreSQL unavailable during lookup (post-restart / connection drop) after
-a real insert via `PostgresExactCacheRepository`. Expectation: `/v1/query` returns
+a real insert via `PostgresFailureInjectionRepository`
+(`src/sscre/postgres_failure_harness.py`). Expectation: `/v1/query` returns
 **503** `cache unavailable`, not a cache hit.
 
 Verification (requires running PostgreSQL and migrations):
