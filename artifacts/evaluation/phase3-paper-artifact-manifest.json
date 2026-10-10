@@ -1,0 +1,25 @@
+{
+  "config_version": "evaluation-config-1.0",
+  "dataset_version": null,
+  "deferred": [
+    "final single held-out comparison",
+    "Strategy D validator",
+    "Feature 2 pattern eviction in shipped stack"
+  ],
+  "measurement_environment": "synthetic_replay",
+  "schema_version": "phase3-paper-artifacts-1.0",
+  "sources": {
+    "adaptive_held_out": "artifacts\\evaluation\\phase3-adaptive-held-out.json",
+    "development_comparison": "artifacts\\evaluation\\phase3-development-comparison.json",
+    "eviction_held_out": "artifacts\\evaluation\\phase3-held-out-eviction.json",
+    "frozen_held_out_comparison": "artifacts\\evaluation\\workstream5-held-out-comparison.json",
+    "frozen_held_out_pareto": "artifacts\\evaluation\\workstream5-held-out-pareto.json",
+    "threshold_map": "artifacts\\evaluation\\phase3-adaptive-threshold-map.json"
+  },
+  "statistics": {
+    "bootstrap_iterations": 1000,
+    "bootstrap_seed": 42,
+    "confidence_level": 0.95
+  },
+  "status": "preview_before_final_held_out_run"
+}

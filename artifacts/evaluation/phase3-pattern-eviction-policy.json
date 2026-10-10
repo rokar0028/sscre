@@ -1,0 +1,17 @@
+{
+  "config_sha256": "5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8",
+  "config_version": "evaluation-config-1.0",
+  "constraint_satisfied": true,
+  "dataset_version": "reviewed-query-pairs-2.0",
+  "eviction_strategy": "pattern",
+  "policy": {
+    "allow_dynamic_entries": false,
+    "dynamic_ttl_seconds": null,
+    "name": "conservative",
+    "semi_dynamic_ttl_seconds": 600,
+    "stable_ttl_seconds": 3600
+  },
+  "schema_version": "phase3-pattern-eviction-1.0",
+  "selected_entry_cap": 1,
+  "selection_split": "development"
+}
