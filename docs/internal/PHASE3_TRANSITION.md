@@ -258,6 +258,28 @@ explicitly deferred to avoid an additional held-out run.
 
 ---
 
+## Phase 4 — Post-Phase 3 validation status
+
+**Status:** implementation and evidence package complete on `phase4/setup`;
+credentialed live-provider validation is unavailable, and clean-checkout replay
+is deferred until the Step 3 profiling changes are committed.
+
+Plan and evidence:
+
+- [x] `PHASE4_IMPLEMENTATION_PLAN.md` Step 0 baseline and gates.
+- [x] `P4-PARETO` protocol-reset follow-up with retained adaptive point.
+- [x] `P4-PROVIDER` unavailable artifact; no remote request or synthetic
+  substitution.
+- [x] `P4-SCALE` bounded storage and in-memory scale profile; no optimization
+  trigger.
+- [x] `P4-RELEASE` link, artifact, redaction, limitation, and verification
+  audit.
+- [x] `P4-ARTIFACTS` machine-readable manifest:
+  `artifacts/evaluation/phase4-paper-artifact-manifest.json`.
+
+See [`PHASE4_IMPLEMENTATION_PLAN.md`](./PHASE4_IMPLEMENTATION_PLAN.md) and
+[`../phase-4/PHASE4_RELEASE_EVIDENCE.md`](../phase-4/PHASE4_RELEASE_EVIDENCE.md).
+
 ## Phase 4 — Agent workflow summary
 
 When invoked in agent mode:

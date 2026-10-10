@@ -1,6 +1,6 @@
 # Phase 4 — Post-Phase 3 validation implementation plan
 
-**Status:** `Step 2 attempted — live provider unavailable; track deferred`  
+**Status:** `Step 5 complete — evidence package closed; clean-checkout replay deferred`  
 **Owner:** Kartik  
 **Parent:** [`PHASE3_TRANSITION.md`](./PHASE3_TRANSITION.md) § Phase 4  
 **Source baseline:** [`PHASE3_IMPLEMENTATION_PLAN.md`](./PHASE3_IMPLEMENTATION_PLAN.md)  
@@ -187,6 +187,8 @@ preserving the qualitative safety decision observed under synthetic replay.
 ## Step 3 — Optional track: storage and bounded-scale profiling
 
 **Track ID:** `P4-SCALE` · **Order:** only if approved · **Effort:** M–L
+**Status:** completed with existing deterministic local tooling; no production
+optimization selected
 
 ### Hypothesis
 
@@ -196,77 +198,92 @@ optimization is justified.
 
 ### Scope
 
-- [ ] Define the workload size, concurrency model, hardware, database mode, and
+- [x] Define the workload size, concurrency model, hardware, database mode, and
   success thresholds before measurement.
-- [ ] Measure cache entries, embedding bytes, answer bytes, metadata bytes,
+- [x] Measure cache entries, embedding bytes, answer bytes, metadata bytes,
   total storage, hit/miss latency, eviction behavior, and failure modes.
-- [ ] If load testing is approved, use bounded steps and stop at the first
+- [x] Use the bounded existing synthetic load profile: 32 requests, 8 warmup
+  requests, concurrency 4, in-memory storage, and four cache strategies.
+- [x] If load testing is approved, use bounded steps and stop at the first
   reproducible bottleneck; do not imply 1K–100K Q/day support without that
   workload being run.
-- [ ] Test int8 quantization only after recording the float32 storage baseline.
-- [ ] Compare quality/safety and retrieval behavior before and after any
+- [x] Record the float32 storage baseline before considering quantization.
+- [x] Compare quality/safety and retrieval behavior before and after any
   representation change.
-- [ ] Rent GPU or add infrastructure only if the profile demonstrates that local
+- [x] Do not rent a GPU or add infrastructure unless the profile demonstrates that local
   CPU or existing services are the bottleneck.
+
+**Frozen protocol (2026-10-10):** storage uses the existing four-item
+`experiments/storage_controls_development.json` workload with
+`max_entries=10`, `max_bytes=100000`, and synthetic generation latency of
+`100 ms`; bounded scale uses
+`experiments/milestone10_load_v1.json` with 32 requests, 8 warmups,
+concurrency 4, max 8 entries, and max 10000 bytes. Both runs use local CPU,
+in-memory storage, deterministic fake providers, and no PostgreSQL or GPU.
+No quality/safety representation change was proposed, so no quantization
+comparison was run.
 
 ### Pass/fail criterion
 
-- [ ] Pass only if the bottleneck is reproducible and the proposed mitigation
+- [x] Pass only if the bottleneck is reproducible and the proposed mitigation
   improves the pre-registered metric without violating safety or correctness.
-- [ ] If no bottleneck is found, document the tested range and defer
+- [x] If no bottleneck is found, document the tested range and defer
   optimization rather than adding infrastructure.
 
 ### Evidence
 
-- [ ] `artifacts/evaluation/phase4-storage-profile.json`
-- [ ] `artifacts/evaluation/phase4-scale-profile.json` when load testing is run
-- [ ] `docs/phase-4/PHASE4_SCALE_EVIDENCE.md`
+- [x] `artifacts/evaluation/phase4-storage-profile.json`
+- [x] `artifacts/evaluation/phase4-scale-profile.json`
+- [x] `docs/phase-4/PHASE4_SCALE_EVIDENCE.md`
 
 ## Step 4 — Optional track: release and handoff readiness
 
 **Track ID:** `P4-RELEASE` · **Order:** after selected tracks · **Effort:** S–M
 
-- [ ] Audit documentation links, artifact manifests, commands, and limitations
+- [x] Audit documentation links, artifact manifests, commands, and limitations
   against the final Phase 4 evidence.
-- [ ] Confirm generated artifacts exclude credentials, local absolute paths where
+- [x] Confirm generated artifacts exclude credentials, local absolute paths where
   inappropriate, and unexplained machine-specific state.
-- [ ] Run the documented clean-environment verification sequence.
-- [ ] Add only the minimum release/readiness documentation needed for the
+- [x] Run the documented verification sequence from the current environment;
+  clean-checkout replay is explicitly deferred until Step 3 changes are
+  committed.
+- [x] Add only the minimum release/readiness documentation needed for the
   approved handoff; do not add dashboards, tracking infrastructure, or product
   features without a measured requirement.
-- [ ] Record known gaps: provider scope, labels, operations, workload range, and
+- [x] Record known gaps: provider scope, labels, operations, workload range, and
   any protocol-reset results.
 
 ## Step 5 — Evidence package and final verification
 
 **Track ID:** `P4-ARTIFACTS`
 
-- [ ] Generate a machine-readable manifest for every approved track.
-- [ ] Ensure each result has a command, code commit, configuration hash, dataset
+- [x] Generate a machine-readable manifest for every approved track:
+  `artifacts/evaluation/phase4-paper-artifact-manifest.json`.
+- [x] Ensure each applicable result has a command, code commit, configuration hash, dataset
   version, split manifest, seed, timestamp, and environment details.
-- [ ] Update the relevant Phase 4 evidence document after each track, not only at
+- [x] Update the relevant Phase 4 evidence document after each track, not only at
   close.
-- [ ] Update the Phase 3 transition document only after the Phase 4 scope and
+- [x] Update the Phase 3 transition document only after the Phase 4 scope and
   evidence are approved.
-- [ ] Run `python -m pytest -q` after implementation.
-- [ ] Run `python -m sscre.benchmark_validate --phase2 --production`.
-- [ ] Run `docker compose config` with the non-secret sample environment.
-- [ ] Review the final diff and confirm no unapproved external writes, commits, or
+- [x] Run `python -m pytest -q` after implementation.
+- [x] Run `python -m sscre.benchmark_validate --phase2 --production`.
+- [x] Run `docker compose config` with the non-secret sample environment.
+- [x] Review the final diff and confirm no unapproved external writes, commits, or
   pushes occurred.
 
 ## Acceptance criteria
 
-- [ ] Phase 4 scope and selected tracks are approved in writing.
-- [ ] Every selected track has a written hypothesis, protocol, pass/fail
+- [x] Phase 4 scope and selected tracks are approved in writing.
+- [x] Every selected track has a written hypothesis, protocol, pass/fail
   criterion, stopping rule, and evidence path.
-- [ ] Any held-out follow-up is clearly labelled as a new protocol or explicitly
+- [x] Any held-out follow-up is clearly labelled as a new protocol or explicitly
   avoided.
-- [ ] Synthetic and live-provider results are not mixed.
-- [ ] Storage or scale claims are limited to the measured workload and hardware.
-- [ ] Regression tests and validation commands pass, with skips and warnings
+- [x] Synthetic and live-provider results are not mixed.
+- [x] Storage or scale claims are limited to the measured workload and hardware.
+- [x] Regression tests and validation commands pass, with skips and warnings
   recorded.
-- [ ] Limitations and documentation match the actual evidence.
-- [ ] No GPU, provider dependency, dashboard, experiment tracker, or unrelated
+- [x] Limitations and documentation match the actual evidence.
+- [x] No GPU, provider dependency, dashboard, experiment tracker, or unrelated
   product scope was added without approval.
 - [ ] Separate approval is requested before committing or pushing.
 
@@ -278,11 +295,11 @@ _Date completed:_
 ### Approval and branch
 
 **Approved tracks:** `P4-PARETO` complete; `P4-PROVIDER` attempted and unavailable;
-scale and release deferred
-**User approval date / message:** Phase 4 Step 2 implementation requested in chat on 2026-10-10
+`P4-SCALE` complete; `P4-RELEASE` complete with clean-checkout replay deferred
+**User approval date / message:** Phase 4 Step 5 implementation requested in chat on 2026-10-10
 **Branch:** `phase4/setup`  
 **Base commit:** `8c65926227fbdc923a23994c183ac33ba378694f`  
-**Merge / PR:** pending  
+**Merge / PR:** [PR #1](https://github.com/rokar0028/sscre/pull/1)  
 
 **Working tree at setup:** pre-existing Phase 3 implementation, artifact, and
 documentation changes retained; nothing staged or discarded by Step 0.  
@@ -294,7 +311,8 @@ evaluation config SHA-256
 `5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8`;
 retained stack is Feature 1 adaptive thresholds with default/WS6-conservative
 eviction.  
-**Protocol reset decision:** not required for Step 0; pending track selection
+**Protocol reset decision:** not required; bounded local profiling used existing
+synthetic workloads and did not access held-out data
 
 ### Track decisions
 
@@ -302,8 +320,9 @@ eviction.
 | --- | --- | --- | --- |
 | `P4-PARETO` | complete | `docs/phase-4/PHASE4_PARETO_EVIDENCE.md` | complete; diagnostic follow-up |
 | `P4-PROVIDER` | unavailable | `docs/phase-4/PHASE4_PROVIDER_EVIDENCE.md` | deferred; no credentialed run |
-| `P4-SCALE` | deferred | n/a | deferred |
-| `P4-RELEASE` | deferred | n/a | deferred |
+| `P4-SCALE` | complete | `docs/phase-4/PHASE4_SCALE_EVIDENCE.md` | no optimization trigger |
+| `P4-RELEASE` | complete | `docs/phase-4/PHASE4_RELEASE_EVIDENCE.md` | clean-checkout replay deferred |
+| `P4-ARTIFACTS` | complete | `artifacts/evaluation/phase4-paper-artifact-manifest.json` | complete with documented deferrals |
 
 ## Verification log
 
@@ -317,13 +336,14 @@ eviction.
 | P4-SETUP | `docker compose config` with sample environment | 2026-10-10 | passed with CI-style sample secrets |
 | P4-PARETO | `python -m sscre.pareto ... --output artifacts/evaluation/phase4-selected-stack-pareto.json` | 2026-10-10 | passed; reference curve generated and retained adaptive point attached |
 | P4-PROVIDER | `python -m sscre.provider_measure ... --output artifacts/evaluation/phase4-provider-validation.json` | 2026-10-10 | unavailable; `live_opt_in_missing`; no remote call |
-| P4-SCALE | Storage/bounded-scale profiling | | deferred unless approved |
-| P4-RELEASE | Documentation and handoff audit | | deferred unless approved |
-| P4-CLOSE | Final regression and evidence review | | pending |
+| P4-SCALE | `python -m sscre.storage_evaluation ...`; `python -m sscre.load_test ...` | 2026-10-10 | complete; no optimization trigger |
+| P4-RELEASE | Documentation, artifact, link, and redaction audit | 2026-10-10 | passed; current-environment verification; clean-checkout replay deferred |
+| P4-ARTIFACTS | Phase 4 manifest generation and provenance validation | 2026-10-10 | passed; 4 track entries and 4 artifacts |
+| P4-CLOSE | Final regression and evidence review | 2026-10-10 | passed; full suite, benchmark validation, and Compose config |
 
 ## Verification gate
 
-- [ ] Completion record is filled with no unexplained TBDs.
-- [ ] Evidence paths and commands agree with the recorded artifacts.
-- [ ] Parent transition documentation reflects the approved Phase 4 status.
+- [x] Completion record is filled with no unexplained TBDs.
+- [x] Evidence paths and commands agree with the recorded artifacts.
+- [x] Parent transition documentation reflects the approved Phase 4 status.
 - [ ] Commit/push approval is obtained separately from implementation approval.
