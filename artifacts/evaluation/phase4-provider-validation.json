@@ -1,0 +1,100 @@
+{
+  "benchmark": {
+    "dataset_version": "reviewed-query-pairs-2.0",
+    "path": "benchmarks/development.jsonl",
+    "record_count": 400,
+    "split": "development"
+  },
+  "configuration": {
+    "config_version": "evaluation-config-1.0",
+    "path": "experiments/evaluation_config.json",
+    "pricing_schedule_id": null
+  },
+  "cost_usd": {
+    "embedding": null,
+    "generation": null,
+    "retry": null,
+    "source": "unavailable",
+    "total_estimated": null,
+    "wrapper": null
+  },
+  "execution_timestamp": "2026-10-10T13:31:16.028039+00:00",
+  "failures": [
+    {
+      "category": "authentication",
+      "count": 0
+    },
+    {
+      "category": "authorization",
+      "count": 0
+    },
+    {
+      "category": "malformed_response",
+      "count": 0
+    },
+    {
+      "category": "permanent_provider",
+      "count": 0
+    },
+    {
+      "category": "rate_limited",
+      "count": 0
+    },
+    {
+      "category": "timeout",
+      "count": 0
+    },
+    {
+      "category": "transient_provider",
+      "count": 0
+    },
+    {
+      "category": "validation",
+      "count": 0
+    }
+  ],
+  "git_commit": "8c65926227fbdc923a23994c183ac33ba378694f",
+  "latency_ms": {
+    "embedding": null,
+    "generation": null,
+    "total": null,
+    "wrapper": null
+  },
+  "limitations": [
+    "No credentialed real-provider request was made.",
+    "Synthetic measurements were not substituted.",
+    "Quality, latency, token, and cost conclusions remain unavailable."
+  ],
+  "measurement_environment": "real_provider",
+  "provider": null,
+  "provider_available": false,
+  "redaction": {
+    "credentials": false,
+    "provider_payloads": false,
+    "raw_answers": false,
+    "raw_prompts": false
+  },
+  "requests": {
+    "count": 0,
+    "embedding": 0,
+    "generation": 0,
+    "retries": 0
+  },
+  "runtime_versions": {
+    "fastapi": "0.142.2",
+    "provider_api": "openai-compatible-http-v1",
+    "provider_sdk": null,
+    "pytest": "9.1.1",
+    "python": "3.14.5",
+    "sscre": "0.1.0"
+  },
+  "schema_version": "real-provider-measurement-1.0",
+  "status": "unavailable",
+  "tokens": {
+    "embedding_input": null,
+    "generation_input": null,
+    "generation_output": null,
+    "usage_sources": {}
+  },
+  "unavailable_reason": "live_opt_in_missing"
+}
