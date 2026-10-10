@@ -15,7 +15,7 @@
   "similarity_threshold": 0.95,
   "max_cache_entries": 8,
   "max_cache_bytes": 10000,
-  "limitation": "Bounded local PostgreSQL result for protocol ws8-pg-load-v1. Not a production capacity, SLA, or multi-host guarantee. Absolute cache caps apply to the whole database and may evict unrelated oldest rows.",
+  "limitation": "Bounded local PostgreSQL result for protocol ws8-pg-load-v1. Not a production capacity, SLA, or multi-host guarantee. Cache caps apply only to this run's query hashes, so unrelated rows are not eviction candidates.",
   "items": [
     {
       "label": "exact_hit",
