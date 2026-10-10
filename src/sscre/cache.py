@@ -104,6 +104,19 @@ class CacheStorageStats:
     expirations: int = 0
     evictions: int = 0
 
+    def __post_init__(self) -> None:
+        # PostgreSQL COUNT/SUM arrive as Decimal and are not JSON-serializable.
+        for name in (
+            "entries",
+            "canonical_answers",
+            "total_bytes",
+            "deduplication_hits",
+            "deduplication_savings_bytes",
+            "expirations",
+            "evictions",
+        ):
+            object.__setattr__(self, name, int(getattr(self, name) or 0))
+
     @property
     def average_entry_bytes(self) -> float:
         return self.total_bytes / self.entries if self.entries else 0.0

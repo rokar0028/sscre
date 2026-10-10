@@ -13,19 +13,11 @@ from sscre.cache import CacheEntry, CacheRepositoryError, DuplicateCacheEntryErr
 from sscre.config import Settings
 from sscre.llm import MockLLMClient
 from sscre.postgres_cache import PostgresExactCacheRepository
-
-
-class _ConnectionLossOnLookupRepository(PostgresExactCacheRepository):
-    """Simulates PostgreSQL connection loss during lookup (OPS-lite restart smoke)."""
-
-    def __init__(self, database_url: str) -> None:
-        super().__init__(database_url)
-        self.simulate_connection_loss = False
-
-    def get_by_query_hash(self, query_hash: str) -> CacheEntry | None:
-        if self.simulate_connection_loss:
-            raise CacheRepositoryError("simulated PostgreSQL connection loss")
-        return super().get_by_query_hash(query_hash)
+from sscre.postgres_failure_harness import (
+    FailureInjectionConfig,
+    FailureOperation,
+    PostgresFailureInjectionRepository,
+)
 
 
 DATABASE_URL = os.getenv("SSCRE_DATABASE_URL")
@@ -332,9 +324,14 @@ def test_cleanup_expired_removes_entry_and_updates_counter(
 def test_postgres_connection_loss_on_lookup_fails_closed(
     cache_entry: CacheEntry,
 ) -> None:
-    repository = _ConnectionLossOnLookupRepository(DATABASE_URL)
+    config = FailureInjectionConfig()
+    repository = PostgresFailureInjectionRepository(DATABASE_URL, config)
     repository.insert(cache_entry)
-    repository.simulate_connection_loss = True
+    config.arm(
+        FailureOperation.LOOKUP,
+        scenario_id="FR-lookup-drop",
+        event_class="simulated_drop",
+    )
     client = TestClient(
         create_app(
             repository=repository,
@@ -350,7 +347,7 @@ def test_postgres_connection_loss_on_lookup_fails_closed(
     assert response.status_code == 503
     assert response.json() == {"detail": "cache unavailable"}
     assert response.headers["X-Request-ID"]
-    repository.simulate_connection_loss = False
+    config.disarm()
     _cleanup_query_hashes([cache_entry.query_hash])
 
 
