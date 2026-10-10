@@ -2,7 +2,7 @@
 
 **Status:** frozen for Phase 2 Workstreams 2–9
 **Related:** [SAFETY_EVALUATION_CONTRACT_v1.md](../docs/phase-2/SAFETY_EVALUATION_CONTRACT_v1.md),
-[SSCRE_BENCHMARK_FORMAT.md](../docs/SSCRE_BENCHMARK_FORMAT.md)
+[SSCRE_BENCHMARK_FORMAT.md](../docs/reference/SSCRE_BENCHMARK_FORMAT.md)
 
 ## Separation rules
 

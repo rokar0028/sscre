@@ -3,9 +3,12 @@ from concurrent.futures import ThreadPoolExecutor
 
 from fastapi.testclient import TestClient
 
+from sscre.baseline import run_compatibility_cache_baseline
+from sscre.benchmark import BenchmarkRecord
 from sscre.app import create_app
 from sscre.cache import CacheEntry, InMemoryExactCache
 from sscre.config import Settings
+from sscre.safety import QueryMetadata
 
 
 def _entry(query_hash: str, answer: str) -> CacheEntry:
@@ -63,6 +66,60 @@ def test_lru_ties_are_broken_by_query_hash() -> None:
 
     assert cache.get_by_query_hash("a") is None
     assert cache.get_by_query_hash("b") is not None
+
+
+def test_pattern_eviction_prioritizes_low_hits_within_freshness_class() -> None:
+    cache = InMemoryExactCache()
+    cache.insert(
+        CacheEntry(
+            query_hash="stable",
+            normalized_query="stable",
+            answer="stable answer",
+            metadata=QueryMetadata(temporal_class="stable"),
+        )
+    )
+    cache.insert(
+        CacheEntry(
+            query_hash="semi",
+            normalized_query="semi",
+            answer="semi answer",
+            metadata=QueryMetadata(temporal_class="semi_dynamic"),
+        )
+    )
+    cache.record_hit("stable")
+
+    assert (
+        cache.evict_to_limits(
+            max_entries=1,
+            max_bytes=10_000,
+            eviction_strategy="pattern",
+        )
+        == 1
+    )
+    assert cache.get_by_query_hash("stable") is not None
+    assert cache.get_by_query_hash("semi") is None
+
+
+def test_replay_uses_reviewed_freshness_class_for_cached_entries() -> None:
+    record = BenchmarkRecord(
+        id="dynamic-replay",
+        query_a="Explain cache policy",
+        query_b="Explain cache policy",
+        reusable=True,
+        compatibility_label="compatible",
+        coverage_category="paraphrase",
+        freshness_class="dynamic",
+        review_status="final",
+    )
+
+    report = run_compatibility_cache_baseline(
+        [record],
+        dataset_version="reviewed-query-pairs-2.0",
+        threshold=0.95,
+    )
+
+    assert report.cache_hits == 0
+    assert report.cache_control_outcome_counts["dynamic_entries_disabled"] >= 1
 
 
 def test_storage_stats_and_bounded_expired_cleanup() -> None:

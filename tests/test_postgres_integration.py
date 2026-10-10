@@ -13,6 +13,11 @@ from sscre.cache import CacheEntry, CacheRepositoryError, DuplicateCacheEntryErr
 from sscre.config import Settings
 from sscre.llm import MockLLMClient
 from sscre.postgres_cache import PostgresExactCacheRepository
+from sscre.postgres_failure_harness import (
+    FailureInjectionConfig,
+    FailureOperation,
+    PostgresFailureInjectionRepository,
+)
 
 
 DATABASE_URL = os.getenv("SSCRE_DATABASE_URL")
@@ -314,6 +319,36 @@ def test_cleanup_expired_removes_entry_and_updates_counter(
         assert after.expirations >= before.expirations + 1
     finally:
         _cleanup_query_hashes([entry.query_hash])
+
+
+def test_postgres_connection_loss_on_lookup_fails_closed(
+    cache_entry: CacheEntry,
+) -> None:
+    config = FailureInjectionConfig()
+    repository = PostgresFailureInjectionRepository(DATABASE_URL, config)
+    repository.insert(cache_entry)
+    config.arm(
+        FailureOperation.LOOKUP,
+        scenario_id="FR-lookup-drop",
+        event_class="simulated_drop",
+    )
+    client = TestClient(
+        create_app(
+            repository=repository,
+            settings=Settings(database_url=DATABASE_URL),
+        )
+    )
+
+    response = client.post(
+        "/v1/query",
+        json={"query": cache_entry.normalized_query},
+    )
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "cache unavailable"}
+    assert response.headers["X-Request-ID"]
+    config.disarm()
+    _cleanup_query_hashes([cache_entry.query_hash])
 
 
 def test_insert_and_evict_enforces_postgres_entry_cap(

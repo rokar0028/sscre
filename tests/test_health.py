@@ -1,7 +1,14 @@
+import importlib
+
 from fastapi.testclient import TestClient
 
 from sscre.app import create_app
 from sscre.cache import CacheRepositoryError, InMemoryExactCache
+
+
+def test_app_module_does_not_connect_postgres_on_import() -> None:
+    module = importlib.import_module("sscre.app")
+    assert "app" not in module.__dict__
 
 
 def test_health_endpoint() -> None:

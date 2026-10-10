@@ -46,7 +46,7 @@ The following contracts are frozen inputs and must not be redefined here:
   JSON-compatible API, log, and report boundaries.
 - [`EVALUATION_LABEL_CONTRACT_v1.md`](../../benchmarks/EVALUATION_LABEL_CONTRACT_v1.md)
   keeps compatibility, correctness, and preference independent.
-- [`SSCRE_BENCHMARK_FORMAT.md`](../SSCRE_BENCHMARK_FORMAT.md) documents the
+- [`SSCRE_BENCHMARK_FORMAT.md`](../reference/SSCRE_BENCHMARK_FORMAT.md) documents the
   current JSONL representation.
 
 ## Learning objectives

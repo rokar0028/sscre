@@ -1,0 +1,193 @@
+{
+  "domains": {
+    "code": {
+      "pair_count": 50,
+      "points": [
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.8
+        },
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.9
+        },
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.95
+        }
+      ],
+      "selected_threshold": 0.8
+    },
+    "computing": {
+      "pair_count": 1,
+      "points": [],
+      "selected_threshold": 0.95
+    },
+    "conversational": {
+      "pair_count": 83,
+      "points": [
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.8
+        },
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.9
+        },
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.95
+        }
+      ],
+      "selected_threshold": 0.8
+    },
+    "general": {
+      "pair_count": 2,
+      "points": [],
+      "selected_threshold": 0.95
+    },
+    "math": {
+      "pair_count": 53,
+      "points": [
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.8
+        },
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.9
+        },
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.95
+        }
+      ],
+      "selected_threshold": 0.8
+    },
+    "programming": {
+      "pair_count": 1,
+      "points": [],
+      "selected_threshold": 0.95
+    },
+    "qa_factual": {
+      "pair_count": 85,
+      "points": [
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.8
+        },
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.9
+        },
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.95
+        }
+      ],
+      "selected_threshold": 0.8
+    },
+    "qa_open": {
+      "pair_count": 97,
+      "points": [
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.8
+        },
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.9
+        },
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.95
+        }
+      ],
+      "selected_threshold": 0.8
+    },
+    "sports": {
+      "pair_count": 1,
+      "points": [],
+      "selected_threshold": 0.95
+    },
+    "unknown": {
+      "pair_count": 26,
+      "points": [
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.8
+        },
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.9
+        },
+        {
+          "estimated_cost_usd": 0.0,
+          "false_positive_rate": 0.0,
+          "hit_rate": 0.0,
+          "p95_latency_ms": 0.0,
+          "threshold": 0.95
+        }
+      ],
+      "selected_threshold": 0.8
+    },
+    "weather": {
+      "pair_count": 1,
+      "points": [],
+      "selected_threshold": 0.95
+    }
+  },
+  "selection_split": "development",
+  "source": "artifacts\\evaluation\\phase3-adaptive-threshold-map.json"
+}

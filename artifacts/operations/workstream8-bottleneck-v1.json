@@ -1,0 +1,61 @@
+{
+  "environment": {
+    "concurrency": 4,
+    "postgresql_version": "16.15 (Debian 16.15-1.pgdg12+2)",
+    "provider_data": "synthetic",
+    "storage": "postgresql"
+  },
+  "first_measured_bottleneck": "not_reached",
+  "measured_components": {
+    "average_llm_latency_ms": 0.0,
+    "average_wrapper_overhead_ms": 66.009,
+    "end_to_end_average_ms": 75.257,
+    "pass_latency_ms": [
+      {
+        "mode": "cold",
+        "p50": 63.362,
+        "p95": 199.509,
+        "p99": 262.84,
+        "throughput_requests_per_second": 40.334
+      },
+      {
+        "mode": "warm",
+        "p50": 57.953,
+        "p95": 72.355,
+        "p99": 73.557,
+        "throughput_requests_per_second": 64.284
+      },
+      {
+        "mode": "cold",
+        "p50": 69.22,
+        "p95": 235.787,
+        "p99": 306.064,
+        "throughput_requests_per_second": 37.968
+      },
+      {
+        "mode": "warm",
+        "p50": 56.916,
+        "p95": 81.719,
+        "p99": 84.315,
+        "throughput_requests_per_second": 69.02
+      }
+    ]
+  },
+  "optimization": "No production optimization selected; wrapper versus synthetic LLM latency is not an actionable bottleneck.",
+  "optimization_decision": "none",
+  "protocol_id": "ws8-pg-load-v1",
+  "rationale": "Declared ws8-pg-load-v1 workload completed without a stop condition. Synthetic provider latency is 0 ms, so wrapper overhead is not an actionable bottleneck. Repository, embedding, and live-provider spans were not instrumented.",
+  "result_class": "observation",
+  "source_artifact": "artifacts/operations/workstream8-pg-load-v1.json",
+  "stop_conditions": {
+    "error_rate_limit": 0.1,
+    "p99_to_p50_limit": 5.0,
+    "stopped_reason": null,
+    "timeout_rate_limit": 0.05
+  },
+  "unavailable_components": [
+    "repository_database_span",
+    "embedding_span",
+    "real_provider_latency"
+  ]
+}

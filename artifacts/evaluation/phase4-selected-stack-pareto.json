@@ -1,0 +1,197 @@
+{
+  "config_version": "evaluation-config-1.0",
+  "dataset_version": "reviewed-query-pairs-2.0",
+  "dominance": {
+    "cost_vs_safety": {
+      "x": {
+        "direction": "minimize",
+        "metric": "estimated_cost_usd"
+      },
+      "y": {
+        "direction": "minimize",
+        "metric": "false_positive_rate"
+      }
+    },
+    "false_positives_vs_tokens_saved": {
+      "x": {
+        "direction": "minimize",
+        "metric": "false_positive_rate"
+      },
+      "y": {
+        "direction": "maximize",
+        "metric": "tokens_saved"
+      }
+    },
+    "latency_vs_cost": {
+      "x": {
+        "direction": "minimize",
+        "metric": "p95_latency_ms"
+      },
+      "y": {
+        "direction": "minimize",
+        "metric": "estimated_cost_usd"
+      }
+    },
+    "reuse_vs_storage": {
+      "x": {
+        "direction": "maximize",
+        "metric": "safe_reuse_coverage"
+      },
+      "y": {
+        "direction": "minimize",
+        "metric": "total_bytes"
+      }
+    },
+    "safety_vs_reuse": {
+      "x": {
+        "direction": "minimize",
+        "metric": "false_positive_rate"
+      },
+      "y": {
+        "direction": "maximize",
+        "metric": "safe_reuse_coverage"
+      }
+    }
+  },
+  "evaluation_split": "held-out",
+  "frontier_thresholds": {
+    "cost_vs_safety": [
+      0.8,
+      0.9,
+      0.95
+    ],
+    "false_positives_vs_tokens_saved": [
+      0.8,
+      0.9,
+      0.95
+    ],
+    "latency_vs_cost": [
+      0.8,
+      0.9,
+      0.95
+    ],
+    "reuse_vs_storage": [],
+    "safety_vs_reuse": [
+      0.8,
+      0.9,
+      0.95
+    ]
+  },
+  "measurement_environment": "synthetic_replay",
+  "pareto_schema_version": "evaluation-pareto-1.0",
+  "phase4_protocol": {
+    "eviction_policy": "default_ws6_conservative",
+    "held_out_use": "frozen development threshold grid replayed for the global Strategy C reference curve; the adaptive retained-stack point is attached from the frozen Phase 3 final comparison.",
+    "protocol_reset": true,
+    "protocol_version": "phase4-pareto-follow-up-1.0",
+    "reset_reason": "Phase 3 deferred the selected-stack Pareto curve to avoid an additional held-out run.",
+    "retuning_on_phase4_held_out": false,
+    "strategy_d": "deferred"
+  },
+  "points": [
+    {
+      "constraint": {
+        "limit": 0.0,
+        "name": "max_false_positive_rate",
+        "observed": 0.0,
+        "satisfied": true
+      },
+      "embedding_report": {
+        "false_positive_rate": 0.3318777292576419,
+        "safe_reuse_coverage": 0.5058823529411764
+      },
+      "metrics": {
+        "embedding_false_positive_rate": 0.3318777292576419,
+        "embedding_safe_reuse_coverage": 0.5058823529411764,
+        "estimated_cost_usd": 0.0,
+        "false_positive_rate": 0.0,
+        "p95_latency_ms": 0.0,
+        "safe_reuse_coverage": 0.011764705882352941,
+        "tokens_saved": 17.0
+      },
+      "selected": false,
+      "storage": null,
+      "threshold": 0.8
+    },
+    {
+      "constraint": {
+        "limit": 0.0,
+        "name": "max_false_positive_rate",
+        "observed": 0.0,
+        "satisfied": true
+      },
+      "embedding_report": {
+        "false_positive_rate": 0.36231884057971014,
+        "safe_reuse_coverage": 0.16470588235294117
+      },
+      "metrics": {
+        "embedding_false_positive_rate": 0.36231884057971014,
+        "embedding_safe_reuse_coverage": 0.16470588235294117,
+        "estimated_cost_usd": 0.0,
+        "false_positive_rate": 0.0,
+        "p95_latency_ms": 0.0,
+        "safe_reuse_coverage": 0.011764705882352941,
+        "tokens_saved": 17.0
+      },
+      "selected": false,
+      "storage": null,
+      "threshold": 0.9
+    },
+    {
+      "constraint": {
+        "limit": 0.0,
+        "name": "max_false_positive_rate",
+        "observed": 0.0,
+        "satisfied": true
+      },
+      "embedding_report": {
+        "false_positive_rate": 0.48148148148148145,
+        "safe_reuse_coverage": 0.023529411764705882
+      },
+      "metrics": {
+        "embedding_false_positive_rate": 0.48148148148148145,
+        "embedding_safe_reuse_coverage": 0.023529411764705882,
+        "estimated_cost_usd": 0.0,
+        "false_positive_rate": 0.0,
+        "p95_latency_ms": 0.0,
+        "safe_reuse_coverage": 0.011764705882352941,
+        "tokens_saved": 17.0
+      },
+      "selected": true,
+      "storage": null,
+      "threshold": 0.95
+    }
+  ],
+  "provenance": {
+    "config_sha256": "5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8",
+    "generated_at_utc": "2026-10-10T13:29:41.073114+00:00",
+    "git_commit": "8c65926227fbdc923a23994c183ac33ba378694f",
+    "git_worktree_dirty": true,
+    "seed": 42,
+    "source_final_comparison": "artifacts\\evaluation\\phase3-final-held-out-comparison.json",
+    "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51"
+  },
+  "retained_stack": {
+    "comparison_source": "artifacts/evaluation/phase3-final-held-out-comparison.json",
+    "metrics": {
+      "estimated_cost_usd": 0.0,
+      "false_positive_rate": 0.0,
+      "hit_rate": 0.002325581395348837,
+      "p95_latency_ms": 0.0,
+      "safe_reuse_coverage": 0.011764705882352941,
+      "tokens_saved": 17
+    },
+    "name": "strategy-c-feature-1-adaptive-thresholds",
+    "threshold_map": "artifacts/evaluation/phase3-adaptive-threshold-map.json"
+  },
+  "selected_constraint": {
+    "limit": 0.0,
+    "name": "max_false_positive_rate",
+    "observed": 0.0,
+    "satisfied": true
+  },
+  "selected_threshold": 0.95,
+  "software_version": "0.1.0",
+  "storage_measurement_environment": "unavailable",
+  "threshold_selection_split": "development"
+}

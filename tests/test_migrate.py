@@ -9,11 +9,11 @@ from sscre.postgres_cache import PostgresExactCacheRepository
 
 def test_migration_checksum_is_sha256_of_file_contents(tmp_path: Path) -> None:
     migration = tmp_path / "001_example.sql"
-    migration.write_text("SELECT 1;\n", encoding="utf-8")
+    migration.write_bytes(b"SELECT 1;\n")
 
     assert migration_checksum(migration) == (
-        "d3cd5042f97738960d802ad6b3a548df"
-        "a18152215118ba18f04493bc6944b0e4"
+        "b4e0497804e46e0a0b0b8c31975b0621"
+        "52d551bac49c3c2e80932567b4085dcd"
     )
 
 

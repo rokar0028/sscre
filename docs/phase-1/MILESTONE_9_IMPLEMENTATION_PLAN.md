@@ -282,7 +282,7 @@ Evidence: `GET /v1/cache/stats`, `CacheStorageStats`,
 - [x] Add representative storage failures and lifecycle edge cases to the
   failure gallery.
 
-Evidence: `docs/SSCRE_STORAGE_FAILURE_GALLERY.md` links each lifecycle case to
+Evidence: `docs/reference/SSCRE_STORAGE_FAILURE_GALLERY.md` links each lifecycle case to
 its implementation or test coverage.
 
 Evidence: `src/sscre/storage_evaluation.py`,
@@ -310,8 +310,8 @@ synthetic token/latency fallbacks.
   and evidence exist.
 
 Evidence: limitations are documented in
-`docs/SSCRE_EVALUATION_LIMITATIONS.md`; request behavior is documented in
-`docs/SSCRE_REQUEST_FLOW.md`; architecture status is updated in
+`docs/reference/SSCRE_EVALUATION_LIMITATIONS.md`; request behavior is documented in
+`docs/reference/SSCRE_REQUEST_FLOW.md`; architecture status is updated in
 `docs/SSCRE_SYSTEM_DESIGN.md`; and tracking is updated in
 `docs/SSCRE_PLAN.md` and `docs/SSCRE_LEARNING_AND_EXECUTION_GUIDE.md`.
 

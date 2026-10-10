@@ -190,6 +190,7 @@ def create_app(
             "development fake providers are unavailable in production profile"
         )
     metrics = MetricsCollector()
+    # In-process only: does not coordinate Uvicorn workers, hosts, or processes.
     generation_lock = Lock()
     dependency_executor = ThreadPoolExecutor(
         max_workers=8,
@@ -1297,4 +1298,8 @@ def create_app(
     return app
 
 
-app = create_app(settings=Settings.from_environment())
+def __getattr__(name: str) -> FastAPI:
+    """Lazy ASGI app for ``uvicorn sscre.app:app`` without import-time PostgreSQL."""
+    if name == "app":
+        return create_app(settings=Settings.from_environment())
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

@@ -1,0 +1,65 @@
+{
+  "rows": [
+    {
+      "estimated_cost_savings_vs_no_cache": 0.0,
+      "estimated_cost_usd": 0.0,
+      "evaluation_split": "held-out",
+      "false_positive_rate": null,
+      "hit_rate": 0.0,
+      "label": "Strategy A \u2014 no cache",
+      "p50_latency_ms": null,
+      "p95_latency_ms": null,
+      "source": "artifacts\\evaluation\\workstream5-held-out-comparison.json",
+      "status": "measured"
+    },
+    {
+      "estimated_cost_savings_vs_no_cache": 0.0,
+      "estimated_cost_usd": 0.0,
+      "evaluation_split": "held-out",
+      "false_positive_rate": 0.35714285714285715,
+      "hit_rate": 0.09767441860465116,
+      "label": "Strategy B \u2014 embedding cache",
+      "p50_latency_ms": 0.0,
+      "p95_latency_ms": 1.0,
+      "source": "artifacts\\evaluation\\workstream5-held-out-comparison.json",
+      "status": "measured"
+    },
+    {
+      "estimated_cost_savings_vs_no_cache": 0.0,
+      "estimated_cost_usd": 0.0,
+      "evaluation_split": "held-out",
+      "false_positive_rate": 0.0,
+      "hit_rate": 0.0,
+      "label": "Strategy C \u2014 global 0.95",
+      "p50_latency_ms": 0.0,
+      "p95_latency_ms": 0.0,
+      "source": "artifacts\\evaluation\\workstream5-held-out-comparison.json",
+      "status": "measured"
+    },
+    {
+      "estimated_cost_savings_vs_no_cache": 0.0,
+      "estimated_cost_usd": 0.0,
+      "evaluation_split": "held-out",
+      "false_positive_rate": 0.0,
+      "hit_rate": 0.002325581395348837,
+      "label": "Feature 1 \u2014 adaptive thresholds",
+      "p50_latency_ms": 0.0,
+      "p95_latency_ms": 0.0,
+      "source": "artifacts\\evaluation\\phase3-adaptive-held-out.json",
+      "status": "measured"
+    },
+    {
+      "estimated_cost_savings_vs_no_cache": null,
+      "estimated_cost_usd": null,
+      "evaluation_split": "held-out",
+      "false_positive_rate": 0.0,
+      "hit_rate": 0.002325581395348837,
+      "label": "Feature 2 \u2014 pattern eviction (candidate)",
+      "p50_latency_ms": null,
+      "p95_latency_ms": null,
+      "source": "artifacts\\evaluation\\phase3-held-out-eviction.json",
+      "status": "failed_pass_criterion"
+    }
+  ],
+  "status": "preview"
+}

@@ -310,6 +310,44 @@ The held-out report includes no-cache, exact-cache, and embedding-only
 baselines, latency percentiles, and reviewed false-positive examples. Held-out
 labels are used for reporting only, never threshold selection.
 
+### Failure gallery (static HTML from saved reports)
+
+Comparison reports under `artifacts/evaluation/` include redacted
+`failure_gallery` sections and Strategy C `statistics.by_baseline` strata
+(`by_failure_category` counts/rates). Regenerate a browsable HTML export
+without query text:
+
+```powershell
+python -m sscre.gallery_export `
+  artifacts/evaluation/workstream5-held-out-comparison.json `
+  -o artifacts/evaluation/workstream5-held-out-comparison-gallery.html
+```
+
+Equivalent console entry point: `sscre-gallery-export`. Use pair ids and
+approved benchmark JSONL for prompt lookup; the HTML omits reviewed query
+strings by design.
+
+### Workstream 7 consolidated quality analysis (WS5 + WS6)
+
+Package held-out comparison gallery, aggregate quality tables, and WS6 freshness
+companion into one redacted JSON (optional HTML):
+
+```powershell
+python -m sscre.failure_gallery_export `
+  --comparison artifacts/evaluation/workstream5-held-out-comparison.json `
+  --freshness-companion artifacts/evaluation/workstream6-held-out-freshness.json `
+  --output artifacts/evaluation/workstream7-quality-analysis.json `
+  --html artifacts/evaluation/workstream7-quality-gallery.html
+```
+
+Equivalent console entry point: `sscre-failure-gallery-export`. Packaging fails
+closed when comparison and freshness `dataset_version` or `split_manifest_sha256`
+disagree; use `--allow-manifest-mismatch` only for diagnostic runs.
+
+Regenerate WS5 comparison and WS6 held-out freshness first when
+`benchmarks/split_manifest.json` changes (see commands in
+[`docs/phase-2/WORKSTREAM_7_EVIDENCE.md`](../docs/phase-2/WORKSTREAM_7_EVIDENCE.md)).
+
 ### Storage footprint companion for Pareto reporting
 
 Generate the storage companion with the same `dataset_version` and the same

@@ -75,6 +75,7 @@ def serialize_safety_result_for_boundary(
 
 def attach_evaluation_report_schema(payload: Mapping[str, object]) -> dict[str, object]:
     from sscre.evaluation_statistics import attach_evaluation_statistics_schema
+    from sscre.failure_gallery import attach_failure_gallery_schema
     from sscre.freshness_evaluation import attach_freshness_evaluation_schema
 
     envelope = {
@@ -84,7 +85,8 @@ def attach_evaluation_report_schema(payload: Mapping[str, object]) -> dict[str, 
         **dict(payload),
     }
     with_statistics = attach_evaluation_statistics_schema(envelope)
-    return attach_freshness_evaluation_schema(with_statistics)
+    with_freshness = attach_freshness_evaluation_schema(with_statistics)
+    return attach_failure_gallery_schema(with_freshness)
 
 
 _OPERATIONAL_QUERY_TEXT_KEYS = frozenset({"query_a", "query_b"})
@@ -98,7 +100,7 @@ _FAILURE_EXAMPLE_LIST_KEYS = frozenset(
 
 
 def _redact_query_text_from_examples(examples: object) -> object:
-    if not isinstance(examples, list):
+    if not isinstance(examples, (list, tuple)):
         return examples
     redacted: list[object] = []
     for item in examples:
@@ -139,6 +141,32 @@ def redact_operational_evaluation_report(
             key: _redact_query_text_from_examples(value)
             for key, value in gallery.items()
         }
+
+    threshold_selection = result.get("threshold_selection")
+    if isinstance(threshold_selection, dict):
+        reports = threshold_selection.get("reports")
+        if isinstance(reports, (list, tuple)):
+            redacted_selection = dict(threshold_selection)
+            redacted_selection["reports"] = [
+                redact_operational_evaluation_report(report)
+                if isinstance(report, dict)
+                else report
+                for report in reports
+            ]
+            result["threshold_selection"] = redacted_selection
+
+    sweep_reports = result.get("reports")
+    if isinstance(sweep_reports, (list, tuple)) and isinstance(
+        result.get("baseline"), str
+    ):
+        baseline_name = result["baseline"]
+        if baseline_name.endswith("threshold-sweep") or baseline_name == "embedding-cache-threshold-sweep":
+            result["reports"] = [
+                redact_operational_evaluation_report(report)
+                if isinstance(report, dict)
+                else report
+                for report in sweep_reports
+            ]
 
     statistics = result.get("statistics")
     if isinstance(statistics, dict):

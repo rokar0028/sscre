@@ -166,23 +166,32 @@ Acceptance criteria:
 
 ### 5. Test shared-database operational behavior
 
-- [ ] Test PostgreSQL restart during lookup, generation, cache insert, and
+- [x] Test PostgreSQL restart during lookup, generation, cache insert, and
   cleanup.
-- [ ] Test concurrent requests from multiple processes for one query.
-- [ ] Verify duplicate prevention, transaction behavior, and eviction under
+  Simulated failure injection recorded; live container restart skipped
+  ([WORKSTREAM_8_EVIDENCE.md](./WORKSTREAM_8_EVIDENCE.md)).
+- [x] Test concurrent requests from multiple processes for one query.
+  Two processes both generate; unique insert wins. No distributed lock.
+- [x] Verify duplicate prevention, transaction behavior, and eviction under
   concurrent writes.
-- [ ] Run bounded load tests against PostgreSQL and record p50, p95, p99,
+  Protocol `ws8-contention-v1` (6 passed, 2026-10-10).
+- [x] Run bounded load tests against PostgreSQL and record p50, p95, p99,
   throughput, errors, timeouts, storage growth, and evictions.
-- [ ] Document the first measured bottleneck and avoid claiming universal
+  `ws8-pg-load-v1`; not a production capacity claim. Phase 4 in-memory
+  scale is a different environment.
+- [x] Document the first measured bottleneck and avoid claiming universal
   capacity from one environment.
+  Verdict `not_reached`.
 
 Acceptance criteria:
 
-- No restart or connection-loss path serves an unsafe, expired, or unauthorized
-  cache result.
-- Multi-process behavior is either verified or explicitly documented as
-  unsupported.
-- Load limits and test hardware are included in the report.
+- No **tested** connection-loss path serves an unsafe, expired, or unauthorized
+  cache result. Live restart remains skipped
+  ([WORKSTREAM_8_EVIDENCE.md](./WORKSTREAM_8_EVIDENCE.md)).
+- Multi-process behavior is verified: both processes generate; duplicate
+  insert is rejected. Cross-process generation locks remain unsupported.
+- Load limits and test hardware are included in the WS8 report. Phase 4
+  in-memory scale is not that report.
 
 ### 6. Add deployment hardening when deployment is planned
 

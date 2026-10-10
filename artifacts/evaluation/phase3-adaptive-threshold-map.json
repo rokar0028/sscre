@@ -1,0 +1,230 @@
+{
+  "config_sha256": "5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8",
+  "config_version": "evaluation-config-1.0",
+  "dataset_version": "reviewed-query-pairs-2.0",
+  "default_threshold": 0.95,
+  "schema_version": "phase3-adaptive-thresholds-1.0",
+  "selection": {
+    "default_threshold": 0.95,
+    "domains": {
+      "code": {
+        "pair_count": 50,
+        "reports": [
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.8
+          },
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.9
+          },
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.95
+          }
+        ],
+        "selected_threshold": 0.8,
+        "selection_rule": "maximize hit rate subject to development false-positive rate <= 0.0; tie-break lowest threshold"
+      },
+      "computing": {
+        "pair_count": 1,
+        "selected_threshold": 0.95,
+        "selection_rule": "fallback_small_stratum"
+      },
+      "conversational": {
+        "pair_count": 83,
+        "reports": [
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.8
+          },
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.9
+          },
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.95
+          }
+        ],
+        "selected_threshold": 0.8,
+        "selection_rule": "maximize hit rate subject to development false-positive rate <= 0.0; tie-break lowest threshold"
+      },
+      "general": {
+        "pair_count": 2,
+        "selected_threshold": 0.95,
+        "selection_rule": "fallback_small_stratum"
+      },
+      "math": {
+        "pair_count": 53,
+        "reports": [
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.8
+          },
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.9
+          },
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.95
+          }
+        ],
+        "selected_threshold": 0.8,
+        "selection_rule": "maximize hit rate subject to development false-positive rate <= 0.0; tie-break lowest threshold"
+      },
+      "programming": {
+        "pair_count": 1,
+        "selected_threshold": 0.95,
+        "selection_rule": "fallback_small_stratum"
+      },
+      "qa_factual": {
+        "pair_count": 85,
+        "reports": [
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.8
+          },
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.9
+          },
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.95
+          }
+        ],
+        "selected_threshold": 0.8,
+        "selection_rule": "maximize hit rate subject to development false-positive rate <= 0.0; tie-break lowest threshold"
+      },
+      "qa_open": {
+        "pair_count": 97,
+        "reports": [
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.8
+          },
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.9
+          },
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.95
+          }
+        ],
+        "selected_threshold": 0.8,
+        "selection_rule": "maximize hit rate subject to development false-positive rate <= 0.0; tie-break lowest threshold"
+      },
+      "sports": {
+        "pair_count": 1,
+        "selected_threshold": 0.95,
+        "selection_rule": "fallback_small_stratum"
+      },
+      "unknown": {
+        "pair_count": 26,
+        "reports": [
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.8
+          },
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.9
+          },
+          {
+            "estimated_cost_usd": 0.0,
+            "false_positive_rate": 0.0,
+            "hit_rate": 0.0,
+            "p95_latency_ms": 0.0,
+            "threshold": 0.95
+          }
+        ],
+        "selected_threshold": 0.8,
+        "selection_rule": "maximize hit rate subject to development false-positive rate <= 0.0; tie-break lowest threshold"
+      },
+      "weather": {
+        "pair_count": 1,
+        "selected_threshold": 0.95,
+        "selection_rule": "fallback_small_stratum"
+      }
+    },
+    "minimum_pairs": 10,
+    "thresholds": [
+      0.8,
+      0.9,
+      0.95
+    ]
+  },
+  "selection_split": "development",
+  "threshold_map": {
+    "code": 0.8,
+    "computing": 0.95,
+    "conversational": 0.8,
+    "general": 0.95,
+    "math": 0.8,
+    "programming": 0.95,
+    "qa_factual": 0.8,
+    "qa_open": 0.8,
+    "sports": 0.95,
+    "unknown": 0.8,
+    "weather": 0.95
+  },
+  "thresholds": [
+    0.8,
+    0.9,
+    0.95
+  ]
+}

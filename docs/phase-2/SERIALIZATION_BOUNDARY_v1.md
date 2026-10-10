@@ -11,9 +11,14 @@
 | `cache_decision` logs | `build_cache_decision_log()` / `dumps_cache_decision_log()` |
 | Evaluation reports | `attach_evaluation_report_schema()` via `baseline._save_report` |
 | Failure examples | `evaluation_labels` + optional `candidate_traces` (Strategy C baseline) |
+| Failure gallery schema | `attach_failure_gallery_schema()` — [FAILURE_GALLERY_CONTRACT_v1.md](./FAILURE_GALLERY_CONTRACT_v1.md) |
 
 Saved evaluation JSON applies `redact_operational_evaluation_report()` so failure
 galleries omit reviewed `query_a` / `query_b` text (record IDs and labels remain).
+Redaction recurses into development threshold-sweep `reports` and comparison
+`threshold_selection.reports`, including `dataclasses.asdict` tuple containers.
+Consolidated Workstream 7 packaging validates the same forbidden-key rules via
+[`FAILURE_GALLERY_CONTRACT_v1.md`](./FAILURE_GALLERY_CONTRACT_v1.md).
 
 ## Canonical shapes
 

@@ -1,0 +1,174 @@
+{
+  "branch": "phase4/setup",
+  "config": {
+    "path": "experiments/evaluation_config.json",
+    "sha256": "5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8",
+    "version": "evaluation-config-1.0"
+  },
+  "dataset_version": "reviewed-query-pairs-2.0",
+  "deferred": [
+    "credentialed live-provider validation",
+    "PostgreSQL or production-scale capacity claim",
+    "GPU and int8 quantization experiments",
+    "clean-checkout replay until current Step 3 changes are committed"
+  ],
+  "generated_at_utc": "2026-10-10T13:51:33.626681+00:00",
+  "git_commit": "dc451fed105fe481b6be99ee37ea3683634b848d",
+  "git_worktree_dirty": true,
+  "limitations": [
+    "synthetic provider and bounded in-memory scale evidence",
+    "human factual-correctness labels remain out of scope",
+    "single-process OPS-lite evidence",
+    "P4-PARETO attaches the frozen adaptive point and replays only the global reference threshold grid"
+  ],
+  "measurement_environments": [
+    "synthetic_replay",
+    "synthetic_storage_simulation",
+    "real_provider_unavailable"
+  ],
+  "pull_request": "https://github.com/rokar0028/sscre/pull/1",
+  "schema_version": "phase4-artifact-manifest-1.0",
+  "split_manifest": {
+    "path": "benchmarks/split_manifest.json",
+    "sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51"
+  },
+  "statistics": {
+    "bootstrap_iterations": 1000,
+    "bootstrap_seed": 42,
+    "confidence_level": 0.95
+  },
+  "status": "complete_with_documented_deferrals",
+  "tracks": {
+    "P4-PARETO": {
+      "artifacts": [
+        {
+          "metadata": {
+            "measurement_environment": "synthetic_replay",
+            "phase4_protocol": {
+              "eviction_policy": "default_ws6_conservative",
+              "held_out_use": "frozen development threshold grid replayed for the global Strategy C reference curve; the adaptive retained-stack point is attached from the frozen Phase 3 final comparison.",
+              "protocol_reset": true,
+              "protocol_version": "phase4-pareto-follow-up-1.0",
+              "reset_reason": "Phase 3 deferred the selected-stack Pareto curve to avoid an additional held-out run.",
+              "retuning_on_phase4_held_out": false,
+              "strategy_d": "deferred"
+            },
+            "provenance": {
+              "config_sha256": "5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8",
+              "generated_at_utc": "2026-10-10T13:29:41.073114+00:00",
+              "git_commit": "8c65926227fbdc923a23994c183ac33ba378694f",
+              "git_worktree_dirty": true,
+              "seed": 42,
+              "source_final_comparison": "artifacts\\evaluation\\phase3-final-held-out-comparison.json",
+              "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51"
+            },
+            "retained_stack": {
+              "comparison_source": "artifacts/evaluation/phase3-final-held-out-comparison.json",
+              "metrics": {
+                "estimated_cost_usd": 0.0,
+                "false_positive_rate": 0.0,
+                "hit_rate": 0.002325581395348837,
+                "p95_latency_ms": 0.0,
+                "safe_reuse_coverage": 0.011764705882352941,
+                "tokens_saved": 17
+              },
+              "name": "strategy-c-feature-1-adaptive-thresholds",
+              "threshold_map": "artifacts/evaluation/phase3-adaptive-threshold-map.json"
+            }
+          },
+          "path": "artifacts/evaluation/phase4-selected-stack-pareto.json",
+          "sha256": "fb7ff2cd6c7ad45b79dab4da32d6beeb8636bd0351b75dbf62728b6fd26e7c11"
+        }
+      ],
+      "evidence": "docs/phase-4/PHASE4_PARETO_EVIDENCE.md",
+      "status": "complete_diagnostic_follow_up"
+    },
+    "P4-PROVIDER": {
+      "artifacts": [
+        {
+          "metadata": {
+            "execution_timestamp": "2026-10-10T13:31:16.028039+00:00",
+            "measurement_environment": "real_provider",
+            "schema_version": "real-provider-measurement-1.0",
+            "status": "unavailable"
+          },
+          "path": "artifacts/evaluation/phase4-provider-validation.json",
+          "sha256": "c53dfc82f003898eddd9ec947edd24898b2781d4db42cb20d57a54d5d2301154"
+        }
+      ],
+      "evidence": "docs/phase-4/PHASE4_PROVIDER_EVIDENCE.md",
+      "status": "unavailable_deferred"
+    },
+    "P4-RELEASE": {
+      "artifacts": [],
+      "evidence": "docs/phase-4/PHASE4_RELEASE_EVIDENCE.md",
+      "status": "complete_clean_checkout_deferred"
+    },
+    "P4-SCALE": {
+      "artifacts": [
+        {
+          "metadata": {
+            "generated_at": "2026-10-10T13:45:57.960255+00:00",
+            "measurement_environment": "synthetic_storage_simulation",
+            "phase4_protocol": {
+              "database_mode": "in_memory",
+              "gpu_used": false,
+              "hardware": "local Windows CPU; exact hardware not captured by the existing harness",
+              "max_bytes": 100000,
+              "max_entries": 10,
+              "optimization_selected": false,
+              "protocol_version": "phase4-scale-profile-1.0",
+              "provider_data": "synthetic",
+              "quantization_tested": false,
+              "requests": 4,
+              "synthetic_generation_latency_ms": 100,
+              "track": "P4-SCALE",
+              "workload": "experiments/storage_controls_development.json",
+              "workload_scope": "bounded local synthetic profile; not a production capacity claim"
+            },
+            "provenance": {
+              "evaluation_config_sha256": "5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8",
+              "generated_at_utc": "2026-10-10T13:46:10.221193+00:00",
+              "git_commit": "dc451fed105fe481b6be99ee37ea3683634b848d",
+              "git_worktree_dirty": true,
+              "workload_sha256": "74db60383dd0af321c3cc7bcea7cb649b0011097bc03fb139b96387106c356f4"
+            }
+          },
+          "path": "artifacts/evaluation/phase4-storage-profile.json",
+          "sha256": "eedd2dbdf29ded374fadfb561f647bc41c1fffa175c34b99fc1330c96773c62a"
+        },
+        {
+          "metadata": {
+            "phase4_protocol": {
+              "concurrency": 4,
+              "database_mode": "in_memory",
+              "gpu_used": false,
+              "hardware": "local Windows CPU; exact hardware not captured by the existing harness",
+              "max_bytes": 10000,
+              "max_entries": 8,
+              "optimization_selected": false,
+              "protocol_version": "phase4-scale-profile-1.0",
+              "provider_data": "synthetic",
+              "quantization_tested": false,
+              "request_count": 32,
+              "track": "P4-SCALE",
+              "warmup_requests": 8,
+              "workload": "experiments/milestone10_load_v1.json",
+              "workload_scope": "bounded local synthetic profile; not a production capacity claim"
+            },
+            "provenance": {
+              "generated_at_utc": "2026-10-10T13:46:10.222988+00:00",
+              "git_commit": "dc451fed105fe481b6be99ee37ea3683634b848d",
+              "git_worktree_dirty": true,
+              "workload_sha256": "1c681f987c29bae575d52eaa1b053c0f78817cc98580b610ebed84b853747283"
+            }
+          },
+          "path": "artifacts/evaluation/phase4-scale-profile.json",
+          "sha256": "4cebf701d85beabca91f4129dcbcbda707ea2f955da169e517a697f0d195a7fc"
+        }
+      ],
+      "evidence": "docs/phase-4/PHASE4_SCALE_EVIDENCE.md",
+      "status": "complete_no_optimization_trigger"
+    }
+  }
+}

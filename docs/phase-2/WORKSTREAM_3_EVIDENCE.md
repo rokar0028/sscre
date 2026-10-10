@@ -127,16 +127,21 @@ Passed in the full suite:
   `dynamic_entries_disabled`, `missing_expiration`, `invalid_expiration`).
 - [x] Workstream 7: failure categories and redacted examples are in the
   compatibility report (`failure_examples`, `disagreement_class_counts`).
-- [x] Workstream 8: in-process duplicate and concurrent tests passed.
-  PostgreSQL restart, multi-process capacity, and the 13 skipped integration
-  tests are unsupported here.
+- [x] Workstream 8: in-process duplicate and concurrent tests passed in this
+  WS3 record. Later bounded PostgreSQL evidence is
+  [WORKSTREAM_8_EVIDENCE.md](./WORKSTREAM_8_EVIDENCE.md); do not read WS3
+  in-memory concurrency as that package.
 - [x] Workstream 9: API, log, and report JSON stay on serialization boundary
   `1.0.0`. Operational traces omit raw queries, answers, and secrets.
 
 ## Known limits
 
 - [ ] PostgreSQL integration tests were not run (`SSCRE_DATABASE_URL` unset).
-- [ ] Multi-process and restart behavior is not claimed. Workstream 8 owns it.
+- [ ] Multi-process and live restart behavior are not claimed in this WS3
+  record. Workstream 8 later measured two-process duplicate generation and
+  simulated failure-closed paths
+  ([WORKSTREAM_8_EVIDENCE.md](./WORKSTREAM_8_EVIDENCE.md)); live restart
+  remains skipped.
 - [ ] No real-provider measurement. Workstream 4 owns that run.
 - [ ] The reviewed benchmark is the 32-pair working artifact, not 500 pairs.
 - [ ] Strategy B still serves from similarity alone. It is opt-in. Strategy C

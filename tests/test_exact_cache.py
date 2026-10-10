@@ -2,6 +2,7 @@ import hashlib
 import json
 import logging
 import time
+from decimal import Decimal
 
 import pytest
 from fastapi.testclient import TestClient
@@ -10,6 +11,7 @@ from sscre.app import create_app
 from sscre.cache import (
     CacheEntry,
     CacheRepositoryError,
+    CacheStorageStats,
     DuplicateCacheEntryError,
     InMemoryExactCache,
 )
@@ -17,6 +19,24 @@ from sscre.embedding import EmbeddingConfig, FakeEmbeddingClient
 from sscre.config import Settings
 from sscre.llm import LLMResult, MockLLMClient
 from sscre.safety import QueryMetadata
+
+
+def test_storage_stats_coerce_postgres_decimal_for_json() -> None:
+    stats = CacheStorageStats(
+        entries=Decimal("6"),
+        canonical_answers=Decimal("4"),
+        total_bytes=Decimal("1782"),
+        evictions=Decimal("31"),
+    )
+    assert stats.total_bytes == 1782
+    assert type(stats.total_bytes) is int
+    json.dumps(
+        {
+            "entries": stats.entries,
+            "bytes": stats.total_bytes,
+            "evictions": stats.evictions,
+        }
+    )
 
 
 def test_cache_get_and_put() -> None:

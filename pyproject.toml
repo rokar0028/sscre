@@ -18,6 +18,8 @@ sscre-evaluate = "sscre.evaluate:main"
 sscre-storage-evaluate = "sscre.storage_evaluation:main"
 sscre-migrate = "sscre.migrate:main"
 sscre-load-test = "sscre.load_test:main"
+sscre-gallery-export = "sscre.gallery_export:main"
+sscre-failure-gallery-export = "sscre.failure_gallery_export:main"
 
 [project.optional-dependencies]
 dev = [
@@ -30,4 +32,9 @@ pythonpath = ["src"]
 testpaths = ["tests"]
 markers = [
     "real_provider: opt-in tests that make bounded remote provider requests",
+    "ws8_postgres_failure_recovery: opt-in WS8 PostgreSQL failure/recovery harness",
+    "ws8_postgres_multiprocess: opt-in WS8 multi-process duplicate-generation harness",
+    "ws8_postgres_contention: opt-in WS8 PostgreSQL contention/uniqueness/eviction harness",
+    "ws8_postgres_load: opt-in WS8 bounded PostgreSQL load verification",
 ]
+addopts = "-m 'not ws8_postgres_failure_recovery and not ws8_postgres_multiprocess and not ws8_postgres_contention and not ws8_postgres_load'"

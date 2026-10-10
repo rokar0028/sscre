@@ -5,7 +5,7 @@
   "annotation_guide_version": "1.0.0",
   "source_dataset": {
     "path": "benchmarks/reviewed_query_pairs.jsonl",
-    "sha256": "84d8c6fdcd4be6618c5278920433c3ea2a90d43cf7e54f86af9ee6d2a4b285c5",
+    "sha256": "8dbd3c503927006d27f18c4f41a0c3ae47c7294e583203d3371871fa2e0664cd",
     "record_count": 615
   },
   "development": {
@@ -414,7 +414,7 @@
       "pair-0613",
       "pair-0614"
     ],
-    "sha256": "9f115cd6d6c6b9a9ac6756b8bd6bd22cb5ad58581ce418e961dde270a08e4303"
+    "sha256": "14a1d2acd976c2fc891e6d5c3b7c33b729e69e37e66809929d1f74a759f01305"
   },
   "held_out_test": {
     "path": "benchmarks/held_out_test.jsonl",
@@ -637,7 +637,7 @@
       "pair-0610",
       "pair-0615"
     ],
-    "sha256": "d44865c12722667e06c9c4f2f436411e658bb9a153cc3f5e6c20b5e5e882e148"
+    "sha256": "30801a9629dd997c92a3aa935af6fe92433c22cd1ef69226fd7a8e2919a251e1"
   },
   "evaluation_directions": [
     "a_to_b",
