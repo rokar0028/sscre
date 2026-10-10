@@ -15,6 +15,10 @@
 
 Saved evaluation JSON applies `redact_operational_evaluation_report()` so failure
 galleries omit reviewed `query_a` / `query_b` text (record IDs and labels remain).
+Redaction recurses into development threshold-sweep `reports` and comparison
+`threshold_selection.reports`, including `dataclasses.asdict` tuple containers.
+Consolidated Workstream 7 packaging validates the same forbidden-key rules via
+[`FAILURE_GALLERY_CONTRACT_v1.md`](./FAILURE_GALLERY_CONTRACT_v1.md).
 
 ## Canonical shapes
 

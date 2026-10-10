@@ -403,8 +403,11 @@ Acceptance criteria:
 ## Workstream 7 — Failure gallery and quality analysis
 
 Implementation plan:
-[`WORKSTREAM_7_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md)
-(Phase 2 full package; Phase 1 **P2-GALLERY** carryover is lite scope only).
+[`WORKSTREAM_7_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md).
+Completion evidence:
+[`WORKSTREAM_7_EVIDENCE.md`](./WORKSTREAM_7_EVIDENCE.md).
+Phase 1 **P2-GALLERY** carryover remains the lite single-report HTML path;
+Phase 2 WS7 adds the consolidated JSON/HTML package (`workstream7-quality-analysis`).
 
 Create a browsable or static failure gallery after the data/report contract is
 stable. Each example should include:
@@ -421,14 +424,21 @@ Add aggregate metrics by category so the gallery is not only anecdotal.
 
 Acceptance criteria:
 
-- [x] Every false positive in the selected evaluation sample has a category.
-  (Phase 1 carryover: held-out comparison sample — reviewed `reason`, outcome
-  `failure_category`, benchmark strata in statistics; see
-  [`PHASE1_CARRYOVERS_IMPLEMENTATION_PLAN.md`](../internal/PHASE1_CARRYOVERS_IMPLEMENTATION_PLAN.md).)
-- [x] Failure counts and rates are included in the final report.
-  (WS5/WS6 `statistics.strata.by_failure_category`; unchanged in Phase 1.)
-- [x] Gallery rendering does not expose secrets or unapproved data.
-  (`sscre.gallery_export`, serialization redaction tests.)
+- [x] Every false positive in the selected held-out evaluation sample has a
+  reviewed or runtime failure category (or documented exclusion) in the
+  consolidated artifact (`false_positive_category_complete`; enrichment +
+  `tests/test_workstream7_failure_gallery.py`).
+- [x] Failure counts and rates by category appear in the consolidated JSON
+  (`quality_analysis.by_failure_category` sourced from WS5 statistics).
+- [x] Gallery and consolidated exports do not expose secrets or unapproved raw
+  query text (`redact_operational_evaluation_report`, threshold-sweep tuple
+  fix, `validate_redacted_report_payload` on save).
+- [x] WS6 freshness protection vs stale exposure is attached as a bounded
+  companion block (no WS7 replay of freshness policy).
+- [x] Static HTML regenerates from documented commands (`sscre-failure-gallery-export`,
+  `sscre-gallery-export`; see evidence doc).
+- [x] Input artifact paths, schema versions, and aligned split manifest SHA are
+  recorded in [`WORKSTREAM_7_EVIDENCE.md`](./WORKSTREAM_7_EVIDENCE.md).
 
 ## Workstream 8 — Operational verification
 

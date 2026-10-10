@@ -46,6 +46,7 @@ Referenced from `src/sscre/` — do not fork a second decision or trace model.
 | 4 | [WORKSTREAM_4_EVIDENCE.md](./WORKSTREAM_4_EVIDENCE.md) |
 | 5 | [WORKSTREAM_5_EVIDENCE.md](./WORKSTREAM_5_EVIDENCE.md) |
 | 6 | [WORKSTREAM_6_EVIDENCE.md](./WORKSTREAM_6_EVIDENCE.md) |
+| 7 | [WORKSTREAM_7_EVIDENCE.md](./WORKSTREAM_7_EVIDENCE.md) |
 | 8 (lite) | [WORKSTREAM_8_OPS_LITE_EVIDENCE.md](./WORKSTREAM_8_OPS_LITE_EVIDENCE.md) |
 
 ## Step audits and reviews

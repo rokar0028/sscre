@@ -31,7 +31,8 @@ baseline replay or policy selection.
 
 ## Status
 
-**In progress (Step 2 complete).** Phase 1 carryover (**P2-GALLERY**) delivered
+**Closed (implementation).** Steps 1–12 complete; evidence in
+[`WORKSTREAM_7_EVIDENCE.md`](./WORKSTREAM_7_EVIDENCE.md). Phase 1 carryover (**P2-GALLERY**) delivered
 a minimal static HTML exporter and satisfied three parent-plan acceptance boxes
 for the held-out comparison sample only; see
 [`PHASE1_CARRYOVERS_IMPLEMENTATION_PLAN.md`](../internal/PHASE1_CARRYOVERS_IMPLEMENTATION_PLAN.md).
@@ -51,8 +52,8 @@ Current known baseline:
   and per-policy strata; they do **not** include a `failure_gallery` block.
 - `python -m sscre.gallery_export` renders HTML from a single evaluation JSON
   (`gallery_export.py`, `tests/test_gallery_export.py`).
-- Checked-in `workstream5-held-out-comparison.json` may record an older
-  `split_manifest_sha256` than `benchmarks/split_manifest.json` (WS6 Step 1).
+- Checked-in WS5/WS6/WS7 artifacts align with `benchmarks/split_manifest.json`
+  (regenerated 2026-10-10; see evidence doc).
 
 Open status:
 
@@ -61,11 +62,12 @@ Open status:
 - [x] Freeze the failure-gallery report schema and example record contract
   ([`FAILURE_GALLERY_CONTRACT_v1.md`](./FAILURE_GALLERY_CONTRACT_v1.md),
   `failure-gallery-1.0` in `sscre.failure_gallery`).
-- [ ] Publish a consolidated workstream7 quality artifact (JSON).
-- [ ] Attach freshness failure companion data from WS6 without recomputing replay.
-- [ ] Regenerate or explicitly annotate WS5 held-out comparison for manifest drift.
-- [ ] Extend static export (HTML and/or Markdown) for the consolidated package.
-- [ ] Record completion evidence and link from the Phase 2 parent plan.
+- [x] Publish consolidated workstream7 quality artifact (JSON) on disk
+  (`artifacts/evaluation/workstream7-quality-analysis.json`).
+- [x] Attach freshness failure companion data from WS6 without recomputing replay.
+- [x] Regenerate WS5 held-out comparison for manifest alignment.
+- [x] Extend static export (HTML) for the consolidated package.
+- [x] Record completion evidence and link from the Phase 2 parent plan.
 
 ## Source of truth
 
@@ -104,8 +106,8 @@ Canonical artifact locations to add or update:
 | Category / freshness strata | `src/sscre/evaluation_statistics.py`, `src/sscre/freshness_metrics.py` |
 | Redaction and schema | `src/sscre/serialization.py` |
 | Static HTML export | `src/sscre/gallery_export.py` |
-| Consolidated packaging (planned) | `src/sscre/failure_gallery.py`, `src/sscre/failure_quality.py` |
-| Gallery CLI (planned) | `src/sscre/failure_gallery_export.py` or extend `gallery_export.py` |
+| Consolidated packaging | `src/sscre/failure_gallery.py` (`package_consolidated_quality_analysis`), `src/sscre/failure_quality.py` |
+| Gallery CLI | `src/sscre/failure_gallery_export.py` (`sscre-failure-gallery-export`) |
 | Quality artifact | `artifacts/evaluation/workstream7-quality-analysis.json` |
 | Static exports | `artifacts/evaluation/workstream7-quality-gallery.html` |
 | Tests | `tests/test_workstream7_failure_gallery.py`, extend `tests/test_gallery_export.py` |
@@ -239,16 +241,14 @@ Minimum bounded fields after redaction:
 
 - [x] `FAILURE_GALLERY_CONTRACT_v1.md` and `failure-gallery-1.0` schema version
   ([Step 2](./FAILURE_GALLERY_CONTRACT_v1.md)).
-- [ ] No consolidated `workstream7-quality-analysis.json` artifact.
-- [ ] No freshness failure section in gallery exports.
-- [ ] No explicit **false-positive category completeness** audit in tests for
-  the held-out comparison artifact.
-- [ ] WS5 held-out comparison may predate current `split_manifest.json` SHA
-  (regenerate or annotate before claiming cross-artifact consistency).
-- [ ] `gallery_export` reads a single JSON; no merge of WS5 + WS6 companions.
-- [ ] Mitigation / open-limitation field not standardized on examples.
-- [ ] Phase 2 parent plan WS7 acceptance boxes checked via carryover only; full
-  WS7 evidence file not yet written.
+- [x] Checked-in `workstream7-quality-analysis.json` regenerated ([`WORKSTREAM_7_EVIDENCE.md`](./WORKSTREAM_7_EVIDENCE.md)).
+- [x] Freshness companion block in consolidated HTML export (`gallery_export.py`).
+- [x] **False-positive category completeness** test on checked-in WS7 JSON
+  (`tests/test_workstream7_failure_gallery.py`).
+- [x] WS5/WS6/WS7 inputs aligned to current `split_manifest.json` SHA (2026-10-10 regen).
+- [x] WS5 lite export unchanged; WS7 CLI merges WS5 + WS6 (`failure_gallery_export`).
+- [x] Mitigation / open-limitation field not standardized on examples (Step 3 enrichment).
+- [x] Phase 2 parent plan WS7 acceptance boxes updated with evidence link (Step 12).
 
 ## Implementation steps
 
@@ -286,12 +286,12 @@ Planned touch points:
 
 Align example records with the contract without adding raw query text to saves.
 
-- [ ] Map runtime outcome categories to display labels consistently.
-- [ ] Add optional `mitigation` / `open_limitation` on Strategy C and embedding FPs
+- [x] Map runtime outcome categories to display labels consistently.
+- [x] Add optional `mitigation` / `open_limitation` on Strategy C and embedding FPs
   (rule-based defaults: e.g. caught-by-Strategy-C → `compatibility_validator`).
-- [ ] Ensure `evaluation_labels` compatibility subset remains bounded in exports.
-- [ ] Preserve redaction: enrichment runs before save; no new secret fields.
-- [ ] Unit tests for enrichment on fixture examples.
+- [x] Ensure `evaluation_labels` compatibility subset remains bounded in exports.
+- [x] Preserve redaction: enrichment runs before save; no new secret fields.
+- [x] Unit tests for enrichment on fixture examples.
 
 Touch points: `src/sscre/baseline.py` and/or `src/sscre/failure_quality.py`
 (post-process layer preferred if replay changes are avoidable).
@@ -301,11 +301,11 @@ Touch points: `src/sscre/baseline.py` and/or `src/sscre/failure_quality.py`
 Build aggregate tables from existing statistics and benchmark strata—do not rerun
 bootstrap unless source artifacts lack required fields.
 
-- [ ] Read `statistics.by_baseline.compatibility-cache.strata.by_failure_category`.
-- [ ] Include sample counts, false-positive proportion points, and interval metadata.
-- [ ] Add freshness-class strata when present on the same baseline payload.
-- [ ] Mark sparse categories (`sample_count` below declared minimum) as diagnostic.
-- [ ] Tests mirroring `tests/test_gallery_export.py::test_failure_category_rows_*`.
+- [x] Read `statistics.by_baseline.compatibility-cache.strata.by_failure_category`.
+- [x] Include sample counts, false-positive proportion points, and interval metadata.
+- [x] Add freshness-class strata when present on the same baseline payload.
+- [x] Mark sparse categories (`sample_count` below declared minimum) as diagnostic.
+- [x] Tests mirroring `tests/test_gallery_export.py::test_failure_category_rows_*`.
 
 Planned module: `src/sscre/failure_quality.py`.
 
@@ -314,11 +314,11 @@ Planned module: `src/sscre/failure_quality.py`.
 Merge WS6 held-out stale-exposure and protection counts into the consolidated
 artifact by reference and copied bounded summaries.
 
-- [ ] Validate WS6 held-out artifact via `freshness_artifacts` helpers where applicable.
-- [ ] Copy `stale_exposure_accounting`, protection counts, and selected policy name.
-- [ ] Include `held_out_freshness_scope` unavailable classes explicitly.
-- [ ] Do not recompute freshness replay in WS7.
-- [ ] Tests: companion missing → explicit unavailable block; present → bounded merge.
+- [x] Validate WS6 held-out artifact via `freshness_artifacts` helpers where applicable.
+- [x] Copy `stale_exposure_accounting`, protection counts, and selected policy name.
+- [x] Include `held_out_freshness_scope` unavailable classes explicitly.
+- [x] Do not recompute freshness replay in WS7.
+- [x] Tests: companion missing → explicit unavailable block; present → bounded merge.
 
 ### 6. Package consolidated JSON artifact
 
@@ -326,13 +326,13 @@ Single machine-readable output for Workstream 9 dashboard gate.
 
 Planned artifact: `artifacts/evaluation/workstream7-quality-analysis.json`.
 
-- [ ] Top-level metadata: dataset version, split, manifest SHA, git identity, timestamps.
-- [ ] `input_artifacts`: paths and schema versions for WS5 comparison and WS6 freshness.
-- [ ] `failure_gallery`: three WS5 sections (by reference or embedded copy).
-- [ ] `quality_analysis`: aggregate tables from Step 4.
-- [ ] `freshness_failure_companion`: Step 5 block.
-- [ ] `limitations` and `measurement_environment` labels.
-- [ ] Regeneration commands recorded in artifact footer or evidence doc.
+- [x] Top-level metadata: dataset version, split, manifest SHA, git identity, timestamps.
+- [x] `input_artifacts`: paths and schema versions for WS5 comparison and WS6 freshness.
+- [x] `failure_gallery`: three WS5 sections (by reference or embedded copy).
+- [x] `quality_analysis`: aggregate tables from Step 4.
+- [x] `freshness_failure_companion`: Step 5 block.
+- [x] `limitations` and `measurement_environment` labels.
+- [x] Regeneration commands recorded in artifact footer or evidence doc.
 
 Planned module: `src/sscre/failure_gallery.py`.
 
@@ -340,58 +340,55 @@ Planned module: `src/sscre/failure_gallery.py`.
 
 Prefer extending `gallery_export` or adding a thin CLI—no duplicate evaluate path.
 
-- [ ] `python -m sscre.failure_gallery_export` (name TBD) with:
+- [x] `python -m sscre.failure_gallery_export` with:
   `--comparison`, `--freshness-companion`, `--output` JSON, optional `--html`.
-- [ ] Fail closed when comparison and freshness `dataset_version` or manifest SHA disagree.
-- [ ] Optional `--allow-manifest-mismatch` for diagnostic runs only (document in evidence).
-- [ ] Exit non-zero on redaction validation failure.
+- [x] Fail closed when comparison and freshness `dataset_version` or manifest SHA disagree.
+- [x] Optional `--allow-manifest-mismatch` for diagnostic runs only (document in evidence).
+- [x] Exit non-zero on redaction validation failure.
 
 ### 8. Regenerate or annotate WS5 held-out comparison
 
 Align primary gallery input with current split manifest when feasible.
 
-- [ ] Run documented `sscre.evaluate --baseline all --split held-out --production`
-  when environment permits, **or**
-- [ ] Record `manifest_mismatch: true` and stale SHA in WS7 artifact limitations.
-- [ ] Update `workstream5-held-out-comparison-gallery.html` only after comparison regen
-  or document that HTML reflects stale input.
+- [x] Run documented `sscre.evaluate --baseline all --split held-out --production`
+  ([`WORKSTREAM_7_EVIDENCE.md`](./WORKSTREAM_7_EVIDENCE.md), 2026-10-10).
+- [x] Manifest aligned (no `manifest_mismatch` in WS7 limitations).
+- [x] Regenerated `workstream5-held-out-comparison-gallery.html` after comparison regen.
 
 ### 9. Extend static HTML (and optional Markdown) export
 
-- [ ] Render aggregate category table from consolidated JSON.
-- [ ] Render freshness companion summary (protection vs served counts).
-- [ ] Section anchors for three gallery lists + freshness block.
-- [ ] Preserve forbidden-key validation (`query_a`, `query_b`, `query_text`).
-- [ ] Link dataset version and input artifact paths in page header.
+- [x] Render aggregate category table from consolidated JSON.
+- [x] Render freshness companion summary (protection vs served counts).
+- [x] Section anchors for three gallery lists + freshness block.
+- [x] Preserve forbidden-key validation (`query_a`, `query_b`, `query_text`).
+- [x] Link dataset version and input artifact paths in page header.
 
 Touch points: `src/sscre/gallery_export.py` or split render helpers used by CLI.
 
 ### 10. False-positive completeness and regression tests
 
-- [ ] Test: every embedding and Strategy C false positive in fixture/comparison
-  slice has category or documented exclusion.
-- [ ] Test: consolidated artifact validates against contract schema.
-- [ ] Test: operational redaction on consolidated output.
-- [ ] Test: WS3 serialization/redaction regressions remain green.
-- [ ] Test: checked-in `workstream7-quality-analysis.json` passes redaction guard
-  (when committed).
+- [x] Test: pack-time category completeness on checked-in comparison (`false_positive_category_complete`).
+- [x] Test: consolidated artifact validates against contract schema.
+- [x] Test: operational redaction on consolidated output.
+- [x] Test: threshold sweep tuple reports redacted (`tests/test_serialization_boundary.py`).
+- [x] Test: checked-in `workstream7-quality-analysis.json` passes redaction guard.
 
 Planned: `tests/test_workstream7_failure_gallery.py`.
 
 ### 11. Documentation and benchmarks README
 
-- [ ] Add WS7 row to `docs/phase-2/README.md`.
-- [ ] Add regeneration commands to `benchmarks/README.md` (consolidated + HTML).
-- [ ] Cross-link `FAILURE_GALLERY_CONTRACT_v1.md` from serialization boundary doc
-  if appropriate.
+- [x] Add WS7 row to `docs/phase-2/README.md`.
+- [x] Add regeneration commands to `benchmarks/README.md` (consolidated + HTML).
+- [x] Cross-link `FAILURE_GALLERY_CONTRACT_v1.md` from serialization boundary doc
+  ([`SERIALIZATION_BOUNDARY_v1.md`](./SERIALIZATION_BOUNDARY_v1.md) emitters table).
 
 ### 12. Record evidence and update parent handoff
 
-- [ ] Create `WORKSTREAM_7_EVIDENCE.md` with commands, artifact paths, counts,
-  limitations (manifest drift, sparse freshness classes, synthetic replay).
-- [ ] Update `PHASE_2_IMPLEMENTATION_PLAN.md` WS7 section with evidence link and
-  adjust acceptance checkboxes to reflect full WS7 completion (not carryover-only).
-- [ ] Note handoff to Workstream 9 (dashboard reads artifacts; no recompute).
+- [x] Create [`WORKSTREAM_7_EVIDENCE.md`](./WORKSTREAM_7_EVIDENCE.md) with commands, paths, counts,
+  limitations (sparse freshness classes, synthetic replay).
+- [x] Update `PHASE_2_IMPLEMENTATION_PLAN.md` WS7 section with evidence link and
+  full-package acceptance (not carryover-only).
+- [x] Note handoff to Workstream 9 (dashboard reads artifacts; no recompute) in evidence doc.
 
 ## Verification commands
 
@@ -446,20 +443,23 @@ known limitations.
 
 Aligned with Phase 2 Workstream 7 and P2-GALLERY carryover:
 
-- [ ] Every false positive in the **selected held-out evaluation sample** has a
-  category or an explicit documented exclusion in the consolidated artifact.
-- [ ] Failure counts and rates by category appear in the consolidated JSON
-  (sourced from WS5 statistics, not recomputed ad hoc).
-- [ ] Gallery rendering and consolidated saves pass redaction tests; no secrets
-  or unapproved raw query text in operational outputs.
-- [ ] Bounded examples include expected vs actual decision fields and trace
-  evidence where Strategy C produced traces.
-- [ ] Freshness protection vs served stale exposure is summarized via WS6
-  companion attachment (not conflated with compatibility false positives).
-- [ ] Static HTML (minimum) regenerates from checked-in commands.
-- [ ] Input artifact versions and manifest SHA are recorded; manifest mismatch
-  is either resolved or explicitly flagged.
-- [ ] Completion evidence is linked from `PHASE_2_IMPLEMENTATION_PLAN.md`.
+- [x] Every false positive in the **selected held-out evaluation sample** has a
+  category or an explicit documented exclusion in the consolidated artifact
+  (`false_positive_category_complete: true`; tests in `test_workstream7_failure_gallery.py`).
+- [x] Failure counts and rates by category appear in the consolidated JSON
+  (`quality_analysis.by_failure_category` from WS5 statistics).
+- [x] Gallery rendering and consolidated saves pass redaction tests; no secrets
+  or unapproved raw query text in operational outputs
+  (`validate_redacted_report_payload` on save + checked-in WS7 test).
+- [x] Bounded examples include expected vs actual decision fields and trace
+  evidence where Strategy C produced traces (WS5 gallery sections).
+- [x] Freshness protection vs served stale exposure is summarized via WS6
+  companion attachment (`freshness_failure_companion` in consolidated JSON).
+- [x] Static HTML (minimum) regenerates from checked-in commands
+  ([`WORKSTREAM_7_EVIDENCE.md`](./WORKSTREAM_7_EVIDENCE.md)).
+- [x] Input artifact versions and manifest SHA are recorded; manifest mismatch
+  resolved (aligned SHA on 2026-10-10 regen).
+- [x] Completion evidence is linked from `PHASE_2_IMPLEMENTATION_PLAN.md`.
 
 Parent plan items already satisfied by Phase 1 carryover remain valid for the
 **lite** export path; this workstream closes the **full** Phase 2 WS7 package.
@@ -468,15 +468,16 @@ Parent plan items already satisfied by Phase 1 carryover remain valid for the
 
 Record in [`WORKSTREAM_7_EVIDENCE.md`](./WORKSTREAM_7_EVIDENCE.md):
 
-- [ ] failure-gallery schema version and contract path;
-- [ ] selected sample definition and directed request count;
-- [ ] input WS5/WS6 artifact paths and manifest SHA comparison;
-- [ ] false-positive and Strategy C failure counts;
-- [ ] category completeness audit result;
-- [ ] freshness companion summary (protection vs served);
-- [ ] consolidated JSON and HTML output paths;
-- [ ] regeneration commands, git commit, test results;
-- [ ] limitations (synthetic replay, sparse semi/dynamic, stale WS5 artifact).
+- [x] failure-gallery schema version and contract path;
+- [x] selected sample definition and directed request count;
+- [x] input WS5/WS6 artifact paths and manifest SHA comparison;
+- [x] false-positive and Strategy C failure counts;
+- [x] category completeness audit result;
+- [x] freshness companion summary (protection vs served);
+- [x] consolidated JSON and HTML output paths;
+- [x] regeneration commands and test results (`685 passed`, 2026-10-10);
+- [ ] git commit (pending user `/commit`);
+- [x] limitations (synthetic replay, sparse semi/dynamic on held-out).
 
 Do not check an item based only on this plan. Each requires code, test,
 artifact, or documented unavailability evidence.
@@ -498,10 +499,10 @@ HTML; it must not recompute category rates or freshness exposure independently.
 
 Handoff requirements:
 
-- [ ] Publish `failure-gallery-1.0` schema version and example section definitions.
-- [ ] Publish consolidated artifact path and regeneration commands.
-- [ ] Publish limitations block suitable for dashboard display.
-- [ ] Link evidence from `PHASE_2_IMPLEMENTATION_PLAN.md`.
+- [x] Publish `failure-gallery-1.0` schema version and example section definitions.
+- [x] Publish consolidated artifact path and regeneration commands.
+- [x] Publish limitations block suitable for dashboard display.
+- [x] Link evidence from `PHASE_2_IMPLEMENTATION_PLAN.md`.
 
 ## Execution sequence
 
@@ -509,16 +510,16 @@ Handoff requirements:
    ([`WORKSTREAM_7_STEP1_AUDIT.md`](./WORKSTREAM_7_STEP1_AUDIT.md)).
 2. [x] Freeze failure gallery contract and schema version
    ([`FAILURE_GALLERY_CONTRACT_v1.md`](./FAILURE_GALLERY_CONTRACT_v1.md)).
-3. [ ] Standardize example enrichment and mitigation metadata.
-4. [ ] Implement read-only quality analysis aggregation.
-5. [ ] Attach WS6 freshness failure companion.
-6. [ ] Package consolidated JSON artifact.
-7. [ ] Add consolidate/export CLI.
-8. [ ] Regenerate or annotate WS5 held-out comparison.
-9. [ ] Extend static HTML export for consolidated package.
-10. [ ] Add completeness, schema, and redaction tests.
-11. [ ] Update README and benchmarks documentation.
-12. [ ] Record evidence and update parent plan.
+3. [x] Standardize example enrichment and mitigation metadata (`failure_quality.py`).
+4. [x] Implement read-only quality analysis aggregation (`build_quality_analysis`).
+5. [x] Attach WS6 freshness failure companion (`build_freshness_failure_companion`).
+6. [x] Package consolidated JSON artifact (`package_consolidated_quality_analysis`).
+7. [x] Add consolidate/export CLI (`python -m sscre.failure_gallery_export`).
+8. [x] Regenerate or annotate WS5 held-out comparison.
+9. [x] Extend static HTML export for consolidated package.
+10. [x] Add completeness, schema, and redaction tests.
+11. [x] Update README and benchmarks documentation.
+12. [x] Record evidence and update parent plan.
 
 ## Risks and mitigations
 
