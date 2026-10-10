@@ -1036,6 +1036,7 @@ def test_evaluate_command_writes_selected_baseline_report(tmp_path) -> None:
     assert report["baseline"] == "exact-cache"
     assert report["dataset_version"] == "reviewed-query-pairs-2.0"
     assert report["config_version"] == "evaluation-config-1.0"
+    assert len(report["config_sha256"]) == 64
     assert report["execution_timestamp"].endswith("+00:00")
     assert report["software_version"] == "0.1.0"
     assert "git_commit" in report
@@ -1100,6 +1101,8 @@ def test_held_out_comparison_uses_development_threshold(tmp_path) -> None:
             "all",
             "--split",
             "held-out",
+            "--freshness-policy",
+            "conservative",
             "--output",
             str(output_path),
         ]
@@ -1108,6 +1111,7 @@ def test_held_out_comparison_uses_development_threshold(tmp_path) -> None:
     assert status == 0
     report = json.loads(output_path.read_text(encoding="utf-8"))
     assert report["evaluation_split"] == "held-out"
+    assert report["freshness_policy_name"] == "conservative"
     assert report["benchmark_artifact"]["split_record_count"] == 215
     assert report["benchmark_artifact"]["leakage_validation"]["status"] == "passed"
     assert report["threshold_selection"]["dataset_version"] == (

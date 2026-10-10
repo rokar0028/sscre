@@ -1324,7 +1324,10 @@ def run_compatibility_cache_baseline(
                     query_hash=hash_query(normalized_query),
                     normalized_query=normalized_query,
                     answer=result.text,
-                    query_metadata=query_metadata,
+                    query_metadata=replace(
+                        query_metadata,
+                        temporal_class=record.freshness_class,
+                    ),
                     embedding_result=embedding_result,
                     freshness_replay_clock=freshness_replay_clock,
                 ),
@@ -1529,15 +1532,10 @@ def select_adaptive_domain_thresholds(
                 f"rate <= {max_false_positive_rate}; tie-break lowest threshold"
             )
         else:
-            chosen = min(
-                reports,
-                key=lambda report: (
-                    report.false_positive_rate,
-                    -report.hit_rate,
-                    report.threshold,
-                ),
+            raise ValueError(
+                f"domain {domain!r} has no threshold satisfying the "
+                f"development false-positive rate <= {max_false_positive_rate}"
             )
-            selection_rule = "no safe threshold; lowest development FPR fallback"
         selected[domain] = chosen.threshold
         diagnostics["domains"][domain] = {  # type: ignore[index]
             "pair_count": len(domain_records),

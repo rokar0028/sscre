@@ -3,6 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 from fastapi.testclient import TestClient
 
+from sscre.baseline import run_compatibility_cache_baseline
+from sscre.benchmark import BenchmarkRecord
 from sscre.app import create_app
 from sscre.cache import CacheEntry, InMemoryExactCache
 from sscre.config import Settings
@@ -96,6 +98,28 @@ def test_pattern_eviction_prioritizes_low_hits_within_freshness_class() -> None:
     )
     assert cache.get_by_query_hash("stable") is not None
     assert cache.get_by_query_hash("semi") is None
+
+
+def test_replay_uses_reviewed_freshness_class_for_cached_entries() -> None:
+    record = BenchmarkRecord(
+        id="dynamic-replay",
+        query_a="Explain cache policy",
+        query_b="Explain cache policy",
+        reusable=True,
+        compatibility_label="compatible",
+        coverage_category="paraphrase",
+        freshness_class="dynamic",
+        review_status="final",
+    )
+
+    report = run_compatibility_cache_baseline(
+        [record],
+        dataset_version="reviewed-query-pairs-2.0",
+        threshold=0.95,
+    )
+
+    assert report.cache_hits == 0
+    assert report.cache_control_outcome_counts["dynamic_entries_disabled"] >= 1
 
 
 def test_storage_stats_and_bounded_expired_cleanup() -> None:

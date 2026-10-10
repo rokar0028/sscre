@@ -1,4 +1,5 @@
 import json
+from types import SimpleNamespace
 
 import pytest
 
@@ -50,6 +51,44 @@ def test_adaptive_selection_uses_lowest_threshold_on_equal_safe_hit_rate() -> No
     assert diagnostics["domains"]["large"]["pair_count"] == 10
 
 
+def test_adaptive_selection_rejects_domain_without_safe_threshold(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records = [
+        BenchmarkRecord(
+            id=f"incompatible-{index:04d}",
+            query_a=f"Explain cache policy {index}",
+            query_b=f"Explain cache policy {index}",
+            reusable=False,
+            compatibility_label="incompatible",
+            coverage_category="intent_change",
+            failure_category="intent_mismatch",
+            reason="different intent",
+            metadata=BenchmarkMetadata(domain="large"),
+            review_status="final",
+        )
+        for index in range(10)
+    ]
+
+    monkeypatch.setattr(
+        "sscre.baseline.run_compatibility_cache_baseline",
+        lambda records, *, threshold, **kwargs: SimpleNamespace(
+            threshold=threshold,
+            hit_rate=0.0,
+            false_positive_rate=1.0,
+            estimated_cost_usd=0.0,
+            p95_latency_ms=0.0,
+        ),
+    )
+
+    with pytest.raises(ValueError, match="no threshold satisfying"):
+        select_adaptive_domain_thresholds(
+            records,
+            dataset_version="reviewed-query-pairs-2.0",
+            thresholds=[0.8, 0.9, 0.95],
+        )
+
+
 def test_threshold_policy_uses_domain_and_unknown_fallback() -> None:
     record = _record(1, "large")
     unknown = _record(2, "")
@@ -62,7 +101,13 @@ def test_threshold_policy_uses_domain_and_unknown_fallback() -> None:
 def test_adaptive_threshold_map_rejects_malformed_entries(tmp_path) -> None:
     path = tmp_path / "threshold-map.json"
     path.write_text(
-        json.dumps({"default_threshold": 0.95, "threshold_map": {"large": "low"}}),
+        json.dumps(
+            {
+                "selection_split": "development",
+                "default_threshold": 0.95,
+                "threshold_map": {"large": "low"},
+            }
+        ),
         encoding="utf-8",
     )
 

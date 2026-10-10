@@ -90,6 +90,7 @@ def select_development_eviction_policy(
     records: list,
     *,
     config: dict[str, Any],
+    config_path: str | Path,
     threshold: float | dict[str, float],
     entry_cap_grid: tuple[int, ...] = DEFAULT_ENTRY_CAP_GRID,
 ) -> dict[str, object]:
@@ -136,7 +137,7 @@ def select_development_eviction_policy(
         "schema_version": "phase3-pattern-eviction-1.0",
         "dataset_version": config["dataset_version"],
         "config_version": config["config_version"],
-        "config_sha256": _config_sha256("experiments/evaluation_config.json"),
+        "config_sha256": _config_sha256(config_path),
         "selection_split": "development",
         "selection_rule": (
             "smallest entry cap with reference eviction; maximize safe reuse "
@@ -175,6 +176,31 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _validate_policy_artifact(
+    payload: dict[str, object],
+    *,
+    config: dict[str, Any],
+    config_path: str | Path,
+) -> None:
+    if payload.get("schema_version") != "phase3-pattern-eviction-1.0":
+        raise ValueError("selected policy has an unsupported schema version")
+    if payload.get("selection_split") != "development":
+        raise ValueError("selected policy must be selected on development")
+    if payload.get("dataset_version") != config["dataset_version"]:
+        raise ValueError("selected policy dataset version does not match")
+    if payload.get("config_version") != config["config_version"]:
+        raise ValueError("selected policy config version does not match")
+    if payload.get("config_sha256") != _config_sha256(config_path):
+        raise ValueError("selected policy config hash does not match")
+    if payload.get("eviction_strategy") != "pattern":
+        raise ValueError("selected policy must use pattern eviction")
+    selected_cap = payload.get("selected_entry_cap")
+    if not isinstance(selected_cap, int) or isinstance(selected_cap, bool):
+        raise ValueError("selected policy has an invalid entry cap")
+    if not isinstance(payload.get("policy"), dict):
+        raise ValueError("selected policy has no policy definition")
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     try:
@@ -201,6 +227,7 @@ def main(argv: list[str] | None = None) -> int:
             payload = select_development_eviction_policy(
                 records,
                 config=config,
+                config_path=args.config,
                 threshold=threshold_map,
                 entry_cap_grid=caps,
             )
@@ -212,6 +239,11 @@ def main(argv: list[str] | None = None) -> int:
             )
             if not isinstance(selected, dict):
                 raise ValueError("selected policy artifact must be an object")
+            _validate_policy_artifact(
+                selected,
+                config=config,
+                config_path=args.config,
+            )
             selected_cap = selected.get("selected_entry_cap")
             if not isinstance(selected_cap, int) or selected_cap <= 0:
                 raise ValueError("selected policy has an invalid entry cap")
@@ -219,7 +251,7 @@ def main(argv: list[str] | None = None) -> int:
                 "schema_version": "phase3-pattern-eviction-1.0",
                 "dataset_version": config["dataset_version"],
                 "config_version": config["config_version"],
-                "config_sha256": _config_sha256("experiments/evaluation_config.json"),
+                "config_sha256": _config_sha256(args.config),
                 "selection_split": "development",
                 "evaluation_split": "held-out",
                 "selected_entry_cap": selected_cap,

@@ -36,7 +36,12 @@ from sscre.evaluation_statistics import (
     build_comparison_statistics,
 )
 from sscre.freshness_artifacts import freshness_companion_artifact_references
-from sscre.freshness_evaluation import apply_freshness_experiment_config_defaults
+from sscre.freshness_evaluation import (
+    DEFAULT_REPLAY_ANCHOR_TIME,
+    FreshnessReplayClock,
+    apply_freshness_experiment_config_defaults,
+    freshness_experiment_from_mapping,
+)
 from sscre.serialization import (
     attach_evaluation_report_schema,
     redact_operational_evaluation_report,
@@ -286,6 +291,12 @@ def _config_sha256(path: str | Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def _optional_artifact_sha256(path: str | Path | None) -> str | None:
+    if path is None:
+        return None
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
 def _write_adaptive_threshold_map(
     path: str | Path,
     *,
@@ -313,7 +324,13 @@ def _write_adaptive_threshold_map(
     )
 
 
-def _load_adaptive_threshold_map(path: str | Path) -> dict[str, float]:
+def _load_adaptive_threshold_map(
+    path: str | Path,
+    *,
+    expected_dataset_version: str | None = None,
+    expected_config_version: str | None = None,
+    expected_config_sha256: str | None = None,
+) -> dict[str, float]:
     try:
         payload = json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -321,6 +338,23 @@ def _load_adaptive_threshold_map(path: str | Path) -> dict[str, float]:
     threshold_map = payload.get("threshold_map") if isinstance(payload, dict) else None
     if not isinstance(threshold_map, dict) or not threshold_map:
         raise ValueError("adaptive threshold map requires a non-empty threshold_map")
+    if payload.get("selection_split") != "development":
+        raise ValueError("adaptive threshold map must be selected on development")
+    if (
+        expected_dataset_version is not None
+        and payload.get("dataset_version") != expected_dataset_version
+    ):
+        raise ValueError("adaptive threshold map dataset version does not match")
+    if (
+        expected_config_version is not None
+        and payload.get("config_version") != expected_config_version
+    ):
+        raise ValueError("adaptive threshold map config version does not match")
+    if (
+        expected_config_sha256 is not None
+        and payload.get("config_sha256") != expected_config_sha256
+    ):
+        raise ValueError("adaptive threshold map config hash does not match")
     default_threshold = payload.get("default_threshold", 0.95)
     if (
         isinstance(default_threshold, bool)
@@ -377,6 +411,10 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Write a development-selected Strategy C domain threshold map.",
     )
     parser.add_argument(
+        "--freshness-policy",
+        help="Apply a named configured freshness policy to Strategy C replay.",
+    )
+    parser.add_argument(
         "--production",
         action="store_true",
         help="Require final review status on every source record.",
@@ -401,11 +439,40 @@ def main(argv: list[str] | None = None) -> int:
             require_final_review=require_final_review,
         )
         config = _load_config(args.config)
+        freshness_replay_clock = None
+        if args.freshness_policy is not None:
+            experiment = freshness_experiment_from_mapping(config)
+            if experiment is None:
+                raise ValueError(
+                    "--freshness-policy requires freshness_experiment configuration"
+                )
+            policy = next(
+                (
+                    item
+                    for item in experiment.policy_matrix
+                    if item.name == args.freshness_policy
+                ),
+                None,
+            )
+            if policy is None:
+                raise ValueError(
+                    f"unknown freshness policy {args.freshness_policy!r}"
+                )
+            freshness_replay_clock = FreshnessReplayClock.from_policy_spec(
+                policy,
+                DEFAULT_REPLAY_ANCHOR_TIME,
+            )
         adaptive_threshold_map = (
-            _load_adaptive_threshold_map(args.adaptive_threshold_map)
+            _load_adaptive_threshold_map(
+                args.adaptive_threshold_map,
+                expected_dataset_version=config["dataset_version"],
+                expected_config_version=config["config_version"],
+                expected_config_sha256=_config_sha256(args.config),
+            )
             if args.adaptive_threshold_map
             else None
         )
+        adaptive_threshold_map_path = args.adaptive_threshold_map
         adaptive_diagnostics: dict[str, object] | None = None
         if args.adaptive_threshold_map_output:
             if args.split != "development":
@@ -424,6 +491,7 @@ def main(argv: list[str] | None = None) -> int:
                 diagnostics=adaptive_diagnostics,
             )
             adaptive_threshold_map = selected_map
+            adaptive_threshold_map_path = args.adaptive_threshold_map_output
         attach_statistics = not args.no_statistics
         manifest = _validate_split(
             benchmark_path,
@@ -440,6 +508,7 @@ def main(argv: list[str] | None = None) -> int:
         manifest_path = benchmark_path.parent / "split_manifest.json"
         metadata = {
             "config_version": config["config_version"],
+            "config_sha256": _config_sha256(args.config),
             "execution_timestamp": datetime.now(timezone.utc).isoformat(),
             "software_version": __version__,
             "git_commit": _git_commit(),
@@ -452,6 +521,15 @@ def main(argv: list[str] | None = None) -> int:
                 manifest_path=manifest_path,
             ),
         }
+        if args.freshness_policy is not None:
+            metadata["freshness_policy_name"] = args.freshness_policy
+        adaptive_threshold_map_sha256 = _optional_artifact_sha256(
+            adaptive_threshold_map_path
+        )
+        if adaptive_threshold_map_sha256 is not None:
+            metadata["adaptive_threshold_map_sha256"] = (
+                adaptive_threshold_map_sha256
+            )
         if args.baseline == "all":
             selection = _select_development_threshold(benchmark_path, config)
             compatibility_threshold = adaptive_threshold_map or selection.selected_threshold
@@ -483,6 +561,7 @@ def main(argv: list[str] | None = None) -> int:
                 ],
                 cache_lookup_cost_usd=config["cache_lookup_cost_usd"],
                 preprocessing_cost_usd=config["preprocessing_cost_usd"],
+                freshness_replay_clock=freshness_replay_clock,
             )
             compatibility_false_positive_keys = {
                 (example["id"], example["direction"])
@@ -576,6 +655,7 @@ def main(argv: list[str] | None = None) -> int:
                 ],
                 cache_lookup_cost_usd=config["cache_lookup_cost_usd"],
                 preprocessing_cost_usd=config["preprocessing_cost_usd"],
+                freshness_replay_clock=freshness_replay_clock,
             )
             metadata.update(
                 {
