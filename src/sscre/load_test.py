@@ -131,6 +131,8 @@ DEFAULT_MODES = ("no_cache", "exact_cache", "embedding_only", "compatibility")
 ERROR_RATE_STOP = 0.10
 TIMEOUT_RATE_STOP = 0.05
 P99_TO_P50_STOP = 5.0
+# p99 on fewer samples is the max; do not treat that as a workload stop.
+P99_STOP_MIN_REQUESTS = 16
 
 
 def _git_commit() -> str | None:
@@ -223,9 +225,14 @@ def _stop_reason(pass_result: dict[str, Any]) -> str | None:
     timeout_rate = errors.get("timeout_rate", 0.0)
     if timeout_rate > TIMEOUT_RATE_STOP:
         return "timeout_rate_above_5_percent"
+    request_count = int(pass_result.get("request_count") or 0)
     p50 = float(pass_result["latency_ms"]["p50"])
     p99 = float(pass_result["latency_ms"]["p99"])
-    if p50 > 0 and p99 > P99_TO_P50_STOP * p50:
+    if (
+        request_count >= P99_STOP_MIN_REQUESTS
+        and p50 > 0
+        and p99 > P99_TO_P50_STOP * p50
+    ):
         return "p99_above_5x_p50"
     return None
 

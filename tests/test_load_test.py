@@ -102,6 +102,7 @@ def test_stop_reason_error_rate_and_p99_spread() -> None:
                 "errors": {"rate": 0.0, "timeout_rate": 0.0},
                 "latency_ms": {"p50": 10.0, "p99": 51.0},
                 "warmup_error_rate": 0.0,
+                "request_count": 32,
             }
         )
         == "p99_above_5x_p50"
@@ -110,8 +111,20 @@ def test_stop_reason_error_rate_and_p99_spread() -> None:
         _stop_reason(
             {
                 "errors": {"rate": 0.0, "timeout_rate": 0.0},
+                "latency_ms": {"p50": 10.0, "p99": 51.0},
+                "warmup_error_rate": 0.0,
+                "request_count": 4,
+            }
+        )
+        is None
+    )
+    assert (
+        _stop_reason(
+            {
+                "errors": {"rate": 0.0, "timeout_rate": 0.0},
                 "latency_ms": {"p50": 10.0, "p99": 20.0},
                 "warmup_error_rate": 0.0,
+                "request_count": 32,
             }
         )
         is None
