@@ -40,8 +40,12 @@ Phase 3 must produce **measured**, reproducible evidence for the paper:
   before paper).
 - Credentialed **live provider** measurement tables (**P0-PROVIDER:** deferred through
   Phase 3 unless promoted in a new decision record).
-- Full WS8 load, multi-process concurrency, and capacity claims (OPS lite only; see
-  [`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md)).
+- 1K–100K Q/day, multi-host, or production-capacity claims. Bounded local WS8
+  PostgreSQL evidence exists
+  ([`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)) and is
+  **not** that protocol. Phase 1 lite remains
+  [`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
+  Live container restart is still untested.
 - int8 quantization and 1K→100K simulated Q/day load tests until the core safety/reuse
   story is stable (optional cards may defer; see **Deferred** below).
 
@@ -523,7 +527,7 @@ run. Promoting any row requires a new card (hypothesis + pass/fail) in this docu
 | ID | Item | v1 decision | One-line rationale |
 | --- | --- | --- | --- |
 | **P3-OPT-Q8** | int8 embedding quantization | **Defer (v2)** | Measure float32 **`total_bytes`** / storage pairing baseline first ([`SSCRE_PLAN.md`](../SSCRE_PLAN.md) § Phase 3); quantization does not unblock paper safety/reuse claims. |
-| **P3-OPT-LOAD** | Load tests 1K→100K simulated Q/day | **Defer (v2)** | Full WS8 load/concurrency out of scope ([`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md)); run only after main Pareto story is stable. |
+| **P3-OPT-LOAD** | Load tests 1K→100K simulated Q/day | **Defer (v2)** | WS8 recorded a 32-request local PostgreSQL run, not this protocol ([`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)). Run only after the main Pareto story is stable and a new scale protocol is approved. |
 | **P3-OPT-CLUSTER** | Failure clustering from gallery exports | **Defer (code)**; **paper OK (manual)** | Phase 1 gallery export exists ([`benchmarks/README.md`](../../benchmarks/README.md)); v1 may **manually** group `failure_gallery` / category strata for discussion **without** new clustering code or experiment infra. |
 | **P3-OPT-TRACK** | Experiment tracking (MLflow/W&B/etc.) | **Defer (v2)** | Manual JSON under `artifacts/evaluation/` + plan verification log sufficient for v1; add tracking only if artifact sprawl blocks reproducibility. |
 
@@ -653,7 +657,11 @@ Draft paper limitations from evidence, not placeholders:
 - **Provider:** `synthetic_replay` only — [`WORKSTREAM_5_EVIDENCE.md`](../phase-2/WORKSTREAM_5_EVIDENCE.md) § provider limitations.
 - **Labels:** Human factual-correctness sparse / `not_collected` where applicable —
   **P0-LABELS**; compatibility-focused safety claims.
-- **Ops:** Single-process assumption; restart smoke only — OPS lite evidence.
+- **Ops:** Bounded local WS8 package
+  ([`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)):
+  simulated failure-closed; two processes both generate; load bottleneck
+  `not_reached`. Live restart and capacity remain unsupported. Phase 1 lite:
+  [`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
 - **Freshness held-out:** WS6 semi/dynamic held-out scope unavailable — see WS6 evidence.
 
 ---
@@ -674,7 +682,9 @@ cite artifact paths only.
 | Gallery / clustering optional | [`benchmarks/README.md`](../../benchmarks/README.md) (`sscre.gallery_export`) |
 
 **Phase 0 constraints embedded in this plan:** P0-PROVIDER and P0-LABELS under **Non-goals**
-and **Limitations**; P2-DASH, P2-DUAL, full WS8 under **Non-goals**.
+and **Limitations**; P2-DASH, P2-DUAL, and 1K–100K / capacity claims under
+**Non-goals**. Bounded WS8 PostgreSQL evidence is cited, not treated as Phase 3
+load.
 
 ---
 

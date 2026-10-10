@@ -81,4 +81,7 @@ The measured wrapper overhead is not actionable as a production bottleneck
 because the provider latency is synthetic zero and the harness uses in-memory
 storage. The pre-registered stopping rule therefore applies: document the
 tested range and defer optimization. A PostgreSQL or live-provider capacity
-claim requires a separately approved workload and environment.
+claim requires a separately approved workload and environment. Do not cite
+this in-memory profile as Workstream 8 PostgreSQL evidence; that package is
+[`docs/phase-2/WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)
+(`ws8-pg-load-v1`, bottleneck `not_reached`, not a capacity guarantee).

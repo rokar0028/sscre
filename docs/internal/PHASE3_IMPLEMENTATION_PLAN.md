@@ -27,8 +27,9 @@ artifacts under `artifacts/evaluation/`, updated evidence, and all relevant test
 - [ ] Measure reuse, compatibility safety, freshness, cost, and latency without inventing
   metrics or numbers.
 - [ ] Explain when a cross-encoder validator is justified by a measured safety shortfall.
-- [ ] Record limitations from synthetic replay, sparse correctness labels, and OPS-lite
-  evidence.
+- [ ] Record limitations from synthetic replay, sparse correctness labels, and
+  operational evidence (Phase 1 OPS-lite at Phase 3 close; later bounded WS8
+  in [`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)).
 
 ## Non-negotiable gates
 
@@ -42,8 +43,9 @@ artifacts under `artifacts/evaluation/`, updated evidence, and all relevant test
 - [x] Run one final held-out report for the paper unless the protocol is reset in writing.
 - [x] Every result points to a command, commit, config hash, dataset version, split
   manifest hash, and seed.
-- [x] Keep P2-DASH, P2-DUAL, live-provider measurements, full WS8 load/concurrency,
-  quantization, and experiment-tracking infrastructure out of v1.
+- [x] Keep P2-DASH, P2-DUAL, live-provider measurements, 1K–100K / capacity
+  claims, quantization, and experiment-tracking infrastructure out of v1.
+  Bounded WS8 PostgreSQL evidence (2026-10-11) is not a Phase 3 load protocol.
 
 ## Prerequisites (read-only)
 
@@ -214,7 +216,10 @@ artifacts under `artifacts/evaluation/`, updated evidence, and all relevant test
 - [x] Run `docker compose config` with the CI sample environment: passed.
 - [x] Confirm no held-out tuning or duplicate final paper run occurred.
 - [x] Confirm limitations match actual evidence: synthetic provider, sparse correctness
-  labels, single-process OPS-lite, and WS6 held-out freshness scope.
+  labels, single-process OPS-lite at Phase 3 close, and WS6 held-out freshness scope.
+  2026-10-11 addendum: bounded WS8 package
+  ([`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)) does not
+  change Phase 3 v1 claims or upgrade ops to a capacity result.
 - [x] Fill the completion record and verification log below.
 - [ ] Request separate approval before committing or pushing; no commit or push was
   performed in this workstream.

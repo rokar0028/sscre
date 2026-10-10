@@ -170,14 +170,30 @@ that semantic reuse has zero recall.
 
 ## Phase 1 OPS lite (PostgreSQL / multi-process)
 
-Phase 1 closed a **lite** subset of Workstream 8 (not full restart/load/concurrency
-claims). See [`docs/phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md)
-for scope, test name, and paper limitation wording.
+Phase 1 closed a **lite** subset of Workstream 8. Keep this record as the
+carryover smoke only. See
+[`docs/phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
 
-- Request-path duplicate-generation coordination is **single-process** (in-process
-  lock); multi-process and cross-host behavior is **unsupported** unless full WS8
-  evidence exists.
-- One PostgreSQL integration smoke test asserts **failure-closed** behavior when
-  lookup fails after a persisted entry exists (HTTP 503, no cache hit).
-- Do not cite Milestone 10 load numbers or this smoke test as production capacity
-  or multi-worker safety guarantees.
+- Request-path duplicate-generation coordination in that lite slice is
+  **single-process** (in-process lock).
+- One PostgreSQL integration smoke test asserts **failure-closed** lookup
+  when the database is unavailable (HTTP 503, no cache hit).
+- Do not cite Milestone 10 in-memory load numbers or this smoke test as
+  production capacity or as the full WS8 package.
+
+## Workstream 8 bounded PostgreSQL package (2026-10-11)
+
+Full WS8 evidence:
+[`docs/phase-2/WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md);
+artifact `artifacts/operations/workstream8-operational-verification.json`.
+
+- Simulated connection-loss and repository-failure paths fail closed.
+  **Live container/process restart during write was not run.**
+- Two processes both generate for the same miss; PostgreSQL `UNIQUE` prevents
+  a second insert. Cross-process generation coordination is **unsupported**.
+- Bounded local load (32 requests, concurrency 4, PostgreSQL 16.15) recorded
+  p50/p95/p99, throughput, errors, and storage. First bottleneck:
+  `not_reached`. **Not a production capacity or SLA claim.**
+- Phase 4 in-memory scale
+  ([`docs/phase-4/PHASE4_SCALE_EVIDENCE.md`](../phase-4/PHASE4_SCALE_EVIDENCE.md))
+  is a different environment and must not be cited as WS8 PostgreSQL evidence.

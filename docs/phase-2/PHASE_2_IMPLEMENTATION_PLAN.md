@@ -67,8 +67,14 @@ readiness evidence are tracked in
 - [x] Real-provider evidence is included, or its absence and consequences are
   explicitly reported.
   - Unavailable artifact + WS5 evidence § provider limitations (synthetic replay only).
-- [ ] PostgreSQL restart and concurrent-request behavior is tested or
+- [x] PostgreSQL restart and concurrent-request behavior is tested or
   explicitly documented as unsupported.
+  Bounded WS8 package 2026-10-11
+  ([WORKSTREAM_8_EVIDENCE.md](./WORKSTREAM_8_EVIDENCE.md)): simulated
+  failure-closed paths; live container restart skipped; two processes both
+  generate; unique insert wins; bottleneck `not_reached`. Not a production
+  capacity claim. Phase 1 lite:
+  [WORKSTREAM_8_OPS_LITE_EVIDENCE.md](./WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
 - [ ] A dashboard is added only after the reports and data contracts are
   stable.
 - [ ] Dual-model comparison is implemented only as a defined experiment.
@@ -442,30 +448,47 @@ Acceptance criteria:
 
 ## Workstream 8 — Operational verification
 
+Status: **bounded package complete (2026-10-11)**. Plan:
+[`WORKSTREAM_8_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_8_IMPLEMENTATION_PLAN.md).
+Evidence: [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md). Artifact:
+`artifacts/operations/workstream8-operational-verification.json`.
+Phase 1 lite remain a separate, smaller record:
+[`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](./WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
+Do not cite Phase 4 in-memory scale
+([`../phase-4/PHASE4_SCALE_EVIDENCE.md`](../phase-4/PHASE4_SCALE_EVIDENCE.md))
+as PostgreSQL operational evidence.
+
 These checks support Phase 2 claims but must not be presented as universal
 capacity guarantees.
 
-Test:
+Measured (local PostgreSQL unless noted):
 
-- PostgreSQL restart during lookup, generation, insert, and cleanup
-- connection loss and recovery
-- concurrent requests for the same query from multiple processes
-- duplicate prevention and transaction behavior
-- eviction under concurrent writes
-- bounded load against PostgreSQL
+- simulated connection-loss / repository failure on lookup, generation,
+  insert, and cleanup (not a live process or container restart)
+- recovery after simulated failure (expiry, missing metadata, incompatibility,
+  validation, and admin Bearer still enforced)
+- same-query misses across two application processes
+- uniqueness, transactions, and eviction under bounded contention
+- bounded load (8 warmup / 32 requests / concurrency 4) with p50/p95/p99,
+  throughput, errors, timeouts, storage growth, and evictions
+- first bottleneck: `not_reached` (observation only)
 
-Record hardware, worker count, database version, workload size, p50/p95/p99,
-throughput, errors, timeouts, storage growth, and evictions.
+Still unsupported: live container/process restart during write; cross-process
+generation coordination; multi-host; 1K–100K Q/day; production capacity or SLA.
 
 Acceptance criteria:
 
-- [ ] No restart path serves an expired, unsafe, or unauthorized result.
-  (Phase 1 **lite:** lookup failure-closed on simulated connection loss only —
-  [`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](./WORKSTREAM_8_OPS_LITE_EVIDENCE.md).)
+- [x] No tested failure path serves an expired, unsafe, or unauthorized result.
+  Simulated `simulated_drop` / `simulated_repository_failure` only. Live
+  container restart skipped (`SSCRE_WS8_LIVE_POSTGRES_RESTART` unset).
 - [x] Multi-process behavior is verified or explicitly marked unsupported.
-  (Documented unsupported; in-process generation lock only.)
-- [ ] The first measured bottleneck is documented.
-- [ ] Load results include environment and workload limits.
+  Verified: two processes both generate; PostgreSQL `UNIQUE` accepts one
+  insert. Cross-process generation lock remains unsupported.
+- [x] The first measured bottleneck is documented.
+  `not_reached`; `result_class=observation`; no optimization.
+- [x] Load results include environment and workload limits.
+  Windows-11, Python 3.14.5, PostgreSQL 16.15, 1 process / 1 worker,
+  caps 8 / 10000. Not a production capacity guarantee.
 
 ## Workstream 9 — Dashboard and dual-model experiment gates
 
@@ -518,7 +541,10 @@ Acceptance criteria:
 8. [x] Build the failure gallery and update the final report.
   (Phase 1: static HTML via `sscre.gallery_export`; not full WS7 API dashboard.)
 9. [x] Run PostgreSQL restart and concurrency verification.
-  (Phase 1 **lite** only; full WS8 load/concurrency still open.)
+  Bounded WS8 package 2026-10-11
+  ([WORKSTREAM_8_EVIDENCE.md](./WORKSTREAM_8_EVIDENCE.md)). Live container
+  restart skipped. Not a production capacity guarantee. Phase 1 lite remains
+  [WORKSTREAM_8_OPS_LITE_EVIDENCE.md](./WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
 10. [ ] Add the dashboard or dual-model experiment only if its gate is met.
 
 ## Verification commands

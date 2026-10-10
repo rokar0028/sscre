@@ -60,9 +60,14 @@ are therefore recorded rather than implied away.
 
 - No credentialed live-provider observation is available.
 - Human factual-correctness labels remain out of scope.
-- Operations evidence remains single-process / OPS-lite.
-- Scale results cover only the bounded synthetic in-memory workload recorded in
-  `PHASE4_SCALE_EVIDENCE.md`.
+- Phase 4 scale results cover only the bounded synthetic **in-memory**
+  workload in `PHASE4_SCALE_EVIDENCE.md`. They are not Workstream 8
+  PostgreSQL evidence.
+- Workstream 8 later recorded a bounded local PostgreSQL package
+  ([`../phase-2/WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)).
+  Live container restart and production capacity remain unsupported. Phase 1
+  lite remains
+  [`../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
 - A clean-checkout replay should be run after the Step 3 changes are committed
   if release policy requires that additional verification; the changes are now
   committed locally, but the replay itself remains unrun.

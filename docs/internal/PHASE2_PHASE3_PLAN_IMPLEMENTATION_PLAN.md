@@ -80,7 +80,11 @@ Study topics only — not required to check for authoring close (same rule as
 
 - [x] **P0-PROVIDER:** No live-provider tables unless promoted later in writing.
 - [x] **P0-LABELS:** Human factual-correctness labels out of scope; compatibility + sparse correctness fields per label contract.
-- [x] **Deferred Phase 2:** P2-DASH, P2-DUAL, full WS8 load/concurrency — not Phase 3 v1 unless a new decision record says otherwise.
+- [x] **Deferred Phase 2:** P2-DASH, P2-DUAL, and 1K–100K / capacity claims — not
+  Phase 3 v1 unless a new decision record says otherwise. Bounded WS8
+  PostgreSQL evidence later recorded in
+  [`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md) is not that
+  promotion.
 
 - [x] Log read-only confirmation in **Verification log** (§ P2-SETUP).
 
@@ -148,7 +152,9 @@ Checklist:
 Checklist:
 
 - [x] Builds on WS6 workloads (stable; note semi/dynamic held-out gaps from WS6 limitations).
-- [x] No claim of multi-process or extreme load unless full WS8 is promoted.
+- [x] No claim of multi-host or 1K–100K load unless a new protocol is approved.
+  Two-process duplicate generation was later measured (both generate);
+  see [`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md).
 
 ---
 
@@ -208,7 +214,10 @@ Copy checklist from transition § 3; each item is a **planned deliverable** with
 
 - [x] **Tables and figures:** main results; threshold sweeps / Pareto by domain; freshness/eviction slice; ablations per Phase 3 feature.
 - [x] **Statistics:** bootstrap (or documented binomial) CIs; fixed seeds; **single final held-out run** metadata (config hash, commit, dataset version).
-- [x] **Limitations:** synthetic provider, deferred labels, OPS lite / WS8 gaps — cite real evidence paths.
+- [x] **Limitations:** synthetic provider, deferred labels, OPS lite vs later
+  bounded WS8 — cite
+  [`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md)
+  and [`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md).
 - [x] **Reproducibility:** one documented entry point (e.g. `make paper-results` or `python -m sscre ...` sequence) — commands TBD in plan, filled when implemented.
 - [x] **Headline numbers:** abstract/resume placeholders **unchecked** until final held-out run (transition § 3.4).
 

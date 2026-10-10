@@ -97,7 +97,7 @@ Status key: **done** | **partial** | **open** | **deferred**
 | P2-PROV | Live real-provider observation run | WS4 deferral; WS5 limitation already documented | **deferred** | Medium (cost/latency realism) | Low | **M–L** |
 | P2-FIELDS | Independent compatibility / correctness / preference on every pair | Phase 2 definition of done | **partial** | Medium | Low | **M** |
 | P2-GALLERY | Failure gallery + category aggregates | WS7 | **open** | **High** (figures, discussion) | Medium (failure clustering) | **M** |
-| P2-OPS | PostgreSQL restart, concurrency, load limits | WS8 | **open** | Low–Medium (honest ops section) | Medium (load Phase 3) | **M–L** |
+| P2-OPS | PostgreSQL restart, concurrency, load limits | WS8 | **partial** | Low–Medium (honest ops section) | Medium (1K–100K still Phase 3+) | **M–L** |
 | P2-DASH | Dashboard reading artifacts | WS9 gate | **open** | Low | Low | **M** |
 | P2-DUAL | Dual-model experiment | WS9 gate | **open** | Low | Low | **L** |
 
@@ -115,7 +115,16 @@ Agent task (when asked):
 | 2 | **P2-GALLERY** | Paper discussion and failure-category metrics; inputs Phase 3 “cluster recurring failures.” |
 | 3 | **P2-OPS (lite)** | Document unsupported multi-process + one PostgreSQL restart smoke test; no load/concurrency claims. |
 
-**Deferred:** P2-LABEL, P2-PROV, P2-FIELDS, P2-DASH, P2-DUAL; full WS8 load/concurrency.
+**Deferred (2026-10-09):** P2-LABEL, P2-PROV, P2-FIELDS, P2-DASH, P2-DUAL;
+full WS8 load/concurrency (superseded in part on 2026-10-11).
+
+**Update (2026-10-11):** bounded WS8 package recorded in
+[`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md). P2-OPS is
+**partial**: simulated failure-closed, measured multi-process duplicate
+generation, contention, and a 32-request PostgreSQL load (`not_reached`).
+Live container restart, cross-process generation locks, and 1K–100K / capacity
+claims remain unsupported. Phase 1 lite stays
+[`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
 
 ### 1.3 P2-CI investigation checklist
 
@@ -233,7 +242,9 @@ These are **deliverables** Phase 3 implementation must produce—not optional po
 
 - [x] Bootstrap (or documented binomial) **confidence intervals**; fixed seeds recorded.
 - [x] **Single final held-out run** logged once (config hash, git commit, dataset version).
-- [x] Limitations section sourced from real gaps (synthetic provider, deferred labels, OPS-lite, and WS6 freshness scope).
+- [x] Limitations section sourced from real gaps (synthetic provider, deferred labels, OPS-lite at Phase 3 close, and WS6 freshness scope).
+  2026-10-11: cite [`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)
+  for bounded PostgreSQL ops; do not upgrade that package into a capacity claim.
 
 ### 3.3 Reproducibility
 
