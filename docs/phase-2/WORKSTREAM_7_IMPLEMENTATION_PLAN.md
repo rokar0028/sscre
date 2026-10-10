@@ -476,7 +476,7 @@ Record in [`WORKSTREAM_7_EVIDENCE.md`](./WORKSTREAM_7_EVIDENCE.md):
 - [x] freshness companion summary (protection vs served);
 - [x] consolidated JSON and HTML output paths;
 - [x] regeneration commands and test results (`685 passed`, 2026-10-10);
-- [ ] git commit (pending user `/commit`);
+- [x] git commit (`a6cf5bb` through `c2f214f`, 2026-10-10);
 - [x] limitations (synthetic replay, sparse semi/dynamic on held-out).
 
 Do not check an item based only on this plan. Each requires code, test,
