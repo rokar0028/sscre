@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import json
 import os
 import platform
+import random
 import subprocess
 import sys
 from pathlib import Path
+from threading import Lock, local
 from time import perf_counter
 from typing import Any
 from uuid import uuid4
@@ -20,6 +24,8 @@ import psycopg
 from fastapi.testclient import TestClient
 
 from sscre.app import create_app
+from sscre.benchmark import load_benchmark_jsonl
+from sscre.benchmark_splits import file_sha256
 from sscre.cache import CacheStorageStats, InMemoryExactCache
 from sscre.config import Settings
 from sscre.embedding import (
@@ -42,27 +48,53 @@ class WorkloadItem:
 
 
 class LoadTestEmbeddingClient(FakeEmbeddingClient):
+    def __init__(self, *args: Any, timing_hub: "TimingHub | None" = None, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._timing_hub = timing_hub
+
     def embed(self, text: str):  # type: ignore[no-untyped-def]
-        if text.startswith("[fail_embedding]"):
-            raise EmbeddingProviderError("synthetic embedding failure")
-        if text.startswith("[semantic]"):
-            return super().embed("[semantic-shared-vector]")
-        return super().embed(text)
+        hub = self._timing_hub
+
+        def publish(elapsed_ms: float) -> None:
+            if hub is not None:
+                hub.add_query(text, "embed", elapsed_ms)
+
+        with _component_timer(publish if hub is not None else None):
+            if text.startswith("[fail_embedding]"):
+                raise EmbeddingProviderError("synthetic embedding failure")
+            if text.startswith("[semantic]"):
+                result = super().embed("[semantic-shared-vector]")
+            else:
+                result = super().embed(text)
+        if hub is not None:
+            hub.note_vector(text, result.vector)
+        return result
 
 
 class LoadTestLLMClient(MockLLMClient):
+    def __init__(self, timing_hub: "TimingHub | None" = None) -> None:
+        super().__init__()
+        self._timing_hub = timing_hub
+
     def generate(self, query: str) -> LLMResult:
-        if query.startswith("[fail_generation]"):
-            raise RuntimeError("synthetic generation failure")
-        if query.startswith("[large]"):
-            answer = "x" * 70_000
-            return LLMResult(
-                text=answer,
-                input_tokens=len(query.split()),
-                output_tokens=len(answer.split()),
-                latency_ms=0,
-            )
-        return super().generate(query)
+        hub = self._timing_hub
+
+        def publish(elapsed_ms: float) -> None:
+            if hub is not None:
+                hub.add_query(query, "generation", elapsed_ms)
+
+        with _component_timer(publish if hub is not None else None):
+            if query.startswith("[fail_generation]"):
+                raise RuntimeError("synthetic generation failure")
+            if query.startswith("[large]"):
+                answer = "x" * 70_000
+                return LLMResult(
+                    text=answer,
+                    input_tokens=len(query.split()),
+                    output_tokens=len(answer.split()),
+                    latency_ms=0,
+                )
+            return super().generate(query)
 
 
 class DisabledCache:
@@ -92,6 +124,178 @@ class DisabledCache:
 
     def storage_stats(self) -> CacheStorageStats:
         return CacheStorageStats(entries=0, canonical_answers=0, total_bytes=0)
+
+
+_LADDER_COMPONENTS = (
+    "embed",
+    "vector_search",
+    "repository",
+    "generation",
+    "wrapper_other",
+)
+_LADDER_UNAVAILABLE = ("compatibility_check",)
+_TIMER_LOCAL = local()
+
+
+@contextmanager
+def _component_timer(publish: Callable[[float], None] | None):
+    """Record elapsed milliseconds on this thread, then hand them to `publish`.
+
+    Dependency work runs on the app's thread pool, not the request thread.
+    The thread-local stack keeps overlapping calls on one thread from sharing
+    a single global number. `publish` assigns the duration to the request.
+    """
+    if publish is None:
+        yield
+        return
+    started = perf_counter()
+    try:
+        yield
+    finally:
+        elapsed_ms = (perf_counter() - started) * 1000
+        _TIMER_LOCAL.last_ms = elapsed_ms
+        publish(elapsed_ms)
+
+
+class _RequestTimings:
+    def __init__(self) -> None:
+        self.ms = {name: 0.0 for name in _LADDER_COMPONENTS if name != "wrapper_other"}
+
+
+class TimingHub:
+    """Attribute component time to the oldest in-flight request for a key.
+
+    Identical queries that overlap can share a key. Each finished call goes
+    to the oldest request still waiting on that key.
+    """
+
+    def __init__(self) -> None:
+        self._lock = Lock()
+        self._by_query: dict[str, list[_RequestTimings]] = {}
+        self._by_hash: dict[str, list[_RequestTimings]] = {}
+        self._by_vector: dict[tuple[float, ...], list[_RequestTimings]] = {}
+
+    def start(self, query: str) -> _RequestTimings:
+        normalized = normalize_query(query)
+        bucket = _RequestTimings()
+        with self._lock:
+            self._by_query.setdefault(normalized, []).append(bucket)
+            self._by_hash.setdefault(hash_query(normalized), []).append(bucket)
+        return bucket
+
+    def finish(self, query: str, bucket: _RequestTimings) -> None:
+        normalized = normalize_query(query)
+        with self._lock:
+            self._drop(self._by_query, normalized, bucket)
+            self._drop(self._by_hash, hash_query(normalized), bucket)
+            for vector, buckets in list(self._by_vector.items()):
+                self._drop_bucket(buckets, bucket)
+                if not buckets:
+                    del self._by_vector[vector]
+
+    def add_query(self, query: str, component: str, elapsed_ms: float) -> None:
+        with self._lock:
+            self._add(self._by_query.get(normalize_query(query), []), component, elapsed_ms)
+
+    def add_hash(self, query_hash: str, component: str, elapsed_ms: float) -> None:
+        with self._lock:
+            self._add(self._by_hash.get(query_hash, []), component, elapsed_ms)
+
+    def add_vector(
+        self,
+        vector: tuple[float, ...],
+        component: str,
+        elapsed_ms: float,
+    ) -> None:
+        with self._lock:
+            self._add(self._by_vector.get(vector, []), component, elapsed_ms)
+
+    def note_vector(self, query: str, vector: tuple[float, ...]) -> None:
+        with self._lock:
+            current = list(self._by_query.get(normalize_query(query), []))
+            aliases = self._by_vector.setdefault(vector, [])
+            for bucket in current:
+                if bucket not in aliases:
+                    aliases.append(bucket)
+
+    def _add(
+        self,
+        buckets: list[_RequestTimings],
+        component: str,
+        elapsed_ms: float,
+    ) -> None:
+        if buckets and component in buckets[0].ms:
+            buckets[0].ms[component] += elapsed_ms
+
+    def _drop(
+        self,
+        mapping: dict[Any, list[_RequestTimings]],
+        key: Any,
+        bucket: _RequestTimings,
+    ) -> None:
+        buckets = mapping.get(key)
+        if not buckets:
+            return
+        self._drop_bucket(buckets, bucket)
+        if not buckets:
+            del mapping[key]
+
+    @staticmethod
+    def _drop_bucket(buckets: list[_RequestTimings], bucket: _RequestTimings) -> None:
+        for index, item in enumerate(buckets):
+            if item is bucket:
+                del buckets[index]
+                return
+
+
+class _TimedRepository:
+    def __init__(self, inner: Any, hub: TimingHub) -> None:
+        self._inner = inner
+        self._hub = hub
+
+    def get_by_query_hash(self, query_hash: str) -> Any:
+        with _component_timer(lambda elapsed: self._hub.add_hash(query_hash, "repository", elapsed)):
+            return self._inner.get_by_query_hash(query_hash)
+
+    def search_by_embedding(
+        self,
+        embedding: tuple[float, ...],
+        top_k: int,
+        embedding_model: str | None = None,
+    ) -> Any:
+        with _component_timer(
+            lambda elapsed: self._hub.add_vector(embedding, "vector_search", elapsed)
+        ):
+            return self._inner.search_by_embedding(
+                embedding,
+                top_k,
+                embedding_model,
+            )
+
+    def insert_and_evict(self, entry: Any, max_entries: int, max_bytes: int) -> Any:
+        # Forward as a plain call. The scoped PostgreSQL repository adds
+        # only_query_hashes itself; the in-memory repository has no SQL delete.
+        insert_and_evict = self._inner.insert_and_evict
+        with _component_timer(
+            lambda elapsed: self._hub.add_hash(entry.query_hash, "repository", elapsed)
+        ):
+            return insert_and_evict(entry, max_entries, max_bytes)
+
+    def record_hit(self, query_hash: str) -> Any:
+        with _component_timer(lambda elapsed: self._hub.add_hash(query_hash, "repository", elapsed)):
+            return self._inner.record_hit(query_hash)
+
+    def insert(self, entry: Any) -> Any:
+        with _component_timer(
+            lambda elapsed: self._hub.add_hash(entry.query_hash, "repository", elapsed)
+        ):
+            return self._inner.insert(entry)
+
+    def storage_stats(self) -> Any:
+        return self._inner.storage_stats()
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._inner, name)
 
 
 def _percentile(values: list[float], percentile: float) -> float:
@@ -151,6 +355,22 @@ def _git_commit() -> str | None:
         return None
     commit = result.stdout.strip()
     return commit if result.returncode == 0 and commit else None
+
+
+def _git_worktree_dirty() -> bool | None:
+    try:
+        result = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=all"],
+            cwd=Path(__file__).resolve().parents[2],
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+    except OSError:
+        return None
+    if result.returncode != 0:
+        return None
+    return bool(result.stdout.strip())
 
 
 def _postgresql_version(database_url: str) -> str | None:
@@ -229,6 +449,7 @@ def _create_client(
     *,
     database_url: str | None = None,
     scope_hashes: list[str] | None = None,
+    timing_hub: TimingHub | None = None,
 ) -> tuple[TestClient, Any]:
     repository = str(config.get("repository", "memory"))
     if repository == "postgres":
@@ -244,6 +465,8 @@ def _create_client(
         cache = DisabledCache()
     else:
         cache = InMemoryExactCache(max_top_k=100)
+    if timing_hub is not None:
+        cache = _TimedRepository(cache, timing_hub)
     semantic_enabled = mode in {"embedding_only", "compatibility"}
     settings = Settings(
         log_level="ERROR",
@@ -257,12 +480,13 @@ def _create_client(
         max_cache_bytes=int(config.get("max_cache_bytes", 10_000)),
     )
     embedding = LoadTestEmbeddingClient(
-        config=EmbeddingConfig(model_name="load-test-embedding", dimension=8)
+        config=EmbeddingConfig(model_name="load-test-embedding", dimension=8),
+        timing_hub=timing_hub,
     )
     return (
         TestClient(
             create_app(
-                llm_client=LoadTestLLMClient(),
+                llm_client=LoadTestLLMClient(timing_hub=timing_hub),
                 repository=cache,
                 settings=settings,
                 embedding_client=embedding,
@@ -652,12 +876,487 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def _resolve_repo_path(path: str | Path) -> Path:
+    candidate = Path(path)
+    if candidate.is_file():
+        return candidate
+    return _repo_root() / candidate
+
+
+def load_ladder_pool(path: str | Path) -> tuple[str, ...]:
+    """Unique normalized development queries, file order, query_a then query_b."""
+    pool: list[str] = []
+    seen: set[str] = set()
+    for record in load_benchmark_jsonl(_resolve_repo_path(path)):
+        for raw in (record.query_a, record.query_b):
+            query = normalize_query(raw)
+            if query in seen:
+                continue
+            seen.add(query)
+            pool.append(query)
+    if not pool:
+        raise ValueError("load ladder query pool is empty")
+    return tuple(pool)
+
+
+def build_ladder_sequence(
+    pool: Sequence[str],
+    *,
+    length: int,
+    seed: int,
+    repeat_ratio: float,
+) -> tuple[tuple[str, str], ...]:
+    """Return (query, label) pairs. Each call starts again from `seed`."""
+    if length <= 0:
+        raise ValueError("sequence length must be positive")
+    if not pool:
+        raise ValueError("query pool is empty")
+    if not 0 <= repeat_ratio <= 1:
+        raise ValueError("repeat_ratio must be between 0 and 1")
+    rng = random.Random(seed)
+    sequence: list[tuple[str, str]] = []
+    pool_index = 0
+    for index in range(length):
+        if index == 0 or rng.random() >= repeat_ratio:
+            query = pool[pool_index % len(pool)]
+            pool_index += 1
+            label = "development_unique"
+        else:
+            query = sequence[rng.randrange(index)][0]
+            label = "development_repeat"
+        sequence.append((query, label))
+    return tuple(sequence)
+
+
+def realized_repeat_ratio(
+    sequence: Sequence[tuple[str, str]],
+    warmup_requests: int,
+) -> float:
+    measured = sequence[warmup_requests:]
+    if not measured:
+        raise ValueError("measured window is empty")
+    repeats = sum(1 for _, label in measured if label == "development_repeat")
+    return repeats / len(measured)
+
+
+def ladder_non_fixture_error_rate(
+    rows: Sequence[Mapping[str, Any]],
+    fixture_labels: Sequence[str],
+) -> float | None:
+    """Error rate after dropping intentional fixture labels from both sides."""
+    fixtures = set(fixture_labels)
+    eligible = [row for row in rows if str(row.get("label")) not in fixtures]
+    if not eligible:
+        return None
+    errors = sum(1 for row in eligible if int(row["status_code"]) >= 400)
+    return errors / len(eligible)
+
+
+def select_component_bottleneck(component_p95_ms: Mapping[str, float]) -> str:
+    """Largest p95 share. Ties keep the earlier component. Zero sum is unattributed.
+
+    `compatibility_check` and any other unmeasured name are ignored.
+    """
+    values = [float(component_p95_ms.get(name, 0.0)) for name in _LADDER_COMPONENTS]
+    total = sum(values)
+    if total == 0:
+        return "unattributed"
+    best_index = 0
+    best_share = values[0] / total
+    for index, value in enumerate(values):
+        share = value / total
+        if share > best_share:
+            best_index = index
+            best_share = share
+    return _LADDER_COMPONENTS[best_index]
+
+
+def _ladder_http(client: TestClient, item: WorkloadItem, hub: TimingHub) -> dict[str, Any]:
+    bucket = hub.start(item.query)
+    started = perf_counter()
+    try:
+        response = client.post("/v1/query", json={"query": item.query})
+        latency_ms = (perf_counter() - started) * 1000
+        try:
+            raw_body = response.json()
+            body = raw_body if isinstance(raw_body, dict) else {}
+        except ValueError:
+            body = {}
+        status_code = response.status_code
+        reason = body.get("reason", body.get("detail"))
+    finally:
+        hub.finish(item.query, bucket)
+    spent = sum(bucket.ms.values())
+    components = dict(bucket.ms)
+    components["wrapper_other"] = max(0.0, latency_ms - spent)
+    return {
+        "label": item.label,
+        "status_code": status_code,
+        "reason": reason,
+        "latency_ms": latency_ms,
+        "components": components,
+    }
+
+
+def _measure_ladder_step(
+    config: dict[str, Any],
+    step: Mapping[str, Any],
+    pool: Sequence[str],
+) -> dict[str, Any]:
+    warmup = int(step["warmup_requests"])
+    request_count = int(step["request_count"])
+    concurrency = int(step["concurrency"])
+    if warmup < 0 or request_count <= 0 or concurrency <= 0:
+        raise ValueError(
+            "warmup_requests must be >= 0 and request_count and concurrency must be positive"
+        )
+    sequence = build_ladder_sequence(
+        pool,
+        length=warmup + request_count,
+        seed=int(config["seed"]),
+        repeat_ratio=float(config["repeat_ratio"]),
+    )
+    repository = str(config.get("repository", "memory"))
+    token = str(uuid4()) if repository == "postgres" else None
+    items = tuple(
+        WorkloadItem(
+            query=f"{query} ws8:{token}" if token else query,
+            label=label,
+        )
+        for query, label in sequence
+    )
+    database_url = os.getenv("SSCRE_DATABASE_URL") if repository == "postgres" else None
+    hub = TimingHub()
+    client, cache = _create_client(
+        config,
+        "compatibility",
+        database_url=database_url,
+        scope_hashes=[hash_query(normalize_query(item.query)) for item in items],
+        timing_hub=hub,
+    )
+    for item in items[:warmup]:
+        _ladder_http(client, item, hub)
+    started = perf_counter()
+    with ThreadPoolExecutor(max_workers=concurrency) as executor:
+        rows = list(
+            executor.map(lambda item: _ladder_http(client, item, hub), items[warmup:])
+        )
+    elapsed = perf_counter() - started
+    stats = cache.storage_stats()
+    return {
+        "rows": rows,
+        "entries": int(stats.entries),
+        "total_bytes": int(stats.total_bytes),
+        "eviction_count": int(stats.evictions),
+        "elapsed_seconds": elapsed,
+    }
+
+
+def _score_ladder_step(
+    config: Mapping[str, Any],
+    step: Mapping[str, Any],
+    raw: Mapping[str, Any],
+    run_index: int,
+    repository: str,
+) -> dict[str, Any]:
+    rows = list(raw["rows"])
+    if not rows:
+        raise ValueError("ladder step measured window is empty")
+    latencies = [float(row["latency_ms"]) for row in rows]
+    fixture_labels = config.get(
+        "fixture_labels",
+        ["embedding_failure", "generation_failure"],
+    )
+    error_rate = ladder_non_fixture_error_rate(rows, fixture_labels)
+    timeouts = sum(
+        1 for row in rows if "timed out" in str(row.get("reason") or "")
+    )
+    timeout_rate = timeouts / len(rows)
+    component_p95 = {
+        name: _percentile(
+            [float(row["components"][name]) for row in rows],
+            0.95,
+        )
+        for name in _LADDER_COMPONENTS
+    }
+    p95 = _percentile(latencies, 0.95)
+    entries = int(raw["entries"])
+    total_bytes = int(raw["total_bytes"])
+    cap_compliant = (
+        total_bytes <= int(config["max_cache_bytes"])
+        and entries <= int(config["max_cache_entries"])
+    )
+    invalid = error_rate is None
+    breached: str | None = None
+    if invalid:
+        breached = "invalid_non_fixture_window"
+    else:
+        backend = config["budgets"][
+            "postgres" if repository == "postgres" else "memory"
+        ]
+        if p95 > float(backend["p95_end_to_end_latency_ms"]):
+            breached = "p95_end_to_end_latency_ms"
+        elif error_rate > float(backend["non_fixture_error_rate"]):
+            breached = "non_fixture_error_rate"
+        elif timeout_rate > float(config["budgets"]["timeout_rate"]):
+            breached = "timeout_rate"
+    winner = None
+    if (
+        cap_compliant
+        and breached is not None
+        and breached != "invalid_non_fixture_window"
+    ):
+        winner = select_component_bottleneck(component_p95)
+    total_p95 = sum(component_p95.values())
+    shares = (
+        None
+        if total_p95 == 0
+        else {
+            name: round(component_p95[name] / total_p95, 6)
+            for name in _LADDER_COMPONENTS
+        }
+    )
+    simulated = int(step["simulated_q_per_day"])
+    simulated_qps = simulated / 86400
+    elapsed = float(raw["elapsed_seconds"])
+    request_count = len(rows)
+    requests_per_second = request_count / elapsed if elapsed else 0.0
+    repeats = sum(1 for row in rows if row["label"] == "development_repeat")
+    return {
+        "step_id": step["id"],
+        "run_index": run_index,
+        "simulated_q_per_day": simulated,
+        "simulated_qps": round(simulated_qps, 6),
+        "request_count": int(step["request_count"]),
+        "warmup_requests": int(step["warmup_requests"]),
+        "concurrency": int(step["concurrency"]),
+        "process_count": int(config.get("process_count", 1)),
+        "elapsed_seconds": round(elapsed, 6),
+        "requests_per_second": round(requests_per_second, 3),
+        "compression_factor": (
+            round(requests_per_second / simulated_qps, 6) if simulated_qps else None
+        ),
+        "realized_repeat_ratio": round(repeats / len(rows), 6),
+        "p50_latency_ms": round(_percentile(latencies, 0.50), 3),
+        "p95_end_to_end_latency_ms": round(p95, 3),
+        "p99_latency_ms": round(_percentile(latencies, 0.99), 3),
+        "error_count": sum(1 for row in rows if int(row["status_code"]) >= 400),
+        "non_fixture_error_rate": None if error_rate is None else round(error_rate, 6),
+        "timeout_count": timeouts,
+        "timeout_rate": round(timeout_rate, 6),
+        "entries": entries,
+        "total_bytes": total_bytes,
+        "eviction_count": int(raw["eviction_count"]),
+        "cap_compliant": cap_compliant,
+        "isolate_queries": repository == "postgres",
+        "component_p95_ms": {
+            name: round(component_p95[name], 3) for name in _LADDER_COMPONENTS
+        },
+        "component_p95_share": shares,
+        "unavailable_components": list(_LADDER_UNAVAILABLE),
+        "budget_breached": breached,
+        "component_bottleneck": winner,
+    }
+
+
+def _ladder_outcome(step: Mapping[str, Any]) -> str:
+    if not step["cap_compliant"]:
+        return "cap"
+    if step["budget_breached"] is None:
+        return "not_reached"
+    if step["component_bottleneck"] in {None, "unattributed"}:
+        return "unattributed"
+    return str(step["component_bottleneck"])
+
+
+def _pair_ladder_runs(
+    first: Mapping[str, Any],
+    second: Mapping[str, Any],
+) -> dict[str, Any]:
+    left = _ladder_outcome(first)
+    right = _ladder_outcome(second)
+    step_id = first["step_id"]
+    if left != right:
+        return {
+            "first_bottleneck": None,
+            "bottleneck_outcome": None,
+            "bottleneck_step": step_id,
+            "reproducibility": "disagree",
+        }
+    if left == "not_reached":
+        return {
+            "first_bottleneck": "not_reached",
+            "bottleneck_outcome": "not_reached",
+            "bottleneck_step": None,
+            "reproducibility": "agree",
+        }
+    if left == "unattributed":
+        return {
+            "first_bottleneck": None,
+            "bottleneck_outcome": "unattributed",
+            "bottleneck_step": step_id,
+            "reproducibility": "agree",
+        }
+    return {
+        "first_bottleneck": left,
+        "bottleneck_outcome": left,
+        "bottleneck_step": step_id,
+        "reproducibility": "agree",
+    }
+
+
+def _unavailable_ladder_report(config: Mapping[str, Any], reason: str) -> dict[str, Any]:
+    return {
+        "report_type": "phase3_load_ladder",
+        "protocol_id": config.get("protocol_id"),
+        "status": "unavailable",
+        "dataset_version": config.get("dataset_version"),
+        "split": "development",
+        "measurement_environment": "synthetic_replay",
+        "repository": "postgres",
+        "unavailable_reason": reason,
+        "steps": [],
+        "first_bottleneck": None,
+        "bottleneck_outcome": None,
+        "bottleneck_step": None,
+        "reproducibility": None,
+        "connection_measurement": "not_instrumented",
+        "postgresql_version": None,
+        "limitation": config.get("limitation"),
+    }
+
+
+def run_ladder(
+    config: dict[str, Any],
+    *,
+    config_path: Path | None = None,
+    step_runner: Callable[[dict[str, Any], Mapping[str, Any], int], Mapping[str, Any]]
+    | None = None,
+) -> dict[str, Any]:
+    """Run the Feature 8 ladder. Does not use the milestone 10 / WS8 stop rules."""
+    repository = str(config.get("repository", "memory"))
+    if repository == "postgres" and not os.getenv("SSCRE_DATABASE_URL"):
+        return _unavailable_ladder_report(
+            config,
+            "SSCRE_DATABASE_URL is not set",
+        )
+    if repository not in {"memory", "postgres"}:
+        raise ValueError("load ladder repository must be memory or postgres")
+    modes = config.get("modes", ["compatibility"])
+    if list(modes) != ["compatibility"]:
+        raise ValueError("phase3 load ladder requires modes ['compatibility']")
+    steps = config.get("steps")
+    if not isinstance(steps, list) or not steps:
+        raise ValueError("load ladder configuration requires steps")
+
+    pool_size: dict[str, int | None] = {"value": None}
+
+    def default_runner(
+        runner_config: dict[str, Any],
+        step: Mapping[str, Any],
+        _run_index: int,
+    ) -> Mapping[str, Any]:
+        pool = load_ladder_pool(runner_config["development_path"])
+        pool_size["value"] = len(pool)
+        return _measure_ladder_step(runner_config, step, pool)
+
+    runner = step_runner or default_runner
+    executed: list[dict[str, Any]] = []
+    decision: dict[str, Any] | None = None
+
+    def execute(step: Mapping[str, Any], run_index: int) -> dict[str, Any]:
+        raw = runner(config, step, run_index)
+        return _score_ladder_step(config, step, raw, run_index, repository)
+
+    for step in steps:
+        first = execute(step, 1)
+        executed.append(first)
+        if not first["cap_compliant"] or first["budget_breached"] == "invalid_non_fixture_window":
+            decision = {
+                "first_bottleneck": None,
+                "bottleneck_outcome": None,
+                "bottleneck_step": None,
+                "reproducibility": None,
+            }
+            break
+        if first["budget_breached"] is not None:
+            second = execute(step, 2)
+            executed.append(second)
+            decision = _pair_ladder_runs(first, second)
+            break
+    else:
+        if executed:
+            second = execute(steps[-1], 2)
+            decision = _pair_ladder_runs(executed[-1], second)
+            executed.append(second)
+    if decision is None:
+        decision = {
+            "first_bottleneck": None,
+            "bottleneck_outcome": None,
+            "bottleneck_step": None,
+            "reproducibility": None,
+        }
+
+    development_path = config.get("development_path")
+    database_url = os.getenv("SSCRE_DATABASE_URL") if repository == "postgres" else None
+    return {
+        "report_type": "phase3_load_ladder",
+        "protocol_id": config.get("protocol_id"),
+        "status": "complete",
+        "dataset_version": config.get("dataset_version"),
+        "split": "development",
+        "development_sha256": (
+            file_sha256(_resolve_repo_path(development_path))
+            if development_path
+            else None
+        ),
+        "config_sha256": file_sha256(config_path) if config_path is not None else None,
+        "git_commit": _git_commit(),
+        "git_worktree_dirty": _git_worktree_dirty(),
+        "measurement_environment": "synthetic_replay",
+        "threshold_arm": config.get("threshold_arm"),
+        "similarity_threshold": config.get("similarity_threshold"),
+        "seed": config.get("seed"),
+        "repeat_ratio": config.get("repeat_ratio"),
+        "pool_size": pool_size["value"],
+        "cache_mode": "compatibility",
+        "cache_policy": {
+            "max_entries": int(config["max_cache_entries"]),
+            "max_bytes": int(config["max_cache_bytes"]),
+        },
+        "repository": repository,
+        "unavailable_reason": None,
+        "steps": executed,
+        "first_bottleneck": decision["first_bottleneck"],
+        "bottleneck_outcome": decision["bottleneck_outcome"],
+        "bottleneck_step": decision["bottleneck_step"],
+        "reproducibility": decision["reproducibility"],
+        "connection_measurement": "not_instrumented",
+        "postgresql_version": (
+            _postgresql_version(database_url) if database_url else None
+        ),
+        "environment": _measurement_environment(config, database_url=database_url),
+        "limitation": config.get("limitation"),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--repository", choices=("memory", "postgres"), default=None)
     args = parser.parse_args(argv)
-    report = run(_load_config(args.config))
+    config = _load_config(args.config)
+    if args.repository:
+        config["repository"] = args.repository
+    if config.get("protocol_id") == "phase3-load-ladder-v1":
+        report = run_ladder(config, config_path=args.config)
+    else:
+        report = run(config)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n",
