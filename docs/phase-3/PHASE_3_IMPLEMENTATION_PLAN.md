@@ -12,9 +12,11 @@ a pre-registered metric without violating the safety constraint
 reported, not hidden.
 
 **Status:** `partially complete` — Phase 3 **v1 stack** closed (2026-10-10);
-**Workstream 1 registry** closed (2026-10-11). Features 4–8 are **card-ready**
-in [`PHASE3_PLAN.md`](./PHASE3_PLAN.md); WS5–8 **execution** (artifacts, code)
-and Workstream 9 master-plan sync remain open.
+**Workstream 1 registry** closed (2026-10-11). Workstream 5 Gate A closed
+(2026-10-11): float32 baseline recorded, int8 not authorized. Workstream 6 Step 6 closed (2026-10-11): evidence filled. Memory and
+PostgreSQL L1–L3 `first_bottleneck` are `not_reached` (`reproducibility`
+`agree`). Workstream 7 closed (2026-10-11): Feature 4 pass. Feature 5
+(WS8) and Workstream 9 master-plan sync remain open.
 
 ## Source of truth
 
@@ -67,12 +69,18 @@ Features 4–8 cards were promoted 2026-10-11 ([`WORKSTREAM_1_STEP7_CLOSE.md`](.
 - [x] Bounded in-memory storage and load profile recorded (32 requests,
   concurrency 4; no bottleneck)
   ([`../phase-4/PHASE4_SCALE_EVIDENCE.md`](../phase-4/PHASE4_SCALE_EVIDENCE.md)).
-- [ ] A float32 embedding-bytes baseline at benchmark scale is recorded.
-      In-memory component accounting exists (`InMemoryExactCache.byte_breakdown`,
-      Step 1, 2026-10-11). The development-scale artifact does not.
-- [ ] An int8 (or `halfvec`) quantization comparison exists.
-- [ ] A 1K→100K simulated Q/day load ladder has been run.
-- [ ] Recurring failures are clustered.
+- [x] A float32 embedding-bytes baseline at benchmark scale is recorded.
+      `artifacts/evaluation/phase3-embedding-storage-baseline.json`
+      (2026-10-11): 800 requests, 728 entries, `embedding_share` `0.123641`.
+- [x] int8 quantization is deferred unless `embedding_share` ≥ `0.20`.
+      Measured `0.123641`, so no comparison artifact was written.
+- [x] A 1K→100K simulated Q/day load ladder has been run.
+      Memory and PostgreSQL L1–L3 recorded 2026-10-11
+      (`artifacts/operations/phase3-load-ladder-*.json`). Evidence filled
+      2026-10-11.
+- [x] Recurring failures are clustered.
+      [`PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md) (2026-10-11):
+      13 Strategy B FPs, 3 cluster keys.
 - [ ] An experiment-tracking decision is recorded with evidence.
 
 Open baseline gaps that limit every Phase 3 claim: synthetic replay only (no
@@ -91,15 +99,23 @@ Each row maps one item in `SSCRE_PLAN.md` § 20 Phase 3.
 - [x] Validator latency and safety improvement are compared, or the comparison
   is documented as not applicable.
   - Not applicable while D is untriggered (Workstream 4).
-- [ ] Embedding storage is measured before quantization (Workstream 5).
-- [ ] int8 embedding quantization is tested against a float32 reference
-  (Workstream 5).
-- [ ] Load tests run from 1K to 100K simulated queries/day (Workstream 6).
-- [ ] The first bottleneck is identified or the tested range is documented as
+- [x] Embedding storage is measured before quantization (Workstream 5).
+      - [`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md)
+        § Step 3. `embedding_share` `0.123641`.
+- [x] int8 embedding quantization is tested against a float32 reference only
+  if the storage baseline shows `embedding_share` ≥ `0.20` (Workstream 5).
+      - Gate failed (`0.123641`). Comparison is not applicable.
+- [x] Load tests run from 1K to 100K simulated queries/day (Workstream 6).
+      Memory and PostgreSQL arms recorded 2026-10-11. Evidence filled the
+      same day.
+- [x] The first bottleneck is identified or the tested range is documented as
   bottleneck-free (Workstream 6).
+  Memory and PostgreSQL L1–L3: `not_reached`, `reproducibility` `agree`, no
+  budget breached (2026-10-11).
 - [x] Adaptive thresholds by domain are tested.
   - Feature 1 passed (Workstream 2).
-- [ ] Recurring failures are clustered (Workstream 7).
+- [x] Recurring failures are clustered (Workstream 7).
+      [`PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md) (2026-10-11).
 - [ ] Experiment tracking is added only if manual reports are insufficient,
   with the decision recorded (Workstream 8).
 - [ ] `SSCRE_PLAN.md` § 20 Phase 3 checkboxes are synced with this plan
@@ -210,8 +226,10 @@ Acceptance criteria:
 
 ## Workstream 5 — Embedding storage baseline and quantization
 
-Status: **in progress** — Step 1 byte breakdown closed 2026-10-11. Steps 2–3
-(development artifact and dominance gate) and Feature 7 remain open. Feature
+Status: **Gate A closed** (2026-10-11). Step 6 closed (2026-10-11): Feature 7
+**not authorized**, `quantize_authorized` **false** (`embedding_share`
+`0.123641`). The int8 compare was not scored.
+No held-out quantization run. Feature
 cards: [`PHASE3_PLAN.md`](./PHASE3_PLAN.md) § Features 6–7 (`P3-FEAT-EMBED-BASE`,
 `P3-FEAT-Q8` conditional).
 Plan: [`WORKSTREAM_5_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_5_IMPLEMENTATION_PLAN.md).
@@ -229,15 +247,24 @@ four-request Phase 4 workload. Record separately:
 - bytes per entry and the embedding share of total bytes
 - embedding dimension and dtype for the configured provider
 
-Reuse `src/sscre/cache.py` `byte_breakdown()` (Step 1, 2026-10-11) for the
-component split. `src/sscre/storage_evaluation.py` still omits embeddings;
-do not treat its report as this baseline. Caps stay in `src/sscre/config.py`
-and `src/sscre/cache_controls.py`.
+Replay with `measure_development_embedding_storage` in
+`src/sscre/phase3_embedding_storage.py` (Step 2, 2026-10-11) and split bytes
+with `byte_breakdown()` (Step 1). `src/sscre/storage_evaluation.py` still
+omits embeddings; do not treat its report as this baseline. Caps stay in
+`src/sscre/config.py` and `src/sscre/cache_controls.py`.
 
 Stopping rule: if embeddings are a small share of total bytes, record the
 baseline and defer quantization — the storage win would not matter.
 
 ### 5.2 Quantization comparison (only if 5.1 justifies it)
+
+Steps 4–5 were evaluated 2026-10-11 and stayed blocked
+([`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md) § Steps 4–5).
+No int8 boundary code and no development compare artifact. Step 6 closed
+2026-10-11 on that result
+([`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md) § Step 6):
+**not authorized**, `quantize_authorized` no, int8 compare not scored, no
+held-out quantization run.
 
 Proposed hypothesis (confirm before code): symmetric per-vector int8
 quantization reduces embedding bytes by at least 3.5× versus float32 while
@@ -264,17 +291,26 @@ accuracy claim, until a real-provider embedding run exists.
 Acceptance criteria:
 
 - [x] Card (hypothesis, metric, pass/fail, stopping rule) added to `PHASE3_PLAN.md`.
-- [ ] Float32 development-scale baseline recorded:
+- [x] Float32 development-scale baseline recorded:
   `artifacts/evaluation/phase3-embedding-storage-baseline.json`.
-- [ ] Quantization comparison recorded, or deferral justified by 5.1:
-  `artifacts/evaluation/phase3-quantization-development.json`.
-- [ ] Unit tests cover round-trip error bounds, dimension preservation, and
-  failure-closed behavior on malformed vectors.
-- [ ] Evidence: `docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md`.
+- [x] Quantization comparison recorded, or deferral justified by 5.1:
+  deferred. `embedding_share` `0.123641` < `0.20`. No
+  `phase3-quantization-development.json`.
+- [x] Round-trip int8 tests apply only if Gate B opens. Gate B did not open.
+  Byte-breakdown tests are in `tests/test_embedding_storage.py`.
+- [x] Evidence: `docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md`.
 
 ## Workstream 6 — Load ladder and first bottleneck
 
-Status: **ready for execution** (card promoted 2026-10-11). Feature card:
+Status: **Step 6 closed** (2026-10-11).
+`experiments/phase3_load_ladder_v1.json` matches the Feature 8 card.
+`run_ladder()` in `src/sscre/load_test.py` scores that config. The in-memory
+artifact is `artifacts/operations/phase3-load-ladder-memory.json`. Memory
+L1–L3 `first_bottleneck` is `not_reached` with `reproducibility` `agree`
+and no budget breach on memory and PostgreSQL. Evidence is filled in
+[`PHASE3_LOAD_EVIDENCE.md`](./PHASE3_LOAD_EVIDENCE.md) § Step 6 and labeled
+`synthetic_replay`.
+Feature card:
 [`PHASE3_PLAN.md`](./PHASE3_PLAN.md) § Feature 8 (`P3-FEAT-LOAD`).
 Plan: [`WORKSTREAM_6_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_6_IMPLEMENTATION_PLAN.md).
 Evidence: [`PHASE3_LOAD_EVIDENCE.md`](./PHASE3_LOAD_EVIDENCE.md).
@@ -297,13 +333,20 @@ in-memory profile (32 requests) and WS8 PostgreSQL load (32 requests,
 - Extend `src/sscre/load_test.py` and a new config next to
   `experiments/milestone10_load_v1.json` / `workstream8_pg_load_v1.json`;
   do not add a load-testing framework unless the existing harness cannot
-  produce the ladder.
+  produce the ladder. The config file is
+  `experiments/phase3_load_ladder_v1.json` (Step 1, 2026-10-11). `run_ladder()`
+  loads it (Step 2, 2026-10-11). The in-memory L1–L3 artifact was written
+  (Step 3, 2026-10-11). The PostgreSQL artifact was written `complete`
+  (Step 4 rerun, 2026-10-11).
 
 ### 6.2 Measurements
 
-Per step and per component (embed, vector search, compatibility check,
-repository write, generation): p50/p95/p99 latency, throughput, error and
-timeout counts, entries, bytes, evictions, and database connection usage.
+Per step: end-to-end p50/p95/p99, throughput, non-fixture error rate, timeout
+rate, entries, bytes, and evictions. Component p95 shares use harness timers
+on the injected clients: embed, vector search, repository, generation, and
+wrapper remainder. Compatibility stays unavailable (no `RequestMetrics`
+change). Step-level rules:
+[`WORKSTREAM_6_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_6_IMPLEMENTATION_PLAN.md).
 
 ### 6.3 Bottleneck rule
 
@@ -319,52 +362,48 @@ that hardware and stop — do not optimize or add infrastructure.
 Acceptance criteria:
 
 - [x] Card with ladder, budgets, and stopping rule added to `PHASE3_PLAN.md`.
-- [ ] In-memory ladder recorded:
-  `artifacts/operations/phase3-load-ladder-memory.json`.
-- [ ] PostgreSQL ladder recorded, or explicitly marked unavailable:
-  `artifacts/operations/phase3-load-ladder-postgres.json`.
-- [ ] First bottleneck named with component evidence, or `not_reached` with
+- [x] In-memory ladder recorded:
+  `artifacts/operations/phase3-load-ladder-memory.json` (2026-10-11).
+- [x] PostgreSQL ladder recorded, or explicitly marked unavailable:
+  `artifacts/operations/phase3-load-ladder-postgres.json` (2026-10-11,
+  `status: complete`).
+- [x] First bottleneck named with component evidence, or `not_reached` with
   the tested range.
-- [ ] Storage stays within the configured cap at every step (master-plan
+  Memory and PostgreSQL L1–L3: `not_reached` (2026-10-11).
+- [x] Storage stays within the configured cap at every step (master-plan
   success criterion 7).
-- [ ] Environment (OS, CPU, Python, PostgreSQL version, worker count) recorded;
+  Memory and PostgreSQL steps comply (memory entries ≤ 706; PostgreSQL
+  L3 run 2 entries 3844, bytes 1347735).
+- [x] Environment (OS, CPU, Python, PostgreSQL version, worker count) recorded;
   results labeled as synthetic and not a production SLA.
-- [ ] Evidence: `docs/phase-3/PHASE3_LOAD_EVIDENCE.md`.
+  [`PHASE3_LOAD_EVIDENCE.md`](./PHASE3_LOAD_EVIDENCE.md) § Step 6.
+  PostgreSQL 16.15 recorded on the postgres artifact.
+- [x] Evidence: `docs/phase-3/PHASE3_LOAD_EVIDENCE.md`.
 
 ## Workstream 7 — Failure clustering
 
-Status: **ready for execution** (card promoted 2026-10-11). Feature card:
-[`PHASE3_PLAN.md`](./PHASE3_PLAN.md) § Feature 4 (`P3-FEAT-CLUSTER`).
+Status: **closed** (2026-10-11). Feature 4 **pass**; manual synthesis only.
+Feature card: [`PHASE3_PLAN.md`](./PHASE3_PLAN.md) § Feature 4 (`P3-FEAT-CLUSTER`).
 Plan: [`WORKSTREAM_7_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md).
+Evidence: [`PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md).
 
-Inputs (no new replay needed):
+Frozen inputs (read-only JSON under `artifacts/evaluation/`):
 
-- `artifacts/evaluation/phase3-final-held-out-comparison.json`
-- WS7 consolidated quality analysis (`src/sscre/failure_quality.py`,
-  `src/sscre/failure_gallery.py`)
-- development reports, for clusters with too few held-out examples
+- `phase3-final-held-out-comparison.json` — Strategy B primary sample and
+  Strategy C contrast fields
+- `workstream7-quality-analysis.json` — gallery join for `failure_category`
 
-Approach:
-
-1. Group Strategy B false positives and Strategy C `UNSAFE`/`UNCERTAIN`
-   decisions by existing failure category, rule fired, domain, and freshness
-   class.
-2. Name recurring patterns only when at least the documented minimum number of
-   examples share them; list everything else as singletons.
-3. For each cluster, record a candidate mitigation and whether it needs a new
-   rule, benchmark pairs, or nothing.
-
-Add clustering code only if manual grouping cannot be regenerated from a
-documented command.
+No regeneration via `failure_quality.py` / `failure_gallery.py` in this
+workstream. No new replay or clustering code.
 
 Acceptance criteria:
 
-- [ ] Every Strategy B held-out false positive is assigned to a cluster or a
-  singleton.
-- [ ] Cluster counts trace to report fields, not hand-counted text.
-- [ ] Output redacted with the existing report redaction path; no unapproved
+- [x] Every Strategy B held-out false positive is assigned to a cluster or a
+  singleton (13 / 13).
+- [x] Cluster counts trace to report fields, not hand-counted text.
+- [x] Output redacted with the existing report redaction path; no unapproved
   raw query text.
-- [ ] Evidence: `docs/phase-3/PHASE3_FAILURE_CLUSTERS.md`.
+- [x] Evidence: `docs/phase-3/PHASE3_FAILURE_CLUSTERS.md`.
 
 ## Workstream 8 — Experiment-tracking decision
 
@@ -421,12 +460,13 @@ Acceptance criteria:
 3. [x] Pattern-aware eviction (Workstream 3).
 4. [x] Evaluate the Strategy D trigger (Workstream 4).
 5. [x] Final held-out package and v1 artifacts (Workstream 9, partial).
-6. [ ] Failure clustering from existing artifacts (Workstream 7) — no new
-   replay, cheapest remaining item, feeds the paper discussion.
-7. [ ] Float32 embedding storage baseline (Workstream 5.1).
-8. [ ] Quantization comparison, only if 5.1 shows embeddings dominate storage
-   (Workstream 5.2).
-9. [ ] Load ladder and first bottleneck (Workstream 6).
+6. [x] Failure clustering from existing artifacts (Workstream 7) — no new
+   replay (2026-10-11). [`PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md).
+7. [x] Float32 embedding storage baseline (Workstream 5.1).
+8. [x] Quantization comparison, only if 5.1 shows embeddings dominate storage
+   (Workstream 5.2). Dominance gate failed; comparison not run.
+9. [x] Load ladder and first bottleneck (Workstream 6).
+      Memory and PostgreSQL `not_reached` (2026-10-11).
 10. [ ] Experiment-tracking audit (Workstream 8).
 11. [ ] Sync master plan, README, limitations, and manifest (Workstream 9).
 
