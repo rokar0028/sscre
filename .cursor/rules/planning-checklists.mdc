@@ -9,6 +9,13 @@ alwaysApply: true
   Markdown document, include actionable Markdown checkboxes (`- [ ]`).
 - Use unchecked boxes for work that is not verified and checked boxes only for
   work completed with evidence.
+- A checked box's own sentence must stay true. Do not check a claim that the
+  following note negates.
+- When a gate defers implementation, leave those task boxes unchecked and keep
+  their original sentences. Record the deferral in the linked evidence file and
+  a short note under the step. Do not rewrite the tasks into checked deferrals.
+- An unrun conditional feature is **not authorized**, not **pass** or **fail**.
+  Use **fail** only after the pre-registered pass rule was scored.
 - Keep every item under a `## Learning objectives` section unchecked. Those
   lists are study topics, not implementation or verification checklists.
 - For verification checkboxes, record or link the command and result when the

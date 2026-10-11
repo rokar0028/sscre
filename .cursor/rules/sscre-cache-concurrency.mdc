@@ -16,6 +16,14 @@ alwaysApply: false
   control says it is reusable. Under Strategy C, run the safety validator
   only after that check. Compatible metadata must not serve an expired,
   TTL-less, or disabled dynamic entry.
+- Keep shared PostgreSQL deletes scoped. In `load_test.py`,
+  `postgres_cache.py`, `postgres_failure_harness.py`, and tests that mention
+  the postgres cache, an attribute call to `insert_and_evict` or
+  `cleanup_expired` must pass `only_query_hashes`.
+  `tests/test_postgres_eviction_scope.py` rejects any other attribute call.
+  A wrapper that only forwards to `ScopedPostgresExactCacheRepository` or
+  the in-memory cache must call through a local name. Those types do not
+  accept the keyword; the scoped repository adds the hash list itself.
 - Treat missing cached compatibility metadata as `UNCERTAIN`; never substitute
   current-request metadata for missing entry metadata.
 - Synchronize application-scoped metric updates and snapshots.
