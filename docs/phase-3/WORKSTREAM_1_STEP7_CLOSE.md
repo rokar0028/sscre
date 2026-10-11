@@ -17,7 +17,7 @@ added in this workstream.
 | ---: | --- | --- | --- | --- |
 | 1–3 | `P3-FEAT-*` | Features 1–3 (v1 stack) | Phase 3 feature evidence files | closed 2026-10-10 |
 | 4 | `P3-FEAT-CLUSTER` | Failure clustering (manual) | [`WORKSTREAM_7_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md) | pending |
-| 5 | `P3-FEAT-TRACK` | Experiment-tracking audit | [`WORKSTREAM_8_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_8_IMPLEMENTATION_PLAN.md) | pending |
+| 5 | `P3-FEAT-TRACK` | Experiment-tracking audit | [`WORKSTREAM_8_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_8_IMPLEMENTATION_PLAN.md) | **closed** 2026-10-12 (`keep_manual`) |
 | 6–7 | `P3-FEAT-EMBED-BASE` / `P3-FEAT-Q8` | Storage baseline + conditional int8 | [`WORKSTREAM_5_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_5_IMPLEMENTATION_PLAN.md) | pending |
 | 8 | `P3-FEAT-LOAD` | Load ladder | [`WORKSTREAM_6_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_6_IMPLEMENTATION_PLAN.md) | pending |
 | — | `P3-FEAT-D` | Strategy D | Feature 3 card | **deferred** (gate 2026-10-11) |

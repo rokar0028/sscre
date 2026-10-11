@@ -45,7 +45,7 @@ Record one row per promoted card when Steps 2–5 of the workstream plan complet
 | Implementation ID | Card added to `PHASE3_PLAN.md` | Pre-code checklist | User OK |
 | --- | --- | --- | --- |
 | `P3-FEAT-CLUSTER` | Feature 4 § `PHASE3_PLAN.md` (2026-10-11) | closed 2026-10-11 | Feature 4 **pass**; [`PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md) |
-| `P3-FEAT-TRACK` | Feature 5 § `PHASE3_PLAN.md` (2026-10-11) | card complete; audit pending | read-only; no tracker unless audit fail |
+| `P3-FEAT-TRACK` | Feature 5 § `PHASE3_PLAN.md` (2026-10-11) | closed 2026-10-12 (WS8 Steps 1–5) | audit **pass** → **`keep_manual`**; [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md) |
 | `P3-FEAT-EMBED-BASE` / `P3-FEAT-Q8` | Features 6–7 § `PHASE3_PLAN.md` (2026-10-11) | Gate A Steps 1–3 recorded 2026-10-11 | Steps 1–3 approved; Q8 not authorized (`embedding_share` 0.123641) |
 | `P3-FEAT-LOAD` | Feature 8 § `PHASE3_PLAN.md` (2026-10-11) | card complete; ladder pending | budgets pre-registered in card |
 
@@ -59,7 +59,7 @@ before the first code change for each child workstream.
 | Child WS | Card ID | Checklist before code |
 | --- | --- | --- |
 | 7 | `P3-FEAT-CLUSTER` | closed 2026-10-11 (Steps 1–5) | [`PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md) |
-| 8 | `P3-FEAT-TRACK` | pending |
+| 8 | `P3-FEAT-TRACK` | closed 2026-10-12 (read-only audit; no code) |
 | 5 | `P3-FEAT-EMBED-BASE` / `Q8` | Gate A closed 2026-10-11. Q8 not authorized (`embedding_share` 0.123641) |
 | 6 | `P3-FEAT-LOAD` | pending |
 
@@ -133,9 +133,10 @@ Scope: write `artifacts/evaluation/phase3-embedding-storage-baseline.json` and a
 | P3-FEAT-CLUSTER | WS7 Step 3 count cross-check | 2026-10-11 | [`PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md) § Step 3; sum 13, 0 missing joins |
 | P3-FEAT-CLUSTER | WS7 Step 4 published inventory | 2026-10-11 | [`PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md) § Step 4; redacted pair IDs only |
 | P3-FEAT-CLUSTER | WS7 Step 5 close | 2026-10-11 | Feature 4 **pass**; no clustering code; parent plan synced |
+| P3-FEAT-TRACK | WS8 Steps 1–5 audit close | 2026-10-12 | [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md); **`keep_manual`**; `repro_blocked_gaps` **0**; Phase 4 paths **4/4** |
 
 ## Completion record
 
 **Registry pass closed:** 2026-10-11  
 **Scope:** Steps 0–7; Features 4–8 cards; Strategy D re-check; no SSCRE product code  
-**Next owners:** Workstream 8 execution; Workstream 9 manifest and master-plan sync
+**Next owners:** Workstream 9 manifest and master-plan sync (optional provenance doc G1–G5)
