@@ -748,16 +748,32 @@ minimum and is intentionally still unchecked above.
 
 ### Phase 3 — Advanced (Weeks 11–14, if justified)
 
-- [ ] Write a hypothesis and pass/fail criterion
-- [ ] Implement cross-encoder validator (D) only if C misses the target
-- [ ] Compare validator latency and safety improvement
-- [ ] Measure embedding storage before quantization
+- [x] Write a hypothesis and pass/fail criterion
+  ([docs/phase-3/PHASE3_PLAN.md](phase-3/PHASE3_PLAN.md) Features 1–8)
+- [x] Implement cross-encoder validator (D) only if C misses the target
+  — **not implemented**; retained-stack held-out FPR `0.0`; trigger did not fire
+  ([docs/phase-3/PHASE3_FEATURE_3_EVIDENCE.md](phase-3/PHASE3_FEATURE_3_EVIDENCE.md))
+- [x] Compare validator latency and safety improvement
+  — **not applicable** while Strategy D is untriggered
+  ([docs/phase-3/WORKSTREAM_4_IMPLEMENTATION_PLAN.md](phase-3/WORKSTREAM_4_IMPLEMENTATION_PLAN.md))
+- [x] Measure embedding storage before quantization
+  ([docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md](phase-3/PHASE3_QUANTIZATION_EVIDENCE.md)
+  § Step 3; `embedding_share` `0.123641`)
 - [ ] Test int8 embedding quantization
-- [ ] Run load tests from 1K to 100K simulated queries/day
-- [ ] Identify the first bottleneck
-- [ ] Test adaptive thresholds by domain
-- [ ] Cluster recurring failures
-- [ ] Add experiment tracking only if manual reports are insufficient
+  — **not run**; Feature 6 dominance gate below `0.20`; no development compare artifact
+  ([docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md](phase-3/PHASE3_QUANTIZATION_EVIDENCE.md) § Steps 4–6)
+- [x] Run load tests from 1K to 100K simulated queries/day
+  ([docs/phase-3/PHASE3_LOAD_EVIDENCE.md](phase-3/PHASE3_LOAD_EVIDENCE.md); synthetic replay)
+- [x] Identify the first bottleneck
+  — `not_reached` on memory and PostgreSQL ladders (`reproducibility` `agree`)
+  ([docs/phase-3/PHASE3_LOAD_EVIDENCE.md](phase-3/PHASE3_LOAD_EVIDENCE.md) § Step 6)
+- [x] Test adaptive thresholds by domain
+  — passed ([docs/phase-3/PHASE3_FEATURE_1_EVIDENCE.md](phase-3/PHASE3_FEATURE_1_EVIDENCE.md))
+- [x] Cluster recurring failures
+  ([docs/phase-3/PHASE3_FAILURE_CLUSTERS.md](phase-3/PHASE3_FAILURE_CLUSTERS.md))
+- [x] Add experiment tracking only if manual reports are insufficient
+  — audit **pass**; decision **`keep_manual`**
+  ([docs/phase-3/WORKSTREAM_8_EVIDENCE.md](phase-3/WORKSTREAM_8_EVIDENCE.md))
 
 **Rule:** Phase 3 features require a written hypothesis + pass/fail criterion before implementation.
 

@@ -6,7 +6,7 @@ deferred to avoid an additional held-out run. Authoring closed 2026-10-09 per
 [`PHASE2_PHASE3_PLAN_IMPLEMENTATION_PLAN.md`](../internal/PHASE2_PHASE3_PLAN_IMPLEMENTATION_PLAN.md)
 Step 7; implementation was explicitly requested in chat on 2026-10-10.
 
-**Last updated:** 2026-10-11 (Workstream 1 registry — Features 4–8 cards)
+**Last updated:** 2026-10-12 (Workstream 9 — limitations and master-plan sync)
 **Owner:** Kartik  
 **Parent transition:** [`docs/internal/PHASE3_TRANSITION.md`](../internal/PHASE3_TRANSITION.md)  
 **Master scope:** [`docs/SSCRE_PLAN.md`](../SSCRE_PLAN.md) § Phase 3
@@ -40,14 +40,17 @@ Phase 3 must produce **measured**, reproducible evidence for the paper:
   before paper).
 - Credentialed **live provider** measurement tables (**P0-PROVIDER:** deferred through
   Phase 3 unless promoted in a new decision record).
-- 1K–100K Q/day, multi-host, or production-capacity claims. Bounded local WS8
-  PostgreSQL evidence exists
-  ([`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)) and is
-  **not** that protocol. Phase 1 lite remains
+- Multi-host or production-capacity / SLA claims. Phase 3 Feature 8 ran a
+  **synthetic** 1K→100K simulated Q/day ladder (`first_bottleneck` `not_reached`);
+  that is not a production guarantee
+  ([`PHASE3_LOAD_EVIDENCE.md`](./PHASE3_LOAD_EVIDENCE.md)). Bounded Phase 2 WS8
+  PostgreSQL load
+  ([`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)) is a
+  separate protocol. Phase 1 lite:
   [`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
   Live container restart is still untested.
-- int8 quantization and 1K→100K simulated Q/day load tests until the core safety/reuse
-  story is stable (optional cards may defer; see **Deferred** below).
+- int8 embedding quantization in the shipped stack (Feature 7 **not authorized**;
+  dominance gate failed — [`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md)).
 
 ## Resource requirements and timing
 
@@ -58,8 +61,9 @@ requires it.
   replay. A paid LLM API or GPU is not required for the implementation or
   reproducible tests.
 - [x] **Phase 3:** Use local CPU and synthetic replay for the final paper
-  artifacts. Live provider measurements, large-scale load tests, quantization,
-  and GPU-backed inference are deferred.
+  artifacts. Development-scale float32 storage and a synthetic 1K→100K/day load
+  ladder are recorded; int8 compare was not authorized; live provider tables and
+  GPU-backed inference remain deferred.
 - [x] **Strategy D:** Do not add another LLM or cross-encoder merely to improve
   the architecture. Add it only after a documented held-out FPR greater than
   `0.0`; the Phase 3 trigger did not fire.
@@ -753,10 +757,10 @@ Implementation plan:
 
 | Field | Value |
 | --- | --- |
-| Audit date | _pending_ |
-| Decision | _pending_ (`keep_manual` expected if Phase 3/4 evidence complete) |
-| `repro_blocked_gaps` | _pending_ |
-| Tracker dependency added? | **no** unless audit fail + user OK |
+| Audit date | 2026-10-12 |
+| Decision | **`keep_manual`** (Feature 5 audit **pass**; see [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md) § Step 4) |
+| `repro_blocked_gaps` | **0** (`manifest_fixable_gaps` **5**, optional doc follow-up G1–G5) |
+| Tracker dependency added? | **no** |
 
 ---
 
@@ -1223,14 +1227,25 @@ only; do not substitute for the final `phase3-final-*` artifacts in the paper.
 
 Draft paper limitations from evidence, not placeholders:
 
-- **Provider:** `synthetic_replay` only — [`WORKSTREAM_5_EVIDENCE.md`](../phase-2/WORKSTREAM_5_EVIDENCE.md) § provider limitations.
+- **Provider:** `synthetic_replay` only for Phase 3 v1 metrics — no credentialed
+  live-provider table (**P0-PROVIDER**). Do not mix synthetic and live numbers.
 - **Labels:** Human factual-correctness sparse / `not_collected` where applicable —
   **P0-LABELS**; compatibility-focused safety claims.
-- **Ops:** Bounded local WS8 package
-  ([`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)):
-  simulated failure-closed; two processes both generate; load bottleneck
-  `not_reached`. Live restart and capacity remain unsupported. Phase 1 lite:
-  [`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
+- **Storage / quantization:** Development-scale float32 baseline recorded;
+  `embedding_share` `0.123641` (below `0.20` gate). int8 compare **not run**;
+  fake embeddings at dimension 8 support a storage claim, not general embedding
+  accuracy ([`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md)).
+- **Load / capacity:** Phase 3 Feature 8 ladder (memory + PostgreSQL) reached
+  `first_bottleneck` **`not_reached`** at 1K→100K simulated Q/day under
+  `synthetic_replay` — not a production SLA or multi-host capacity result
+  ([`PHASE3_LOAD_EVIDENCE.md`](./PHASE3_LOAD_EVIDENCE.md)). Phase 2 bounded WS8
+  ops load remains a separate bounded protocol
+  ([`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)).
+- **Failure analysis:** Strategy B held-out false positives grouped manually
+  from frozen JSON (13/13 assigned); no new replay or ML clustering pipeline
+  ([`PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md)).
+- **Provenance / tracking:** Feature 5 audit **pass**; **`keep_manual`** — no
+  MLflow/W&B dependency ([`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md)).
 - **Freshness held-out:** WS6 semi/dynamic held-out scope unavailable — see WS6 evidence.
 
 ---
@@ -1251,9 +1266,8 @@ cite artifact paths only.
 | Gallery / clustering optional | [`benchmarks/README.md`](../../benchmarks/README.md) (`sscre.gallery_export`) |
 
 **Phase 0 constraints embedded in this plan:** P0-PROVIDER and P0-LABELS under **Non-goals**
-and **Limitations**; P2-DASH, P2-DUAL, and 1K–100K / capacity claims under
-**Non-goals**. Bounded WS8 PostgreSQL evidence is cited, not treated as Phase 3
-load.
+and **Limitations**; P2-DASH and P2-DUAL under **Non-goals**. Phase 3 load evidence
+is synthetic and `not_reached`; production-capacity claims remain out of scope.
 
 ---
 
@@ -1326,6 +1340,17 @@ Re-checked 2026-10-11.
 - Contrast (discussion): C `decision_counts` and 171 `failure_examples`
   aggregates recorded; not clustered
 - Decision: **pass** — no clustering code or optional JSON export (stopping rule)
+
+### Feature 5 — experiment-tracking gate (manual audit)
+
+**Status:** evaluated and **passed** on 2026-10-12.
+
+- Plan: [`WORKSTREAM_8_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_8_IMPLEMENTATION_PLAN.md)
+- Evidence: [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md)
+- Scope: read-only provenance audit of Phase 3/4 paper artifacts; no evaluate rerun
+- Counts: Phase 4 manifest **4/4** paths on disk; `repro_blocked_gaps` **0**;
+  `manifest_fixable_gaps` **5** (optional doc hygiene G1–G5)
+- Decision: **`keep_manual`** — do not add MLflow/W&B for Phase 3 v1
 
 ### Step 4 — paper artifact preview package
 

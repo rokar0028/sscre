@@ -15,8 +15,10 @@ reported, not hidden.
 **Workstream 1 registry** closed (2026-10-11). Workstream 5 Gate A closed
 (2026-10-11): float32 baseline recorded, int8 not authorized. Workstream 6 Step 6 closed (2026-10-11): evidence filled. Memory and
 PostgreSQL L1–L3 `first_bottleneck` are `not_reached` (`reproducibility`
-`agree`). Workstream 7 closed (2026-10-11): Feature 4 pass. Feature 5
-(WS8) and Workstream 9 master-plan sync remain open.
+`agree`). Workstream 7 closed (2026-10-11): Feature 4 pass. Workstream 8
+**closed** (2026-10-12): Feature 5 audit **pass**, **`keep_manual`**. Workstream 9
+**closed** (2026-10-12): manifest, master plan, limitations, and verification
+([`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md) § Step 4).
 
 ## Source of truth
 
@@ -81,7 +83,8 @@ Features 4–8 cards were promoted 2026-10-11 ([`WORKSTREAM_1_STEP7_CLOSE.md`](.
 - [x] Recurring failures are clustered.
       [`PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md) (2026-10-11):
       13 Strategy B FPs, 3 cluster keys.
-- [ ] An experiment-tracking decision is recorded with evidence.
+- [x] An experiment-tracking decision is recorded with evidence.
+      [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md) § Step 4 (`keep_manual`, 2026-10-12).
 
 Open baseline gaps that limit every Phase 3 claim: synthetic replay only (no
 live provider), sparse human correctness labels, held-out freshness scope is
@@ -116,10 +119,11 @@ Each row maps one item in `SSCRE_PLAN.md` § 20 Phase 3.
   - Feature 1 passed (Workstream 2).
 - [x] Recurring failures are clustered (Workstream 7).
       [`PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md) (2026-10-11).
-- [ ] Experiment tracking is added only if manual reports are insufficient,
+- [x] Experiment tracking is added only if manual reports are insufficient,
   with the decision recorded (Workstream 8).
-- [ ] `SSCRE_PLAN.md` § 20 Phase 3 checkboxes are synced with this plan
-  (Workstream 9).
+      **Decision:** `keep_manual`; no tracker (`WORKSTREAM_8_EVIDENCE.md` § Step 4).
+- [x] `SSCRE_PLAN.md` § 20 Phase 3 checkboxes are synced with this plan
+  (Workstream 9 Step 3, 2026-10-12; int8 row left unchecked).
 
 ## Workstream 1 — Hypothesis registry and gates
 
@@ -407,35 +411,44 @@ Acceptance criteria:
 
 ## Workstream 8 — Experiment-tracking decision
 
-Status: **ready for execution** (card promoted 2026-10-11). Feature card:
+Status: **closed** (2026-10-12). Feature 5 audit **pass**; **`keep_manual`**; no
+tracker dependency. Feature card:
 [`PHASE3_PLAN.md`](./PHASE3_PLAN.md) § Feature 5 (`P3-FEAT-TRACK`).
 Plan: [`WORKSTREAM_8_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_8_IMPLEMENTATION_PLAN.md).
-Evidence: [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md) (audit pending).
+Evidence: [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md).
 
 Hypothesis to test: manual artifacts are insufficient for reproducibility (audit
 refutes or confirms).
 
 Check, without adding a dependency:
 
-- [ ] Every Phase 3 and Phase 4 result has command, commit, config hash,
-  dataset version, split manifest, and seed in its artifact or evidence file.
-- [ ] The Phase 3 and Phase 4 artifact manifests resolve every referenced path.
-- [ ] Count results whose provenance cannot be reconstructed.
+- [x] Every Phase 3 and Phase 4 result has command, commit, config hash,
+  dataset version, split manifest, and seed in its artifact or evidence file
+  (Step 2 matrix; `repro_blocked_gaps` **0**, 2026-10-12).
+- [x] The Phase 3 and Phase 4 artifact manifests resolve every referenced path
+  (**4/4** Phase 4 paths on disk).
+- [x] Count results whose provenance cannot be reconstructed (**0**
+  `repro_blocked`).
 
 Pass/fail:
 
-- **Keep manual** if every result is reconstructable.
+- **Keep manual** if every result is reconstructable — **pass** (`keep_manual`).
 - **Add tracking** only if at least one result cannot be reconstructed and a
-  manifest fix is not enough; record the tool choice and why.
+  manifest fix is not enough; record the tool choice and why. **Not triggered.**
 
 Acceptance criteria:
 
-- [ ] Decision and audit counts recorded in `PHASE3_PLAN.md`.
-- [ ] No tracker dependency added without a failed audit.
+- [x] Decision and audit counts recorded in `PHASE3_PLAN.md` (Feature 5 decision
+      table, 2026-10-12).
+- [x] No tracker dependency added without a failed audit.
 
 ## Workstream 9 — Final package and plan sync
 
-Status: **partially complete**. v1 final package closed 2026-10-10.
+Status: **closed** (2026-10-12). v1 final package closed 2026-10-10; WS9 sync
+complete (int8 master-plan row remains unchecked by design).
+Implementation plan:
+[`WORKSTREAM_9_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_9_IMPLEMENTATION_PLAN.md).
+Evidence: [`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md).
 
 Acceptance criteria:
 
@@ -446,12 +459,18 @@ Acceptance criteria:
   under `artifacts/evaluation/phase3-*`
   ([`PHASE3_ARTIFACTS_EVIDENCE.md`](./PHASE3_ARTIFACTS_EVIDENCE.md)).
 - [x] Selected-stack Pareto recorded as a separately labeled Phase 4 follow-up.
-- [ ] Results from Workstreams 5–8 added to the artifact manifest.
-- [ ] Limitations updated with quantization, load, and clustering outcomes.
-- [ ] `SSCRE_PLAN.md` § 20 Phase 3 checkboxes synced with evidence links.
-- [ ] `docs/phase-3/README.md` status line updated.
-- [ ] Full suite, benchmark validation, and compose config pass after the
-  last workstream.
+- [x] Results from Workstreams 5–8 added to the artifact manifest
+      (`phase4-paper-artifact-manifest.json` P3-FEAT-* tracks;
+      [`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md) § Step 2, 2026-10-12).
+- [x] Limitations updated with quantization, load, and clustering outcomes
+      ([`PHASE3_PLAN.md`](./PHASE3_PLAN.md) § Limitations, 2026-10-12).
+- [x] `SSCRE_PLAN.md` § 20 Phase 3 checkboxes synced with evidence links
+      (int8 unchecked, 2026-10-12).
+- [x] `docs/phase-3/README.md` status line updated (2026-10-12).
+- [x] Full suite, benchmark validation, and Compose config pass after the
+  last workstream using the non-secret CI sample environment
+  ([`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md) § Step 4:
+  pytest and benchmark validate pass; Compose pass with CI sample env).
 
 ## Recommended execution order
 
@@ -467,8 +486,10 @@ Acceptance criteria:
    (Workstream 5.2). Dominance gate failed; comparison not run.
 9. [x] Load ladder and first bottleneck (Workstream 6).
       Memory and PostgreSQL `not_reached` (2026-10-11).
-10. [ ] Experiment-tracking audit (Workstream 8).
-11. [ ] Sync master plan, README, limitations, and manifest (Workstream 9).
+10. [x] Experiment-tracking audit (Workstream 8) — **closed** 2026-10-12
+    ([`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md)).
+11. [x] Sync master plan, README, limitations, and manifest (Workstream 9).
+    Manifest and roadmap/limitations closed 2026-10-12; full verification in Step 4.
 
 Do not start a step until its card exists in `PHASE3_PLAN.md` and the user
 approves it.
@@ -481,6 +502,8 @@ Run from the repository root (PowerShell):
 python -m pip install ".[dev]"
 python -m pytest -q
 python -m sscre.benchmark_validate --phase2 --production
+$env:POSTGRES_PASSWORD='ci-local-password'
+$env:SSCRE_ADMIN_TOKEN='ci-local-admin-token-123456'
 docker compose config
 ```
 
