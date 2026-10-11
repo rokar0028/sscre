@@ -68,6 +68,8 @@ Features 4–8 cards were promoted 2026-10-11 ([`WORKSTREAM_1_STEP7_CLOSE.md`](.
   concurrency 4; no bottleneck)
   ([`../phase-4/PHASE4_SCALE_EVIDENCE.md`](../phase-4/PHASE4_SCALE_EVIDENCE.md)).
 - [ ] A float32 embedding-bytes baseline at benchmark scale is recorded.
+      In-memory component accounting exists (`InMemoryExactCache.byte_breakdown`,
+      Step 1, 2026-10-11). The development-scale artifact does not.
 - [ ] An int8 (or `halfvec`) quantization comparison exists.
 - [ ] A 1K→100K simulated Q/day load ladder has been run.
 - [ ] Recurring failures are clustered.
@@ -138,7 +140,9 @@ Acceptance criteria:
 ## Workstream 2 — Adaptive per-domain thresholds
 
 Status: **passed** (2026-10-10). Card: [`PHASE3_PLAN.md`](./PHASE3_PLAN.md)
-Feature 1. Evidence:
+Feature 1. Plan:
+[`WORKSTREAM_2_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_2_IMPLEMENTATION_PLAN.md).
+Evidence:
 [`PHASE3_FEATURE_1_EVIDENCE.md`](./PHASE3_FEATURE_1_EVIDENCE.md).
 
 Hypothesis: development-selected τ per `metadata.domain` increases Strategy C
@@ -158,7 +162,9 @@ Acceptance criteria:
 ## Workstream 3 — Pattern-aware eviction
 
 Status: **failed; deferred from the shipped stack** (2026-10-10). Card:
-[`PHASE3_PLAN.md`](./PHASE3_PLAN.md) Feature 2. Evidence:
+[`PHASE3_PLAN.md`](./PHASE3_PLAN.md) Feature 2. Plan:
+[`WORKSTREAM_3_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_3_IMPLEMENTATION_PLAN.md).
+Evidence:
 [`PHASE3_FEATURE_2_EVIDENCE.md`](./PHASE3_FEATURE_2_EVIDENCE.md).
 
 Hypothesis: evicting lower-`hit_count` entries first within each
@@ -177,11 +183,17 @@ Acceptance criteria:
 
 ## Workstream 4 — Strategy D validator gate
 
-Status: **deferred by gate** (2026-10-10). Card:
-[`PHASE3_PLAN.md`](./PHASE3_PLAN.md) Feature 3. Evidence:
+Status: **deferred by gate** (2026-10-10; re-checked 2026-10-11). Card:
+[`PHASE3_PLAN.md`](./PHASE3_PLAN.md) Feature 3. Plan:
+[`WORKSTREAM_4_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_4_IMPLEMENTATION_PLAN.md).
+Evidence:
 [`PHASE3_FEATURE_3_EVIDENCE.md`](./PHASE3_FEATURE_3_EVIDENCE.md).
 
 Trigger: final Phase 3 stack held-out FPR `> 0.0`. Observed: `0.0`.
+Plan Steps 1–3 closed 2026-10-11. Steps 4–9 were evaluated the
+same day and stay blocked (FPR `0.0`; Gate B never opened;
+[`PHASE3_FEATURE_3_EVIDENCE.md`](./PHASE3_FEATURE_3_EVIDENCE.md)). Validator
+code stays unauthorized.
 
 If the trigger ever fires (for example, after a benchmark expansion), the card
 already defines the protocol: deterministic fake cross-encoder first,
@@ -198,8 +210,9 @@ Acceptance criteria:
 
 ## Workstream 5 — Embedding storage baseline and quantization
 
-Status: **ready for execution** (cards promoted 2026-10-11). Feature cards:
-[`PHASE3_PLAN.md`](./PHASE3_PLAN.md) § Features 6–7 (`P3-FEAT-EMBED-BASE`,
+Status: **in progress** — Step 1 byte breakdown closed 2026-10-11. Steps 2–3
+(development artifact and dominance gate) and Feature 7 remain open. Feature
+cards: [`PHASE3_PLAN.md`](./PHASE3_PLAN.md) § Features 6–7 (`P3-FEAT-EMBED-BASE`,
 `P3-FEAT-Q8` conditional).
 Plan: [`WORKSTREAM_5_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_5_IMPLEMENTATION_PLAN.md).
 Evidence: [`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md).
@@ -216,8 +229,10 @@ four-request Phase 4 workload. Record separately:
 - bytes per entry and the embedding share of total bytes
 - embedding dimension and dtype for the configured provider
 
-Reuse `src/sscre/storage_evaluation.py` and the byte fields already defined in
-`src/sscre/config.py`, `src/sscre/cache.py`, and `src/sscre/cache_controls.py`.
+Reuse `src/sscre/cache.py` `byte_breakdown()` (Step 1, 2026-10-11) for the
+component split. `src/sscre/storage_evaluation.py` still omits embeddings;
+do not treat its report as this baseline. Caps stay in `src/sscre/config.py`
+and `src/sscre/cache_controls.py`.
 
 Stopping rule: if embeddings are a small share of total bytes, record the
 baseline and defer quantization — the storage win would not matter.

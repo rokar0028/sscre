@@ -19,6 +19,9 @@ and artifacts remain open. Agent workflow and gates live in
 | [WORKSTREAM_1_STEP0_INVENTORY.md](./WORKSTREAM_1_STEP0_INVENTORY.md) | Step 0 read-only registry audit (Features 1–3, `P3-OPT-*`, frozen inputs) |
 | [WORKSTREAM_1_STEP6_STRATEGY_D_GATE.md](./WORKSTREAM_1_STEP6_STRATEGY_D_GATE.md) | Step 6 Strategy D trigger re-check and future gate rules |
 | [WORKSTREAM_1_STEP7_CLOSE.md](./WORKSTREAM_1_STEP7_CLOSE.md) | Step 7 Workstream 1 registry close and handoff to WS5–8 |
+| [WORKSTREAM_2_IMPLEMENTATION_PLAN.md](./WORKSTREAM_2_IMPLEMENTATION_PLAN.md) | Feature 1 adaptive per-domain thresholds — passed 2026-10-10 |
+| [WORKSTREAM_3_IMPLEMENTATION_PLAN.md](./WORKSTREAM_3_IMPLEMENTATION_PLAN.md) | Feature 2 pattern-aware eviction — failed and deferred 2026-10-10 |
+| [WORKSTREAM_4_IMPLEMENTATION_PLAN.md](./WORKSTREAM_4_IMPLEMENTATION_PLAN.md) | Feature 3 Strategy D validator gate — deferred; trigger not fired |
 | [WORKSTREAM_7_IMPLEMENTATION_PLAN.md](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md) | Feature 4 failure clustering — manual synthesis from frozen JSON |
 | [WORKSTREAM_8_IMPLEMENTATION_PLAN.md](./WORKSTREAM_8_IMPLEMENTATION_PLAN.md) | Feature 5 experiment-tracking gate — manual provenance audit |
 | [WORKSTREAM_8_EVIDENCE.md](./WORKSTREAM_8_EVIDENCE.md) | Feature 5 audit log (placeholder until WS8 execution) |

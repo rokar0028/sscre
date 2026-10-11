@@ -1113,9 +1113,9 @@ Execution order for Phase 3 code and evaluation (matches P0-P3-ORDER):
 
 | Step | Feature / gate | Plan reference | Ship criterion |
 | ---: | --- | --- | --- |
-| 1 | Adaptive per-domain thresholds | [Feature 1](#feature-1--adaptive-per-domain-thresholds) | Feature 1 pass/fail on held-out |
-| 2 | Pattern-aware eviction | [Feature 2](#feature-2--pattern-aware-eviction) | Feature 2 pass/fail on held-out |
-| 3 | Strategy D (cross-encoder) | [Feature 3](#feature-3--strategy-d-cross-encoder-validator) | **Only if** trigger fires; else skip |
+| 1 | Adaptive per-domain thresholds | [Feature 1](#feature-1--adaptive-per-domain-thresholds); [`WORKSTREAM_2_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_2_IMPLEMENTATION_PLAN.md) | Feature 1 pass/fail on held-out |
+| 2 | Pattern-aware eviction | [Feature 2](#feature-2--pattern-aware-eviction); [`WORKSTREAM_3_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_3_IMPLEMENTATION_PLAN.md) | Feature 2 pass/fail on held-out |
+| 3 | Strategy D (cross-encoder) | [Feature 3](#feature-3--strategy-d-cross-encoder-validator); [`WORKSTREAM_4_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_4_IMPLEMENTATION_PLAN.md) | **Only if** trigger fires; else skip |
 | 4 | Failure clustering (manual) | [Feature 4](#feature-4--failure-clustering-manual-synthesis) | Analysis pass on frozen JSON |
 | 5 | Experiment-tracking gate | [Feature 5](#feature-5--experiment-tracking-gate-manual-audit) | Audit pass → `keep_manual` |
 | 6 | Float32 embedding storage baseline | [Feature 6](#feature-6--float32-embedding-storage-baseline) | Baseline JSON + dominance gate |
@@ -1265,6 +1265,7 @@ load.
 
 - Implementation: `src/sscre/baseline.py`, `src/sscre/evaluate.py`
 - Tests: `tests/test_adaptive_thresholds.py`
+- Plan: [`WORKSTREAM_2_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_2_IMPLEMENTATION_PLAN.md)
 - Evidence: [`PHASE3_FEATURE_1_EVIDENCE.md`](./PHASE3_FEATURE_1_EVIDENCE.md)
 - Development map: `artifacts/evaluation/phase3-adaptive-threshold-map.json`
 - Development report: `artifacts/evaluation/phase3-adaptive-development.json`
@@ -1281,6 +1282,8 @@ and dirty-worktree state at run time.
 **Status:** implemented and evaluated; **failed pass criterion and deferred from the
 shipped stack** on 2026-10-10.
 
+- Plan: [`WORKSTREAM_3_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_3_IMPLEMENTATION_PLAN.md)
+- Evidence: [`PHASE3_FEATURE_2_EVIDENCE.md`](./PHASE3_FEATURE_2_EVIDENCE.md)
 - Implementation: `src/sscre/cache.py`, `src/sscre/baseline.py`,
   `src/sscre/phase3_eviction.py`
 - Tests: `tests/test_cache_eviction.py`
@@ -1297,12 +1300,18 @@ conservative eviction. No held-out retuning was performed.
 ### Feature 3 — Strategy D conditional validator
 
 **Status:** deferred on 2026-10-10; the pre-registered trigger did not fire.
+Re-checked 2026-10-11.
 
+- Plan: [`WORKSTREAM_4_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_4_IMPLEMENTATION_PLAN.md)
 - Evidence: [`PHASE3_FEATURE_3_EVIDENCE.md`](./PHASE3_FEATURE_3_EVIDENCE.md)
 - Retained stack held-out FPR: `0.0`
 - Trigger: held-out FPR `> 0.0`
 - Decision: no cross-encoder implementation, protocol reset, or additional held-out
   run.
+- Plan Steps 1–3 executed 2026-10-11 against the frozen comparison: FPR `0.0`,
+  zero false-positive examples, Feature 1 map retained, conservative eviction.
+  Steps 4–9 evaluated the same day and stay blocked; Gate B not opened
+  ([`PHASE3_FEATURE_3_EVIDENCE.md`](./PHASE3_FEATURE_3_EVIDENCE.md)).
 
 ### Step 4 — paper artifact preview package
 

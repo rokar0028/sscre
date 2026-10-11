@@ -46,7 +46,7 @@ Record one row per promoted card when Steps 2–5 of the workstream plan complet
 | --- | --- | --- | --- |
 | `P3-FEAT-CLUSTER` | Feature 4 § `PHASE3_PLAN.md` (2026-10-11) | card complete; execution pending | WS7 doc-only — no code gate |
 | `P3-FEAT-TRACK` | Feature 5 § `PHASE3_PLAN.md` (2026-10-11) | card complete; audit pending | read-only; no tracker unless audit fail |
-| `P3-FEAT-EMBED-BASE` / `P3-FEAT-Q8` | Features 6–7 § `PHASE3_PLAN.md` (2026-10-11) | card complete; execution pending | confirm thresholds before Q8 code |
+| `P3-FEAT-EMBED-BASE` / `P3-FEAT-Q8` | Features 6–7 § `PHASE3_PLAN.md` (2026-10-11) | Gate A Step 1 recorded 2026-10-11; repeat before Steps 2–3 | Step 1 code approved 2026-10-11; confirm thresholds before Q8 code |
 | `P3-FEAT-LOAD` | Feature 8 § `PHASE3_PLAN.md` (2026-10-11) | card complete; ladder pending | budgets pre-registered in card |
 
 ## Pre-code gate (before WS5–8 product code)
@@ -60,7 +60,20 @@ before the first code change for each child workstream.
 | --- | --- | --- |
 | 7 | `P3-FEAT-CLUSTER` | pending |
 | 8 | `P3-FEAT-TRACK` | pending |
-| 5 | `P3-FEAT-EMBED-BASE` / `Q8` | pending (confirm thresholds before Q8) |
+| 5 | `P3-FEAT-EMBED-BASE` / `Q8` | Step 1 done 2026-10-11 (breakdown only). Repeat before Steps 2–3. Q8 thresholds still unconfirmed |
+
+### Workstream 5 Gate A Step 1 (2026-10-11)
+
+Scope: shared byte breakdown in `src/sscre/cache.py` only. No replay, no artifact, no int8.
+
+- [x] Feature card in `PHASE3_PLAN.md` (Features 6–7).
+- [x] Implementation ID `P3-FEAT-EMBED-BASE` matches the parent Workstream 5 section.
+- [x] Frozen baselines cited; Strategies A/B/C not redefined.
+- [x] Development measurement only; held-out stays unused.
+- [x] Pass/fail thresholds stay numeric (`0.20`, `3.5×`, FPR `0.0`).
+- [x] Artifact names unchanged (`phase3-embedding-storage-baseline.json`, `phase3-quantization-development.json`).
+- [x] User approved this slice in writing (“implement step 1”).
+- [x] No live-provider, schema, or quantization code.
 | 6 | `P3-FEAT-LOAD` | pending |
 
 ## Step 6 — Strategy D gate re-check
@@ -86,6 +99,7 @@ before the first code change for each child workstream.
 | P3-WS1-GATE-D | Strategy D re-check | 2026-10-11 | [`WORKSTREAM_1_STEP6_STRATEGY_D_GATE.md`](./WORKSTREAM_1_STEP6_STRATEGY_D_GATE.md); trigger not fired |
 | P3-WS1-CLOSE | Step 7 registry close + `benchmark_validate` | 2026-10-11 | [`WORKSTREAM_1_STEP7_CLOSE.md`](./WORKSTREAM_1_STEP7_CLOSE.md); commit `da323d05` |
 | P3-WS1-LAND | Re-verify `benchmark_validate` before doc commit | 2026-10-11 | passed; `split_manifest_sha256=68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51` |
+| P3-FEAT-EMBED-BASE | Gate A Step 1 pre-code + breakdown | 2026-10-11 | [`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md) § Step 1; full suite 748 passed, 15 skipped |
 
 ## Completion record
 
