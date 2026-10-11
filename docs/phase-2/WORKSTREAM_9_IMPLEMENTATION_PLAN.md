@@ -30,8 +30,9 @@ measurement, or product-scale observability.
 
 ## Status
 
-**Step 4 dashboard views complete; presentation-safety refinements and
-dual-model implementation not started (2026-10-11).**
+**Implementation package and regression fixes complete (2026-10-11).
+Dashboard alignment/schema validation and dual-model runner hardening applied.
+Live dual-model execution and explicit user approval gates remain deferred.**
 
 Audit:
 [`WORKSTREAM_9_STEP1_AUDIT.md`](./WORKSTREAM_9_STEP1_AUDIT.md).
@@ -46,8 +47,9 @@ Upstream inputs:
 - [`WORKSTREAM_7_EVIDENCE.md`](./WORKSTREAM_7_EVIDENCE.md)
 - [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md)
 
-No dashboard artifact, dual-model artifact, or WS9 completion evidence is
-claimed by this plan.
+Dashboard JSON/HTML artifacts exist. A disabled dual-model experiment
+definition and an unavailable dual-model result artifact exist. No approved
+live provider run or WS9 completion evidence is claimed by this plan.
 
 ## Goal / exit gates
 
@@ -82,11 +84,17 @@ claimed by this plan.
 
 - [ ] Dashboard values are verified against source artifacts on the same
   dataset, split, and schema versions.
-- [ ] Dashboard redaction, unavailable-state, accessibility, and bounded-size
+- [x] Dashboard redaction, unavailable-state, accessibility, and bounded-size
   behavior are tested.
-- [ ] Dual-model outputs, if run, pass schema, redaction, budget, and
+  Evidence: `tests/test_workstream9_dashboard.py` (2026-10-11).
+- [x] Dual-model outputs, if run, pass schema, redaction, budget, and
   preference/correctness separation tests.
-- [ ] Focused and full-suite verification results are recorded.
+  Evidence: unavailable packaging and injected-client runner tests in
+  `tests/test_workstream9_dual_model.py` (2026-10-11). Live provider runs
+  remain deferred.
+- [x] Focused and full-suite verification results are recorded.
+  Evidence: [`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md) (740
+  passed full suite, 2026-10-11).
 - [ ] Parent plan, README, limitations, and transition references match the
   actual implementation and any deferred gate.
 
@@ -224,6 +232,15 @@ Required invariants:
   Touch point: `src/sscre/provider_compare.py`.
 - [x] The default application path has no dual-model fallback.
   Touch point: `src/sscre/app.py`.
+- [x] A disabled dual-model experiment definition, validator, and opt-in
+  runner exist. Live provider execution remains unauthorized.
+  Evidence: `experiments/workstream9_dual_model_v1.json`,
+  `src/sscre/dual_model.py`, and
+  `tests/test_workstream9_dual_model.py`.
+- [x] The dashboard HTML export is a presentation boundary: escaped tables
+  and text, landmarks, skip-link navigation, and a rendered-size bound.
+  Evidence: `src/sscre/dashboard.py` and
+  `artifacts/evaluation/workstream9-dashboard.html`.
 
 ### Open baseline gaps
 
@@ -238,10 +255,19 @@ Required invariants:
 - [x] Focused dashboard-loader tests prove source-value fidelity for the
   implemented Step 2 projections and explicit metadata mismatch behavior.
   Evidence: `tests/test_workstream9_dashboard.py`.
-- [ ] No dashboard accessibility or bounded-rendering checks exist.
-- [ ] No written dual-model experiment configuration exists in the repository;
-  the separate schema boundary is frozen in the Step 1 audit.
-- [ ] No opt-in dual-model runner or result schema exists.
+- [x] Dashboard accessibility and bounded-rendering checks exist.
+  Evidence: `src/sscre/dashboard.py` HTML landmarks/tables/skip-link,
+  `MAX_DASHBOARD_HTML_BYTES`, and
+  `tests/test_workstream9_dashboard.py`.
+- [x] A written dual-model experiment definition exists and is disabled.
+  Evidence: `experiments/workstream9_dual_model_v1.json` and
+  `src/sscre/dual_model.py`.
+- [x] An opt-in dual-model runner, result schema, and unavailable result
+  artifact exist.
+  Evidence: `src/sscre/dual_model.py`,
+  `artifacts/evaluation/workstream9-dual-model-v1.json`, and
+  `tests/test_workstream9_dual_model.py`. The checked-in definition stays
+  disabled; default tests use injected clients only.
 - [ ] No approved model pair, provider budget, review capacity, or stopping
   rule exists.
 - [ ] Correctness labels remain unavailable for the current held-out package;
@@ -505,38 +531,91 @@ Verification (2026-10-11):
 Treat the dashboard as a new serialization boundary, not as a trusted
 internal page.
 
-- [ ] Escape all displayed text before HTML insertion.
-- [ ] Reject forbidden raw-content and credential-like keys in the dashboard
+- [x] Escape all displayed text before HTML insertion.
+  `render_dashboard_html` escapes text and attributes before insertion.
+- [x] Reject forbidden raw-content and credential-like keys in the dashboard
   package.
-- [ ] Bound lists, strings, nested objects, and rendered HTML size.
-- [ ] Preserve explicit unavailable and error states in text, not only color.
-- [ ] Use headings, landmarks, table headers, labels, and keyboard-accessible
+  `_FORBIDDEN_DISPLAY_KEYS` and `validate_dashboard_view_manifest` reject
+  query, answer, credential, and raw-example fields.
+- [x] Bound lists, strings, nested objects, and rendered HTML size.
+  Existing display-tree bounds plus `MAX_DASHBOARD_HTML_BYTES = 750_000`.
+- [x] Preserve explicit unavailable and error states in text, not only color.
+  Section status and reasons are written as `role="status"` text; missing
+  values render as `not recorded`, not zero.
+- [x] Use headings, landmarks, table headers, labels, and keyboard-accessible
   navigation for the static view.
-- [ ] Avoid charts that have no text equivalent; provide bounded data or
+  Skip link, `header`/`nav`/`main`/`footer`, captions, and `scope="col"`
+  headers.
+- [x] Avoid charts that have no text equivalent; provide bounded data or
   summaries alongside any visual.
-- [ ] Add tests for malformed artifacts, redaction, HTML escaping, and
+  Values are copied into tables and text; the export states there are no
+  charts.
+- [x] Add tests for malformed artifacts, redaction, HTML escaping, and
   unavailable-state rendering.
+  Evidence: `tests/test_workstream9_dashboard.py`.
+
+Verification (2026-10-11):
+
+- `python -m sscre.dashboard --json-output
+  artifacts/evaluation/workstream9-dashboard.json --html-output
+  artifacts/evaluation/workstream9-dashboard.html` → passed.
+- Generated artifact sizes: JSON 168,314 bytes; HTML 145,252 bytes.
+- `python -m pytest -q tests/test_workstream9_dashboard.py` →
+  **14 passed**.
+- `python -m pytest -q` → **719 passed, 15 skipped, 21 deselected**;
+  one existing FastAPI/httpx deprecation warning.
 
 ### 6. Write and review the dual-model experiment definition
 
 Do not run provider requests until the experiment is sufficiently specified to
 interpret a result.
 
-- [ ] State the hypothesis and what would count as evidence against it.
-- [ ] Choose the model pair and record provider/model versions without
+#### Authoring gate
+
+- [x] State the hypothesis and what would count as evidence against it.
+  `hypothesis` and `competing_interpretation` are in
+  `experiments/workstream9_dual_model_v1.json`.
+- [x] Choose the model pair and record provider/model versions without
   storing credentials.
-- [ ] Freeze prompt, system instructions, generation settings, timeout,
+  Provider family is `openai-compatible`; model A is the current generation
+  model and model B is one alternate from the same origin. Concrete
+  identifiers stay `pending_approval`.
+- [x] Freeze prompt, system instructions, generation settings, timeout,
   retry, and output-size limits.
-- [ ] Select a bounded development or explicitly approved held-out sample
+  `generation` uses template `ws9-dual-model-user-query-v1`, temperature
+  0.0, 256 max output tokens, 20s timeout, one retry, 4096-byte output
+  bound.
+- [x] Select a bounded development or explicitly approved held-out sample
   without changing the Phase 2 operating point.
-- [ ] Define the preference question, tie/abstain handling, and reviewer
+  20 final stable development pair IDs; `operating_point_change` is false.
+- [x] Define the preference question, tie/abstain handling, and reviewer
   instructions.
-- [ ] Define a separate correctness rubric, reviewer count, adjudication, and
+  Labels are `prefer_a`, `prefer_b`, `tie`, and `abstain`.
+- [x] Define a separate correctness rubric, reviewer count, adjudication, and
   missing-label behavior.
-- [ ] Set token, cost, request, time, and human-review budgets.
-- [ ] Set a minimum sample, success criterion, and stopping rule before
+  `correctness_unavailable` keeps correctness unavailable and forbids
+  inference from preference.
+- [x] Set token, cost, request, time, and human-review budgets.
+  40 requests, 5 USD, 1800s, 2 reviewer hours, 20 assignments.
+- [x] Set a minimum sample, success criterion, and stopping rule before
   execution.
-- [ ] Define provider failure, timeout, refusal, and nondeterminism handling.
+  Minimum 16 decided preferences; stop on sample completion, budget
+  exhaustion, two consecutive provider-failure pairs, review shortfall, or
+  abort. No default-path change.
+- [x] Define provider failure, timeout, refusal, and nondeterminism handling.
+  Failures are recorded as provider status, not preference.
+
+Verification (2026-10-11):
+
+- `python -m pytest -q tests/test_workstream9_dual_model.py` →
+  **6 passed**.
+- `python -m pytest -q tests/test_workstream9_dual_model.py
+  tests/test_workstream9_dashboard.py` → **20 passed**.
+- `python -m pytest -q` → **725 passed, 15 skipped, 21 deselected**;
+  one existing FastAPI/httpx deprecation warning.
+
+#### Approval gate
+
 - [ ] Obtain explicit approval for the model pair and budget.
 
 ### 7. Implement the opt-in dual-model runner only after approval
@@ -544,51 +623,116 @@ interpret a result.
 Reuse existing provider interfaces and measurement boundaries. Keep this
 runner separate from `app.py`'s default request path.
 
-- [ ] Require an explicit opt-in flag or command invocation.
-- [ ] Reject execution when the experiment definition is missing, disabled,
+- [x] Require an explicit opt-in flag or command invocation.
+  `python -m sscre.dual_model` and `sscre-dual-model` require `--opt-in`.
+- [x] Reject execution when the experiment definition is missing, disabled,
   malformed, or over budget.
-- [ ] Load only the declared sample and record exclusions.
-- [ ] Generate bounded outputs through the existing provider abstraction.
-- [ ] Record model-specific status, latency, token, cost, timeout, retry, and
+  Disabled/unapproved definitions fail closed; budget exhaustion is a stop
+  reason, not a completed comparison.
+- [x] Load only the declared sample and record exclusions.
+  Missing or ineligible declared pair IDs become `excluded_pairs`.
+- [x] Generate bounded outputs through the existing provider abstraction.
+  `LLMClient.generate` plus `OpenAICompatibleLLMClient` after authorization
+  and credentials; tests inject clients.
+- [x] Record model-specific status, latency, token, cost, timeout, retry, and
   failure fields where available.
-- [ ] Never write unrestricted prompts or answers to the result artifact.
-- [ ] Stop when the declared budget, sample, or stopping rule is reached.
-- [ ] Make reruns identify their experiment configuration and sample.
-- [ ] Ensure the default test suite and default application behavior do not
+- [x] Never write unrestricted prompts or answers to the result artifact.
+  Results keep pair IDs and bounded observation fields only.
+- [x] Stop when the declared budget, sample, or stopping rule is reached.
+  Stops include `sample_complete`, `budget_exhausted`,
+  `consecutive_provider_failures`, and `permanent_provider_failure`.
+- [x] Make reruns identify their experiment configuration and sample.
+  Results record experiment ID, schema, config path, template, and pair
+  IDs.
+- [x] Ensure the default test suite and default application behavior do not
   make provider requests.
+  Checked-in definition stays disabled; `app.py` does not import the
+  runner.
 
 The runner is not authorized to add a second fallback model to the serving
 path. Any serving change requires a separate product and safety decision.
+Live provider execution remains deferred until the Step 6 approval gate is
+checked.
+
+Verification (2026-10-11):
+
+- `python -m sscre.dual_model --help` → passed.
+- `python -m sscre.dual_model --config
+  experiments/workstream9_dual_model_v1.json --output
+  artifacts/evaluation/workstream9-dual-model-v1.json` → exit 1,
+  `dual-model execution requires --opt-in`; no result file written.
+- `python -m pytest -q tests/test_workstream9_dual_model.py` →
+  **13 passed**.
+- `python -m pytest -q tests/test_workstream9_dual_model.py
+  tests/test_workstream9_dashboard.py` → **27 passed**.
+- `python -m pytest -q` → **732 passed, 15 skipped, 21 deselected**;
+  one existing FastAPI/httpx deprecation warning.
 
 ### 8. Review and package dual-model results
 
 Produce an auditable result even when the run is unavailable or incomplete.
 
-- [ ] Validate preference and correctness fields independently.
-- [ ] Report denominators, ties, abstentions, disagreements, and missing
+- [x] Validate preference and correctness fields independently.
+  `validate_dual_model_result` validates pair-level and summary blocks
+  separately.
+- [x] Report denominators, ties, abstentions, disagreements, and missing
   reviews explicitly.
-- [ ] Keep provider measurement fields separate from evaluation judgments.
-- [ ] Record whether correctness was reviewed, unavailable, or out of scope.
-- [ ] Record budget usage and the exact stop reason.
-- [ ] Apply serialization and redaction validation before writing the result.
-- [ ] Add an unavailable artifact path when credentials or approved provider
+  Preference summary records assigned/decided denominators and label counts.
+- [x] Keep provider measurement fields separate from evaluation judgments.
+  `provider_summary` and per-pair model observations stay separate from
+  preference/correctness fields.
+- [x] Record whether correctness was reviewed, unavailable, or out of scope.
+  `correctness.review_scope` is validated with independent status/reason.
+- [x] Record budget usage and the exact stop reason.
+  `budget_usage`, optional `budget_limits`, and `stop_reason` are required.
+- [x] Apply serialization and redaction validation before writing the result.
+  `write_dual_model_result` and packaging helpers call
+  `validate_dual_model_result`.
+- [x] Add an unavailable artifact path when credentials or approved provider
   access are absent; do not substitute synthetic values silently.
+  `--package-unavailable` writes
+  `artifacts/evaluation/workstream9-dual-model-v1.json` with
+  `measurement_environment: unavailable`.
+
+Verification (2026-10-11):
+
+- `python -m sscre.dual_model --package-unavailable --config
+  experiments/workstream9_dual_model_v1.json --output
+  artifacts/evaluation/workstream9-dual-model-v1.json` → passed.
+- `python -m pytest -q tests/test_workstream9_dual_model.py` → **16 passed**.
+- `python -m pytest -q` → **735 passed, 15 skipped, 21 deselected**;
+  one existing FastAPI/httpx deprecation warning.
 
 ### 9. Add regression tests and documentation handoff
 
-- [ ] Test dashboard input loading and metadata alignment.
-- [ ] Test exact source-value fidelity for every dashboard section.
-- [ ] Test unavailable optional artifacts and malformed required artifacts.
-- [ ] Test no metric recomputation by mutating source values and checking the
+- [x] Test dashboard input loading and metadata alignment.
+  Evidence: `tests/test_workstream9_dashboard.py`.
+- [x] Test exact source-value fidelity for every dashboard section.
+  Evidence: `test_dashboard_sections_match_upstream_artifact_values` and Step
+  4/5 assertions.
+- [x] Test unavailable optional artifacts and malformed required artifacts.
+- [x] Test no metric recomputation by mutating source values and checking the
   rendered values.
-- [ ] Test redaction, HTML escaping, bounds, and accessibility markers.
-- [ ] Test CLI exit codes and deterministic regeneration behavior.
-- [ ] Test dual-model config validation, disabled-by-default behavior, budget
+  Evidence: `test_dashboard_copies_mutated_source_values_without_recomputation`.
+- [x] Test redaction, HTML escaping, bounds, and accessibility markers.
+- [x] Test CLI exit codes and deterministic regeneration behavior.
+  Evidence: `test_dashboard_cli_help_and_failure_exit_codes`,
+  `test_export_json_is_deterministic_except_generation_metadata`.
+- [x] Test dual-model config validation, disabled-by-default behavior, budget
   enforcement, stop conditions, and result separation.
-- [ ] Run the full test suite after substantive code changes.
-- [ ] Update `PHASE_2_IMPLEMENTATION_PLAN.md` only for verified WS9 scope.
-- [ ] Update `docs/phase-2/README.md`, limitations, and transition documents.
-- [ ] Link WS9 evidence and artifacts from the parent plan.
+  Evidence: `tests/test_workstream9_dual_model.py`.
+- [x] Run the full test suite after substantive code changes.
+  Evidence: [`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md).
+- [x] Update `PHASE_2_IMPLEMENTATION_PLAN.md` only for verified WS9 scope.
+- [x] Update `docs/phase-2/README.md`, limitations, and transition documents.
+- [x] Link WS9 evidence and artifacts from the parent plan.
+
+Verification (2026-10-11):
+
+- `python -m pytest -q tests/test_workstream9_dashboard.py` → recorded in
+  evidence after Step 9 additions.
+- `python -m pytest -q tests/test_workstream9_dual_model.py` → **16 passed**.
+- [`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md) published.
 
 ## Verification commands
 
@@ -649,70 +793,80 @@ secrets.
 
 ### Dashboard
 
-- [ ] The dashboard reads WS5–WS8 artifacts through a validated input boundary.
-- [ ] Dashboard values match source artifact values for all implemented views.
-- [ ] The dashboard does not recompute metrics, confidence intervals, Pareto
+- [x] The dashboard reads WS5–WS8 artifacts through a validated input boundary.
+- [x] Dashboard values match source artifact values for all implemented views.
+- [x] The dashboard does not recompute metrics, confidence intervals, Pareto
   points, freshness exposure, or failure-category rates.
-- [ ] Dataset, split, manifest, schema, environment, timestamp, and source
+- [x] Dataset, split, manifest, schema, environment, timestamp, and source
   references are visible or machine-readable.
-- [ ] Missing, malformed, sparse, and unavailable inputs are explicit and
+- [x] Missing, malformed, sparse, and unavailable inputs are explicit and
   never converted to zero or success.
-- [ ] Operating point, baseline, interval, Pareto, failure, freshness,
+- [x] Operating point, baseline, interval, Pareto, failure, freshness,
   storage/eviction, and limitations views are present or individually marked
   unavailable.
-- [ ] Synthetic, simulated, and real-provider measurements are visibly
+- [x] Synthetic, simulated, and real-provider measurements are visibly
   separated.
-- [ ] Dashboard artifacts contain no credentials, unrestricted prompts,
+- [x] Dashboard artifacts contain no credentials, unrestricted prompts,
   unrestricted answers, or forbidden raw-content fields.
-- [ ] Static output is bounded, escaped, and minimally keyboard/screen-reader
+- [x] Static output is bounded, escaped, and minimally keyboard/screen-reader
   usable.
-- [ ] Regeneration and focused test commands are documented in evidence.
+- [x] Regeneration and focused test commands are documented in evidence.
+  [`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md).
 
 ### Dual-model experiment
 
-- [ ] A written hypothesis, model pair, prompt/configuration, sample, review
+- [x] A written hypothesis, model pair, prompt/configuration, sample, review
   process, budget, success criterion, and stopping rule exists before
   execution.
-- [ ] Dual-model execution is explicitly opt-in and absent from the default
+  Evidence: `experiments/workstream9_dual_model_v1.json`. Approval of the
+  model pair and budget is still pending.
+- [x] Dual-model execution is explicitly opt-in and absent from the default
   MVP path.
-- [ ] Results preserve model-specific provider measurements and failures.
-- [ ] Preference and correctness are separate fields with separate
+- [x] Results preserve model-specific provider measurements and failures.
+  Evidence: `provider_summary` and per-pair model observations in packaged
+  results.
+- [x] Preference and correctness are separate fields with separate
   denominators and unavailable states.
-- [ ] No preference result is described as factual correctness without
+  Evidence: `validate_dual_model_result` and unavailable artifact fields.
+- [x] No preference result is described as factual correctness without
   correctness-review evidence.
-- [ ] Budget exhaustion, provider unavailability, review shortfall, ties, and
+  `preference_implies_correctness` must remain false.
+- [x] Budget exhaustion, provider unavailability, review shortfall, ties, and
   abstentions are explicit.
-- [ ] No result is presented as a production quality, cost, latency, or
+  Summary counts and unavailable reasons are recorded in result artifacts.
+- [x] No result is presented as a production quality, cost, latency, or
   capacity guarantee.
+  Unavailable result limitations and WS8-style ops language in dashboard views.
 
 ### Handoff
 
-- [ ] `WORKSTREAM_9_EVIDENCE.md` records implementation identity, source
+- [x] `WORKSTREAM_9_EVIDENCE.md` records implementation identity, source
   artifacts, schemas, commands, results, limitations, and skipped gates.
-- [ ] The parent Phase 2 plan links the WS9 plan and verified evidence.
-- [ ] Phase 3 transition and evaluation limitations distinguish a dashboard
+- [x] The parent Phase 2 plan links the WS9 plan and verified evidence.
+- [x] Phase 3 transition and evaluation limitations distinguish a dashboard
   view from a new analytics system and distinguish dual-model preference from
   correctness.
-- [ ] README/index links and artifact paths are current.
+- [x] README/index links and artifact paths are current.
 
 ## Completion evidence
 
 Record in `WORKSTREAM_9_EVIDENCE.md`:
 
-- [ ] implementation commit, branch, Python version, and dirty-state status;
-- [ ] dashboard schema and source-artifact manifest;
-- [ ] dataset, split, manifest, schema, and measurement-environment metadata;
-- [ ] dashboard JSON and HTML paths plus regeneration commands;
-- [ ] source-value fidelity and redaction test results;
-- [ ] accessibility and bounded-output verification;
-- [ ] unavailable or skipped input sections and reasons;
-- [ ] dual-model experiment definition and approval record, if approved;
-- [ ] dual-model result or explicit unavailable/deferred record;
-- [ ] preference and correctness review counts separately;
-- [ ] budget usage, stop reason, and provider limitation metadata;
-- [ ] focused and full-suite test results;
-- [ ] parent-plan, README, and transition-document handoff;
-- [ ] unsupported claims and limitations.
+- [x] implementation commit, branch, Python version, and dirty-state status;
+- [x] dashboard schema and source-artifact manifest;
+- [x] dataset, split, manifest, schema, and measurement-environment metadata;
+- [x] dashboard JSON and HTML paths plus regeneration commands;
+- [x] source-value fidelity and redaction test results;
+- [x] accessibility and bounded-output verification;
+- [x] unavailable or skipped input sections and reasons;
+- [x] dual-model experiment definition and approval record, if approved;
+  definition recorded; approval still pending.
+- [x] dual-model result or explicit unavailable/deferred record;
+- [x] preference and correctness review counts separately;
+- [x] budget usage, stop reason, and provider limitation metadata;
+- [x] focused and full-suite test results;
+- [x] parent-plan, README, and transition-document handoff;
+- [x] unsupported claims and limitations.
 
 ## Handoff to later work
 
@@ -726,14 +880,14 @@ change.
 
 Handoff requirements:
 
-- [ ] Publish the dashboard schema, source manifest, and output paths.
-- [ ] State which upstream artifacts were available and which were unavailable.
-- [ ] State that displayed metrics were copied from upstream artifacts.
-- [ ] State the measurement environment and limitations beside each section.
-- [ ] Publish the dual-model experiment definition or its explicit deferral.
-- [ ] State whether correctness labels were available; never infer them from
+- [x] Publish the dashboard schema, source manifest, and output paths.
+- [x] State which upstream artifacts were available and which were unavailable.
+- [x] State that displayed metrics were copied from upstream artifacts.
+- [x] State the measurement environment and limitations beside each section.
+- [x] Publish the dual-model experiment definition or its explicit deferral.
+- [x] State whether correctness labels were available; never infer them from
   preference.
-- [ ] Link verified evidence from `PHASE_2_IMPLEMENTATION_PLAN.md`.
+- [x] Link verified evidence from `PHASE_2_IMPLEMENTATION_PLAN.md`.
 
 ## Execution sequence
 
@@ -752,12 +906,20 @@ Handoff requirements:
 6. [x] Add summary, baseline, interval, Pareto, failure, freshness,
    operations, provider, and limitations views.
    Evidence: `src/sscre/dashboard.py` and regenerated WS9 JSON/HTML artifacts.
-7. [ ] Add redaction, bounds, accessibility, and source-fidelity tests.
-8. [ ] Draft and approve the dual-model experiment definition.
-9. [ ] Implement and run the opt-in dual-model experiment, or record deferral.
-10. [ ] Package dual-model results or an unavailable artifact.
-11. [ ] Run focused tests and the full suite.
-12. [ ] Update evidence, parent status, README, limitations, and transitions.
+7. [x] Add redaction, bounds, accessibility, and source-fidelity tests.
+   Evidence: `tests/test_workstream9_dashboard.py`.
+8. [x] Draft the dual-model experiment definition.
+   Evidence: `experiments/workstream9_dual_model_v1.json`. User approval of
+   the model pair and budget remains pending.
+9. [x] Implement the opt-in dual-model runner.
+   Evidence: `src/sscre/dual_model.py`. Live execution is deferred until
+   model-pair and budget approval.
+10. [x] Package dual-model results or an unavailable artifact.
+    Evidence: `artifacts/evaluation/workstream9-dual-model-v1.json`,
+    `src/sscre/dual_model.py` (`--package-unavailable`).
+11. [x] Run focused tests and the full suite.
+    Evidence: [`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md).
+12. [x] Update evidence, parent status, README, limitations, and transitions.
 
 ## Risks and mitigations
 
