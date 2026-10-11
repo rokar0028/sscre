@@ -16,11 +16,17 @@ import subprocess
 import sys
 from typing import Any, Mapping
 
+from sscre.evaluation_statistics import (
+    EVALUATION_STATISTICS_SCHEMA_VERSION,
+    validate_statistics_block,
+)
 from sscre.failure_gallery import (
+    FAILURE_GALLERY_SCHEMA_VERSION,
     validate_consolidated_quality_analysis,
     validate_failure_gallery,
 )
 from sscre.freshness_artifacts import validate_freshness_artifact_package
+from sscre.freshness_evaluation import FRESHNESS_EVALUATION_SCHEMA_VERSION
 from sscre.freshness_invalidation import validate_invalidation_artifact
 from sscre.serialization import validate_redacted_report_payload
 
@@ -42,9 +48,12 @@ SECTION_STATUSES = frozenset(
     {"available", "unavailable", "not_comparable", "metadata_mismatch"}
 )
 MAX_VIEW_MANIFEST_BYTES = 250_000
+MAX_DASHBOARD_HTML_BYTES = 750_000
 MAX_DISPLAY_STRING_BYTES = 512
 MAX_DISPLAY_MAPPING_ITEMS = 100
 MAX_DISPLAY_LIST_ITEMS = 100
+MAX_HTML_TABLE_COLUMNS = 24
+MAX_HTML_NESTING = 8
 _MISSING = object()
 
 DEFAULT_SOURCE_PATHS = {
@@ -78,17 +87,45 @@ _FORBIDDEN_DISPLAY_KEYS = frozenset(
     {
         "answer",
         "answer_text",
+        "api_key",
+        "authorization",
         "failure_examples",
         "false_positive_examples",
+        "normalized_query",
         "observed_pair_records",
+        "password",
         "prompt",
+        "provider_secret",
         "query",
         "query_a",
         "query_b",
         "query_text",
+        "raw_answer",
+        "raw_query",
         "request_samples",
+        "response_text",
+        "secret",
+        "token",
     }
 )
+_HELD_OUT_MANIFEST_REQUIRED_SOURCES = frozenset({"quality", "freshness_held_out"})
+_FROZEN_SOURCE_SCHEMAS: dict[str, dict[str, str]] = {
+    "comparison": {
+        "statistics_schema_version": EVALUATION_STATISTICS_SCHEMA_VERSION,
+        "failure_gallery_schema_version": FAILURE_GALLERY_SCHEMA_VERSION,
+    },
+    "pareto": {"pareto_schema_version": "evaluation-pareto-1.0"},
+    "freshness_development": {
+        "freshness_evaluation_schema_version": FRESHNESS_EVALUATION_SCHEMA_VERSION,
+    },
+    "freshness_held_out": {
+        "freshness_evaluation_schema_version": FRESHNESS_EVALUATION_SCHEMA_VERSION,
+    },
+    "quality": {"failure_gallery_schema_version": FAILURE_GALLERY_SCHEMA_VERSION},
+    "operations": {"schema_version": "ws8-ops-1.0"},
+    "provider_comparison": {"schema_version": "provider-measurement-comparison-1.0"},
+    "provider_unavailable": {"schema_version": "real-provider-measurement-1.0"},
+}
 _BASELINE_METRIC_KEYS = (
     "request_count",
     "cache_hits",
@@ -329,9 +366,24 @@ def _validate_source_contract(source: _LoadedSource) -> None:
             benchmark = payload.get("benchmark_artifact")
             if not isinstance(benchmark, Mapping):
                 raise ValueError("benchmark_artifact is required")
-            if not isinstance(payload.get("statistics"), Mapping):
+            manifest = benchmark.get("split_manifest_sha256")
+            if not isinstance(manifest, str) or not manifest:
+                raise ValueError("benchmark_artifact.split_manifest_sha256 is required")
+            statistics = payload.get("statistics")
+            if not isinstance(statistics, Mapping):
                 raise ValueError("statistics is required")
+            if payload.get("statistics_schema_version") != (
+                EVALUATION_STATISTICS_SCHEMA_VERSION
+            ):
+                raise ValueError("statistics_schema_version is unsupported")
+            validate_statistics_block(statistics)
+            if "overall" not in statistics:
+                raise ValueError("statistics.overall is required")
             validate_failure_gallery(payload.get("failure_gallery"))
+            if payload.get("failure_gallery_schema_version") != (
+                FAILURE_GALLERY_SCHEMA_VERSION
+            ):
+                raise ValueError("failure_gallery_schema_version is unsupported")
         elif source.name == "pareto":
             if payload.get("pareto_schema_version") != "evaluation-pareto-1.0":
                 raise ValueError("pareto_schema_version is unsupported")
@@ -355,6 +407,9 @@ def _validate_source_contract(source: _LoadedSource) -> None:
             validate_invalidation_artifact(invalidation)
         elif source.name == "quality":
             validate_consolidated_quality_analysis(payload)
+            manifest = payload.get("split_manifest_sha256")
+            if not isinstance(manifest, str) or not manifest:
+                raise ValueError("split_manifest_sha256 is required")
         elif source.name == "operations":
             if payload.get("kind") != "workstream8-operational-verification":
                 raise ValueError("kind is unsupported")
@@ -368,10 +423,24 @@ def _validate_source_contract(source: _LoadedSource) -> None:
                 raise ValueError("schema_version is unsupported")
             if payload.get("status") != "unavailable":
                 raise ValueError("status must be unavailable")
+        _validate_frozen_schema_fields(source)
     except (TypeError, ValueError) as exc:
         raise DashboardInputError(
             f"dashboard source {source.name} failed contract validation: {exc}"
         ) from exc
+
+
+def _validate_frozen_schema_fields(source: _LoadedSource) -> None:
+    payload = source.payload
+    if payload is None:
+        return
+    expected = _FROZEN_SOURCE_SCHEMAS.get(source.name)
+    if expected is None:
+        return
+    for key, expected_value in expected.items():
+        actual = payload.get(key)
+        if actual != expected_value:
+            raise ValueError(f"{key} must be {expected_value!r}")
 
 
 def _load_sources(
@@ -401,6 +470,8 @@ def _identity(source: _LoadedSource) -> dict[str, object]:
 def _metadata_mismatch(
     source: _LoadedSource,
     primary: Mapping[str, object],
+    *,
+    source_name: str,
 ) -> str | None:
     current = _identity(source)
     for key in ("dataset_version", "evaluation_split", "split_manifest_sha256"):
@@ -408,6 +479,27 @@ def _metadata_mismatch(
         actual = current.get(key)
         if expected is not None and actual is not None and expected != actual:
             return f"{key} mismatch: expected {expected!r}, got {actual!r}"
+    if source_name in _HELD_OUT_MANIFEST_REQUIRED_SOURCES:
+        expected_manifest = primary.get("split_manifest_sha256")
+        if expected_manifest and not current.get("split_manifest_sha256"):
+            return "split_manifest_sha256 not recorded on source"
+    schema_reason = _schema_mismatch(source, source_name=source_name)
+    if schema_reason is not None:
+        return schema_reason
+    return None
+
+
+def _schema_mismatch(source: _LoadedSource, *, source_name: str) -> str | None:
+    payload = source.payload
+    if payload is None:
+        return None
+    expected = _FROZEN_SOURCE_SCHEMAS.get(source_name)
+    if expected is None:
+        return None
+    for key, expected_value in expected.items():
+        actual = payload.get(key)
+        if actual is not None and actual != expected_value:
+            return f"{key} mismatch: expected {expected_value!r}, got {actual!r}"
     return None
 
 
@@ -490,7 +582,9 @@ def _comparison_sections(
             "reason": "source_file_missing",
         }
     else:
-        development_mismatch = _metadata_mismatch(development, primary)
+        development_mismatch = _metadata_mismatch(
+            development, primary, source_name="freshness_development"
+        )
         operating_point["development_provenance"] = {
             "status": "available",
             "alignment": (
@@ -557,7 +651,7 @@ def _pareto_section(
 ) -> dict[str, object]:
     if source.payload is None:
         return _unavailable_section("pareto", sources, reason="source_file_missing")
-    mismatch = _metadata_mismatch(source, primary)
+    mismatch = _metadata_mismatch(source, primary, source_name="pareto")
     if mismatch:
         return _section(
             status="metadata_mismatch",
@@ -608,7 +702,9 @@ def _freshness_section(
 ) -> dict[str, object]:
     held_out = sources["freshness_held_out"]
     assert held_out.payload is not None
-    mismatch = _metadata_mismatch(held_out, primary)
+    mismatch = _metadata_mismatch(
+        held_out, primary, source_name="freshness_held_out"
+    )
     if mismatch:
         return _section(
             status="metadata_mismatch",
@@ -639,7 +735,9 @@ def _freshness_section(
             "reason": "source_file_missing",
         }
     else:
-        development_mismatch = _metadata_mismatch(development, primary)
+        development_mismatch = _metadata_mismatch(
+            development, primary, source_name="freshness_development"
+        )
         data["development_selection"] = {
             "status": "available",
             "alignment": (
@@ -673,7 +771,7 @@ def _quality_section(
     primary: Mapping[str, object],
 ) -> dict[str, object]:
     assert source.payload is not None
-    mismatch = _metadata_mismatch(source, primary)
+    mismatch = _metadata_mismatch(source, primary, source_name="quality")
     if mismatch:
         return _section(
             status="metadata_mismatch",
@@ -733,6 +831,7 @@ def _operations_section(
 
 def _provider_section(
     sources: Mapping[str, _LoadedSource],
+    primary: Mapping[str, object],
 ) -> dict[str, object]:
     comparison = sources["provider_comparison"]
     unavailable = sources["provider_unavailable"]
@@ -742,6 +841,56 @@ def _provider_section(
             source_names=["provider_comparison", "provider_unavailable"],
             sources=sources,
             reason="provider_sources_missing",
+        )
+    mismatch = (
+        _metadata_mismatch(comparison, primary, source_name="provider_comparison")
+        if comparison.payload is not None
+        else None
+    )
+    if mismatch:
+        copied_rows: list[dict[str, object]] = []
+        comp_payload = comparison.payload
+        assert comp_payload is not None
+        raw_rows = comp_payload.get("rows")
+        if isinstance(raw_rows, list):
+            for row in raw_rows[:MAX_DISPLAY_LIST_ITEMS]:
+                if not isinstance(row, Mapping):
+                    continue
+                copied_rows.append(
+                    {
+                        key: row[key]
+                        for key in ("metric", "synthetic", "real_provider")
+                        if key in row
+                    }
+                )
+        return _section(
+            status="not_comparable",
+            source_names=["provider_comparison", "provider_unavailable"],
+            sources=sources,
+            data={
+                "comparison_status": "dataset_or_split_not_aligned",
+                "real_provider_status": (
+                    unavailable.payload.get("status")
+                    if unavailable.payload is not None
+                    else "unavailable"
+                ),
+                "copied_comparison_rows": copied_rows,
+                "rows": {
+                    "synthetic": {
+                        "status": "not_comparable",
+                        "source": _descriptor(comparison),
+                    },
+                    "real_provider": {
+                        "status": (
+                            unavailable.payload.get("status")
+                            if unavailable.payload is not None
+                            else "unavailable"
+                        ),
+                        "source": _descriptor(unavailable),
+                    },
+                },
+            },
+            reason=mismatch,
         )
     return _section(
         status="not_comparable",
@@ -769,8 +918,8 @@ def _provider_section(
                 },
                 "real_provider": {
                     "status": (
-                        "unavailable"
-                        if unavailable.payload is None
+                        unavailable.payload.get("status")
+                        if unavailable.payload is not None
                         else "unavailable"
                     ),
                     "source": _descriptor(unavailable),
@@ -813,6 +962,20 @@ def _limitations_section(
     )
 
 
+def _reject_forbidden_display_keys(payload: object) -> None:
+    if isinstance(payload, Mapping):
+        for key, value in payload.items():
+            if str(key).lower() in _FORBIDDEN_DISPLAY_KEYS:
+                raise DashboardInputError(
+                    f"dashboard display contains forbidden field {key!r}"
+                )
+            _reject_forbidden_display_keys(value)
+        return
+    if isinstance(payload, list):
+        for item in payload:
+            _reject_forbidden_display_keys(item)
+
+
 def validate_dashboard_view_manifest(payload: Mapping[str, object]) -> None:
     """Validate the bounded WS9 view-manifest envelope."""
     if payload.get("dashboard_schema_version") != DASHBOARD_SCHEMA_VERSION:
@@ -845,6 +1008,7 @@ def validate_dashboard_view_manifest(payload: Mapping[str, object]) -> None:
             raise DashboardInputError(
                 f"section {name!r} needs a reason for {status}"
             )
+    _reject_forbidden_display_keys(payload)
     try:
         validate_redacted_report_payload(payload)
         encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
@@ -911,6 +1075,187 @@ def _metadata_mismatch_sections(manifest: Mapping[str, object]) -> list[str]:
     ]
 
 
+def _html_text(value: object) -> str:
+    return html.escape(str(value), quote=False)
+
+
+def _html_attr(value: object) -> str:
+    return html.escape(str(value), quote=True)
+
+
+def _section_anchor(name: str) -> str:
+    return name.replace("_", "-")
+
+
+def _section_title(name: str) -> str:
+    return name.replace("_", " ").title()
+
+
+def _is_display_scalar(value: object) -> bool:
+    return value is None or isinstance(value, (str, int, float, bool))
+
+
+def _cell_text(value: object) -> str:
+    if value is None:
+        return "not recorded"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return _html_text(value)
+
+
+def _escaped_pre(value: object) -> str:
+    return (
+        "<pre>"
+        + _html_text(json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False))
+        + "</pre>"
+    )
+
+
+def _table(headers: list[str], rows: list[list[str]], *, caption: str | None = None) -> str:
+    caption_html = f"<caption>{_html_text(caption)}</caption>" if caption else ""
+    head = "".join(f'<th scope="col">{_html_text(header)}</th>' for header in headers)
+    body = "".join(
+        "<tr>" + "".join(f"<td>{cell}</td>" for cell in row) + "</tr>" for row in rows
+    )
+    return (
+        f"<table>{caption_html}<thead><tr>{head}</tr></thead>"
+        f"<tbody>{body}</tbody></table>"
+    )
+
+
+def _named_record_table(
+    records: Mapping[str, Mapping[str, object]],
+    *,
+    caption: str | None = None,
+) -> str:
+    columns: list[str] = []
+    seen: set[str] = set()
+    for record in records.values():
+        for key in record:
+            key_text = str(key)
+            if key_text not in seen:
+                seen.add(key_text)
+                columns.append(key_text)
+            if len(columns) >= MAX_HTML_TABLE_COLUMNS:
+                break
+        if len(columns) >= MAX_HTML_TABLE_COLUMNS:
+            break
+    headers = ["Name", *columns]
+    rows = [
+        [
+            _html_text(name),
+            *(_cell_text(record[column]) if column in record else "not recorded" for column in columns),
+        ]
+        for name, record in records.items()
+    ]
+    return _table(headers, rows, caption=caption)
+
+
+def _record_list_table(
+    records: list[Mapping[str, object]],
+    *,
+    caption: str | None = None,
+) -> str:
+    columns: list[str] = []
+    seen: set[str] = set()
+    for record in records:
+        for key in record:
+            key_text = str(key)
+            if key_text not in seen:
+                seen.add(key_text)
+                columns.append(key_text)
+            if len(columns) >= MAX_HTML_TABLE_COLUMNS:
+                break
+        if len(columns) >= MAX_HTML_TABLE_COLUMNS:
+            break
+    rows = [
+        [
+            _cell_text(record[column]) if column in record else "not recorded"
+            for column in columns
+        ]
+        for record in records
+    ]
+    return _table(columns, rows, caption=caption)
+
+
+def _render_html_value(
+    value: object,
+    *,
+    depth: int = 0,
+    caption: str | None = None,
+) -> str:
+    if depth > MAX_HTML_NESTING:
+        return _escaped_pre(value)
+    if isinstance(value, Mapping):
+        if value and all(
+            isinstance(item, Mapping) and all(_is_display_scalar(cell) for cell in item.values())
+            for item in value.values()
+        ):
+            return _named_record_table(value, caption=caption)
+        if not value:
+            return "<p>No fields recorded.</p>"
+        rows = [
+            [_html_text(key), _render_html_value(item, depth=depth + 1)]
+            for key, item in value.items()
+        ]
+        return _table(["Field", "Value"], rows, caption=caption)
+    if isinstance(value, list):
+        if not value:
+            return "<p>No items recorded.</p>"
+        if all(_is_display_scalar(item) for item in value):
+            return "<ul>" + "".join(f"<li>{_cell_text(item)}</li>" for item in value) + "</ul>"
+        if all(isinstance(item, Mapping) for item in value):
+            mappings = [item for item in value if isinstance(item, Mapping)]
+            if mappings and all(
+                all(_is_display_scalar(cell) for cell in item.values()) for item in mappings
+            ):
+                return _record_list_table(mappings, caption=caption)
+            return (
+                "<ol>"
+                + "".join(
+                    f"<li>{_render_html_value(item, depth=depth + 1)}</li>"
+                    for item in value
+                )
+                + "</ol>"
+            )
+        return (
+            "<ul>"
+            + "".join(
+                f"<li>{_render_html_value(item, depth=depth + 1)}</li>" for item in value
+            )
+            + "</ul>"
+        )
+    return _cell_text(value)
+
+
+def _source_label(source: Mapping[str, object]) -> str:
+    metadata = ", ".join(
+        f"{key}={source[key]}"
+        for key in (
+            "measurement_environment",
+            "dataset_version",
+            "evaluation_split",
+        )
+        if source.get(key) is not None
+    )
+    label = str(source.get("path", "unknown"))
+    if metadata:
+        label += f" ({metadata})"
+    return label
+
+
+def _section_status_html(section: Mapping[str, object]) -> str:
+    status = str(section.get("status", "unknown"))
+    reason = section.get("reason")
+    text = f"Section status: {status}."
+    if reason:
+        text += f" Reason: {reason}."
+    return (
+        f'<p class="section-status section-status-{_html_attr(status)}" '
+        f'role="status">{_html_text(text)}</p>'
+    )
+
+
 def render_dashboard_html(payload: Mapping[str, object]) -> str:
     """Render a bounded, source-referenced HTML view of a dashboard package."""
     validate_dashboard_view_manifest(payload)
@@ -921,92 +1266,117 @@ def render_dashboard_html(payload: Mapping[str, object]) -> str:
         if isinstance(generation, Mapping)
         else "not recorded"
     )
-    section_html: list[str] = []
     sections = payload["sections"]
     assert isinstance(sections, Mapping)
+    status_rows = []
+    section_html: list[str] = []
     for name in SECTION_NAMES:
         section = sections[name]
         assert isinstance(section, Mapping)
-        status = html.escape(str(section.get("status", "unknown")))
+        status = str(section.get("status", "unknown"))
+        reason = section.get("reason")
+        status_rows.append(
+            [
+                f'<a href="#{_html_attr(_section_anchor(name))}">{_html_text(_section_title(name))}</a>',
+                _html_text(status),
+                _html_text(reason) if reason else "not recorded",
+            ]
+        )
         source_items: list[str] = []
         source_artifacts = section.get("source_artifacts")
         if isinstance(source_artifacts, list):
             for source in source_artifacts:
                 if isinstance(source, Mapping):
-                    metadata = ", ".join(
-                        f"{key}={source[key]}"
-                        for key in (
-                            "measurement_environment",
-                            "dataset_version",
-                            "evaluation_split",
-                        )
-                        if source.get(key) is not None
-                    )
-                    label = str(source.get("path", "unknown"))
-                    if metadata:
-                        label += f" ({metadata})"
-                    source_items.append(
-                        "<li>"
-                        + html.escape(label)
-                        + "</li>"
-                    )
-        reason = section.get("reason")
-        reason_html = (
-            f"<p><strong>Reason:</strong> {html.escape(str(reason))}</p>"
-            if reason
-            else ""
-        )
+                    source_items.append(f"<li>{_html_text(_source_label(source))}</li>")
         data = section.get("data")
         data_html = ""
         if data is not None:
-            data_json = json.dumps(
-                data,
-                indent=2,
-                sort_keys=True,
-                ensure_ascii=False,
+            data_html = (
+                "<h3>Copied values</h3>"
+                + _render_html_value(
+                    data,
+                    caption=f"Copied {_section_title(name).lower()} values",
+                )
             )
-            data_html = f"<pre>{html.escape(data_json)}</pre>"
-        anchor = html.escape(name.replace("_", "-"))
-        heading = html.escape(name.replace("_", " ").title())
+        elif status != "available":
+            data_html = (
+                "<p>No copied values are shown because this section is "
+                f"{_html_text(status)}.</p>"
+            )
+        anchor = _section_anchor(name)
+        heading_id = f"{anchor}-heading"
         section_html.append(
-            f'<section id="{anchor}">'
-            f"<h2>{heading}</h2>"
-            f"<p><strong>Status:</strong> {status}</p>"
-            "<p><strong>Sources:</strong></p>"
+            f'<section id="{_html_attr(anchor)}" aria-labelledby="{_html_attr(heading_id)}">'
+            f'<h2 id="{_html_attr(heading_id)}">{_html_text(_section_title(name))}</h2>'
+            f"{_section_status_html(section)}"
+            "<h3>Sources</h3>"
             f"<ul>{''.join(source_items)}</ul>"
-            f"{reason_html}{data_html}</section>"
+            f"{data_html}</section>"
         )
-    body = "\n".join(
-        [
-            f"<h1>{html.escape(title)}</h1>",
-            f"<p><strong>Schema:</strong> "
-            f"{html.escape(str(payload['dashboard_schema_version']))}</p>",
-            f"<p><strong>Generation:</strong> "
-            f"{html.escape(generation_text)}</p>",
-            "<nav aria-label=\"Dashboard sections\"><ul>"
-            + "".join(
-                f'<li><a href="#{html.escape(name.replace("_", "-"))}">'
-                f"{html.escape(name.replace('_', ' ').title())}</a></li>"
-                for name in SECTION_NAMES
-            )
-            + "</ul></nav>",
-            "<main>",
-            *section_html,
-            "</main>",
-        ]
+    identity = payload.get("primary_evaluation_identity")
+    identity_html = (
+        _render_html_value(identity, caption="Primary evaluation identity")
+        if isinstance(identity, Mapping)
+        else "<p>Primary evaluation identity is not recorded.</p>"
     )
-    return (
+    document = (
         "<!doctype html><html lang=\"en\"><head>"
         "<meta charset=\"utf-8\">"
-        f"<title>{html.escape(title)}</title>"
+        f"<title>{_html_text(title)}</title>"
         "<style>"
         "body{font-family:system-ui,sans-serif;line-height:1.45;margin:2rem;"
-        "max-width:70rem}section{border-top:1px solid #ccc;padding:1rem 0}"
+        "max-width:70rem}"
+        ".skip-link{position:absolute;left:-999px;width:1px;height:1px;overflow:hidden}"
+        ".skip-link:focus{position:static;width:auto;height:auto;overflow:visible}"
+        "section{border-top:1px solid #ccc;padding:1rem 0}"
+        "table{border-collapse:collapse;margin:1rem 0;width:100%}"
+        "th,td{border:1px solid #ccc;padding:.35rem .5rem;text-align:left;"
+        "vertical-align:top}"
+        "caption{font-weight:700;text-align:left;padding:.35rem 0}"
         "pre{background:#f6f6f6;overflow:auto;padding:1rem;white-space:pre-wrap;"
-        "word-break:break-word}a{margin-right:.75rem}"
+        "word-break:break-word}"
+        ".section-status{font-weight:700}"
+        ".section-status-unavailable,.section-status-metadata_mismatch,"
+        ".section-status-not_comparable{border-left:4px solid currentColor;"
+        "padding-left:.75rem}"
         "</style></head><body>"
-        f"{body}</body></html>\n"
+        '<a class="skip-link" href="#dashboard-main">Skip to main content</a>'
+        "<header>"
+        f"<h1>{_html_text(title)}</h1>"
+        f"<p><strong>Schema:</strong> "
+        f"{_html_text(payload['dashboard_schema_version'])}</p>"
+        f"<p><strong>Generation:</strong> {_html_text(generation_text)}</p>"
+        "</header>"
+        '<nav aria-label="Dashboard sections"><ul>'
+        + "".join(
+            f'<li><a href="#{_html_attr(_section_anchor(name))}">'
+            f"{_html_text(_section_title(name))}</a></li>"
+            for name in SECTION_NAMES
+        )
+        + "</ul></nav>"
+        '<main id="dashboard-main">'
+        '<section id="package-status" aria-labelledby="package-status-heading">'
+        '<h2 id="package-status-heading">Package status</h2>'
+        "<p>This dashboard copies upstream artifacts. It does not recompute "
+        "metrics. Values are shown as tables and text. There are no charts.</p>"
+        f"{identity_html}"
+        + _table(
+            ["Section", "Status", "Reason"],
+            status_rows,
+            caption="Section availability",
+        )
+        + "</section>"
+        + "".join(section_html)
+        + "</main>"
+        "<footer><p>This static export is a presentation boundary. "
+        "Unavailable, mismatch, and not-comparable states are written as text. "
+        "Raw queries, answers, credentials, and unrestricted prompts are "
+        "rejected.</p></footer>"
+        "</body></html>\n"
     )
+    if len(document.encode("utf-8")) > MAX_DASHBOARD_HTML_BYTES:
+        raise DashboardInputError("dashboard HTML exceeds its size bound")
+    return document
 
 
 def export_dashboard(
@@ -1129,7 +1499,7 @@ def build_dashboard_view_manifest(
         ),
         "freshness": _freshness_section(sources, primary),
         "operations": _operations_section(sources["operations"], sources),
-        "provider_measurements": _provider_section(sources),
+        "provider_measurements": _provider_section(sources, primary),
     }
     sections["limitations"] = _limitations_section(sources)
     manifest: dict[str, object] = {
@@ -1151,6 +1521,7 @@ __all__ = [
     "DEFAULT_SOURCE_PATHS",
     "DEFAULT_HTML_OUTPUT",
     "DEFAULT_JSON_OUTPUT",
+    "MAX_DASHBOARD_HTML_BYTES",
     "DashboardInputError",
     "SECTION_NAMES",
     "build_dashboard_view_manifest",

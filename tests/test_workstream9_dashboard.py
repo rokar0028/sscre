@@ -5,12 +5,16 @@ from pathlib import Path
 
 import pytest
 
+from sscre import dashboard as dashboard_module
 from sscre.dashboard import (
+    DASHBOARD_ARTIFACT_KIND,
     DASHBOARD_SCHEMA_VERSION,
     DashboardInputError,
     SECTION_NAMES,
     build_dashboard_view_manifest,
     export_dashboard,
+    main as dashboard_main,
+    render_dashboard_html,
     validate_dashboard_view_manifest,
 )
 
@@ -20,6 +24,9 @@ _COMPARISON = (
 )
 _QUALITY = (
     _REPO_ROOT / "artifacts" / "evaluation" / "workstream7-quality-analysis.json"
+)
+_OPERATIONS = (
+    _REPO_ROOT / "artifacts" / "operations" / "workstream8-operational-verification.json"
 )
 
 
@@ -97,6 +104,26 @@ def test_missing_required_source_fails_closed(tmp_path: Path) -> None:
         build_dashboard_view_manifest(comparison_path=tmp_path / "missing.json")
 
 
+def test_missing_held_out_manifest_fails_closed(tmp_path: Path) -> None:
+    payload = json.loads(_QUALITY.read_text(encoding="utf-8"))
+    payload.pop("split_manifest_sha256", None)
+    stripped = tmp_path / "quality-no-manifest.json"
+    stripped.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(DashboardInputError, match="split_manifest_sha256"):
+        build_dashboard_view_manifest(quality_path=stripped)
+
+
+def test_unsupported_statistics_schema_fails_closed(tmp_path: Path) -> None:
+    payload = json.loads(_COMPARISON.read_text(encoding="utf-8"))
+    payload["statistics_schema_version"] = "unsupported-schema"
+    bad = tmp_path / "comparison-bad-stats.json"
+    bad.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(DashboardInputError, match="statistics_schema_version"):
+        build_dashboard_view_manifest(comparison_path=bad)
+
+
 def test_metadata_mismatch_is_explicit_and_not_silently_merged(
     tmp_path: Path,
 ) -> None:
@@ -145,7 +172,7 @@ def test_export_writes_json_and_html_from_the_view_manifest(tmp_path: Path) -> N
     assert reloaded["generation"]["git_commit"]
     assert reloaded["export_policy"]["metric_source"] == "upstream_artifacts"
     html_text = html_output.read_text(encoding="utf-8")
-    assert "<main>" in html_text
+    assert '<main id="dashboard-main">' in html_text
     assert "Operating Point" in html_text
     assert "measurement_environment=synthetic_replay" in html_text
     assert "query_a" not in html_text
@@ -182,3 +209,255 @@ def test_export_requires_explicit_override_for_metadata_mismatch(
     assert exported["sections"]["failure_categories"]["status"] == (
         "metadata_mismatch"
     )
+
+
+def _minimal_dashboard_manifest(
+    **section_overrides: dict[str, object],
+) -> dict[str, object]:
+    sections: dict[str, object] = {}
+    for name in SECTION_NAMES:
+        sections[name] = {
+            "status": "available",
+            "source_artifacts": [{"path": f"{name}.json", "present": True}],
+            "data": {"label": name},
+        }
+    sections.update(section_overrides)
+    return {
+        "dashboard_schema_version": DASHBOARD_SCHEMA_VERSION,
+        "artifact_kind": DASHBOARD_ARTIFACT_KIND,
+        "input_artifacts": {"comparison": {"path": "comparison.json", "present": True}},
+        "primary_evaluation_identity": {
+            "dataset_version": "reviewed-query-pairs-2.0",
+            "evaluation_split": "held-out",
+        },
+        "sections": sections,
+    }
+
+
+def test_malformed_required_source_json_fails_closed(tmp_path: Path) -> None:
+    source = tmp_path / "comparison.json"
+    source.write_text("{not-json", encoding="utf-8")
+
+    with pytest.raises(DashboardInputError, match="cannot load"):
+        build_dashboard_view_manifest(comparison_path=source)
+
+
+def test_non_object_required_source_fails_closed(tmp_path: Path) -> None:
+    source = tmp_path / "comparison.json"
+    source.write_text("[]", encoding="utf-8")
+
+    with pytest.raises(DashboardInputError, match="JSON object"):
+        build_dashboard_view_manifest(comparison_path=source)
+
+
+def test_view_manifest_rejects_credential_and_raw_content_keys() -> None:
+    for key in (
+        "api_key",
+        "token",
+        "secret",
+        "query",
+        "failure_examples",
+        "raw_query",
+        "raw_answer",
+    ):
+        payload = _minimal_dashboard_manifest()
+        limitations = payload["sections"]["limitations"]
+        assert isinstance(limitations, dict)
+        data = limitations["data"]
+        assert isinstance(data, dict)
+        data[key] = "must-not-appear"
+        with pytest.raises(DashboardInputError, match="forbidden field"):
+            validate_dashboard_view_manifest(payload)
+
+
+def test_html_escapes_injected_markup() -> None:
+    payload = _minimal_dashboard_manifest(
+        limitations={
+            "status": "unavailable",
+            "reason": "<script>alert(1)</script>",
+            "source_artifacts": [{"path": "<img src=x onerror=alert(1)>", "present": True}],
+            "data": {
+                "limitations": ["</pre><script>alert(1)</script>"],
+            },
+        }
+    )
+
+    html_text = render_dashboard_html(payload)
+
+    assert "<script>alert(1)</script>" not in html_text
+    assert "<img src=x onerror=alert(1)>" not in html_text
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html_text
+    assert "&lt;img src=x onerror=alert(1)&gt;" in html_text
+    assert "&lt;/pre&gt;&lt;script&gt;alert(1)&lt;/script&gt;" in html_text
+
+
+def test_html_renders_unavailable_and_mismatch_states_as_text() -> None:
+    payload = _minimal_dashboard_manifest(
+        provider_measurements={
+            "status": "unavailable",
+            "reason": "provider_sources_missing",
+            "source_artifacts": [{"path": "provider.json", "present": False}],
+        },
+        failure_categories={
+            "status": "metadata_mismatch",
+            "reason": "split_manifest_sha256 mismatch: expected held-out",
+            "source_artifacts": [{"path": "quality.json", "present": True}],
+        },
+        operating_point={
+            "status": "available",
+            "source_artifacts": [{"path": "comparison.json", "present": True}],
+            "data": {"selected_threshold": None, "constraint_satisfied": False},
+        },
+    )
+
+    html_text = render_dashboard_html(payload)
+
+    assert "Section status: unavailable." in html_text
+    assert "Reason: provider_sources_missing." in html_text
+    assert "No copied values are shown because this section is unavailable." in html_text
+    assert "Section status: metadata_mismatch." in html_text
+    assert "split_manifest_sha256 mismatch: expected held-out" in html_text
+    assert "selected_threshold" in html_text
+    assert "not recorded" in html_text
+    assert "constraint_satisfied" in html_text
+    assert ">false<" in html_text
+    assert "color:" not in html_text.split("Section status: unavailable.")[1][:80]
+
+
+def test_html_has_accessibility_landmarks_tables_and_text_equivalents() -> None:
+    html_text = render_dashboard_html(build_dashboard_view_manifest())
+
+    assert 'lang="en"' in html_text
+    assert 'href="#dashboard-main">Skip to main content</a>' in html_text
+    assert "<header>" in html_text
+    assert '<nav aria-label="Dashboard sections">' in html_text
+    assert '<main id="dashboard-main">' in html_text
+    assert "<footer>" in html_text
+    assert 'role="status"' in html_text
+    assert 'scope="col"' in html_text
+    assert "<caption>" in html_text
+    assert "<th" in html_text
+    assert "<table>" in html_text
+    assert "There are no charts." in html_text
+    assert "<svg" not in html_text
+    assert "<canvas" not in html_text
+    assert "query_a" not in html_text
+    assert "api_key" not in html_text
+
+
+def test_html_size_bound_is_enforced(monkeypatch: pytest.MonkeyPatch) -> None:
+    payload = build_dashboard_view_manifest()
+    monkeypatch.setattr(dashboard_module, "MAX_DASHBOARD_HTML_BYTES", 100)
+
+    with pytest.raises(DashboardInputError, match="HTML exceeds"):
+        render_dashboard_html(payload)
+
+
+@pytest.mark.skipif(
+    not _COMPARISON.is_file() or not _QUALITY.is_file() or not _OPERATIONS.is_file(),
+    reason="checked-in WS5/WS7/WS8 artifacts missing",
+)
+def test_dashboard_sections_match_upstream_artifact_values() -> None:
+    comparison = json.loads(_COMPARISON.read_text(encoding="utf-8"))
+    quality = json.loads(_QUALITY.read_text(encoding="utf-8"))
+    operations = json.loads(_OPERATIONS.read_text(encoding="utf-8"))
+    manifest = build_dashboard_view_manifest()
+
+    selection = comparison["threshold_selection"]
+    assert (
+        manifest["sections"]["operating_point"]["data"]["selected_threshold"]
+        == selection["selected_threshold"]
+    )
+    statistics = comparison["statistics"]
+    confidence = manifest["sections"]["confidence_intervals"]["data"]
+    assert confidence["sample_unit"] == statistics["sample_unit"]
+    assert confidence["measurement_environment"] == statistics["measurement_environment"]
+    assert (
+        confidence["overall"]["confidence_level"]
+        == statistics["overall"]["confidence_level"]
+    )
+    assert (
+        confidence["overall"]["distributions"]["latency_ms_p95"]["point"]
+        == statistics["overall"]["distributions"]["latency_ms_p95"]["point"]
+    )
+    quality_analysis = quality["quality_analysis"]
+    failure = manifest["sections"]["failure_categories"]["data"]
+    assert failure["source_baseline"] == quality_analysis["source_baseline"]
+    assert failure["by_failure_category"] == quality_analysis["by_failure_category"]
+    ops = manifest["sections"]["operations"]["data"]
+    assert ops["limitation"] == operations["limitation"]
+    assert (
+        ops["protocols"]["ws8-pg-load-v1"]["bottleneck"]["first_measured_bottleneck"]
+        == operations["protocols"]["ws8-pg-load-v1"]["bottleneck"][
+            "first_measured_bottleneck"
+        ]
+    )
+
+
+@pytest.mark.skipif(not _COMPARISON.is_file(), reason="checked-in WS5 comparison missing")
+def test_dashboard_copies_mutated_source_values_without_recomputation(
+    tmp_path: Path,
+) -> None:
+    payload = json.loads(_COMPARISON.read_text(encoding="utf-8"))
+    payload["threshold_selection"]["selected_threshold"] = 0.42
+    mutated = tmp_path / "comparison-mutated.json"
+    mutated.write_text(json.dumps(payload), encoding="utf-8")
+
+    manifest = build_dashboard_view_manifest(comparison_path=mutated)
+
+    assert manifest["sections"]["operating_point"]["data"]["selected_threshold"] == 0.42
+
+
+@pytest.mark.skipif(not _COMPARISON.is_file(), reason="checked-in WS5 comparison missing")
+def test_view_manifest_sections_are_stable_across_rebuilds() -> None:
+    first = build_dashboard_view_manifest()
+    second = build_dashboard_view_manifest()
+
+    assert first["sections"] == second["sections"]
+    assert first["primary_evaluation_identity"] == second["primary_evaluation_identity"]
+
+
+def test_export_json_is_deterministic_except_generation_metadata(
+    tmp_path: Path,
+) -> None:
+    json_a = tmp_path / "a.json"
+    json_b = tmp_path / "b.json"
+    html = tmp_path / "unused.html"
+
+    export_dashboard(json_output=json_a, html_output=html)
+    export_dashboard(json_output=json_b, html_output=html)
+
+    payload_a = json.loads(json_a.read_text(encoding="utf-8"))
+    payload_b = json.loads(json_b.read_text(encoding="utf-8"))
+    payload_a.pop("generation", None)
+    payload_b.pop("generation", None)
+
+    assert payload_a == payload_b
+
+
+def test_dashboard_cli_help_and_failure_exit_codes(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    with pytest.raises(SystemExit) as exc:
+        dashboard_main(["--help"])
+    assert exc.value.code == 0
+
+    missing = tmp_path / "missing-comparison.json"
+    json_output = tmp_path / "out.json"
+    html_output = tmp_path / "out.html"
+    assert (
+        dashboard_main(
+            [
+                "--comparison",
+                str(missing),
+                "--json-output",
+                str(json_output),
+                "--html-output",
+                str(html_output),
+            ]
+        )
+        == 1
+    )
+    assert "dashboard export failed" in capsys.readouterr().err
+    assert not json_output.exists()
