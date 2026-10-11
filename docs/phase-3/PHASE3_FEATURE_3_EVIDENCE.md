@@ -26,3 +26,12 @@ development tuning, protocol reset, or additional held-out run was performed.
   eviction.
 - If a future final stack held-out run exceeds the `0.0` FPR ceiling, the protocol
   must be reset in writing before any additional held-out evaluation.
+
+## Re-check (Workstream 1 Step 6)
+
+**Date:** 2026-10-11  
+**Record:** [`WORKSTREAM_1_STEP6_STRATEGY_D_GATE.md`](./WORKSTREAM_1_STEP6_STRATEGY_D_GATE.md)
+
+- Card promotions (Features 4–8) did not change benchmark, config cap, or shipped stack.
+- Frozen final comparison still reports Strategy C + Feature 1 **`false_positive_rate` `0.0`**.
+- Trigger **not fired**; Strategy D remains deferred.
