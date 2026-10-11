@@ -165,7 +165,14 @@ class OpenAICompatibleLLMClient:
         self.config = config
         self._transport = transport or UrllibJSONTransport()
 
-    def generate(self, query: str) -> LLMResult:
+    def generate(
+        self,
+        query: str,
+        *,
+        system_instruction: str | None = None,
+        temperature: float | None = None,
+        max_output_tokens: int | None = None,
+    ) -> LLMResult:
         if not isinstance(query, str) or not query.strip():
             raise ValueError("generation query must not be empty")
         if len(query.encode("utf-8")) > MAX_QUERY_BYTES:
@@ -173,7 +180,12 @@ class OpenAICompatibleLLMClient:
 
         started_at = perf_counter()
         result, retry_count = run_with_bounded_retries(
-            lambda: self._generate_once(query),
+            lambda: self._generate_once(
+                query,
+                system_instruction=system_instruction,
+                temperature=temperature,
+                max_output_tokens=max_output_tokens,
+            ),
             retry_limit=self.config.retry_limit,
             min_backoff_seconds=self.config.min_backoff_seconds,
             max_backoff_seconds=self.config.max_backoff_seconds,
@@ -186,19 +198,32 @@ class OpenAICompatibleLLMClient:
             retry_count=retry_count,
         )
 
-    def _generate_once(self, query: str) -> LLMResult:
+    def _generate_once(
+        self,
+        query: str,
+        *,
+        system_instruction: str | None = None,
+        temperature: float | None = None,
+        max_output_tokens: int | None = None,
+    ) -> LLMResult:
         started_at = perf_counter()
+        messages: list[dict[str, str]] = []
+        if system_instruction is not None and system_instruction.strip():
+            messages.append({"role": "system", "content": system_instruction.strip()})
+        messages.append({"role": "user", "content": query})
+        payload: dict[str, object] = {
+            "model": self.config.generation_model,
+            "messages": messages,
+        }
+        if temperature is not None:
+            payload["temperature"] = temperature
+        if max_output_tokens is not None:
+            payload["max_tokens"] = max_output_tokens
         try:
             status, response = self._transport.post(
                 self._completion_url(),
                 headers={"Authorization": f"Bearer {self.config.credential}"},
-                payload=merge_provider_request_parameters(
-                    {
-                        "model": self.config.generation_model,
-                        "messages": [{"role": "user", "content": query}],
-                    },
-                    self.config,
-                ),
+                payload=merge_provider_request_parameters(payload, self.config),
                 timeout_seconds=self.config.generation_timeout_seconds,
             )
         except RemoteLLMError:
