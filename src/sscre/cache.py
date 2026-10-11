@@ -95,6 +95,54 @@ class CacheRepositoryError(RuntimeError):
 
 
 @dataclass(frozen=True)
+class CacheByteBreakdown:
+    """Component bytes that sum to ``InMemoryExactCache.storage_bytes``."""
+
+    query_bytes: int
+    metadata_bytes: int
+    embedding_bytes: int
+    answer_bytes: int
+
+    @property
+    def total_bytes(self) -> int:
+        return (
+            self.query_bytes
+            + self.metadata_bytes
+            + self.embedding_bytes
+            + self.answer_bytes
+        )
+
+    @property
+    def embedding_share(self) -> float:
+        if self.total_bytes == 0:
+            return 0.0
+        return self.embedding_bytes / self.total_bytes
+
+
+def entry_byte_components(
+    entry: CacheEntry,
+    *,
+    include_answer: bool,
+) -> CacheByteBreakdown:
+    """Byte parts of one entry using the same rules as cache storage accounting.
+
+    When deduplication is on, pass ``include_answer=False``. Answer bytes are
+    then counted once from the canonical store, not on every entry.
+    """
+    metadata = json.dumps(
+        entry.metadata.to_dict() if entry.metadata is not None else {},
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+    return CacheByteBreakdown(
+        query_bytes=len(entry.normalized_query.encode("utf-8")),
+        metadata_bytes=len(metadata.encode("utf-8")),
+        embedding_bytes=len(entry.embedding or ()) * 4,
+        answer_bytes=len(entry.answer.encode("utf-8")) if include_answer else 0,
+    )
+
+
+@dataclass(frozen=True)
 class CacheStorageStats:
     entries: int
     canonical_answers: int
@@ -287,34 +335,45 @@ class InMemoryExactCache:
         return self._hit_counts.get(query_hash, 0)
 
     def _entry_size(self, entry: CacheEntry) -> int:
-        metadata = json.dumps(
-            entry.metadata.to_dict() if entry.metadata is not None else {},
-            separators=(",", ":"),
-            ensure_ascii=False,
-        )
-        embedding_bytes = len(entry.embedding or ()) * 4
-        answer_bytes = (
-            len(entry.answer.encode("utf-8"))
-            if not self._deduplicate
-            else 0
-        )
-        return (
-            len(entry.normalized_query.encode("utf-8"))
-            + len(metadata.encode("utf-8"))
-            + embedding_bytes
-            + answer_bytes
+        return entry_byte_components(
+            entry,
+            include_answer=not self._deduplicate,
+        ).total_bytes
+
+    def byte_breakdown(self) -> CacheByteBreakdown:
+        """Aggregate query, metadata, embedding, and answer bytes."""
+        with self._lock:
+            return self._byte_breakdown_unlocked()
+
+    def _byte_breakdown_unlocked(self) -> CacheByteBreakdown:
+        query_bytes = 0
+        metadata_bytes = 0
+        embedding_bytes = 0
+        answer_bytes = 0
+        for entry in self._entries.values():
+            parts = entry_byte_components(
+                entry,
+                include_answer=not self._deduplicate,
+            )
+            query_bytes += parts.query_bytes
+            metadata_bytes += parts.metadata_bytes
+            embedding_bytes += parts.embedding_bytes
+            answer_bytes += parts.answer_bytes
+        if self._deduplicate:
+            answer_bytes += sum(
+                len(answer.answer.encode("utf-8"))
+                for answer in self._canonical_answers.values()
+            )
+        return CacheByteBreakdown(
+            query_bytes=query_bytes,
+            metadata_bytes=metadata_bytes,
+            embedding_bytes=embedding_bytes,
+            answer_bytes=answer_bytes,
         )
 
     def storage_bytes(self) -> int:
         with self._lock:
-            entry_bytes = sum(
-                self._entry_size(entry) for entry in self._entries.values()
-            )
-            canonical_bytes = sum(
-                len(answer.answer.encode("utf-8"))
-                for answer in self._canonical_answers.values()
-            )
-            return entry_bytes + canonical_bytes
+            return self._byte_breakdown_unlocked().total_bytes
 
     def storage_stats(self) -> CacheStorageStats:
         with self._lock:

@@ -34,9 +34,13 @@ Artifact: `artifacts/operations/workstream8-operational-verification.json`.
 Parent: [`PHASE_2_IMPLEMENTATION_PLAN.md`](./PHASE_2_IMPLEMENTATION_PLAN.md)
 Workstream 8. Live container restart remains skipped. Implementation gate
 (explicit promote / feature branch) was not retroactively marked done.
-Default suite (2026-10-11, `SSCRE_DATABASE_URL` unset): `700 passed,
-15 skipped, 21 deselected`. `benchmark_validate --phase2 --production`
-passed. `docker compose config` not re-run (requires `.env` secrets).
+Default suite after the eviction-scope guard (2026-10-11,
+`SSCRE_DATABASE_URL` unset): `704 passed, 15 skipped, 21 deselected`
+(`python -m pytest -q`, 133.81s). Prior close on the same day was 700
+before `tests/test_postgres_eviction_scope.py`. Live PostgreSQL tests
+stayed skipped. `benchmark_validate --phase2 --production` was not
+re-run with this guard. `docker compose config` not re-run (requires
+`.env` secrets).
 
 Phase 1 OPS-lite already delivered:
 
@@ -70,7 +74,7 @@ Evidence:
 
 - [x] Required tests and bounded experiments pass or are explicitly recorded
   as unavailable/skipped with the reason.
-  Default suite 700 passed / 15 skipped / 21 deselected. Live restart and
+  Default suite 704 passed / 15 skipped / 21 deselected. Live restart and
   uninstrumented spans recorded as skipped/unavailable.
 - [x] Operational evidence records environment, workload, limits, and results.
   [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md);
@@ -186,8 +190,10 @@ Required invariants:
   Provider calls are counted per process; insert success/conflict/error are
   counted independently. Duplicate generation is **not** prevented.
 - [x] Eviction under concurrent PostgreSQL writes is measured.
-  `tests/test_postgres_contention.py` (`CT-evict-cap`, 8 threads, Phase 4
-  +8 entry / +10000 byte windows). Live: 6 passed (2026-10-10).
+  `tests/test_postgres_contention.py` (`CT-evict-cap`, 8 threads, caps of 8
+  entries / 10000 bytes applied only to that run's query hashes). Live
+  measurement 2026-10-10 used a relative window; the harness now refuses to
+  evict other rows. `tests/test_postgres_eviction_scope.py`.
 - [x] A bounded PostgreSQL load result includes p50/p95/p99, throughput,
   errors, timeouts, storage growth, and evictions.
   Artifact: `artifacts/operations/workstream8-pg-load-v1.json` (2026-10-10).
@@ -342,9 +348,8 @@ Use bounded concurrent writes and reads to test database invariants.
   `test_ct_cleanup_race_does_not_remove_fresh_entry` (`CT-cleanup-race`, 4
   threads).
 - [x] Verify entry-count and byte caps under concurrent writes.
-  `test_ct_evict_cap_holds_under_concurrent_writes` uses
-  `max_entries = before.entries + 8` and
-  `max_bytes = before.total_bytes + 10000`.
+  `test_ct_evict_cap_holds_under_concurrent_writes` caps the run's own
+  hashes at 8 entries and 10000 bytes. Rows outside that set stay in place.
 - [x] Verify eviction counters and stored-row counts remain consistent.
   `after.entries == count(*)` and
   `after.entries == before.entries + inserts - evictions`.
@@ -460,12 +465,15 @@ Planned outputs:
 
 - [x] Add focused tests for every newly claimed invariant.
   Live invariants stay on opt-in WS8 markers. Default-suite coverage:
-  `tests/test_ops_evidence.py` (package, redaction, handoff-doc guard) and
-  `tests/test_load_test.py` (protocol config + bottleneck classifier).
+  `tests/test_ops_evidence.py` (package, redaction, handoff-doc guard),
+  `tests/test_load_test.py` (protocol config + bottleneck classifier), and
+  `tests/test_postgres_eviction_scope.py` (scoped eviction deletes only the
+  owned hashes).
 - [x] Run the full test suite after substantive code changes.
-  `python -m pytest -q` → **700 passed, 15 skipped, 21 deselected**
-  (2026-10-11). `python -m sscre.benchmark_validate --phase2 --production`
-  passed.
+  `python -m pytest -q` → **704 passed, 15 skipped, 21 deselected**
+  (2026-10-11, 133.81s, database URL unset). Includes
+  `tests/test_postgres_eviction_scope.py`. Live PostgreSQL tests skipped.
+  `benchmark_validate --phase2 --production` was not re-run with this guard.
 - [x] Update `PHASE_2_IMPLEMENTATION_PLAN.md` only for verified scope.
   Simulated failure-closed; measured multi-process and load; live restart
   skipped; not a capacity claim.
@@ -543,8 +551,9 @@ real, containerized, simulated, or unavailable.
 - [x] Duplicate generation is distinguished from duplicate insertion.
 - [x] Transaction, uniqueness, and eviction behavior under bounded contention
   is recorded.
-  Protocol `ws8-contention-v1`; live 6 passed (2026-10-10). Relative cap
-  windows avoid shrinking the pre-existing table below its prior size.
+  Protocol `ws8-contention-v1`; live 6 passed (2026-10-10). Eviction and
+  cleanup now delete only the run's query hashes. The 2026-10-10 run used a
+  relative cap window before that guard.
 - [x] Load results include hardware, PostgreSQL version, worker count,
   workload limits, p50/p95/p99, throughput, errors, timeouts, storage growth,
   and evictions where measurable.
@@ -581,8 +590,8 @@ Record in `WORKSTREAM_8_EVIDENCE.md`:
 - [x] artifact paths and regeneration commands;
 - [x] focused and full-suite test results.
   `tests/test_ops_evidence.py` + `tests/test_load_test.py` → **13 passed**.
-  Default suite (2026-10-11, database URL unset): **700 passed, 15 skipped,
-  21 deselected**.
+  Default suite after the eviction-scope guard (2026-10-11, database URL
+  unset): **704 passed, 15 skipped, 21 deselected**.
 
 ## Handoff to later work
 
@@ -629,7 +638,8 @@ Handoff requirements:
    [`WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md);
    `artifacts/operations/workstream8-operational-verification.json`.
 10. [x] Run regression/full-suite verification.
-    `python -m pytest -q` → **700 passed, 15 skipped, 21 deselected**.
+    `python -m pytest -q` → **704 passed, 15 skipped, 21 deselected**
+    (2026-10-11, database URL unset).
     `benchmark_validate --phase2 --production` passed.
 11. [x] Update parent plans, limitations, and documentation indexes.
     `PHASE_2_IMPLEMENTATION_PLAN.md`, `docs/phase-2/README.md`,
@@ -644,7 +654,7 @@ Handoff requirements:
 | Connection loss is mistaken for a live restart result | Label simulated drop, process restart, and container restart separately. |
 | Unique insert success is mistaken for duplicate-generation prevention | Instrument provider calls and count generations independently from inserts. |
 | Concurrency tests become nondeterministic | Use barriers, bounded process counts, repeat limits, and record variance. |
-| Restart tests damage developer data | Use an isolated database/container and opt-in commands only. |
+| Restart tests damage developer data | Use an isolated database/container and opt-in commands only. Cap and cleanup paths delete only the run's query hashes. |
 | Load work expands into infrastructure engineering | Stop at bounded evidence and do not add orchestration without approval. |
 | Optimization starts before profiling | Require a measured bottleneck before changing runtime behavior. |
 | Operational logs expose sensitive content | Reuse serialization/redaction boundaries and validate artifacts before save. |

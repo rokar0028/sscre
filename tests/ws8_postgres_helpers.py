@@ -18,6 +18,7 @@ from fastapi.testclient import TestClient
 from sscre.app import create_app
 from sscre.config import Settings
 from sscre.llm import MockLLMClient
+from sscre.postgres_cache import delete_entries_by_query_hashes
 from sscre.postgres_failure_harness import PostgresFailureInjectionRepository
 
 DATABASE_URL = os.getenv("SSCRE_DATABASE_URL")
@@ -50,22 +51,15 @@ WS8_LOAD_MARKS = [
 
 def cleanup_query_hashes(query_hashes: list[str]) -> None:
     assert DATABASE_URL is not None
+    delete_entries_by_query_hashes(DATABASE_URL, query_hashes)
+
+
+def cache_query_hashes() -> set[str]:
+    assert DATABASE_URL is not None
     with psycopg.connect(DATABASE_URL) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(
-                "DELETE FROM cache_entries WHERE query_hash = ANY(%s)",
-                (query_hashes,),
-            )
-            cursor.execute(
-                """
-                DELETE FROM canonical_answers AS ca
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM cache_entries
-                    WHERE canonical_answer_hash = ca.answer_hash
-                )
-                """
-            )
+            cursor.execute("SELECT query_hash FROM cache_entries")
+            return {row[0] for row in cursor.fetchall()}
 
 
 def row_exists(query_hash: str) -> bool:

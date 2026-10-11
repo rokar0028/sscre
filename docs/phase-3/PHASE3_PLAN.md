@@ -6,7 +6,7 @@ deferred to avoid an additional held-out run. Authoring closed 2026-10-09 per
 [`PHASE2_PHASE3_PLAN_IMPLEMENTATION_PLAN.md`](../internal/PHASE2_PHASE3_PLAN_IMPLEMENTATION_PLAN.md)
 Step 7; implementation was explicitly requested in chat on 2026-10-10.
 
-**Last updated:** 2026-10-10 (Step 6 closure)
+**Last updated:** 2026-10-11 (Workstream 1 registry — Features 4–8 cards)
 **Owner:** Kartik  
 **Parent transition:** [`docs/internal/PHASE3_TRANSITION.md`](../internal/PHASE3_TRANSITION.md)  
 **Master scope:** [`docs/SSCRE_PLAN.md`](../SSCRE_PLAN.md) § Phase 3
@@ -160,6 +160,9 @@ is **`true`** at τ = **`0.95`**.
   recorded command, config version, dataset version, and seed.
 - **No Phase 3 implementation** for a feature until its row in **Feature cards** has
   hypothesis + pass/fail criterion completed (Steps 2–4 of the internal authoring plan).
+- Promote optional rows and run the pre-code checklist per
+  [`WORKSTREAM_1_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_1_IMPLEMENTATION_PLAN.md)
+  before Workstreams 5–8 code.
 - Read [`PHASE_2_IMPLEMENTATION_PLAN.md`](../phase-2/PHASE_2_IMPLEMENTATION_PLAN.md) and
   relevant `WORKSTREAM_*_EVIDENCE.md` before changing evaluation or cache code.
 
@@ -174,6 +177,11 @@ Complete every column before implementing that feature.
 | Adaptive per-domain thresholds | Domain-stratified τ increases Strategy C `hit_rate` vs global `0.95` without held-out `false_positive_rate` > `0.0` | Dev-only τ selection; one held-out replay — [Feature 1](#feature-1--adaptive-per-domain-thresholds) | `hit_rate`, `false_positive_rate`, `estimated_cost_usd`, `p95_latency_ms` | A, B, C global vs C adaptive | **M** (2–3 sessions) | 1 |
 | Pattern-aware eviction (hits + freshness class) | Pattern eviction ↑ reuse vs WS6 `conservative` at FPR ≤ `0` | Dev knob tuning + one held-out replay — [Feature 2](#feature-2--pattern-aware-eviction) | `stale_exposure_rate`, `hit_rate`, `eviction_count` | C + WS6 `conservative` | **L** (3–4 sessions) | 2 |
 | Strategy D cross-encoder validator | **Conditional** — CE validator lowers FPR vs C if trigger fires | Dev threshold + one held-out replay — [Feature 3](#feature-3--strategy-d-cross-encoder-validator) | `false_positive_rate`, validator `p95_latency_ms`, cost | C (same stack, no D) | **L** (4+ sessions); **default defer** | 3 |
+| Failure clustering (manual synthesis) | Grouping held-out failures by category/strata yields reproducible paper discussion without new replay | Analysis-only on frozen JSON — [Feature 4](#feature-4--failure-clustering-manual-synthesis) | cluster counts, `false_positive_rate` by category | B vs C from final held-out comparison | **S** (1 session) | 4 |
+| Experiment-tracking gate (manual audit) | A structured provenance audit shows whether manual JSON + evidence files suffice | Read-only inventory — [Feature 5](#feature-5--experiment-tracking-gate-manual-audit) | gap count, manifest coverage | n/a (process) | **S** (1 session) | 5 |
+| Float32 embedding storage baseline | Measuring development-scale bytes shows whether embeddings dominate cache storage | Development replay only — [Feature 6](#feature-6--float32-embedding-storage-baseline) | `embedding_bytes`, `total_bytes`, embedding share | float32 reference | **M** (1–2 sessions) | 6 |
+| int8 embedding quantization | **Conditional** — int8 cuts embedding bytes ≥ 3.5× without worsening dev safety/reuse | Dev compare only — [Feature 7](#feature-7--int8-embedding-quantization-conditional) | byte ratio, `hit_rate`, `false_positive_rate`, similarity drift | float32 vs int8 on development | **M** (2–3 sessions) | 7 |
+| Simulated load ladder (1K→100K Q/day) | Time-compressed ladder finds the first reproducible component bottleneck or `not_reached` | Ladder protocol — [Feature 8](#feature-8--simulated-load-ladder-1k100k-qday) | p95 latency, error rate, throughput, `first_bottleneck` | vs Phase 4 / WS8 bounded profiles (not substitutes) | **L** (3–4 sessions) | 8 |
 
 ### Feature 1 — Adaptive per-domain thresholds
 
@@ -418,6 +426,10 @@ From frozen WS5 artifacts (cited in [Baselines frozen](#baselines-frozen-prephas
 **Implication:** Strategy D is **not authorized** on the pre–Phase 3 baseline. Re-check
 only after the **single final held-out run** for the best Phase 3 stack (Features 1–2).
 
+**Latest gate re-check (2026-10-11):** Workstream 1 Step 6 — frozen final comparison
+still **`false_positive_rate` `0.0`**; trigger not fired; see
+[`WORKSTREAM_1_STEP6_STRATEGY_D_GATE.md`](./WORKSTREAM_1_STEP6_STRATEGY_D_GATE.md).
+
 #### Trigger (when to build D)
 
 Implement Strategy D **only if**, on that **final held-out** compatibility report for
@@ -513,26 +525,585 @@ development tune, one held-out run, tests). **Zero** if deferred (default).
 #### Evidence (only if implemented)
 
 - `artifacts/evaluation/phase3-validator-config.json`
-- Held-out comparison including `compatibility-cache` + D arm (exact CLI flags TBD in evidence)
+- Held-out comparison including `compatibility-cache` + D arm (CLI flags documented
+  in evidence **only if** Strategy D is implemented; default path is deferral)
 - Trace examples in failure gallery for validator-blocked vs served cases
+
+---
+
+### Feature 4 — Failure clustering (manual synthesis)
+
+**Order:** 4 · **Implementation ID:** `P3-FEAT-CLUSTER` (promoted from `P3-OPT-CLUSTER`,
+2026-10-11)
+
+#### Hypothesis
+
+Grouping held-out evaluation failures by **reviewed failure category**, **rule
+fired**, **domain**, and **freshness class** using existing comparison and WS7
+quality JSON produces a reproducible cluster inventory for the paper **without**
+a new benchmark replay or automated clustering pipeline.
+
+#### Scope (what this feature changes)
+
+- **In scope:** manual or scripted **aggregation** over frozen artifacts; named
+  recurring patterns; singleton bucket for one-off cases; mitigations labeled
+  as rule change, benchmark gap, or no action.
+- **Frozen:** final held-out comparison
+  `artifacts/evaluation/phase3-final-held-out-comparison.json` (paper stack:
+  Feature 1 adaptive thresholds, default eviction); do not retune policies.
+- **Supplementary inputs (no replay):**
+  - `artifacts/evaluation/workstream7-quality-analysis.json` (Phase 2 category
+    strata and aggregates)
+  - `artifacts/evaluation/phase3-development-comparison.json` when held-out
+    has too few examples in a stratum
+  - `artifacts/evaluation/phase3-final-held-out-comparison-gallery.html` for
+    human-readable examples
+- **Out of scope:** new evaluate runs on held-out; ML clustering libraries;
+  unredacted raw query text in published outputs; changing Strategy B/C logic.
+
+#### Analysis protocol (no development / held-out tuning)
+
+1. **Primary sample:** Strategy B (`embedding-cache`) **`false_positive_examples`**
+   and **`failure_examples`** from the final held-out comparison JSON.
+2. **Contrast sample:** Strategy C + Feature 1 false positives (expect empty at
+   FPR `0.0`); record **`UNSAFE`** / **`UNCERTAIN`** examples where present for
+   discussion only.
+3. **Cluster key (deterministic):** concatenate, in order:
+   `failure_category` (or `expected_decision` mismatch type),
+   `metadata.domain` if present, `freshness_class`, and primary compatibility
+   **rule** or reason code from trace when available. Normalize missing fields
+   to **`unknown`**.
+4. **Named recurring pattern:** assign a human-readable cluster label only when
+   **≥ 2** examples share the same cluster key on the primary sample; otherwise
+   mark **`singleton`**.
+5. **Counts:** every cluster **`count`** must equal the number of example records
+   grouped under that key in the source JSON (sum of counts equals primary-sample
+   false-positive count).
+6. **Mitigation note:** one line per named cluster — `rule`, `benchmark`, or
+   `none`.
+
+No labels or outcomes from this step may be used to change thresholds, eviction,
+or validator settings.
+
+#### Pass / fail (pre-registered)
+
+**Pass** iff **all** hold:
+
+- Every Strategy B held-out **`false_positive_examples`** entry appears in exactly
+  one cluster or singleton row in the evidence document.
+- Each cluster **`count`** is derivable from
+  `phase3-final-held-out-comparison.json` (or cited WS7
+  `quality_analysis.by_failure_category` where used for cross-check only).
+- Output uses the project redaction conventions (no secrets; no unapproved raw
+  query text — pair IDs and categories preferred).
+
+**Fail / stopping rule:** If pass conditions are met with manual grouping,
+**do not** add clustering code or a new metrics pipeline for Phase 3 v1. If
+manual grouping cannot be reproduced from the frozen JSON fields, document the
+gap and only then author a minimal export script in a follow-up workstream
+(with a new card if behavior changes).
+
+#### Primary metrics
+
+| Concern | Source field / artifact |
+| --- | --- |
+| False positives (B) | `baselines.embedding-cache.false_positive_rate`, `false_positive_examples` |
+| Safety (C) | `baselines.compatibility-cache.false_positive_rate` |
+| Category strata | `statistics.by_baseline.*.strata.by_failure_category` (when attached) |
+| WS7 aggregates | `workstream7-quality-analysis.json` → `quality_analysis.by_failure_category` |
+| Cluster inventory | `docs/phase-3/PHASE3_FAILURE_CLUSTERS.md` (counts + keys) |
+
+#### Baselines (discussion context)
+
+| Arm | Role |
+| --- | --- |
+| Strategy B (`embedding-cache`) | Primary false-positive set to cluster |
+| Strategy C + Feature 1 (`compatibility-cache` + adaptive map) | Contrast — safety at FPR `0.0` |
+| WS7 consolidated quality analysis | Aggregate cross-check, not a second ground truth |
+
+#### Effort
+
+**S** — about **1** focused session (read JSON, write cluster table, cross-check
+counts).
+
+#### Evidence (to create at implementation time)
+
+- [`docs/phase-3/PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md)
+- Optional machine-readable export:
+  `artifacts/evaluation/phase3-failure-clusters.json` (if a script is added later;
+  not required for pass)
+
+Implementation plan:
+[`WORKSTREAM_7_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md).
+
+---
+
+### Feature 5 — Experiment-tracking gate (manual audit)
+
+**Order:** 5 · **Implementation ID:** `P3-FEAT-TRACK` (promoted from `P3-OPT-TRACK`,
+2026-10-11)
+
+#### Hypothesis
+
+A **read-only provenance audit** of Phase 3 and Phase 4 paper artifacts can
+determine whether manual JSON under `artifacts/evaluation/`, feature evidence
+markdown, and the Phase 4 manifest are **sufficient** for reproducibility—
+without adding MLflow, Weights & Biases, or another experiment-tracking service.
+
+#### Scope (what this feature changes)
+
+- **In scope:** inventory of paper-relevant results; check for required
+  provenance fields; manifest path resolution; gap count; written **keep manual**
+  vs **add tracker** decision.
+- **Frozen:** no changes to evaluation behavior, cache code, or held-out data.
+- **Audit corpus (minimum):**
+  - Phase 3 final package:
+    [`PHASE3_FINAL_EVIDENCE.md`](./PHASE3_FINAL_EVIDENCE.md),
+    `artifacts/evaluation/phase3-final-held-out-comparison.json`,
+    `artifacts/evaluation/phase3-paper-artifact-manifest.json` (preview manifest)
+  - Phase 3 feature evidence:
+    `PHASE3_FEATURE_1_EVIDENCE.md`, `PHASE3_FEATURE_2_EVIDENCE.md`,
+    `PHASE3_FEATURE_3_EVIDENCE.md`, `PHASE3_ARTIFACTS_EVIDENCE.md`
+  - Phase 4 manifest and tracks:
+    `artifacts/evaluation/phase4-paper-artifact-manifest.json` and each
+    `tracks.*.artifacts[].path` entry that exists on disk
+  - Plan verification logs in
+    [`WORKSTREAM_1_EVIDENCE.md`](./WORKSTREAM_1_EVIDENCE.md) and
+    [`../internal/PHASE4_IMPLEMENTATION_PLAN.md`](../internal/PHASE4_IMPLEMENTATION_PLAN.md)
+- **Out of scope:** installing or configuring a tracker; rewriting historical
+  artifacts; clean-checkout replay (may remain explicitly deferred).
+
+#### Audit protocol (read-only)
+
+For each **paper result** (held-out comparison, Pareto follow-up, provider
+unavailable record, storage/scale profiles, consolidated previews):
+
+1. Locate **command** (or generator module + documented CLI) in an evidence file
+   or artifact `provenance` / report header.
+2. Locate **git commit** (or explicit dirty-worktree note).
+3. Locate **config** path and **SHA-256** (or `config_version` + cited hash in evidence).
+4. Locate **dataset_version** and **split_manifest_sha256** (or equivalent split proof).
+5. Locate **seed** / statistics block (`bootstrap_seed`, `bootstrap_iterations`,
+   `confidence_level`) when the result includes uncertainty.
+6. Confirm artifact **path** resolves from repo root (file exists).
+7. Classify gaps:
+   - **`manifest_fixable`** — missing field can be added to
+     `phase4-paper-artifact-manifest.json` or evidence without new infra.
+   - **`repro_blocked`** — command, commit, or config hash missing and not
+     recoverable from sibling artifacts.
+
+No tuning, no new evaluations, no held-out access.
+
+#### Pass / fail (pre-registered)
+
+**Audit pass (keep manual tracking)** iff **all** hold:
+
+- Every artifact path listed in `phase4-paper-artifact-manifest.json` **tracks**
+  resolves on disk (or is explicitly marked deferred with reason).
+- **`repro_blocked` gap count = 0** for the audit corpus above.
+- Phase 3 **final held-out** result has command, commit, config hash, dataset
+  version, split-manifest hash, and seed recorded in
+  [`PHASE3_FINAL_EVIDENCE.md`](./PHASE3_FINAL_EVIDENCE.md) and/or the comparison JSON.
+
+**Audit fail (tracker or manifest escalation)** iff **`repro_blocked` ≥ 1** and
+the gap cannot be closed by a manifest-only or evidence-only fix within one
+session.
+
+**Stopping rule:** If audit **passes**, record decision **`keep_manual`** in
+this section and in evidence—**do not** add MLflow/W&B or similar dependencies
+for Phase 3 v1. If audit **fails**, document the gap list and either (a) a
+manifest/evidence fix plan or (b) a named tracker choice in a new decision
+record—still no tracker install without explicit user OK.
+
+#### Primary metrics
+
+| Metric | Meaning |
+| --- | --- |
+| `artifacts_in_manifest` | Count of listed artifact paths |
+| `artifacts_missing_on_disk` | Paths that do not resolve |
+| `results_audited` | Paper results in scope |
+| `manifest_fixable_gaps` | Missing provenance fixable without tracker |
+| `repro_blocked_gaps` | Missing provenance not fixable without new process |
+| **Decision** | `keep_manual` \| `manifest_fix_only` \| `tracker_required` |
+
+#### Baselines
+
+| Reference | Role |
+| --- | --- |
+| Phase 3 preview manifest | Historical preview; may lag final package—note in audit |
+| Phase 4 manifest | Primary machine-readable index for post-Phase 3 validation |
+| WS5 / internal verification logs | Cross-check commands already recorded |
+
+#### Effort
+
+**S** — about **1** focused session (read manifests and evidence; tabulate gaps).
+
+#### Evidence (to create at implementation time)
+
+- [`docs/phase-3/WORKSTREAM_8_EVIDENCE.md`](./WORKSTREAM_8_EVIDENCE.md) (audit table +
+  decision; not Phase 2 PostgreSQL ops WS8)
+- Decision summary appended to **Feature 5 decision** subsection below after audit
+- Optional: `artifacts/evaluation/phase3-tracking-audit.json` if a small script
+  is added later; **not required** for pass
+
+Implementation plan:
+[`WORKSTREAM_8_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_8_IMPLEMENTATION_PLAN.md).
+
+#### Feature 5 decision (fill after audit)
+
+| Field | Value |
+| --- | --- |
+| Audit date | _pending_ |
+| Decision | _pending_ (`keep_manual` expected if Phase 3/4 evidence complete) |
+| `repro_blocked_gaps` | _pending_ |
+| Tracker dependency added? | **no** unless audit fail + user OK |
+
+---
+
+### Feature 6 — Float32 embedding storage baseline
+
+**Order:** 6 · **Implementation ID:** `P3-FEAT-EMBED-BASE` (promoted from
+`P3-OPT-Q8` baseline gate, 2026-10-11)
+
+#### Hypothesis
+
+Replay over the **full development split** (`benchmarks/development.jsonl`) with
+deterministic fake embeddings produces a float32 storage breakdown where
+**embedding byte share** is measurable and sufficient to decide whether int8
+quantization is worth engineering effort.
+
+#### Scope
+
+- **In scope:** per-entry and aggregate `embedding_bytes`, `answer_bytes`
+  (or canonical answer bytes when dedup is on), metadata/query bytes,
+  `total_bytes`, `entries`, embedding dimension, dtype **`float32`**
+  (`4` bytes per dimension).
+- **Harness:** extend or wrap [`src/sscre/storage_evaluation.py`](../src/sscre/storage_evaluation.py)
+  and/or a development Strategy C replay that uses the same byte accounting as
+  [`src/sscre/cache.py`](../src/sscre/cache.py) `_entry_size` (do not invent a
+  second formula).
+- **Workload:** development directed requests derived from development pairs
+  (800 directed requests = 400 pairs × 2); record exact workload definition in
+  evidence.
+- **Frozen:** no held-out access; no PostgreSQL schema change in this feature;
+  no quantization.
+- **Out of scope:** Phase 4 four-request storage profile (too small for
+  benchmark-scale claim); live-provider embeddings; production capacity claims.
+
+#### Development protocol (measurement only)
+
+1. Run float32 storage/replay at development scale with caps disabled or set
+   high enough not to dominate the measurement (document `max_entries` /
+   `max_bytes`).
+2. Write `artifacts/evaluation/phase3-embedding-storage-baseline.json` including:
+   `embedding_bytes`, `answer_bytes`, `metadata_bytes`, `query_bytes`,
+   `total_bytes`, `embedding_share` (= `embedding_bytes / total_bytes`),
+   `embedding_dimensions`, `measurement_environment`, config hash, git commit,
+   dataset version, split name **`development`**.
+3. Compute **`embedding_share`** at aggregate level and optionally mean per entry.
+
+Held-out labels are not used.
+
+#### Pass / fail (baseline complete)
+
+**Baseline complete** iff the artifact exists and fields above are populated from
+a reproducible command recorded in evidence.
+
+**Quantization gate (authorizes Feature 7)** iff:
+
+- **`embedding_share` ≥ `0.20`** (embeddings are at least 20% of measured
+  `total_bytes`).
+
+**Stop / defer quantization** iff **`embedding_share` < `0.20`**: record baseline
+only; Feature 7 remains **not authorized** (storage win unlikely to matter).
+
+Pre-registered thresholds (confirm before Feature 7 code; change only via written
+protocol update):
+
+| Parameter | Value |
+| --- | --- |
+| Dominance gate | `embedding_share` ≥ **0.20** |
+| Quantization byte reduction (Feature 7) | ≥ **3.5×** vs float32 embeddings |
+| Safety (Feature 7) | development `false_positive_rate` ≤ **0.0** |
+| Reuse (Feature 7) | development `hit_rate` ≥ float32 reference |
+
+#### Primary metrics
+
+| Field | Source |
+| --- | --- |
+| `embedding_bytes`, `total_bytes`, `embedding_share` | baseline JSON |
+| `entries`, `average_entry_bytes` | baseline JSON |
+| `hit_rate`, `false_positive_rate` | optional attached dev compatibility report |
+
+#### Baselines
+
+| Arm | Role |
+| --- | --- |
+| float32 in-memory | Reference for Feature 7 |
+| Phase 4 storage profile | Bounded cross-check only; not substitute for Feature 6 |
+
+#### Effort
+
+**M** — **1–2** sessions (harness extension if needed, one development run, tests).
+
+#### Evidence
+
+- [`docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md)
+- `artifacts/evaluation/phase3-embedding-storage-baseline.json`
+
+Implementation plan:
+[`WORKSTREAM_5_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_5_IMPLEMENTATION_PLAN.md).
+
+#### Limitation (fake embeddings)
+
+Deterministic fake embeddings do not represent real provider vector
+distributions. Feature 6–7 support **storage methodology** claims, not general
+embedding accuracy, until a separately labelled real-provider embedding run exists.
+
+---
+
+### Feature 7 — int8 embedding quantization (conditional)
+
+**Order:** 7 (conditional) · **Implementation ID:** `P3-FEAT-Q8`  
+**Plan status:** **`not authorized`** until Feature 6 reports
+**`embedding_share` ≥ `0.20`**.
+
+#### Trigger (when to build)
+
+Implement int8 quantize/dequantize on the embedding path **only if** Feature 6
+baseline JSON satisfies the dominance gate above.
+
+#### Stopping rule (when **not** to build)
+
+- Feature 6 **`embedding_share` < `0.20`**
+- Development **`false_positive_rate` > `0.0`** after int8 on any compared arm
+- Development **`hit_rate`** below float32 reference
+- Byte reduction **< 3.5×** on embedding storage
+- No held-out tuning to recover a failed development compare
+
+Default path if trigger false: report float32 baseline only ([`SSCRE_PLAN.md`](../SSCRE_PLAN.md)
+§ Phase 3 quantization deferred).
+
+#### Hypothesis (only if trigger fires)
+
+Symmetric per-vector int8 quantization (scale derived per vector on write;
+dequantize before similarity) reduces **`embedding_bytes`** by at least **3.5×**
+versus float32 while preserving Strategy C **development** decisions and safety
+(`false_positive_rate` ≤ **0.0**, `hit_rate` not lower than float32).
+
+#### Scope
+
+- **In scope:** in-memory / replay path first; quantize at store, dequantize at
+  search; report max and p95 absolute cosine-similarity drift vs float32 on
+  development pairs.
+- **Out of scope:** pgvector schema migration in v1; custom int8 column if
+  **`halfvec`** (float16) is the later PostgreSQL path; held-out evaluation for
+  quantization tuning.
+
+#### Development protocol (tuning allowed **only after trigger**)
+
+1. Implement int8 round-trip with tests for dimension preservation and malformed
+   vector failure-closed behavior.
+2. Replay **development** split with float32 vs int8 embedding storage on the
+   same workload as Feature 6.
+3. Record decision agreement, `hit_rate`, `false_positive_rate`, similarity
+   drift, and byte counts.
+4. Write `artifacts/evaluation/phase3-quantization-development.json`.
+
+#### Pass / fail (pre-registered)
+
+**Pass** iff **all** on development:
+
+- `embedding_bytes_int8` ≤ `embedding_bytes_float32 / 3.5`
+- `false_positive_rate` ≤ **0.0** (int8 arm)
+- `hit_rate` ≥ float32 reference `hit_rate`
+- Documented max/p95 similarity drift (informational; no extra pass threshold
+  beyond safety/reuse above)
+
+**Fail:** keep float32; do not ship int8 in the paper stack.
+
+#### Primary metrics
+
+| Metric | Notes |
+| --- | --- |
+| `embedding_bytes`, byte ratio | vs Feature 6 baseline |
+| `hit_rate`, `false_positive_rate` | Strategy C development replay |
+| `similarity_drift_max`, `similarity_drift_p95` | pairwise or candidate-level sample |
+| `decision_agreement_rate` | same SAFE/UNSAFE/UNCERTAIN as float32 |
+
+#### Baselines
+
+| Arm | Description |
+| --- | --- |
+| float32 (Feature 6) | Reference |
+| int8 candidate | Same workload and τ policy |
+
+#### Effort
+
+**M** — **2–3** sessions **if triggered**; **zero** if dominance gate fails.
+
+#### Evidence
+
+- Same [`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md)
+- `artifacts/evaluation/phase3-quantization-development.json` (if built)
+
+---
+
+### Feature 8 — Simulated load ladder (1K→100K Q/day)
+
+**Order:** 8 · **Implementation ID:** `P3-FEAT-LOAD` (promoted from
+`P3-OPT-LOAD`, 2026-10-11)
+
+#### Hypothesis
+
+Running a **time-compressed** query ladder at **1K**, **10K**, and **100K**
+simulated queries per day against Strategy C (`compatibility-cache`) identifies
+the **first reproducible resource bottleneck** (embed, search, compatibility,
+repository, or generation path) on local hardware—or shows **`not_reached`**
+through 100K/day without claiming production capacity.
+
+#### Scope
+
+- **In scope:** extend [`src/sscre/load_test.py`](../src/sscre/load_test.py);
+  new workload config (e.g. `experiments/phase3_load_ladder_v1.json`); in-memory
+  run first, then PostgreSQL + pgvector with the **same** logical workload when
+  `SSCRE_DATABASE_URL` is available.
+- **Query mix:** sample from `benchmarks/development.jsonl` with a recorded
+  **repeat ratio** (default **0.30**) so hits and misses are both observed.
+- **Cache mode:** `compatibility-cache` at τ **0.95** or the frozen Feature 1
+  adaptive map (document which arm in evidence).
+- **Caps:** use configured `max_entries` / `max_bytes`; verify storage stays
+  within cap at each ladder step (master-plan success criterion 7).
+- **Out of scope:** multi-host, geo, 1M Q/day, production SLA, GPU; held-out
+  benchmark replay; optimization work triggered by results.
+
+#### Not substitutes (prior bounded runs)
+
+| Prior artifact | Why not sufficient |
+| --- | --- |
+| [`phase4-scale-profile.json`](../phase-4/PHASE4_SCALE_EVIDENCE.md) | 32 requests, in-memory only |
+| [`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md) `ws8-pg-load-v1` | 32 requests, bounded ops protocol |
+
+#### Ladder definition (pre-registered)
+
+Simulated rate → fixed **measured request count** per step (wall-clock duration
+recorded; not a capacity guarantee):
+
+| Step | Simulated Q/day | Measured requests | Default concurrency |
+| --- | ---: | ---: | ---: |
+| L1 | 1,000 | 200 | 4 |
+| L2 | 10,000 | 2,000 | 4 |
+| L3 | 100,000 | 20,000 | 8 |
+
+Warmup requests per step: **10%** of measured count (minimum **20**). Document
+actual duration, compression factor, and worker/process count in evidence.
+
+#### Budgets (pre-registered — change only via written protocol update)
+
+**Non-fixture errors** exclude items labeled `embedding_failure`,
+`generation_failure`, or other intentional failure fixtures in the workload
+config.
+
+| Storage backend | Metric | Budget |
+| --- | --- | --- |
+| In-memory | `p95_end_to_end_latency_ms` | ≤ **500** |
+| In-memory | `non_fixture_error_rate` | ≤ **0.01** |
+| PostgreSQL | `p95_end_to_end_latency_ms` | ≤ **3000** |
+| PostgreSQL | `non_fixture_error_rate` | ≤ **0.01** |
+| Both | `timeout_rate` | ≤ **0.01** |
+| Both | cache `total_bytes` | ≤ configured `max_cache_bytes` |
+
+#### Bottleneck rule
+
+At the **lowest** ladder step where a budget is **exceeded**, attribute p95 time
+to components reported by the harness (`embed`, `vector_search`,
+`compatibility_check`, `repository`, `generation`, `wrapper_other`). The
+**first bottleneck** is the component with the largest p95 share on that step.
+
+**Reproducibility:** two consecutive runs at the failing step must name the
+**same** first bottleneck (or both conclude `not_reached` at L3).
+
+**Stopping rule:** stop after the first reproducible bottleneck is recorded, or
+after L3 with **`not_reached`** — do not add infrastructure or optimize in this
+feature.
+
+#### Protocol (no held-out tuning)
+
+1. Implement or extend ladder config and harness fields for component timings.
+2. Run L1 → L2 → L3 in-memory; write
+   `artifacts/operations/phase3-load-ladder-memory.json`.
+3. Repeat on PostgreSQL when available; else write
+   `artifacts/operations/phase3-load-ladder-postgres.json` with
+   **`status`: `unavailable`** and reason (no URL, skip, etc.).
+4. Record environment: OS, CPU model, Python version, PostgreSQL version,
+   process/worker counts, `measurement_environment`: **`synthetic_replay`**.
+
+#### Pass / fail (pre-registered)
+
+**Pass (protocol complete)** iff:
+
+- All three in-memory ladder steps executed and artifact written.
+- PostgreSQL arm **executed or explicitly marked unavailable**.
+- **`first_bottleneck`** or **`not_reached`** recorded with reproducibility note.
+- Every step documents cap compliance (`total_bytes` ≤ `max_cache_bytes`).
+- Evidence file lists commands, config path, git commit, and budgets used.
+
+**Fail:** incomplete ladder without documented abort reason; do not claim
+bottleneck or capacity.
+
+#### Primary metrics
+
+| Metric | JSON / report field (harness-defined) |
+| --- | --- |
+| Throughput | `requests_per_second` |
+| Latency | `p50_latency_ms`, `p95_latency_ms`, `p99_latency_ms` |
+| Errors | `error_count`, `non_fixture_error_rate`, `timeout_count` |
+| Storage | `entries`, `total_bytes`, `eviction_count` |
+| Bottleneck | `first_bottleneck`, `bottleneck_step`, `component_p95_share` |
+
+Field names must match emitted artifacts; add harness fields before claiming
+numbers in the paper.
+
+#### Baselines
+
+| Reference | Use |
+| --- | --- |
+| Phase 4 in-memory profile | Context only |
+| WS8 PostgreSQL 32-request load | Context only |
+| Strategy C at frozen τ | Arm under test |
+
+#### Effort
+
+**L** — **3–4** sessions (config, harness extension, two backends, two-run
+bottleneck check, evidence).
+
+#### Evidence
+
+- [`docs/phase-3/PHASE3_LOAD_EVIDENCE.md`](./PHASE3_LOAD_EVIDENCE.md)
+- `artifacts/operations/phase3-load-ladder-memory.json`
+- `artifacts/operations/phase3-load-ladder-postgres.json`
+
+Implementation plan:
+[`WORKSTREAM_6_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_6_IMPLEMENTATION_PLAN.md).
+
+**Limitation:** Results describe **local synthetic replay** on the tested
+request counts; they are **not** 1K–100K Q/day production capacity or SLA
+evidence.
 
 ---
 
 ### Optional features — v1 decision (Step 5)
 
-No optional item receives a full feature card for Phase 3 v1. Each remains **deferred**
-until the in-scope stack (Features 1–2, conditional 3) is measured on the final held-out
-run. Promoting any row requires a new card (hypothesis + pass/fail) in this document.
+All former **`P3-OPT-*`** rows are **promoted** or superseded by Features 4–8.
 
 | ID | Item | v1 decision | One-line rationale |
 | --- | --- | --- | --- |
-| **P3-OPT-Q8** | int8 embedding quantization | **Defer (v2)** | Measure float32 **`total_bytes`** / storage pairing baseline first ([`SSCRE_PLAN.md`](../SSCRE_PLAN.md) § Phase 3); quantization does not unblock paper safety/reuse claims. |
-| **P3-OPT-LOAD** | Load tests 1K→100K simulated Q/day | **Defer (v2)** | WS8 recorded a 32-request local PostgreSQL run, not this protocol ([`WORKSTREAM_8_EVIDENCE.md`](../phase-2/WORKSTREAM_8_EVIDENCE.md)). Run only after the main Pareto story is stable and a new scale protocol is approved. |
-| **P3-OPT-CLUSTER** | Failure clustering from gallery exports | **Defer (code)**; **paper OK (manual)** | Phase 1 gallery export exists ([`benchmarks/README.md`](../../benchmarks/README.md)); v1 may **manually** group `failure_gallery` / category strata for discussion **without** new clustering code or experiment infra. |
-| **P3-OPT-TRACK** | Experiment tracking (MLflow/W&B/etc.) | **Defer (v2)** | Manual JSON under `artifacts/evaluation/` + plan verification log sufficient for v1; add tracking only if artifact sprawl blocks reproducibility. |
+| ~~**P3-OPT-Q8**~~ | int8 embedding quantization | **Promoted** → Features 6–7 | Baseline-first gate and conditional int8. |
+| ~~**P3-OPT-LOAD**~~ | Load tests 1K→100K simulated Q/day | **Promoted** → [Feature 8](#feature-8--simulated-load-ladder-1k100k-qday) | Ladder card with pre-registered budgets added 2026-10-11. |
+| ~~**P3-OPT-CLUSTER**~~ | Failure clustering | **Promoted** → [Feature 4](#feature-4--failure-clustering-manual-synthesis) | Manual synthesis card added 2026-10-11; automated clustering still out of scope unless pass fails. |
+| ~~**P3-OPT-TRACK**~~ | Experiment tracking | **Promoted** → [Feature 5](#feature-5--experiment-tracking-gate-manual-audit) | Manual audit gate added 2026-10-11; MLflow/W&B only if audit fails and user approves. |
 
-**Default recommendation (confirmed):** defer **P3-OPT-Q8** and **P3-OPT-LOAD** until the
-core safety/reuse narrative is frozen on held-out (transition § 2.3).
+**Registry (2026-10-11):** Workstream 1 optional promotions complete (Features 4–8).
 
 ---
 
@@ -542,10 +1113,16 @@ Execution order for Phase 3 code and evaluation (matches P0-P3-ORDER):
 
 | Step | Feature / gate | Plan reference | Ship criterion |
 | ---: | --- | --- | --- |
-| 1 | Adaptive per-domain thresholds | [Feature 1](#feature-1--adaptive-per-domain-thresholds) | Feature 1 pass/fail on held-out |
-| 2 | Pattern-aware eviction | [Feature 2](#feature-2--pattern-aware-eviction) | Feature 2 pass/fail on held-out |
-| 3 | Strategy D (cross-encoder) | [Feature 3](#feature-3--strategy-d-cross-encoder-validator) | **Only if** trigger fires; else skip |
-| — | Optional infra (quantization, load, tracking) | [Optional features](#optional-features--v1-decision-step-5) | **Deferred** until core story stable |
+| 1 | Adaptive per-domain thresholds | [Feature 1](#feature-1--adaptive-per-domain-thresholds); [`WORKSTREAM_2_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_2_IMPLEMENTATION_PLAN.md) | Feature 1 pass/fail on held-out |
+| 2 | Pattern-aware eviction | [Feature 2](#feature-2--pattern-aware-eviction); [`WORKSTREAM_3_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_3_IMPLEMENTATION_PLAN.md) | Feature 2 pass/fail on held-out |
+| 3 | Strategy D (cross-encoder) | [Feature 3](#feature-3--strategy-d-cross-encoder-validator); [`WORKSTREAM_4_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_4_IMPLEMENTATION_PLAN.md) | **Only if** trigger fires; else skip |
+| 4 | Failure clustering (manual) | [Feature 4](#feature-4--failure-clustering-manual-synthesis) | Analysis pass on frozen JSON |
+| 5 | Experiment-tracking gate | [Feature 5](#feature-5--experiment-tracking-gate-manual-audit) | Audit pass → `keep_manual` |
+| 6 | Float32 embedding storage baseline | [Feature 6](#feature-6--float32-embedding-storage-baseline) | Baseline JSON + dominance gate |
+| 7 | int8 quantization | [Feature 7](#feature-7--int8-embedding-quantization-conditional) | **Only if** Feature 6 gate ≥ 20% share |
+| 8 | Simulated load ladder | [Feature 8](#feature-8--simulated-load-ladder-1k100k-qday) | Bottleneck or `not_reached` at L3 |
+
+Extended features 4–8 follow the v1 stack (Features 1–3); see Workstream 1 registry in [`WORKSTREAM_1_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_1_IMPLEMENTATION_PLAN.md).
 
 Do not start step 2 until step 1 evidence is recorded under [Implementation progress](#implementation-progress).
 Do not invoke step 3 unless [Feature 3 trigger](#trigger-when-to-build-d) is satisfied on the
@@ -555,8 +1132,12 @@ Do not invoke step 3 unless [Feature 3 trigger](#trigger-when-to-build-d) is sat
 
 ## Paper artifacts (execution outline — Step 6)
 
-Planning complete; **deliverables remain unchecked** until Phase 3 implementation runs.
-Each row links to figures/tables in the paper draft.
+**v1 status:** Step 4 preview and Step 5 final held-out package recorded 2026-10-10
+([`PHASE3_ARTIFACTS_EVIDENCE.md`](./PHASE3_ARTIFACTS_EVIDENCE.md),
+[`PHASE3_FINAL_EVIDENCE.md`](./PHASE3_FINAL_EVIDENCE.md)). Extended registry
+(Features 4–8) closed 2026-10-11 per
+[`WORKSTREAM_1_STEP7_CLOSE.md`](./WORKSTREAM_1_STEP7_CLOSE.md). Each row below links
+to figures/tables in the paper draft.
 
 ### 3.1 Tables and figures (deliverables)
 
@@ -565,8 +1146,8 @@ Each row links to figures/tables in the paper draft.
 | Main results table (A/B/C + Phase 3 stack) | `phase3-final-held-out-comparison.json` | `sscre.evaluate --baseline all --split held-out --production` (extend config for Phase 3 policies) |
 | Development operating point / sweeps | `phase3-development-sweep.json` | `sscre.evaluate` on `benchmarks/development.jsonl` |
 | Pareto (coverage vs FPR) | `phase3-held-out-pareto.json` | `sscre.pareto --development-sweep … --held-out-benchmark benchmarks/held_out_test.jsonl` |
-| Domain-stratified thresholds | `phase3-adaptive-threshold-map.json` + strata in comparison JSON | Feature 1 tooling (TBD) + statistics attachment |
-| Freshness / eviction slice | `phase3-held-out-eviction.json`, WS6 conservative reference | `sscre.freshness_evaluate` with frozen policy + cap (Feature 2) |
+| Domain-stratified thresholds | `phase3-adaptive-threshold-map.json` + strata in comparison JSON | `sscre.evaluate --adaptive-threshold-map-output` (development) + `--adaptive-threshold-map` (held-out) — [`PHASE3_FEATURE_1_EVIDENCE.md`](./PHASE3_FEATURE_1_EVIDENCE.md) |
+| Freshness / eviction slice | `phase3-held-out-eviction.json`, WS6 conservative reference | `sscre.phase3_eviction` (Feature 2 candidate; not in shipped stack) — [`PHASE3_FEATURE_2_EVIDENCE.md`](./PHASE3_FEATURE_2_EVIDENCE.md) |
 | Ablations (C @ 0.95, +F1, +F2, +F1+F2, +D if built) | One JSON per ablation under `artifacts/evaluation/phase3-ablation-*.json` | Repeated held-out evaluate with feature flags documented in evidence |
 | Failure discussion gallery | `phase3-final-held-out-comparison-gallery.html` | `sscre.gallery_export` ([`benchmarks/README.md`](../../benchmarks/README.md)) |
 
@@ -581,48 +1162,36 @@ Each row links to figures/tables in the paper draft.
 **Held-out discipline:** one **final** held-out comparison for the paper stack after Features
 1–2 (and D if built). Development splits used for all tuning and ablation exploration only.
 
-### 3.3 Reproducibility runbook (planned entry point)
+### 3.3 Reproducibility runbook (recorded commands)
 
-No `make paper-results` target exists yet. **Planned** end-to-end sequence (fill exact flags
-when Phase 3 CLIs land; record in `docs/phase-3/PHASE3_EVIDENCE.md` or equivalent):
+No `make paper-results` target exists. Canonical v1 commands live in feature
+evidence files; summary below (from repo root, `$env:PYTHONPATH='src'` on Windows):
 
 ```powershell
-# 0. Gate — from repo root
+# 0. Gate
 python -m pip install ".[dev]"
 python -m sscre.benchmark_validate --phase2 --production
 python -m pytest -q
 
-# 1. Feature 1 — development τ map (TBD module flags)
-# python -m sscre.evaluate ... --split development --output artifacts/evaluation/phase3-development-sweep.json
-# → artifacts/evaluation/phase3-adaptive-threshold-map.json
+# 1. Feature 1 — development map + held-out replay
+python -m sscre.evaluate --benchmark benchmarks/development.jsonl --config experiments/evaluation_config.json --baseline compatibility-cache --split development --production --adaptive-threshold-map-output artifacts/evaluation/phase3-adaptive-threshold-map.json --output artifacts/evaluation/phase3-adaptive-development.json
 
-# 2. Feature 2 — development eviction selection (TBD)
-# python -m sscre.freshness_evaluate ... --output artifacts/evaluation/phase3-development-eviction.json
+python -m sscre.evaluate --benchmark benchmarks/held_out_test.jsonl --config experiments/evaluation_config.json --baseline compatibility-cache --split held-out --production --adaptive-threshold-map artifacts/evaluation/phase3-adaptive-threshold-map.json --output artifacts/evaluation/phase3-adaptive-held-out.json
 
-# 3. Final held-out package (single paper run)
-python -m sscre.evaluate `
-  --benchmark benchmarks/held_out_test.jsonl `
-  --config experiments/evaluation_config.json `
-  --baseline all --split held-out --production `
-  --output artifacts/evaluation/phase3-final-held-out-comparison.json
+# 2. Feature 2 — eviction candidate (deferred from shipped stack; optional replay)
+python -m sscre.phase3_eviction --benchmark benchmarks/development.jsonl --config experiments/evaluation_config.json --split development --production --adaptive-threshold-map artifacts/evaluation/phase3-adaptive-threshold-map.json --output artifacts/evaluation/phase3-development-eviction.json --policy-output artifacts/evaluation/phase3-pattern-eviction-policy.json
 
-python -m sscre.pareto `
-  --development-sweep artifacts/evaluation/phase3-development-sweep.json `
-  --held-out-benchmark benchmarks/held_out_test.jsonl `
-  --config experiments/evaluation_config.json `
-  --output artifacts/evaluation/phase3-held-out-pareto.json
+python -m sscre.phase3_eviction --benchmark benchmarks/held_out_test.jsonl --config experiments/evaluation_config.json --split held-out --production --adaptive-threshold-map artifacts/evaluation/phase3-adaptive-threshold-map.json --selected-policy artifacts/evaluation/phase3-pattern-eviction-policy.json --output artifacts/evaluation/phase3-held-out-eviction.json
 
-python -m sscre.freshness_evaluate `
-  --benchmark benchmarks/held_out_test.jsonl `
-  --config experiments/evaluation_config.json `
-  --split held-out --production `
-  --selected-policy artifacts/evaluation/phase3-development-eviction.json `
-  --output artifacts/evaluation/phase3-held-out-eviction.json
+# 3. Final held-out package (single paper stack — include conservative freshness + frozen map)
+python -m sscre.evaluate --benchmark benchmarks/held_out_test.jsonl --config experiments/evaluation_config.json --baseline all --split held-out --production --freshness-policy conservative --adaptive-threshold-map artifacts/evaluation/phase3-adaptive-threshold-map.json --output artifacts/evaluation/phase3-final-held-out-comparison.json
 
-python -m sscre.gallery_export `
-  artifacts/evaluation/phase3-final-held-out-comparison.json `
-  -o artifacts/evaluation/phase3-final-held-out-comparison-gallery.html
+python -m sscre.gallery_export artifacts/evaluation/phase3-final-held-out-comparison.json -o artifacts/evaluation/phase3-final-held-out-comparison-gallery.html
 ```
+
+Full provenance (commit, config hash, protocol reset):
+[`PHASE3_FINAL_EVIDENCE.md`](./PHASE3_FINAL_EVIDENCE.md).
+Preview manifest generator: `python -m sscre.phase3_artifacts` — [`PHASE3_ARTIFACTS_EVIDENCE.md`](./PHASE3_ARTIFACTS_EVIDENCE.md).
 
 Baseline WS5 regeneration commands remain documented in
 [`WORKSTREAM_5_EVIDENCE.md`](../phase-2/WORKSTREAM_5_EVIDENCE.md) for pre–Phase 3 comparison
@@ -696,6 +1265,7 @@ load.
 
 - Implementation: `src/sscre/baseline.py`, `src/sscre/evaluate.py`
 - Tests: `tests/test_adaptive_thresholds.py`
+- Plan: [`WORKSTREAM_2_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_2_IMPLEMENTATION_PLAN.md)
 - Evidence: [`PHASE3_FEATURE_1_EVIDENCE.md`](./PHASE3_FEATURE_1_EVIDENCE.md)
 - Development map: `artifacts/evaluation/phase3-adaptive-threshold-map.json`
 - Development report: `artifacts/evaluation/phase3-adaptive-development.json`
@@ -704,14 +1274,16 @@ load.
   `false_positive_rate=0.0`; frozen global Strategy C reference was
   `hit_rate=0.0` and `false_positive_rate=0.0`.
 
-The implementation remains uncommitted. Feature 2 must not start until this evidence
-has been reviewed and the Feature 1 slice is accepted.
+See [`PHASE3_FEATURE_1_EVIDENCE.md`](./PHASE3_FEATURE_1_EVIDENCE.md) for the git commit
+and dirty-worktree state at run time.
 
 ### Feature 2 — pattern-aware eviction
 
 **Status:** implemented and evaluated; **failed pass criterion and deferred from the
 shipped stack** on 2026-10-10.
 
+- Plan: [`WORKSTREAM_3_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_3_IMPLEMENTATION_PLAN.md)
+- Evidence: [`PHASE3_FEATURE_2_EVIDENCE.md`](./PHASE3_FEATURE_2_EVIDENCE.md)
 - Implementation: `src/sscre/cache.py`, `src/sscre/baseline.py`,
   `src/sscre/phase3_eviction.py`
 - Tests: `tests/test_cache_eviction.py`
@@ -728,12 +1300,18 @@ conservative eviction. No held-out retuning was performed.
 ### Feature 3 — Strategy D conditional validator
 
 **Status:** deferred on 2026-10-10; the pre-registered trigger did not fire.
+Re-checked 2026-10-11.
 
+- Plan: [`WORKSTREAM_4_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_4_IMPLEMENTATION_PLAN.md)
 - Evidence: [`PHASE3_FEATURE_3_EVIDENCE.md`](./PHASE3_FEATURE_3_EVIDENCE.md)
 - Retained stack held-out FPR: `0.0`
 - Trigger: held-out FPR `> 0.0`
 - Decision: no cross-encoder implementation, protocol reset, or additional held-out
   run.
+- Plan Steps 1–3 executed 2026-10-11 against the frozen comparison: FPR `0.0`,
+  zero false-positive examples, Feature 1 map retained, conservative eviction.
+  Steps 4–9 evaluated the same day and stay blocked; Gate B not opened
+  ([`PHASE3_FEATURE_3_EVIDENCE.md`](./PHASE3_FEATURE_3_EVIDENCE.md)).
 
 ### Step 4 — paper artifact preview package
 

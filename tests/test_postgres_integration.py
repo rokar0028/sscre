@@ -12,7 +12,12 @@ from sscre.app import create_app
 from sscre.cache import CacheEntry, CacheRepositoryError, DuplicateCacheEntryError
 from sscre.config import Settings
 from sscre.llm import MockLLMClient
-from sscre.postgres_cache import PostgresExactCacheRepository
+from sscre.postgres_cache import (
+    PostgresExactCacheRepository,
+    ScopedPostgresExactCacheRepository,
+    delete_entries_by_query_hashes,
+)
+from sscre.query import hash_query, normalize_query
 from sscre.postgres_failure_harness import (
     FailureInjectionConfig,
     FailureOperation,
@@ -28,22 +33,16 @@ pytestmark = pytest.mark.skipif(
 
 
 def _cleanup_query_hashes(query_hashes: list[str]) -> None:
+    assert DATABASE_URL is not None
+    delete_entries_by_query_hashes(DATABASE_URL, query_hashes)
+
+
+def _cache_query_hashes() -> set[str]:
+    assert DATABASE_URL is not None
     with psycopg.connect(DATABASE_URL) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(
-                "DELETE FROM cache_entries WHERE query_hash = ANY(%s)",
-                (query_hashes,),
-            )
-            cursor.execute(
-                """
-                DELETE FROM canonical_answers AS ca
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM cache_entries
-                    WHERE canonical_answer_hash = ca.answer_hash
-                )
-                """
-            )
+            cursor.execute("SELECT query_hash FROM cache_entries")
+            return {row[0] for row in cursor.fetchall()}
 
 
 @pytest.fixture
@@ -180,35 +179,37 @@ def test_parameterized_sql_like_text_is_stored_safely(
     assert repository.get_by_query_hash(entry.query_hash) == entry
 
 
-def test_api_reads_persisted_entry_across_app_instances(
-    cache_entry: CacheEntry,
-) -> None:
+def test_api_reads_persisted_entry_across_app_instances() -> None:
+    assert DATABASE_URL is not None
     settings = Settings(database_url=DATABASE_URL)
     query = f"Write Python code for binary search {uuid4()}"
-    first_client = TestClient(create_app(settings=settings))
-    second_client = TestClient(create_app(settings=settings))
+    query_hash = hash_query(normalize_query(query))
+    repository = ScopedPostgresExactCacheRepository(DATABASE_URL, (query_hash,))
+    first_client = TestClient(create_app(settings=settings, repository=repository))
+    second_client = TestClient(
+        create_app(
+            settings=settings,
+            repository=ScopedPostgresExactCacheRepository(DATABASE_URL, (query_hash,)),
+        )
+    )
 
     first = first_client.post("/v1/query", json={"query": query})
     second = second_client.post("/v1/query", json={"query": query})
 
     assert first.json()["source"] == "generated"
     assert second.json()["source"] == "cache"
-
-    with psycopg.connect(DATABASE_URL) as connection:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "DELETE FROM cache_entries WHERE query_hash = %s",
-                (cache_entry.query_hash,),
-            )
+    _cleanup_query_hashes([query_hash])
 
 
 def test_generation_failure_does_not_persist_an_entry() -> None:
+    assert DATABASE_URL is not None
     query = f"failed generation query {uuid4()}"
-    query_hash = hashlib.sha256(query.encode()).hexdigest()
+    query_hash = hash_query(normalize_query(query))
     settings = Settings(database_url=DATABASE_URL)
     client = TestClient(
         create_app(
             settings=settings,
+            repository=ScopedPostgresExactCacheRepository(DATABASE_URL, (query_hash,)),
             llm_client=MockLLMClient(should_fail=True),
         )
     )
@@ -309,12 +310,17 @@ def test_cleanup_expired_removes_entry_and_updates_counter(
         answer="cleanup answer",
         ttl_expires_at=datetime.now(timezone.utc) - timedelta(seconds=1),
     )
+    foreign_hashes = _cache_query_hashes()
     try:
         before = repository.storage_stats()
         repository.insert(entry)
 
-        assert repository.cleanup_expired(limit=10) >= 1
+        assert repository.cleanup_expired(
+            limit=10,
+            only_query_hashes=[entry.query_hash],
+        ) == 1
         assert repository.get_by_query_hash(entry.query_hash) is None
+        assert foreign_hashes <= _cache_query_hashes()
         after = repository.storage_stats()
         assert after.expirations >= before.expirations + 1
     finally:
@@ -364,10 +370,23 @@ def test_insert_and_evict_enforces_postgres_entry_cap(
         )
         for index in range(2)
     ]
+    foreign_hashes = _cache_query_hashes()
+    scope = [entry.query_hash for entry in entries]
     try:
         for entry in entries:
-            repository.insert_and_evict(entry, max_entries=1, max_bytes=100_000)
+            repository.insert_and_evict(
+                entry,
+                max_entries=1,
+                max_bytes=100_000,
+                only_query_hashes=scope,
+            )
 
-        assert repository.storage_stats().entries <= 1
+        remaining = [
+            query_hash
+            for query_hash in scope
+            if repository.get_by_query_hash(query_hash) is not None
+        ]
+        assert len(remaining) == 1
+        assert foreign_hashes <= _cache_query_hashes()
     finally:
-        _cleanup_query_hashes([entry.query_hash for entry in entries])
+        _cleanup_query_hashes(scope)

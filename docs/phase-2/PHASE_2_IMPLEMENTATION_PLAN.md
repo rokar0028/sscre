@@ -492,39 +492,35 @@ Acceptance criteria:
 
 ## Workstream 9 — Dashboard and dual-model experiment gates
 
-### Dashboard
+Implementation plan:
+[`WORKSTREAM_9_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_9_IMPLEMENTATION_PLAN.md).  
+Evidence:
+[`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md) (Steps 1–9, 2026-10-11).
 
-Add a dashboard only after report data is stable. It should read generated
-artifacts rather than implement a second metrics pipeline. Initial views:
+Bounded read-only dashboard package over WS5–WS8 artifacts plus a disabled
+dual-model experiment definition and unavailable result artifact. Not a second
+metrics pipeline, public API, or default-path model fallback.
 
-- operating-point summary
-- baseline comparison
-- confidence intervals
-- Pareto plots
-- failure-category counts
-- freshness results
-- storage and eviction results
+Outputs:
 
-### Dual-model comparison
+- `artifacts/evaluation/workstream9-dashboard.json` /
+  `artifacts/evaluation/workstream9-dashboard.html`
+- `experiments/workstream9_dual_model_v1.json` (disabled)
+- `artifacts/evaluation/workstream9-dual-model-v1.json` (unavailable packaging)
 
-Implement dual-model fallback only with a written experiment definition:
-
-- hypothesis
-- model pair
-- prompt and generation settings
-- preference question
-- correctness review process
-- incremental token/cost budget
-- success criterion
-- stopping rule
-
-Do not use preference as a proxy for factual correctness.
+Regeneration commands are in the evidence file.
 
 Acceptance criteria:
 
-- [ ] Dashboard values match the report artifacts.
-- [ ] Dual-model output is opt-in and absent from the default MVP path.
-- [ ] Preference and correctness are reported independently.
+- [x] Dashboard values match upstream artifact fields for implemented views
+  (loader copies validated source data; regression tests in
+  `tests/test_workstream9_dashboard.py`).
+- [x] Dual-model output is opt-in and absent from the default MVP path
+  (`src/sscre/app.py` does not import the runner; definition disabled).
+- [x] Preference and correctness are reported independently (result schema and
+  unavailable artifact; live run still deferred pending approval).
+- [ ] User product gates in the WS9 plan (explicit dashboard/dual-model
+  approval checkboxes) remain open until requested separately.
 
 ## Recommended execution order
 
@@ -545,7 +541,10 @@ Acceptance criteria:
   ([WORKSTREAM_8_EVIDENCE.md](./WORKSTREAM_8_EVIDENCE.md)). Live container
   restart skipped. Not a production capacity guarantee. Phase 1 lite remains
   [WORKSTREAM_8_OPS_LITE_EVIDENCE.md](./WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
-10. [ ] Add the dashboard or dual-model experiment only if its gate is met.
+10. [x] Add the bounded WS9 dashboard and dual-model experiment gate artifacts.
+  2026-10-11
+  ([WORKSTREAM_9_EVIDENCE.md](./WORKSTREAM_9_EVIDENCE.md)). Live dual-model
+  execution and explicit user approval gates remain deferred.
 
 ## Verification commands
 

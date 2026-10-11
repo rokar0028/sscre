@@ -27,6 +27,7 @@ is not Workstream 8 PostgreSQL evidence.
 | 6 | [WORKSTREAM_6_IMPLEMENTATION_PLAN.md](./WORKSTREAM_6_IMPLEMENTATION_PLAN.md) |
 | 7 | [WORKSTREAM_7_IMPLEMENTATION_PLAN.md](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md) |
 | 8 | [WORKSTREAM_8_IMPLEMENTATION_PLAN.md](./WORKSTREAM_8_IMPLEMENTATION_PLAN.md) |
+| 9 | [WORKSTREAM_9_IMPLEMENTATION_PLAN.md](./WORKSTREAM_9_IMPLEMENTATION_PLAN.md) |
 
 ## Frozen evaluation contracts (v1)
 
@@ -53,6 +54,7 @@ Referenced from `src/sscre/` — do not fork a second decision or trace model.
 | 7 | [WORKSTREAM_7_EVIDENCE.md](./WORKSTREAM_7_EVIDENCE.md) |
 | 8 | [WORKSTREAM_8_EVIDENCE.md](./WORKSTREAM_8_EVIDENCE.md) — bounded local PostgreSQL ops; not capacity |
 | 8 (lite) | [WORKSTREAM_8_OPS_LITE_EVIDENCE.md](./WORKSTREAM_8_OPS_LITE_EVIDENCE.md) — Phase 1 carryover smoke |
+| 9 | [WORKSTREAM_9_EVIDENCE.md](./WORKSTREAM_9_EVIDENCE.md) — read-only dashboard + deferred dual-model gate |
 
 ## Step audits and reviews
 
@@ -64,6 +66,7 @@ Referenced from `src/sscre/` — do not fork a second decision or trace model.
 | [WORKSTREAM_5_STEP1_AUDIT.md](./WORKSTREAM_5_STEP1_AUDIT.md) | WS5 step 1 |
 | [WORKSTREAM_7_STEP1_AUDIT.md](./WORKSTREAM_7_STEP1_AUDIT.md) | WS7 step 1 |
 | [WORKSTREAM_8_STEP1_AUDIT.md](./WORKSTREAM_8_STEP1_AUDIT.md) | WS8 step 1 |
+| [WORKSTREAM_9_STEP1_AUDIT.md](./WORKSTREAM_9_STEP1_AUDIT.md) | WS9 step 1 |
 | [WORKSTREAM_5_ITERATION1_REVIEW_AUDIT.md](./WORKSTREAM_5_ITERATION1_REVIEW_AUDIT.md) | WS5 iteration 1 |
 
 ## Policies and benchmark scale-up

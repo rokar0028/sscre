@@ -86,15 +86,16 @@ Protocol `ws8-contention-v1` (live 2026-10-10):
 - [x] CT-mixed-rw (8 threads): 4 lookup hits, 4 inserts, no database/validation
   errors
 - [x] CT-cleanup-race (4 threads): fresh rows retained; stale rows removed
-- [x] CT-evict-cap (8 threads): relative windows `+8` entries / `+10000` bytes;
-  `storage_stats.entries == count(*)` and
-  `after == before + inserts - evictions`
+- [x] CT-evict-cap (8 threads): caps of 8 entries / 10000 bytes apply only to
+  the run's query hashes. `storage_stats.entries == count(*)` and the owned
+  rows that remain equal inserts minus evictions. Rows outside the run stay.
 - [x] Expired, metadata-less, and incompatible candidates cannot win a
   concurrent lookup
 - [x] `duplicate_conflict`, `database_error`, and `validation_error` recorded
   separately
 
-Limitation: relative cap windows avoid shrinking a pre-existing table. Not a
+Limitation: eviction and cleanup delete only the run's query hashes. The
+2026-10-10 measurement used a relative cap window before that guard. Not a
 production eviction-capacity claim.
 
 ## Latency, throughput, errors, timeouts, and storage
@@ -112,7 +113,8 @@ generation-failure mix. Timeouts 0.
 | warm | 56.916 | 81.719 | 84.315 | 69.020 | 23 | 6 | 3 | 0 | 0 |
 
 Isolated keys stayed at 6 entries (cap 8). `bytes_delta` 1782 on each cold
-pass. Absolute caps apply to the whole database.
+pass. That run's artifact still records the absolute-cap warning. Later load
+runs apply the cap only to the run's query hashes.
 
 - [x] p50/p95/p99, throughput, errors, timeouts, storage growth, and evictions
   recorded.
@@ -204,8 +206,10 @@ python -m pytest -q tests/test_ops_evidence.py tests/test_load_test.py
 python -m pytest -q
 ```
 
-**700 passed, 15 skipped, 21 deselected** (290.53s).
-`python -m sscre.benchmark_validate --phase2 --production` passed.
+**704 passed, 15 skipped, 21 deselected** (133.81s) after the eviction-scope
+guard. The earlier close on this date was 700 passed before
+`tests/test_postgres_eviction_scope.py`.
+`benchmark_validate --phase2 --production` was not re-run with this guard.
 
 - [x] Live PostgreSQL (2026-10-10, local migrated database): multiprocess **1
   passed**; contention **6 passed**; pg-load **1 passed**. Failure-recovery

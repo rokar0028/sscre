@@ -1,0 +1,60 @@
+---
+description: Fail-closed artifact loaders and opt-in experiment runners (WS9-style boundaries)
+globs:
+  - src/sscre/dashboard.py
+  - src/sscre/dual_model.py
+  - src/sscre/gallery_export.py
+  - src/sscre/failure_gallery_export.py
+  - tests/test_workstream9_*.py
+alwaysApply: false
+---
+
+# SSCRE artifact boundaries
+
+Read-only dashboards and opt-in experiments are **presentation or gate
+boundaries**, not second pipelines or default request paths.
+
+## Read-only artifact packages (dashboard / static export)
+
+- Validate **frozen schema versions** on required sources, not only JSON parse
+  and redaction. Do not render a section `available` when a required schema,
+  statistics block, or identity field is missing or wrong.
+- Align held-out views on **dataset version, evaluation split, and manifest
+  SHA** when the primary package defines them. Missing required manifest on an
+  aligned source must **fail closed or `metadata_mismatch`**, never silent
+  merge.
+- Copy bounded fields only; never recompute rates, intervals, Pareto points,
+  freshness exposure, or category aggregates from raw rows.
+- Preserve explicit **unavailable**, **not_comparable**, and
+  **metadata_mismatch** states with non-empty reasons; never map missing data
+  to zero or success.
+- Reuse `validate_redacted_report_payload` and forbidden-key lists; extend
+  forbidden display keys when new raw-content shapes appear.
+- Add regression tests for schema mismatch, missing identity, malformed
+  required inputs, and source-value fidelity (mutate upstream → copied value
+  changes, no recomputation).
+
+## Opt-in experiment runners (dual-model and similar)
+
+- Keep execution **off the default app path**; require explicit opt-in and
+  disabled-by-default definitions until user approval fields are set.
+- **Wire declared config to execution**: generation settings, timeouts, retries,
+  and sample/manifest identity must match what the experiment JSON specifies,
+  not only what the environment defaults provide.
+- Verify **split manifest SHA** (and dataset version) against the declared
+  sample before loading pairs.
+- Enforce **budget limits** on real-provider runs, including cost when a pricing
+  schedule is required; do not treat missing cost measurement as unlimited
+  budget.
+- Keep **preference, correctness, compatibility, and provider measurements** in
+  separate fields and summaries; never infer correctness from preference.
+- If human preference review is not run, stop with an explicit reason (e.g.
+  `review_shortfall`) rather than implying a completed comparison.
+- Result artifacts must pass schema validation including required identity
+  blocks (`sample`, `models`, budgets, stop reason) before write.
+
+## Plan and evidence alignment
+
+- Do not mark a workstream **complete** while user approval gates or live
+  execution deferrals remain open unless the plan **Status** and evidence say
+  “implementation package complete; gates deferred.”

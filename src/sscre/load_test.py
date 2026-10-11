@@ -28,7 +28,10 @@ from sscre.embedding import (
     FakeEmbeddingClient,
 )
 from sscre.llm import LLMResult, MockLLMClient
-from sscre.postgres_cache import PostgresExactCacheRepository
+from sscre.postgres_cache import (
+    ScopedPostgresExactCacheRepository,
+    delete_entries_by_query_hashes,
+)
 from sscre.query import hash_query, normalize_query
 
 
@@ -198,24 +201,7 @@ def _isolated_items(
 
 
 def _cleanup_postgres_hashes(database_url: str, query_hashes: list[str]) -> None:
-    if not query_hashes:
-        return
-    with psycopg.connect(database_url) as connection:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "DELETE FROM cache_entries WHERE query_hash = ANY(%s)",
-                (query_hashes,),
-            )
-            cursor.execute(
-                """
-                DELETE FROM canonical_answers AS ca
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM cache_entries
-                    WHERE canonical_answer_hash = ca.answer_hash
-                )
-                """
-            )
+    delete_entries_by_query_hashes(database_url, query_hashes)
 
 
 def _stop_reason(pass_result: dict[str, Any]) -> str | None:
@@ -242,6 +228,7 @@ def _create_client(
     mode: str,
     *,
     database_url: str | None = None,
+    scope_hashes: list[str] | None = None,
 ) -> tuple[TestClient, Any]:
     repository = str(config.get("repository", "memory"))
     if repository == "postgres":
@@ -249,7 +236,10 @@ def _create_client(
             raise ValueError(
                 "SSCRE_DATABASE_URL is required for repository=postgres"
             )
-        cache: Any = PostgresExactCacheRepository(database_url)
+        cache: Any = ScopedPostgresExactCacheRepository(
+            database_url,
+            scope_hashes or (),
+        )
     elif mode == "no_cache":
         cache = DisabledCache()
     else:
@@ -329,8 +319,16 @@ def _run_pass(
     database_url: str | None = None,
     isolate_token: str | None = None,
 ) -> dict[str, Any]:
-    client, cache = _create_client(config, mode, database_url=database_url)
     items = _isolated_items(_items(config), isolate_token)
+    scope_hashes = [
+        hash_query(normalize_query(item.query)) for item in items
+    ]
+    client, cache = _create_client(
+        config,
+        mode,
+        database_url=database_url,
+        scope_hashes=scope_hashes,
+    )
     warmup_requests = int(config.get("warmup_requests", 0)) if warm else 0
     request_count = int(config.get("request_count", len(items)))
     concurrency = int(config.get("concurrency", 1))

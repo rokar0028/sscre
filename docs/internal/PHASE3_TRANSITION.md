@@ -98,8 +98,8 @@ Status key: **done** | **partial** | **open** | **deferred**
 | P2-FIELDS | Independent compatibility / correctness / preference on every pair | Phase 2 definition of done | **partial** | Medium | Low | **M** |
 | P2-GALLERY | Failure gallery + category aggregates | WS7 | **open** | **High** (figures, discussion) | Medium (failure clustering) | **M** |
 | P2-OPS | PostgreSQL restart, concurrency, load limits | WS8 | **partial** | Low–Medium (honest ops section) | Medium (1K–100K still Phase 3+) | **M–L** |
-| P2-DASH | Dashboard reading artifacts | WS9 gate | **open** | Low | Low | **M** |
-| P2-DUAL | Dual-model experiment | WS9 gate | **open** | Low | Low | **L** |
+| P2-DASH | Dashboard reading artifacts | WS9; [WORKSTREAM_9_EVIDENCE.md](../phase-2/WORKSTREAM_9_EVIDENCE.md) | **partial** | Low | Low | **M** |
+| P2-DUAL | Dual-model experiment | WS9; definition + unavailable result; live run deferred | **partial** | Low | Low | **L** |
 
 Agent task (when asked):
 
@@ -125,6 +125,12 @@ generation, contention, and a 32-request PostgreSQL load (`not_reached`).
 Live container restart, cross-process generation locks, and 1K–100K / capacity
 claims remain unsupported. Phase 1 lite stays
 [`WORKSTREAM_8_OPS_LITE_EVIDENCE.md`](../phase-2/WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
+
+**Update (2026-10-11, WS9):** bounded artifact-reading dashboard and dual-model
+gate in [`WORKSTREAM_9_EVIDENCE.md`](../phase-2/WORKSTREAM_9_EVIDENCE.md).
+P2-DASH is **partial** (static export copies WS5–WS8 fields; not a live
+analytics stack). P2-DUAL is **partial** (written experiment + unavailable
+result; preference is not correctness; live provider run deferred).
 
 ### 1.3 P2-CI investigation checklist
 
