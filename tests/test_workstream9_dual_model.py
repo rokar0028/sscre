@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from sscre.benchmark_splits import file_sha256
 from sscre.dual_model import (
     DUAL_MODEL_EXPERIMENT_ID,
     DUAL_MODEL_EXPERIMENT_SCHEMA_VERSION,
@@ -104,9 +105,7 @@ def test_sample_ids_are_development_stable_pairs() -> None:
         record = json.loads(line)
         records[record["id"]] = record
 
-    assert payload["sample"]["split_manifest_sha256"] == (
-        "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51"
-    )
+    assert payload["sample"]["split_manifest_sha256"] == file_sha256(_MANIFEST)
     for pair_id in payload["sample"]["pair_ids"]:
         assert pair_id in manifest["development"]["record_ids"]
         record = records[pair_id]
@@ -266,9 +265,7 @@ def test_runner_records_missing_declared_pairs_as_exclusions(
     experiment["sample"]["benchmark_path"] = "development.jsonl"
     manifest_dir = tmp_path / "benchmarks"
     manifest_dir.mkdir(parents=True)
-    manifest_dir.joinpath("split_manifest.json").write_text(
-        _MANIFEST.read_text(encoding="utf-8")
-    )
+    manifest_dir.joinpath("split_manifest.json").write_bytes(_MANIFEST.read_bytes())
 
     result = run_dual_model_experiment(
         experiment,
