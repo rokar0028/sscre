@@ -6,8 +6,8 @@
     "metric_source": "upstream_artifacts"
   },
   "generation": {
-    "generated_at": "2026-10-10T23:19:55.714474+00:00",
-    "git_commit": "74c772d8e08b954111a6c524b8745cbf387bf895",
+    "generated_at": "2026-10-11T00:12:51.747018+00:00",
+    "git_commit": "1fc78ac35f7a6298024671563ddb3374c6d47034",
     "git_worktree_dirty": true
   },
   "input_artifacts": {

@@ -1,0 +1,140 @@
+{
+  "artifact_kind": "workstream9-dual-model-result",
+  "budget_limits": {
+    "max_cost_usd": 5.0,
+    "max_elapsed_seconds": 1800,
+    "max_input_tokens": 20000,
+    "max_output_tokens": 12000,
+    "max_requests": 40,
+    "max_reviewer_assignments": 20
+  },
+  "budget_usage": {
+    "cost_source": "unavailable",
+    "cost_usd": null,
+    "elapsed_seconds": 0.0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "requests": 0
+  },
+  "config_path": "experiments/workstream9_dual_model_v1.json",
+  "correctness": {
+    "adjudication": "not_applicable",
+    "missing_label_behavior": "Keep correctness unavailable. Do not infer it from preference, compatibility, fluency, or model identity.",
+    "reason": "reviewed-query-pairs-2.0 has no human factual-correctness labels, and this experiment does not collect a correctness review.",
+    "review_scope": "unavailable",
+    "reviewer_count": 0,
+    "status": "unavailable"
+  },
+  "experiment_id": "workstream9-dual-model-v1",
+  "experiment_schema_version": "workstream9-dual-model-experiment-1.0",
+  "generated_at": "2026-10-11T00:01:09.324478+00:00",
+  "generation": {
+    "template_id": "ws9-dual-model-user-query-v1",
+    "template_version": "1.0"
+  },
+  "git_commit": "1fc78ac35f7a6298024671563ddb3374c6d47034",
+  "limitations": [
+    "No approved provider request was executed for this artifact.",
+    "Synthetic provider measurements were not substituted.",
+    "Preference review was not run and remains unavailable.",
+    "Correctness remains unavailable and is not inferred from preference.",
+    "This artifact does not change the default application path."
+  ],
+  "measurement_environment": "unavailable",
+  "models": {
+    "configuration_id": "ws9-dual-model-openai-compatible-v1",
+    "endpoint_origin": null,
+    "model_a": {
+      "model_identifier": "pending_approval",
+      "role": "current_generation_model",
+      "version_identifier": "pending_approval"
+    },
+    "model_b": {
+      "model_identifier": "pending_approval",
+      "role": "alternate_generation_model",
+      "version_identifier": "pending_approval"
+    },
+    "provider": "openai-compatible"
+  },
+  "pairs": [],
+  "preference": {
+    "abstain": 0,
+    "assigned": 0,
+    "assigned_denominator": 0,
+    "decided": 0,
+    "decided_denominator": 0,
+    "disagreements": 0,
+    "missing_reviews": 0,
+    "prefer_a": 0,
+    "prefer_b": 0,
+    "reason": "review_not_run",
+    "status": "unavailable",
+    "tie": 0
+  },
+  "preference_implies_correctness": false,
+  "provider_summary": {
+    "failure_counts_by_status": {},
+    "pairs_attempted": 0,
+    "pairs_with_both_models_ok": 0
+  },
+  "result_schema_version": "workstream9-dual-model-result-1.0",
+  "sample": {
+    "dataset_version": "reviewed-query-pairs-2.0",
+    "declared_pair_ids": [
+      "pair-0001",
+      "pair-0003",
+      "pair-0004",
+      "pair-0006",
+      "pair-0007",
+      "pair-0009",
+      "pair-0010",
+      "pair-0011",
+      "pair-0012",
+      "pair-0013",
+      "pair-0014",
+      "pair-0015",
+      "pair-0016",
+      "pair-0017",
+      "pair-0018",
+      "pair-0020",
+      "pair-0021",
+      "pair-0023",
+      "pair-0024",
+      "pair-0027"
+    ],
+    "evaluation_split": "development",
+    "excluded_pairs": [],
+    "exclusion_policy": [
+      "pairs whose review_status is not final",
+      "pairs whose freshness_class is not stable",
+      "held-out split records"
+    ],
+    "loaded_pair_ids": [],
+    "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+    "unattempted_pair_ids": [
+      "pair-0001",
+      "pair-0003",
+      "pair-0004",
+      "pair-0006",
+      "pair-0007",
+      "pair-0009",
+      "pair-0010",
+      "pair-0011",
+      "pair-0012",
+      "pair-0013",
+      "pair-0014",
+      "pair-0015",
+      "pair-0016",
+      "pair-0017",
+      "pair-0018",
+      "pair-0020",
+      "pair-0021",
+      "pair-0023",
+      "pair-0024",
+      "pair-0027"
+    ]
+  },
+  "status": "unavailable",
+  "stop_reason": "not_executed",
+  "unavailable_reason": "experiment_disabled"
+}
