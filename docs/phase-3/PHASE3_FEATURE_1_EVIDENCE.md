@@ -19,6 +19,9 @@
   threshold.
 - A frozen map can be supplied to later evaluations; held-out runs do not select
   or modify the map.
+- Held-out JSON `phase3-adaptive-held-out.json` carries `config_version` at the
+  report root; config SHA-256 is in this evidence header and in the final
+  comparison artifact.
 
 Changed code and tests:
 

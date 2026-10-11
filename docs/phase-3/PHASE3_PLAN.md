@@ -782,9 +782,9 @@ quantization is worth engineering effort.
   (or canonical answer bytes when dedup is on), metadata/query bytes,
   `total_bytes`, `entries`, embedding dimension, dtype **`float32`**
   (`4` bytes per dimension).
-- **Harness:** extend or wrap [`src/sscre/storage_evaluation.py`](../src/sscre/storage_evaluation.py)
+- **Harness:** extend or wrap [`src/sscre/storage_evaluation.py`](../../src/sscre/storage_evaluation.py)
   and/or a development Strategy C replay that uses the same byte accounting as
-  [`src/sscre/cache.py`](../src/sscre/cache.py) `_entry_size` (do not invent a
+  [`src/sscre/cache.py`](../../src/sscre/cache.py) `_entry_size` (do not invent a
   second formula).
 - **Workload:** development directed requests derived from development pairs
   (800 directed requests = 400 pairs × 2); record exact workload definition in
@@ -877,6 +877,17 @@ embedding accuracy, until a separately labelled real-provider embedding run exis
 Implement int8 quantize/dequantize on the embedding path **only if** Feature 6
 baseline JSON satisfies the dominance gate above.
 
+#### Byte-reduction feasibility (fake embedding dimension 8)
+
+Per-vector int8 storage must count int8 codes **and** one float32 scale per
+vector (see [`WORKSTREAM_5_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_5_IMPLEMENTATION_PLAN.md)
+§ Gate B Step 4). At **dimension 8**, the maximum embedding-byte ratio is
+`(4 × 8) / (8 + 4) = 2.67×`, which is **below** the pre-registered **3.5×**
+pass rule. Gate B therefore has two independent blockers for v1: dominance
+(`embedding_share` < `0.20`, observed `0.123641`) and, even if dominance
+opened, the byte rule could not pass without changing dimension or accounting.
+Do not widen fake dimension to game the gate.
+
 #### Stopping rule (when **not** to build)
 
 - Feature 6 **`embedding_share` < `0.20`**
@@ -968,7 +979,7 @@ through 100K/day without claiming production capacity.
 
 #### Scope
 
-- **In scope:** extend [`src/sscre/load_test.py`](../src/sscre/load_test.py);
+- **In scope:** extend [`src/sscre/load_test.py`](../../src/sscre/load_test.py);
   new workload config (e.g. `experiments/phase3_load_ladder_v1.json`); in-memory
   run first, then PostgreSQL + pgvector with the **same** logical workload when
   `SSCRE_DATABASE_URL` is available.

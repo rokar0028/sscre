@@ -15,6 +15,9 @@ storage
   - synthetic generation latency `100 ms`
 - Bounded scale workload:
   `experiments/milestone10_load_v1.json`
+  - Workload SHA-256 (frozen artifact):
+    `1c681f987c29bae575d52eaa1b053c0f78817cc98580b610ebed84b853747283`
+    (`phase4-scale-profile.json` → `provenance.workload_sha256`)
   - 8 warmup requests
   - 32 measured requests
   - concurrency `4`

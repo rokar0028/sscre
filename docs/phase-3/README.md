@@ -15,7 +15,8 @@ PostgreSQL L1–L3 ladders recorded; both `first_bottleneck` `not_reached`.
 Workstream 7 **closed** (2026-10-11): Feature 4 pass. Workstream 8 **closed**
 (2026-10-12): Feature 5 audit **pass**, **`keep_manual`**. Workstream 9 **closed** (2026-10-12): manifest sync, master plan, limitations,
 and verification ([`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md)).
-Agent workflow
+Parent tracker status: **`closed (Phase 3 v1)`** (int8 master-plan row
+unchecked by design). Agent workflow
 and gates live in
 [../internal/PHASE3_TRANSITION.md](../internal/PHASE3_TRANSITION.md).
 

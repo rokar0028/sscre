@@ -11,14 +11,13 @@ a pre-registered metric without violating the safety constraint
 (`max_false_positive_rate = 0.0`). Rejected or untriggered features are
 reported, not hidden.
 
-**Status:** `partially complete` — Phase 3 **v1 stack** closed (2026-10-10);
-**Workstream 1 registry** closed (2026-10-11). Workstream 5 Gate A closed
-(2026-10-11): float32 baseline recorded, int8 not authorized. Workstream 6 Step 6 closed (2026-10-11): evidence filled. Memory and
-PostgreSQL L1–L3 `first_bottleneck` are `not_reached` (`reproducibility`
-`agree`). Workstream 7 closed (2026-10-11): Feature 4 pass. Workstream 8
-**closed** (2026-10-12): Feature 5 audit **pass**, **`keep_manual`**. Workstream 9
-**closed** (2026-10-12): manifest, master plan, limitations, and verification
-([`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md) § Step 4).
+**Status:** `closed (Phase 3 v1)` — Workstreams 1–9 closed through 2026-10-12.
+Phase 3 **v1 stack** and final held-out package closed (2026-10-10). int8 compare
+not run: dominance gate failed (`embedding_share` `0.123641`); byte-reduction
+pass rule is infeasible at fake dimension 8 (max `2.67×` vs `3.5×` threshold).
+`SSCRE_PLAN.md` § 20 leaves the int8 row unchecked by design. Verification:
+[`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md) § Step 4. Open baseline
+gaps (synthetic replay, labels, low Strategy C hit rate) unchanged.
 
 ## Source of truth
 

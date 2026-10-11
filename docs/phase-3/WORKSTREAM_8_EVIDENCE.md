@@ -24,7 +24,9 @@ Read-only inventory per Feature 5 card. No artifacts or code were modified.
 | P4-SCALE | `artifacts/evaluation/phase4-storage-profile.json` | yes |
 | P4-SCALE | `artifacts/evaluation/phase4-scale-profile.json` | yes |
 
-**Path check (2026-10-11):** `listed 4`, `missing 0`.
+**Path check (2026-10-11, historical — pre–Workstream 9):** `listed 4`, `missing 0`.
+After WS9 manifest sync: **9** listed artifact paths, **0** missing
+([`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md) § Step 2).
 
 Phase 4 track evidence pointers (for Step 2 matrix):
 
@@ -113,7 +115,8 @@ equivalent when the protocol is not a held-out evaluate run.
 
 **Matrix summary (2026-10-12):** **14** paper results audited (includes one
 superseded preview row R05 and one process-only row R14). Phase 4 manifest
-artifact paths remain **4/4** on disk (Step 1).
+artifact paths were **4/4** on disk at Step 1 (historical); **9/9** after WS9
+Step 2.
 
 **Strict `missing` cells (classified in Step 3 below):** R01 commit alignment;
 R02 optional artifact header; R03 split SHA + evidence header; R05 superseded
@@ -125,6 +128,8 @@ Scored against Feature 5 protocol ([`PHASE3_PLAN.md`](./PHASE3_PLAN.md) § Featu
 No artifacts or code were modified during classification.
 
 ### Inventory counts
+
+Historical at Step 3 scoring time (before WS9 manifest extension):
 
 | Metric | Value | Source |
 | --- | ---: | --- |
@@ -148,11 +153,11 @@ applicable):
 
 | Gap ID | Result | Field | Source | Remedy (doc-only) |
 | --- | --- | --- | --- | --- |
-| G1 | R01 | Git commit alignment | [`PHASE3_FINAL_EVIDENCE.md`](./PHASE3_FINAL_EVIDENCE.md) vs `phase3-final-held-out-comparison.json` | Set evidence commit to `fe68ce3b3cc6cdc35507e8faebbea5549ce5b50e` or add one line that the JSON header is authoritative after protocol-reset rerun. |
-| G2 | R02 | `config_sha256` in report root | `phase3-adaptive-held-out.json` | No blocker: SHA is in Feature 1 evidence. Optional: one-line cross-link in F1 evidence that held-out JSON carries `config_version` only. |
-| G3 | R03 | Split manifest SHA-256 | F2 evidence + eviction JSON | Add `Split manifest SHA-256: 68912e3b…` to [`PHASE3_FEATURE_2_EVIDENCE.md`](./PHASE3_FEATURE_2_EVIDENCE.md) header (same as Feature 1 / final package). |
-| G4 | R03 | Git commit in evidence header | F2 evidence | Add `Base commit` / dirty note matching JSON `8c659262…` (already on artifact). |
-| G5 | R13 | Config path + hash at report root | `phase4-scale-profile.json` | Add explicit `experiments/milestone10_load_v1.json` + `workload_sha256` from provenance to [`PHASE4_SCALE_EVIDENCE.md`](../phase-4/PHASE4_SCALE_EVIDENCE.md) provenance table. |
+| G1 | R01 | Git commit alignment | [`PHASE3_FINAL_EVIDENCE.md`](./PHASE3_FINAL_EVIDENCE.md) vs `phase3-final-held-out-comparison.json` | **Closed** — evidence aligned to `fe68ce3b…` (2026-10-12 doc pass). |
+| G2 | R02 | `config_sha256` in report root | `phase3-adaptive-held-out.json` | No blocker: SHA is in Feature 1 evidence. Optional cross-link remains open. |
+| G3 | R03 | Split manifest SHA-256 | F2 evidence + eviction JSON | **Closed** — added to [`PHASE3_FEATURE_2_EVIDENCE.md`](./PHASE3_FEATURE_2_EVIDENCE.md) (2026-10-12). |
+| G4 | R03 | Git commit in evidence header | F2 evidence | **Closed** — added with dirty note (2026-10-12). |
+| G5 | R13 | Config path + hash at report root | `phase4-scale-profile.json` | **Closed** — provenance row in [`PHASE4_SCALE_EVIDENCE.md`](../phase-4/PHASE4_SCALE_EVIDENCE.md) (2026-10-12). |
 
 R01 **commit mismatch** is **manifest_fixable**, not `repro_blocked`: both
 commits are recorded and the frozen JSON supplies a complete header.
@@ -195,7 +200,7 @@ dependency for Phase 3 v1 (stopping rule).
 | Field | Value |
 | --- | --- |
 | `repro_blocked_gaps` | **0** |
-| `manifest_fixable_gaps` | **5** (G1–G5; optional doc hygiene, not audit blockers) |
+| `manifest_fixable_gaps` | **5** scored at audit; **4 closed** (G1, G3–G5) in 2026-10-12 doc pass; G2 optional |
 | Tracker dependency added? | **no** (confirmed: no MLflow/W&B in project dependencies) |
 | Held-out replay / product code changed for audit? | **no** |
 
@@ -215,8 +220,8 @@ applying those edits.
       Workstream 8 status, execution order, and top-level status synced.
 - [x] [`PHASE3_PLAN.md`](./PHASE3_PLAN.md) Implementation progress — Feature 5 entry.
 - [x] [`README.md`](./README.md) index line updated.
-- [x] Optional doc follow-up G1–G5: **not** required for audit pass; may land in
-      Workstream 9 manifest sync (unchecked backlog).
+- [x] Optional doc follow-up G1, G3–G5 closed (2026-10-12 audit rectification);
+      G2 remains optional.
 
 Path-resolution re-check (same command as plan § Verification):
 
@@ -224,4 +229,6 @@ Path-resolution re-check (same command as plan § Verification):
 python -c "import json, pathlib; m=json.load(open('artifacts/evaluation/phase4-paper-artifact-manifest.json',encoding='utf-8')); paths=[a['path'].replace(chr(92),'/') for t in m.get('tracks',{}).values() for a in t.get('artifacts',[])]; missing=[p for p in paths if not pathlib.Path(p).exists()]; print('listed',len(paths),'missing',len(missing))"
 ```
 
-**Output (2026-10-12):** `listed 4 missing 0`
+**Output (2026-10-12, WS8 close):** `listed 4 missing 0` (historical).  
+**Output (post–WS9, canonical):** `listed 9 missing 0` per
+[`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md) § Step 4.
