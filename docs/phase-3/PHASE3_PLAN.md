@@ -865,8 +865,8 @@ embedding accuracy, until a separately labelled real-provider embedding run exis
 ### Feature 7 — int8 embedding quantization (conditional)
 
 **Order:** 7 (conditional) · **Implementation ID:** `P3-FEAT-Q8`  
-**Plan status:** **`not authorized`** until Feature 6 reports
-**`embedding_share` ≥ `0.20`**.
+**Plan status:** **`not authorized`**. Feature 6 baseline (2026-10-11) reports
+**`embedding_share` `0.123641`**, below **`0.20`**.
 
 #### Trigger (when to build)
 
@@ -1312,6 +1312,20 @@ Re-checked 2026-10-11.
   zero false-positive examples, Feature 1 map retained, conservative eviction.
   Steps 4–9 evaluated the same day and stay blocked; Gate B not opened
   ([`PHASE3_FEATURE_3_EVIDENCE.md`](./PHASE3_FEATURE_3_EVIDENCE.md)).
+
+### Feature 4 — failure clustering (manual synthesis)
+
+**Status:** evaluated and **passed** on 2026-10-11.
+
+- Plan: [`WORKSTREAM_7_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md)
+- Evidence: [`PHASE3_FAILURE_CLUSTERS.md`](./PHASE3_FAILURE_CLUSTERS.md)
+- Primary sample: 13 Strategy B held-out false positives from
+  `phase3-final-held-out-comparison.json`
+- Clusters: insufficient_evidence (10), intent_mismatch (2), constraint_mismatch
+  singleton (1); Strategy C FPR `0.0`
+- Contrast (discussion): C `decision_counts` and 171 `failure_examples`
+  aggregates recorded; not clustered
+- Decision: **pass** — no clustering code or optional JSON export (stopping rule)
 
 ### Step 4 — paper artifact preview package
 
