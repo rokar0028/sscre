@@ -48,3 +48,30 @@ alwaysApply: true
   exit criteria), and **Acceptance criteria** so section references and status
   strings (`draft`, `planning-complete`, `closed (authoring)`) match the linked
   child plan.
+- When a feature card defines an **analysis protocol** with multiple samples
+  (primary, contrast, or discussion-only), map **each** sample to an explicit
+  workstream plan step and evidence subsection. Pass/fail criteria do not
+  replace omitted protocol rows (e.g. Strategy C contrast aggregates when
+  clustering Strategy B false positives only).
+- Workstream **implementation plans** must link the promoted feature card and
+  mirror its **pre-registered pass/fail** in gate stopping rules. Do not invent
+  a decision path that contradicts the card (e.g. `manifest_fixable_gaps` with
+  `repro_blocked_gaps = 0` still **pass** → `keep_manual`, not a forced
+  `manifest_fix_only`). Cite the card section in Gate B.
+- In the plan **Goal** block, include **Status**, **Evidence**, **Parent**, and
+  **Card** lines when a dedicated evidence file exists (match closed workstream
+  plans such as WS7).
+- Step 1 **audit corpus** must list both the feature-card minimum inputs and any
+  broader scope named in the parent implementation plan (e.g. all paper results
+  in WS5–8), so execution matches the matrix scope.
+- Markdown **field tables** in plans: one line per row; put long definitions in
+  a short note below the table, not a wrapped cell (avoids broken tables).
+- Multi-step workstream **evidence**: Step 1 “open gap” tables and pre-edit
+  snapshots must be labeled **historical** or reconciled in the same pass when
+  a later step closes them. The evidence file **Status** and final sections
+  must not contradict earlier rows (e.g. “sync open” after Step 3 closed).
+- Plan **Verification** blocks must cite commands that actually pass in this
+  repo. If a check needs environment variables (e.g. `docker compose config` and
+  `SSCRE_ADMIN_TOKEN`), document the same non-secret sample env as CI (see
+  `.github/workflows/ci.yml`); do not list a bare command that fails by design
+  and record it as pass elsewhere.
