@@ -446,5 +446,5 @@ or separate milestones (Phase 3+, WS9 product approval), not silent Phase 2 pass
 - [x] [`../SSCRE_PLAN.md`](../SSCRE_PLAN.md) Phase 2 section references remediation
   close-out.
 - [x] Broad verification commands pass (table above).
-- [ ] Verified remediation bundle committed to git (open at close-out; see plan
-  acceptance table **Git parity**).
+- [x] Verified remediation bundle committed to git (2026-10-12; plan acceptance
+  table **Git parity**).

@@ -365,4 +365,4 @@ between implemented evidence and future work.
 | Optional gates A–E | All **keep-deferred** (Step 6) |
 | Defensible Phase 2 claim | Synthetic Strategy C compatibility safety/reuse on 615-pair replay |
 | Open product gates | WS9 optional user delivery approval (unchanged; not a remediation blocker) |
-| Git parity (verified bundle in repo) | **Open** — remediation docs, `dashboard.py`, dashboard tests, inventory script, and regenerated `artifacts/evaluation/*` were verified locally but not committed at close-out; run `/commit` before treating origin as authoritative |
+| Git parity (verified bundle in repo) | **Met** on branch `phase4/setup` (commits `a14c92b`–`024df15`, 2026-10-12) |
