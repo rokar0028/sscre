@@ -1,0 +1,30 @@
+{
+  "batch_behavior": "single_query_per_embed_call",
+  "config_path": "experiments/semantic-validity-evaluation-config-v1.json",
+  "device": "cpu",
+  "dimension": 384,
+  "dtype": "float32",
+  "failure_behavior": "raises_local_embedding_error_no_cache_without_valid_vector",
+  "git_commit": "b7eda9dd45823aaf98eb00897301a31145162627",
+  "latency_ms": 75,
+  "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+  "normalize_embeddings": true,
+  "probe": {
+    "device": "cpu",
+    "expected_dimension": 384,
+    "license": "Apache-2.0",
+    "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "package_installed": true,
+    "provider_type": "local_sentence_transformer",
+    "reason": null,
+    "status": "available"
+  },
+  "protocol_id": "P4-SEMVALID",
+  "provider_type": "local_sentence_transformer",
+  "reason": null,
+  "recorded_at": "2026-10-12T08:41:13.119027+00:00",
+  "schema_version": "phase4-local-embedding-smoke-1.0",
+  "status": "pass",
+  "usage_source": "estimated",
+  "vector_fingerprint_sha256": "95fa779e73cc2dacde9d01ea0beb93370d0c77357228b4399feb0dc2d6de2b31"
+}

@@ -5,6 +5,7 @@ from dataclasses import asdict
 import hashlib
 import json
 import math
+import platform
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -25,6 +26,7 @@ from sscre.baseline import (
     save_no_cache_report,
 )
 from sscre.benchmark import BenchmarkValidationError, load_benchmark_jsonl
+from sscre.embedding import EmbeddingClient, FakeEmbeddingClient
 from sscre.benchmark_annotation import validate_review_policy
 from sscre.benchmark_splits import (
     build_benchmark_report_metadata,
@@ -36,6 +38,13 @@ from sscre.evaluation_statistics import (
     build_comparison_statistics,
 )
 from sscre.failure_quality import enrich_failure_gallery
+from sscre.evaluation_protocol import (
+    apply_primary_headline_population_filter,
+    resolve_semantic_embedding_client,
+    reuse_attribution_summary,
+    validate_semantic_validity_cli_options,
+)
+from sscre.local_embedding import LocalSentenceTransformerEmbeddingClient
 from sscre.freshness_artifacts import freshness_companion_artifact_references
 from sscre.freshness_evaluation import (
     DEFAULT_REPLAY_ANCHOR_TIME,
@@ -238,6 +247,8 @@ def _validate_split(
 def _select_development_threshold(
     benchmark_path: Path,
     config: dict[str, Any],
+    *,
+    embedding_client: EmbeddingClient | None = None,
 ) -> Any:
     development_path = benchmark_path.parent / "development.jsonl"
     development_records = load_benchmark_jsonl(development_path)
@@ -248,12 +259,17 @@ def _select_development_threshold(
         development_records,
         validate_full_dataset=False,
     )
+    development_records, _ = apply_primary_headline_population_filter(
+        development_records,
+        config,
+    )
     return run_embedding_threshold_sweep(
         development_records,
         dataset_version=config["dataset_version"],
         thresholds=config["embedding_thresholds"],
         top_k=config["embedding_top_k"],
         max_false_positive_rate=config["max_false_positive_rate"],
+        embedding_client=embedding_client,
         input_cost_per_1k_tokens=config["input_cost_per_1k_tokens"],
         output_cost_per_1k_tokens=config["output_cost_per_1k_tokens"],
         embedding_cost_per_1k_tokens=config["embedding_cost_per_1k_tokens"],
@@ -265,6 +281,8 @@ def _select_development_threshold(
 def _select_adaptive_thresholds(
     benchmark_path: Path,
     config: dict[str, Any],
+    *,
+    embedding_client: EmbeddingClient | None = None,
 ) -> tuple[dict[str, float], dict[str, object]]:
     development_path = benchmark_path.parent / "development.jsonl"
     development_records = load_benchmark_jsonl(development_path)
@@ -275,18 +293,80 @@ def _select_adaptive_thresholds(
         development_records,
         validate_full_dataset=False,
     )
+    development_records, _ = apply_primary_headline_population_filter(
+        development_records,
+        config,
+    )
     return select_adaptive_domain_thresholds(
         development_records,
         dataset_version=config["dataset_version"],
         thresholds=config["embedding_thresholds"],
         top_k=config["embedding_top_k"],
         max_false_positive_rate=config["max_false_positive_rate"],
+        embedding_client=embedding_client,
         input_cost_per_1k_tokens=config["input_cost_per_1k_tokens"],
         output_cost_per_1k_tokens=config["output_cost_per_1k_tokens"],
         embedding_cost_per_1k_tokens=config["embedding_cost_per_1k_tokens"],
         cache_lookup_cost_usd=config["cache_lookup_cost_usd"],
         preprocessing_cost_usd=config["preprocessing_cost_usd"],
     )
+
+
+def _embedding_run_options(
+    config: dict[str, Any],
+    embedding_client: EmbeddingClient | None,
+) -> dict[str, Any]:
+    return {
+        "top_k": config["embedding_top_k"],
+        "embedding_client": embedding_client,
+        "embedding_cost_per_1k_tokens": config["embedding_cost_per_1k_tokens"],
+        "cache_lookup_cost_usd": config["cache_lookup_cost_usd"],
+        "preprocessing_cost_usd": config["preprocessing_cost_usd"],
+    }
+
+
+def _measurement_environment(
+    embedding_client: EmbeddingClient | None,
+) -> str:
+    if isinstance(embedding_client, LocalSentenceTransformerEmbeddingClient):
+        return "local_embedding_replay"
+    if embedding_client is not None and not isinstance(
+        embedding_client, FakeEmbeddingClient
+    ):
+        return "provider_replay"
+    return "synthetic_replay"
+
+
+def _embedding_provenance_metadata(
+    embedding_client: EmbeddingClient | None,
+) -> dict[str, object] | None:
+    if embedding_client is None:
+        return None
+    block: dict[str, object] = {
+        "model_name": embedding_client.config.model_name,
+        "dimension": embedding_client.config.dimension,
+    }
+    if isinstance(embedding_client, LocalSentenceTransformerEmbeddingClient):
+        block.update(
+            {
+                "provider_type": "local_sentence_transformer",
+                "device": embedding_client.device,
+                "normalize_embeddings": embedding_client.normalize_embeddings,
+                "batch_behavior": embedding_client.batch_behavior,
+            }
+        )
+    elif not isinstance(embedding_client, FakeEmbeddingClient):
+        block["provider_type"] = "remote_or_custom"
+    else:
+        block["provider_type"] = "synthetic"
+    return block
+
+
+def _runtime_environment_metadata() -> dict[str, str]:
+    return {
+        "python_version": platform.python_version(),
+        "platform": platform.platform(),
+    }
 
 
 def _config_sha256(path: str | Path) -> str:
@@ -441,6 +521,13 @@ def main(argv: list[str] | None = None) -> int:
             require_final_review=require_final_review,
         )
         config = _load_config(args.config)
+        validate_semantic_validity_cli_options(
+            config,
+            freshness_policy=args.freshness_policy,
+            adaptive_threshold_map=args.adaptive_threshold_map,
+            adaptive_threshold_map_output=args.adaptive_threshold_map_output,
+        )
+        embedding_client = resolve_semantic_embedding_client(config)
         freshness_replay_clock = None
         if args.freshness_policy is not None:
             experiment = freshness_experiment_from_mapping(config)
@@ -484,6 +571,7 @@ def main(argv: list[str] | None = None) -> int:
             selected_map, adaptive_diagnostics = _select_adaptive_thresholds(
                 benchmark_path,
                 config,
+                embedding_client=embedding_client,
             )
             _write_adaptive_threshold_map(
                 args.adaptive_threshold_map_output,
@@ -501,6 +589,9 @@ def main(argv: list[str] | None = None) -> int:
             config["dataset_version"],
             records,
             production=args.production,
+        )
+        records, primary_headline_population = (
+            apply_primary_headline_population_filter(records, config)
         )
         common_options = {
             "dataset_version": config["dataset_version"],
@@ -523,6 +614,14 @@ def main(argv: list[str] | None = None) -> int:
                 manifest_path=manifest_path,
             ),
         }
+        if primary_headline_population is not None:
+            metadata["primary_headline_population"] = primary_headline_population
+        embedding_provenance = _embedding_provenance_metadata(embedding_client)
+        if embedding_provenance is not None:
+            metadata["embedding_provenance"] = embedding_provenance
+        metadata["runtime_environment"] = _runtime_environment_metadata()
+        metadata["threshold_selection_split"] = "development"
+        metadata["held_out_influence"] = "none"
         if args.freshness_policy is not None:
             metadata["freshness_policy_name"] = args.freshness_policy
         adaptive_threshold_map_sha256 = _optional_artifact_sha256(
@@ -532,8 +631,13 @@ def main(argv: list[str] | None = None) -> int:
             metadata["adaptive_threshold_map_sha256"] = (
                 adaptive_threshold_map_sha256
             )
+        embed_options = _embedding_run_options(config, embedding_client)
         if args.baseline == "all":
-            selection = _select_development_threshold(benchmark_path, config)
+            selection = _select_development_threshold(
+                benchmark_path,
+                config,
+                embedding_client=embedding_client,
+            )
             compatibility_threshold = adaptive_threshold_map or selection.selected_threshold
             no_cache_report = run_no_cache_baseline(records, **common_options)
             exact_cache_report = run_exact_cache_baseline(
@@ -546,23 +650,13 @@ def main(argv: list[str] | None = None) -> int:
                 records,
                 **common_options,
                 threshold=selection.selected_threshold,
-                top_k=config["embedding_top_k"],
-                embedding_cost_per_1k_tokens=config[
-                    "embedding_cost_per_1k_tokens"
-                ],
-                cache_lookup_cost_usd=config["cache_lookup_cost_usd"],
-                preprocessing_cost_usd=config["preprocessing_cost_usd"],
+                **embed_options,
             )
             compatibility_report = run_compatibility_cache_baseline(
                 records,
                 **common_options,
                 threshold=compatibility_threshold,
-                top_k=config["embedding_top_k"],
-                embedding_cost_per_1k_tokens=config[
-                    "embedding_cost_per_1k_tokens"
-                ],
-                cache_lookup_cost_usd=config["cache_lookup_cost_usd"],
-                preprocessing_cost_usd=config["preprocessing_cost_usd"],
+                **embed_options,
                 freshness_replay_clock=freshness_replay_clock,
             )
             compatibility_false_positive_keys = {
@@ -584,8 +678,22 @@ def main(argv: list[str] | None = None) -> int:
             comparison_body: dict[str, Any] = {
                 **metadata,
                 "baseline": "comparison",
-                "measurement_environment": "synthetic_replay",
+                "measurement_environment": _measurement_environment(
+                    embedding_client
+                ),
                 "threshold_selection": asdict(selection),
+                "threshold_decision": {
+                    "selected_threshold": selection.selected_threshold,
+                    "selection_rule": selection.selection_rule,
+                    "constraint_satisfied": selection.constraint_satisfied,
+                    "selection_split": "development",
+                    "held_out_records_used": False,
+                },
+                "reuse_attribution_summary": {
+                    name: reuse_attribution_summary(payload)
+                    for name, payload in baseline_payloads.items()
+                    if name in {"exact-cache", "embedding-cache", "compatibility-cache"}
+                },
                 "baselines": baseline_payloads,
                 "failure_gallery": enrich_failure_gallery(
                     {
@@ -649,7 +757,11 @@ def main(argv: list[str] | None = None) -> int:
                 attach_statistics=attach_statistics,
             )
         elif args.baseline == "compatibility-cache":
-            selection = _select_development_threshold(benchmark_path, config)
+            selection = _select_development_threshold(
+                benchmark_path,
+                config,
+                embedding_client=embedding_client,
+            )
             compatibility_threshold = (
                 adaptive_threshold_map or selection.selected_threshold
             )
@@ -657,12 +769,7 @@ def main(argv: list[str] | None = None) -> int:
                 records,
                 **common_options,
                 threshold=compatibility_threshold,
-                top_k=config["embedding_top_k"],
-                embedding_cost_per_1k_tokens=config[
-                    "embedding_cost_per_1k_tokens"
-                ],
-                cache_lookup_cost_usd=config["cache_lookup_cost_usd"],
-                preprocessing_cost_usd=config["preprocessing_cost_usd"],
+                **embed_options,
                 freshness_replay_clock=freshness_replay_clock,
             )
             metadata.update(
@@ -688,13 +795,8 @@ def main(argv: list[str] | None = None) -> int:
                 records,
                 **common_options,
                 thresholds=config["embedding_thresholds"],
-                top_k=config["embedding_top_k"],
                 max_false_positive_rate=config["max_false_positive_rate"],
-                embedding_cost_per_1k_tokens=config[
-                    "embedding_cost_per_1k_tokens"
-                ],
-                cache_lookup_cost_usd=config["cache_lookup_cost_usd"],
-                preprocessing_cost_usd=config["preprocessing_cost_usd"],
+                **embed_options,
             )
             save_embedding_sweep_report(
                 report,
@@ -704,17 +806,16 @@ def main(argv: list[str] | None = None) -> int:
                 attach_statistics=attach_statistics,
             )
         else:
-            selection = _select_development_threshold(benchmark_path, config)
+            selection = _select_development_threshold(
+                benchmark_path,
+                config,
+                embedding_client=embedding_client,
+            )
             report = run_embedding_cache_baseline(
                 records,
                 **common_options,
                 threshold=selection.selected_threshold,
-                top_k=config["embedding_top_k"],
-                embedding_cost_per_1k_tokens=config[
-                    "embedding_cost_per_1k_tokens"
-                ],
-                cache_lookup_cost_usd=config["cache_lookup_cost_usd"],
-                preprocessing_cost_usd=config["preprocessing_cost_usd"],
+                **embed_options,
             )
             metadata.update(
                 {

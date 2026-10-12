@@ -16,8 +16,8 @@ Implementation code lives under `src/sscre/`, `tests/`, `benchmarks/`, and
 ## Adding new documentation
 
 - **Never** add project markdown at the repository root — use a folder below.
-- **Phase work** → `phase-1/` or `phase-2/` (keep phase-2 files flat; paths are
-  cited from code). Update that phase's `README.md`.
+- **Phase work** → `phase-1/` through `phase-4/` (keep phase-2–4 files flat;
+  paths are cited from code). Update that phase's `README.md`.
 - **Specs and flows** → `reference/`. **Setup guides** → `setup/`.
 - **Release prep, agent briefs, original brief** → `internal/` (or
   `internal/reports/` for milestone write-ups).
@@ -37,7 +37,8 @@ docs/
 ├── internal/                          ← release prep, Phase 0 decisions, transition brief (see internal/README.md)
 ├── phase-1/                           ← Milestones 1–10 implementation plans
 ├── phase-2/                           ← Phase 2 plans, contracts, evidence (see phase-2/README.md)
-└── phase-3/                           ← placeholder until PHASE3_PLAN.md exists
+├── phase-3/                           ← Phase 3 plans and evidence (see phase-3/README.md)
+└── phase-4/                           ← Phase 4 follow-up evidence and plans (see phase-4/README.md)
 ```
 
 ## Core documents (top level)
@@ -87,7 +88,8 @@ See [SSCRE_PUBLIC_READINESS.md](./internal/SSCRE_PUBLIC_READINESS.md).
 | --- | --- | --- |
 | [phase-1/](./phase-1/) | [phase-1/README.md](./phase-1/README.md) | Milestones 1–10 implementation plans |
 | [phase-2/](./phase-2/) | [phase-2/README.md](./phase-2/README.md) | Workstreams 1–6, frozen contracts, evidence |
-| [phase-3/](./phase-3/) | [phase-3/README.md](./phase-3/README.md) | Future; output target `phase-3/PHASE3_PLAN.md` |
+| [phase-3/](./phase-3/) | [phase-3/README.md](./phase-3/README.md) | Phase 3 plans, feature cards, workstream evidence |
+| [phase-4/](./phase-4/) | [phase-4/README.md](./phase-4/README.md) | Pareto, scale, release, semantic-validity follow-up |
 
 ## Authoritative sources
 

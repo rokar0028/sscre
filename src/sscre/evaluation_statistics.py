@@ -590,6 +590,8 @@ def _sample_indicator(values: Sequence[Mapping[str, object]], key: str) -> list[
     indicators: list[int] = []
     for row in values:
         raw = row.get(key)
+        if raw is None and key == "unlabeled_candidate_reuse":
+            raw = 0
         if raw not in (0, 1):
             raise ValueError(f"sample field {key!r} must be 0 or 1")
         indicators.append(int(raw))
@@ -664,13 +666,32 @@ def summarize_request_sample_statistics(
         ),
     }
 
+    unlabeled_reuse = _sample_indicator(samples, "unlabeled_candidate_reuse")
+    labeled_hit_indices = [
+        index
+        for index, hit in enumerate(cache_hits)
+        if hit == 1 and unlabeled_reuse[index] == 0
+    ]
+    if labeled_hit_indices:
+        fp_among_labeled_hits = [false_positives[index] for index in labeled_hit_indices]
+        proportions["false_positive_rate"] = _proportion_from_indicators(
+            fp_among_labeled_hits,
+            settings,
+        )
+    elif hit_total > 0:
+        proportions["false_positive_rate"] = unavailable_interval(
+            point=None,
+            n=0,
+            confidence_level=settings.confidence_level,
+            reason="no_labeled_reuse_hits",
+        )
     if hit_total > 0:
         fp_among_hits = [
             false_positives[index]
             for index, hit in enumerate(cache_hits)
             if hit == 1
         ]
-        proportions["false_positive_rate"] = _proportion_from_indicators(
+        proportions["false_positive_rate_among_all_hits"] = _proportion_from_indicators(
             fp_among_hits,
             settings,
         )
@@ -858,6 +879,7 @@ class RequestObservationSample:
     generated: int
     false_positive: int
     safe_reuse_hit: int
+    unlabeled_candidate_reuse: int
     latency_ms: float
     embedding_tokens: int
     generation_input_tokens: int
@@ -867,6 +889,7 @@ class RequestObservationSample:
     failure_category: str | None = None
     freshness_class: str | None = None
     runtime_temporal_class: str | None = None
+    served_candidate_provenance: dict[str, object] | None = None
 
     def __post_init__(self) -> None:
         for name in (
@@ -874,6 +897,7 @@ class RequestObservationSample:
             "generated",
             "false_positive",
             "safe_reuse_hit",
+            "unlabeled_candidate_reuse",
         ):
             value = getattr(self, name)
             if isinstance(value, bool) or value not in (0, 1):
@@ -910,6 +934,7 @@ class RequestObservationSample:
             "generated": self.generated,
             "false_positive": self.false_positive,
             "safe_reuse_hit": self.safe_reuse_hit,
+            "unlabeled_candidate_reuse": self.unlabeled_candidate_reuse,
             "latency_ms": self.latency_ms,
             "embedding_tokens": self.embedding_tokens,
             "generation_input_tokens": self.generation_input_tokens,
@@ -924,6 +949,8 @@ class RequestObservationSample:
             payload["freshness_class"] = self.freshness_class
         if self.runtime_temporal_class is not None:
             payload["runtime_temporal_class"] = self.runtime_temporal_class
+        if self.served_candidate_provenance is not None:
+            payload["served_candidate_provenance"] = self.served_candidate_provenance
         return payload
 
 
@@ -1051,7 +1078,17 @@ def build_comparison_statistics(
     overall = by_baseline.get("compatibility-cache", {})
     compatibility_payload = baseline_payloads.get("compatibility-cache", {})
     observed_false_positive_rate = compatibility_payload.get("false_positive_rate")
-    if (
+    unavailable_reason = compatibility_payload.get(
+        "false_positive_rate_unavailable_reason"
+    )
+    if observed_false_positive_rate is None:
+        if not isinstance(unavailable_reason, str) or not unavailable_reason:
+            raise ValueError(
+                "compatibility baseline requires false_positive_rate or "
+                "false_positive_rate_unavailable_reason"
+            )
+        observed_for_constraint = math.inf
+    elif (
         isinstance(observed_false_positive_rate, bool)
         or not isinstance(observed_false_positive_rate, (int, float))
         or not math.isfinite(observed_false_positive_rate)
@@ -1059,6 +1096,8 @@ def build_comparison_statistics(
         raise ValueError(
             "compatibility baseline requires a finite false_positive_rate"
         )
+    else:
+        observed_for_constraint = float(observed_false_positive_rate)
     return {
         "statistics_schema_version": EVALUATION_STATISTICS_SCHEMA_VERSION,
         "measurement_environment": "synthetic_replay",
@@ -1069,8 +1108,9 @@ def build_comparison_statistics(
             "selection_rule": selection_rule,
             "max_false_positive_rate": max_false_positive_rate,
             "observed_false_positive_rate": observed_false_positive_rate,
+            "observed_false_positive_rate_unavailable_reason": unavailable_reason,
             "constraint_satisfied": (
-                observed_false_positive_rate <= max_false_positive_rate
+                observed_for_constraint <= max_false_positive_rate
             ),
         },
         "overall": overall,
@@ -1084,7 +1124,10 @@ def reuse_outcome_indicators(
     reusable: bool,
     served_reuse: bool,
 ) -> tuple[int, int]:
-    """Return (false_positive, safe_reuse_hit) for the b_to_a evaluation direction."""
+    """Legacy request-record reuse scoring.
+
+    Baseline replay uses ``evaluation_attribution.attribute_served_reuse_outcome``.
+    """
     if direction != "b_to_a" or not served_reuse:
         return 0, 0
     if reusable:

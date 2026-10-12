@@ -84,7 +84,7 @@
       "record_count": 615,
       "sha256": "8dbd3c503927006d27f18c4f41a0c3ae47c7294e583203d3371871fa2e0664cd"
     },
-    "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+    "split_manifest_sha256": "0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9",
     "split_record_count": 215,
     "split_record_identity": [
       {
@@ -2245,7 +2245,7 @@
   "config_version": "evaluation-config-1.0",
   "dataset_version": "reviewed-query-pairs-2.0",
   "evaluation_split": "held-out",
-  "execution_timestamp": "2026-10-10T15:08:01.377467+00:00",
+  "execution_timestamp": "2026-10-12T03:59:06.423264+00:00",
   "freshness_artifact_metadata": {
     "artifact_package_version": "1.0",
     "benchmark_path": "benchmarks/held_out_test.jsonl",
@@ -2343,7 +2343,7 @@
         "exact_lookup_empty_after_invalidation": true,
         "fresh_reuse_eligible_before_invalidation": true,
         "insert_verified": true,
-        "invalidation_latency_ms": 0.0053,
+        "invalidation_latency_ms": 0.0044,
         "regeneration_verified": true,
         "semantic_retrieval_excludes_invalidated_entry": true,
         "semantic_retrieval_includes_entry_before_invalidation": true
@@ -6996,7 +6996,7 @@
         "max_stale_exposure_rate": 0.0
       },
       "dataset_version": "reviewed-query-pairs-2.0",
-      "git_commit": "88997ed1d7463c90fb57a2beee39b2b0a78f4b7c",
+      "git_commit": "2f7aa5e75bc3bff7114c9a4213a270f9b4f62e3d",
       "git_worktree_dirty": true,
       "held_out_constraint_satisfied": true,
       "held_out_constraint_violations": [],
@@ -8470,7 +8470,7 @@
     },
     "threshold_selection_rule": "maximize safe reuse coverage subject to the development false-positive rate <= 0.0"
   },
-  "git_commit": "51496c25ded2364a8c8cb513fb99afbc61f67db0",
+  "git_commit": "2f7aa5e75bc3bff7114c9a4213a270f9b4f62e3d",
   "git_worktree_dirty": true,
   "measurement_environment": "synthetic_replay",
   "safety_contract_version": "1.0.0",

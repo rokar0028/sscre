@@ -4,9 +4,12 @@
 **Branch:** `phase3/implementation`  
 **Final stack:** Strategies A/B/C with Feature 1 adaptive thresholds; default/WS6
 conservative eviction; Strategy D deferred  
-**Held-out run:** `2026-10-10T14:10:29.559417+00:00`
-**Git commit:** `01166574615b3f43faf2adf6848a130df0c9a98e`
-**Git worktree:** dirty; source fixes remain uncommitted
+**Held-out run:** `2026-10-10T14:10:29.559417+00:00` (see JSON `generated_at` if
+rerun timestamp differs)
+**Git commit:** `fe68ce3b3cc6cdc35507e8faebbea5549ce5b50e` (authoritative:
+`artifacts/evaluation/phase3-final-held-out-comparison.json` header)
+**Git worktree:** clean at final artifact generation
+**Note:** An earlier protocol-reset draft cited commit `01166574615b3f43faf2adf6848a130df0c9a98e` with a dirty tree; superseded by the frozen JSON above.
 **Config:** `evaluation-config-1.0`  
 **Config SHA-256:** `5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8`  
 **Adaptive map SHA-256:** `cf665370c369605c0089bd1e8391b03a62799e58281b431539b4fa689bd3de16`
@@ -48,8 +51,9 @@ they must not be presented as live-provider costs.
 - [x] `artifacts/evaluation/phase3-final-held-out-comparison-gallery.html`
 - [x] `python -m sscre.benchmark_validate --phase2 --production` passed.
 - [x] `docker compose config` passed with CI sample environment.
-- [x] Full suite after review fixes: **661 passed**,
-  **15 skipped**, one existing warning.
+- [x] Full suite after review fixes: **661 passed** (2026-10-10);
+  **766 passed**, **15 skipped** (re-verified 2026-10-12 per
+  [`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md) § Step 4).
 
 The final report records bootstrap configuration from the evaluation config:
 seed `42`, 1000 iterations, confidence level `0.95`.

@@ -9,12 +9,27 @@ alwaysApply: true
   Markdown document, include actionable Markdown checkboxes (`- [ ]`).
 - Use unchecked boxes for work that is not verified and checked boxes only for
   work completed with evidence.
+- A checked box's own sentence must stay true. Do not check a claim that the
+  following note negates.
+- When a gate defers implementation, leave those task boxes unchecked and keep
+  their original sentences. Record the deferral in the linked evidence file and
+  a short note under the step. Do not rewrite the tasks into checked deferrals.
+- An unrun conditional feature is **not authorized**, not **pass** or **fail**.
+  Use **fail** only after the pre-registered pass rule was scored.
 - Keep every item under a `## Learning objectives` section unchecked. Those
   lists are study topics, not implementation or verification checklists.
 - For verification checkboxes, record or link the command and result when the
   evidence is not obvious from the changed files.
 - Before running or recording a verification command, confirm every referenced
   file, test path, marker, and CLI option exists in the current checkout.
+- When authoring an implementation plan, confirm every linked repo path in
+  **Parent**, **Evidence**, contracts, and **Verification** exists. If a
+  canonical path is missing, add an **Open baseline gaps** checkbox instead of
+  a dead link; do not mark authoring complete until the gap is resolved or
+  explicitly recorded.
+- Use **`## Out of scope for this document`** (or **`## Out of scope`**) for
+  excluded work in implementation plans. Do not use only **Non-goals** when the
+  plan already has a dedicated exclusion section.
 - Do not mark full-suite, integration, or lint checks complete when they were
   not run successfully; distinguish unavailable tooling from a clean result.
 - Recheck broad verification claims after later milestones change the codebase,
@@ -26,6 +41,13 @@ alwaysApply: true
 - When closing a workstream milestone, sync the plan **Status**, **Execution
   sequence**, **Acceptance criteria**, and linked **evidence** file so unchecked
   boxes do not contradict implemented code or recorded deferrals.
+- When close-out records regenerated `artifacts/`, verification file hashes, or
+  code changes (e.g. remediation Steps 2–7), run `git status` on those canonical
+  paths before setting **Status** to `closed`. If they are still modified or
+  untracked, either commit them (user-approved `/commit`) or keep **Status**
+  explicit (`closed (docs only)` or `in progress — commit bundle pending`) and
+  list the paths in evidence; do not imply the remote or default branch already
+  contains the verified package.
 - When marking an implementation **step** complete in a workstream plan, update
   that step’s checkboxes and evidence in the same pass, and refresh **Current
   baseline** (especially **Open baseline gaps** and the canonical module table)
@@ -41,3 +63,39 @@ alwaysApply: true
   exit criteria), and **Acceptance criteria** so section references and status
   strings (`draft`, `planning-complete`, `closed (authoring)`) match the linked
   child plan.
+- When a feature card defines an **analysis protocol** with multiple samples
+  (primary, contrast, or discussion-only), map **each** sample to an explicit
+  workstream plan step and evidence subsection. Pass/fail criteria do not
+  replace omitted protocol rows (e.g. Strategy C contrast aggregates when
+  clustering Strategy B false positives only).
+- Workstream **implementation plans** must link the promoted feature card and
+  mirror its **pre-registered pass/fail** in gate stopping rules. Do not invent
+  a decision path that contradicts the card (e.g. `manifest_fixable_gaps` with
+  `repro_blocked_gaps = 0` still **pass** → `keep_manual`, not a forced
+  `manifest_fix_only`). Cite the card section in Gate B.
+- In the plan **Goal** block, include **Status**, **Evidence**, **Parent**, and
+  **Card** lines when a dedicated evidence file exists (match closed workstream
+  plans such as WS7).
+- Step 1 **audit corpus** must list both the feature-card minimum inputs and any
+  broader scope named in the parent implementation plan (e.g. all paper results
+  in WS5–8), so execution matches the matrix scope.
+- Markdown **field tables** in plans: one line per row; put long definitions in
+  a short note below the table, not a wrapped cell (avoids broken tables).
+- Multi-step workstream **evidence**: Step 1 “open gap” tables and pre-edit
+  snapshots must be labeled **historical** or reconciled in the same pass when
+  a later step closes them. The evidence file **Status** and final sections
+  must not contradict earlier rows (e.g. “sync open” after Step 3 closed).
+- After a **read-only audit** step, label evidence **code inspection** (and
+  similar narrative) as a **historical snapshot** at that step’s close once a
+  later step edits the same paths. State explicitly when on-disk `artifacts/`
+  or `experiments/` JSON was not regenerated (inventory rows still describe
+  frozen files).
+- Close-out checkboxes that describe **forbidden later work** (e.g. “do not
+  start Step 2”) must be phrased so they stay true after later steps run—use
+  **at Step N close** wording (“At Step 1 close, Step 2 was not started”) rather
+  than an absolute future claim checked `[x]`.
+- Plan **Verification** blocks must cite commands that actually pass in this
+  repo. If a check needs environment variables (e.g. `docker compose config` and
+  `SSCRE_ADMIN_TOKEN`), document the same non-secret sample env as CI (see
+  `.github/workflows/ci.yml`); do not list a bare command that fails by design
+  and record it as pass elsewhere.

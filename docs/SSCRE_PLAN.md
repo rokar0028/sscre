@@ -729,35 +729,69 @@ minimum and is intentionally still unchecked above.
 
 ### Phase 2 — Depth (Weeks 7–10)
 
-- [x] Define and test `SAFE`, `UNSAFE`, and `UNCERTAIN`
-  (Workstream 1; [docs/phase-2/WORKSTREAM_1_EVIDENCE.md](phase-2/WORKSTREAM_1_EVIDENCE.md))
-- [x] Add candidate-level decision traces
-  (same evidence; Strategy B still records only the first candidate)
-- [ ] Expand benchmark to ≥500 reviewed pairs
-- [ ] Create development and held-out test splits
-- [x] Add threshold sweep configuration
-- [ ] Generate Pareto plots
-- [ ] Add confidence intervals
-- [ ] Add human correctness labels
-- [ ] Keep preference and correctness labels separate
-- [ ] Add freshness policy experiments
-- [ ] Build failure gallery
-- [ ] Add failure-category metrics
-- [ ] Add dashboard only after reports are stable
-- [ ] Add dual-model comparison only for a defined experiment
+Reconciled and remediation **closed** 2026-10-12
+([`docs/phase-2/PHASE_2_REMEDIATION_EVIDENCE.md`](phase-2/PHASE_2_REMEDIATION_EVIDENCE.md)
+§ Step 7). Phase 2 gate: **615** pairs (`reviewed-query-pairs-2.0`, 400 / 215).
+The roadmap’s **2,000+** pair aspiration remains a stretch goal, not met.
+
+- [x] Define and test `SAFE`, `UNSAFE`, and `UNCERTAIN` on Strategy C
+  (Workstream 1; [WORKSTREAM_1_EVIDENCE.md](phase-2/WORKSTREAM_1_EVIDENCE.md)).
+  Strategy B is an opt-in embedding-only baseline, not the canonical path.
+- [x] Add candidate-level decision traces for Strategy C
+  (Strategy B records only the first candidate).
+- [x] Expand benchmark to ≥500 reviewed compatibility-labeled pairs
+  (615; [BENCHMARK_500_SCALE_UP_EVIDENCE.md](phase-2/BENCHMARK_500_SCALE_UP_EVIDENCE.md)).
+- [x] Create development and held-out test splits with leakage validation.
+- [x] Add threshold sweep configuration.
+- [x] Generate Pareto plots (synthetic held-out; storage plane unavailable).
+- [x] Add confidence intervals on synthetic replay reports.
+- [ ] Add human **correctness** labels (all 615 records: `correctness_label`
+  null; `answer_availability: none`).
+- [x] Keep preference and correctness label **contracts** separate
+  ([EVALUATION_LABEL_CONTRACT_v1.md](../benchmarks/EVALUATION_LABEL_CONTRACT_v1.md));
+  preference labels not collected.
+- [x] Add freshness policy experiments (development: stable / semi-dynamic /
+  dynamic; held-out: **stable only** — [WORKSTREAM_6_EVIDENCE.md](phase-2/WORKSTREAM_6_EVIDENCE.md)).
+- [x] Build failure gallery ([WORKSTREAM_7_EVIDENCE.md](phase-2/WORKSTREAM_7_EVIDENCE.md)).
+- [x] Add failure-category metrics in consolidated quality analysis.
+- [x] Add bounded read-only dashboard after report contracts stabilized
+  ([WORKSTREAM_9_EVIDENCE.md](phase-2/WORKSTREAM_9_EVIDENCE.md); optional user
+  product-approval gates remain open).
+- [x] Dual-model comparison as a **defined, disabled** experiment only
+  (no live provider run; [WORKSTREAM_9_EVIDENCE.md](phase-2/WORKSTREAM_9_EVIDENCE.md)).
+
+**Not claimed for Phase 2:** live-provider cost/latency, factual correctness
+improvement, held-out semi-dynamic/dynamic freshness, live PostgreSQL restart,
+or production capacity (see remediation evidence § Step 7).
 
 ### Phase 3 — Advanced (Weeks 11–14, if justified)
 
-- [ ] Write a hypothesis and pass/fail criterion
-- [ ] Implement cross-encoder validator (D) only if C misses the target
-- [ ] Compare validator latency and safety improvement
-- [ ] Measure embedding storage before quantization
+- [x] Write a hypothesis and pass/fail criterion
+  ([docs/phase-3/PHASE3_PLAN.md](phase-3/PHASE3_PLAN.md) Features 1–8)
+- [x] Implement cross-encoder validator (D) only if C misses the target
+  — **not implemented**; retained-stack held-out FPR `0.0`; trigger did not fire
+  ([docs/phase-3/PHASE3_FEATURE_3_EVIDENCE.md](phase-3/PHASE3_FEATURE_3_EVIDENCE.md))
+- [x] Compare validator latency and safety improvement
+  — **not applicable** while Strategy D is untriggered
+  ([docs/phase-3/WORKSTREAM_4_IMPLEMENTATION_PLAN.md](phase-3/WORKSTREAM_4_IMPLEMENTATION_PLAN.md))
+- [x] Measure embedding storage before quantization
+  ([docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md](phase-3/PHASE3_QUANTIZATION_EVIDENCE.md)
+  § Step 3; `embedding_share` `0.123641`)
 - [ ] Test int8 embedding quantization
-- [ ] Run load tests from 1K to 100K simulated queries/day
-- [ ] Identify the first bottleneck
-- [ ] Test adaptive thresholds by domain
-- [ ] Cluster recurring failures
-- [ ] Add experiment tracking only if manual reports are insufficient
+  — **not run**; Feature 6 dominance gate below `0.20`; no development compare artifact
+  ([docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md](phase-3/PHASE3_QUANTIZATION_EVIDENCE.md) § Steps 4–6)
+- [x] Run load tests from 1K to 100K simulated queries/day
+  ([docs/phase-3/PHASE3_LOAD_EVIDENCE.md](phase-3/PHASE3_LOAD_EVIDENCE.md); synthetic replay)
+- [x] Identify the first bottleneck
+  — `not_reached` on memory and PostgreSQL ladders (`reproducibility` `agree`)
+  ([docs/phase-3/PHASE3_LOAD_EVIDENCE.md](phase-3/PHASE3_LOAD_EVIDENCE.md) § Step 6)
+- [x] Test adaptive thresholds by domain
+  — passed ([docs/phase-3/PHASE3_FEATURE_1_EVIDENCE.md](phase-3/PHASE3_FEATURE_1_EVIDENCE.md))
+- [x] Cluster recurring failures
+  ([docs/phase-3/PHASE3_FAILURE_CLUSTERS.md](phase-3/PHASE3_FAILURE_CLUSTERS.md))
+- [x] Add experiment tracking only if manual reports are insufficient
+  — audit **pass**; decision **`keep_manual`**
+  ([docs/phase-3/WORKSTREAM_8_EVIDENCE.md](phase-3/WORKSTREAM_8_EVIDENCE.md))
 
 **Rule:** Phase 3 features require a written hypothesis + pass/fail criterion before implementation.
 

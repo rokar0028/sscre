@@ -12,18 +12,18 @@ Two gates. Do not treat them as one “workstream complete” verdict.
 (`P3-FEAT-EMBED-BASE`). Write the byte breakdown and the dominance decision.
 No int8 code in this gate.
 
-**Gate B — Feature 7 quantization.** Not authorized. Steps 4–6 stay unchecked
+**Gate B — Feature 7 quantization.** Not authorized. Steps 4–5 stay unchecked
 until Gate A reports `embedding_share` **≥** `0.20` **and** the user confirms
-the pre-registered thresholds in writing. Card:
+the pre-registered thresholds in writing. Step 6 records that close. Card:
 [Feature 7 — int8 embedding quantization](./PHASE3_PLAN.md#feature-7--int8-embedding-quantization-conditional)
 (`P3-FEAT-Q8`).
 
-**Status:** `in progress` — Gate A Step 1 closed 2026-10-11. Steps 2–3 not
-started. Gate B not authorized.  
+**Status:** **Gate A closed** (2026-10-11). `embedding_share` `0.123641`;
+`quantize_authorized` false. Gate B not authorized. Steps 4–5 evaluated
+2026-10-11 and stayed blocked. Step 6 closed 2026-10-11 on that result.  
 **Parent:** [`PHASE_3_IMPLEMENTATION_PLAN.md`](./PHASE_3_IMPLEMENTATION_PLAN.md)
 § Workstream 5.  
-**Evidence:** [`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md)
-(pending execution).
+**Evidence:** [`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md).
 
 ## Scope
 
@@ -85,18 +85,24 @@ started. Gate B not authorized.
 | Hash helper | `file_sha256` in `src/sscre/benchmark_splits.py` |
 | Not a substitute | `experiments/storage_controls_development.json` (4 requests; entries have no embedding) |
 
-## Current code gap
+## Current baseline
 
 Step 1 is in `src/sscre/cache.py`: `entry_byte_components` feeds `_entry_size`,
 and `InMemoryExactCache.byte_breakdown()` sums query, metadata, embedding, and
 answer bytes (canonical answers included once when dedup is on).
 `storage_bytes()` is that total. `StorageControlReport` is unchanged.
 
-Still open for Steps 2–3: `run_storage_control_evaluation` inserts `CacheEntry`
-without an embedding, so a Milestone 9 storage report still has
-`embedding_bytes` of 0. Phase 4’s 4-request profile is not the Feature 6
-baseline. Strategy C stores vectors via `_baseline_cache_entry_after_generation`,
-but no development artifact writes the breakdown yet.
+Step 2 is `measure_development_embedding_storage` in
+`src/sscre/phase3_embedding_storage.py`. It loads `benchmarks/development.jsonl`
+(800 directed requests), embeds with `FakeEmbeddingClient`, and inserts through
+`_baseline_cache_entry_after_generation` with caps unset. Duplicates stay one
+entry. A capped run with `eviction_count != 0` raises
+`EmbeddingStorageBaselineError` and returns no replay. Step 3 wrote
+`artifacts/evaluation/phase3-embedding-storage-baseline.json`: 800 requests,
+728 entries, `embedding_share` `0.123641`, `quantize_authorized` false.
+`storage_evaluation` is not this path. Steps 4–5 were evaluated 2026-10-11
+and stayed blocked: no int8 module, no `tests/test_embedding_quantization.py`,
+and no `artifacts/evaluation/phase3-quantization-development.json`.
 
 ## Byte accounting
 
@@ -124,13 +130,12 @@ the identity matches `storage_bytes()`.
 ## Prerequisites
 
 - [x] Features 6–7 cards in [`PHASE3_PLAN.md`](./PHASE3_PLAN.md).
-- [x] Pre-code checklist for Gate A Step 1 recorded in
+- [x] Pre-code checklist for Gate A Steps 1–3 recorded in
       [`WORKSTREAM_1_EVIDENCE.md`](./WORKSTREAM_1_EVIDENCE.md) (2026-10-11).
-      Repeat it before Steps 2–3.
-- [x] User approved Gate A Step 1 in writing (2026-10-11). Steps 2–3 still
-      need a separate approval.
-- [ ] User confirms dominance **0.20**, reduction **3.5×**, and the safety/reuse
-      rules before any Gate B code. Card text is not that confirmation.
+- [x] User approved Gate A Steps 1–3 in writing (2026-10-11).
+- [x] Gate B code stays unauthorized. Feature 6 reported
+      `embedding_share` `0.123641` < `0.20` (2026-10-11), so a written
+      threshold confirmation cannot open it.
 
 ## Gate A — Feature 6
 
@@ -151,22 +156,27 @@ the identity matches `storage_bytes()`.
 
 ### Step 2 — Development replay
 
-- [ ] New measurement entry point (module or CLI). Suggested module:
+- [x] New measurement entry point (module or CLI). Suggested module:
       `src/sscre/phase3_embedding_storage.py`. It loads development records
       with `load_benchmark_jsonl`, replays both directions, embeds with
       `FakeEmbeddingClient()`, and inserts through the existing baseline entry
       helper with **no** `max_entries` / `max_bytes`.
-- [ ] Do not call `python -m sscre.storage_evaluation` on
+      `measure_development_embedding_storage`.
+- [x] Do not call `python -m sscre.storage_evaluation` on
       `experiments/storage_controls_development.json` for this artifact.
-- [ ] Require `eviction_count == 0`. If a cap is set and evictions occur, do
+- [x] Require `eviction_count == 0`. If a cap is set and evictions occur, do
       not write the baseline; raise the cap or leave caps unset and rerun.
-- [ ] Record `requests` (800) separately from `entries` (unique inserted
+      `EmbeddingStorageBaselineError`.
+- [x] Record `requests` (800) separately from `entries` (unique inserted
       queries). Duplicate normalized queries stay one entry
       (`DuplicateCacheEntryError` path).
+      `tests/test_embedding_storage.py`. Evidence:
+      [`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md)
+      § Step 2.
 
 ### Step 3 — Artifact and dominance gate
 
-- [ ] Write `artifacts/evaluation/phase3-embedding-storage-baseline.json`
+- [x] Write `artifacts/evaluation/phase3-embedding-storage-baseline.json`
       with at least:
 
       | Field | Rule |
@@ -191,11 +201,14 @@ the identity matches `storage_bytes()`.
       | `max_entries`, `max_bytes` | `null` when caps are unset |
       | `quantize_authorized` | `true` iff `embedding_share >= 0.20` |
 
-- [ ] Record the command, commit, config hash, dataset version, and
-      **quantize authorized: yes/no** in
-      [`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md).
-- [ ] If **no**, stop. Feature 7 stays **not authorized**. Do not add quantize
-      code. Gate A can still close.
+      Result: `embedding_share` `0.123641`, `quantize_authorized` **false**.
+      `write_embedding_storage_baseline` in `src/sscre/phase3_embedding_storage.py`.
+- [x] Record the command, commit, config hash, dataset version, and
+      **quantize authorized: no** in
+      [`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md)
+      § Step 3.
+- [x] Dominance gate failed. Feature 7 stays **not authorized**. No quantize
+      code. Gate A closed.
 
 ## Gate B — Feature 7 (if authorized)
 
@@ -216,6 +229,12 @@ the identity matches `storage_bytes()`.
       preserved; empty, non-finite, and dimension-mismatch inputs fail closed
       and do not insert a hit-able entry; zero vector round-trips to zeros.
 
+**Evaluated 2026-10-11:** blocked. Feature 6 `embedding_share` is `0.123641`,
+below `0.20`, so Gate B is not authorized. None of the boxes above can be
+checked.
+[`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md) § Step 4.
+No quantize/dequantize code and no quantization tests.
+
 ### Step 5 — Development compare
 
 - [ ] Same development records, `FakeEmbeddingClient`, and Feature 1 τ map as
@@ -233,11 +252,22 @@ the identity matches `storage_bytes()`.
 - [ ] **Fail:** keep float32; do not put int8 on the paper stack. No second
       development run that changes scale, dimension, or τ.
 
+**Evaluated 2026-10-11:** blocked. Step 4 did not authorize Gate B, so the
+compare was not run and these boxes stay unchecked.
+[`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md) § Step 5.
+
 ### Step 6 — Close
 
-- [ ] Evidence states pass or fail, `quantize_authorized`, and the fake-embedding
-      limitation: a storage result is not a general accuracy claim.
-- [ ] No held-out quantization run.
+- [x] Evidence states Feature 7 is **not authorized**, `quantize_authorized`
+      **no**, and the fake-embedding limitation: a storage result is not a
+      general accuracy claim. The int8 compare was not scored.
+      [`PHASE3_QUANTIZATION_EVIDENCE.md`](./PHASE3_QUANTIZATION_EVIDENCE.md)
+      § Step 6. `embedding_share` `0.123641` < `0.20`.
+- [x] No held-out quantization run. No
+      `artifacts/evaluation/phase3-quantization-development.json` and no
+      held-out quantization artifact.
+
+**Closed 2026-10-11.** Steps 4–5 stay unchecked. Float32 remains the stored path.
 
 ## Verification
 
@@ -264,14 +294,14 @@ Do not mark the full suite complete if it was not run.
 ## Acceptance criteria
 
 - [x] Card (hypothesis, metric, pass/fail, stopping rule) in `PHASE3_PLAN.md`.
-- [ ] Float32 development-scale baseline recorded:
+- [x] Float32 development-scale baseline recorded:
       `artifacts/evaluation/phase3-embedding-storage-baseline.json`.
-- [ ] Quantization comparison recorded, or deferral justified by Gate A:
-      `artifacts/evaluation/phase3-quantization-development.json` or an
-      explicit **not authorized** row in the evidence file.
-- [ ] Unit tests cover the byte identity and, if Gate B opens, round-trip
-      bounds, dimension preservation, and failure-closed malformed vectors.
-- [ ] Evidence filled in `docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md`.
+- [x] Quantization comparison recorded, or deferral justified by Gate A:
+      **not authorized** (`embedding_share` `0.123641` < `0.20`). No
+      `phase3-quantization-development.json`.
+- [x] Unit tests cover the byte identity. Gate B did not open, so round-trip
+      quantization tests were not added.
+- [x] Evidence filled in `docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md`.
 
 ## Out of scope
 

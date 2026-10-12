@@ -1,0 +1,51 @@
+{
+  "name": "phase3_load_ladder_v1",
+  "protocol_id": "phase3-load-ladder-v1",
+  "dataset_version": "reviewed-query-pairs-2.0",
+  "development_path": "benchmarks/development.jsonl",
+  "repository": "memory",
+  "modes": ["compatibility"],
+  "threshold_arm": "global_0.95",
+  "similarity_threshold": 0.95,
+  "seed": 20261011,
+  "repeat_ratio": 0.3,
+  "process_count": 1,
+  "max_cache_entries": 10000,
+  "max_cache_bytes": 100000000,
+  "fixture_labels": ["embedding_failure", "generation_failure"],
+  "budgets": {
+    "memory": {
+      "p95_end_to_end_latency_ms": 500,
+      "non_fixture_error_rate": 0.01
+    },
+    "postgres": {
+      "p95_end_to_end_latency_ms": 3000,
+      "non_fixture_error_rate": 0.01
+    },
+    "timeout_rate": 0.01
+  },
+  "steps": [
+    {
+      "id": "L1",
+      "simulated_q_per_day": 1000,
+      "request_count": 200,
+      "warmup_requests": 20,
+      "concurrency": 4
+    },
+    {
+      "id": "L2",
+      "simulated_q_per_day": 10000,
+      "request_count": 2000,
+      "warmup_requests": 200,
+      "concurrency": 4
+    },
+    {
+      "id": "L3",
+      "simulated_q_per_day": 100000,
+      "request_count": 20000,
+      "warmup_requests": 2000,
+      "concurrency": 8
+    }
+  ],
+  "limitation": "Local synthetic replay for protocol phase3-load-ladder-v1. Not a production capacity, SLA, or multi-host guarantee. Queries are loaded from benchmarks/development.jsonl at run time; this file has no items list and no intentional failure fixtures."
+}

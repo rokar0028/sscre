@@ -169,6 +169,181 @@
       ],
       "evidence": "docs/phase-4/PHASE4_SCALE_EVIDENCE.md",
       "status": "complete_no_optimization_trigger"
+    },
+    "P3-FEAT-EMBED-BASE": {
+      "artifacts": [
+        {
+          "path": "artifacts/evaluation/phase3-embedding-storage-baseline.json",
+          "sha256": "06d174d6b4e727ff3700efebc938ac271d444630a19d058ad9a91f5163c3d913",
+          "metadata": {
+            "measurement_environment": "synthetic_replay",
+            "phase3_protocol": {
+              "feature": "P3-FEAT-EMBED-BASE",
+              "protocol_version": "phase3-embedding-storage-baseline-1.0",
+              "split": "development",
+              "workload_scope": "800 directed requests; fake embeddings; storage measurement not accuracy claim"
+            },
+            "provenance": {
+              "command": "python -m sscre.phase3_embedding_storage --benchmark benchmarks/development.jsonl --config experiments/evaluation_config.json --output artifacts/evaluation/phase3-embedding-storage-baseline.json --dataset-version reviewed-query-pairs-2.0",
+              "config_sha256": "5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8",
+              "development_sha256": "14a1d2acd976c2fc891e6d5c3b7c33b729e69e37e66809929d1f74a759f01305",
+              "git_commit": "e3363cfdebed9d9f0734e3b9458fdfede8ac199c",
+              "git_worktree_dirty": true,
+              "dataset_version": "reviewed-query-pairs-2.0"
+            },
+            "results": {
+              "embedding_share": 0.1236406481368454,
+              "quantize_authorized": false
+            }
+          }
+        }
+      ],
+      "evidence": "docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md",
+      "status": "complete_baseline_recorded"
+    },
+    "P3-FEAT-Q8": {
+      "artifacts": [],
+      "evidence": "docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md",
+      "status": "not_authorized_deferred",
+      "metadata": {
+        "deferral_reason": "embedding_share below 0.20 dominance gate",
+        "embedding_share": 0.1236406481368454,
+        "expected_compare_artifact": "artifacts/evaluation/phase3-quantization-development.json",
+        "compare_artifact_written": false,
+        "measurement_environment": "synthetic_replay"
+      }
+    },
+    "P3-FEAT-LOAD": {
+      "artifacts": [
+        {
+          "path": "artifacts/operations/phase3-load-ladder-memory.json",
+          "sha256": "ca50ee575aaa0de758258ae6e426bd864f7c262a11c3120706339864aafc67b0",
+          "metadata": {
+            "measurement_environment": "synthetic_replay",
+            "phase3_protocol": {
+              "feature": "P3-FEAT-LOAD",
+              "protocol_id": "phase3-load-ladder-v1",
+              "protocol_version": "phase3-load-ladder-1.0",
+              "repository": "memory",
+              "workload_scope": "time-compressed 1K-100K simulated Q/day; not production capacity or SLA"
+            },
+            "provenance": {
+              "config_path": "experiments/phase3_load_ladder_v1.json",
+              "config_sha256": "8412af812b61a2933d896dd4f1c5f5ef4da6f6f81c64be17b7092e43c35e3b8d",
+              "development_sha256": "14a1d2acd976c2fc891e6d5c3b7c33b729e69e37e66809929d1f74a759f01305",
+              "git_commit": "e3363cfdebed9d9f0734e3b9458fdfede8ac199c",
+              "git_worktree_dirty": true,
+              "seed": 20261011,
+              "dataset_version": "reviewed-query-pairs-2.0"
+            },
+            "results": {
+              "first_bottleneck": "not_reached",
+              "reproducibility": "agree"
+            }
+          }
+        },
+        {
+          "path": "artifacts/operations/phase3-load-ladder-postgres.json",
+          "sha256": "2c0cdc76d076a4f2180a020457bd048879419641991eb7b58d94abdfb4e4ef64",
+          "metadata": {
+            "measurement_environment": "synthetic_replay",
+            "phase3_protocol": {
+              "feature": "P3-FEAT-LOAD",
+              "protocol_id": "phase3-load-ladder-v1",
+              "protocol_version": "phase3-load-ladder-1.0",
+              "repository": "postgres",
+              "workload_scope": "time-compressed 1K-100K simulated Q/day; not production capacity or SLA"
+            },
+            "provenance": {
+              "config_path": "experiments/phase3_load_ladder_v1.json",
+              "config_sha256": "8412af812b61a2933d896dd4f1c5f5ef4da6f6f81c64be17b7092e43c35e3b8d",
+              "development_sha256": "14a1d2acd976c2fc891e6d5c3b7c33b729e69e37e66809929d1f74a759f01305",
+              "git_commit": "e3363cfdebed9d9f0734e3b9458fdfede8ac199c",
+              "git_worktree_dirty": true,
+              "seed": 20261011,
+              "dataset_version": "reviewed-query-pairs-2.0"
+            },
+            "results": {
+              "first_bottleneck": "not_reached",
+              "reproducibility": "agree"
+            }
+          }
+        }
+      ],
+      "evidence": "docs/phase-3/PHASE3_LOAD_EVIDENCE.md",
+      "status": "complete_not_reached"
+    },
+    "P3-FEAT-CLUSTER": {
+      "artifacts": [
+        {
+          "path": "docs/phase-3/PHASE3_FAILURE_CLUSTERS.md",
+          "sha256": "47d209fcdcc4f95010b193ace2cc2782e3f88c582186830f0b6bf4a1535b8b3d",
+          "metadata": {
+            "measurement_environment": "synthetic_replay",
+            "phase3_protocol": {
+              "feature": "P3-FEAT-CLUSTER",
+              "protocol_version": "phase3-failure-cluster-manual-1.0",
+              "analysis_only": true,
+              "held_out_replay": false,
+              "redaction": "pair identifiers and categories; no raw query text or answers"
+            },
+            "frozen_inputs": [
+              "artifacts/evaluation/phase3-final-held-out-comparison.json",
+              "artifacts/evaluation/workstream7-quality-analysis.json"
+            ],
+            "provenance": {
+              "source_comparison": "artifacts/evaluation/phase3-final-held-out-comparison.json",
+              "config_sha256": "5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8",
+              "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+              "git_commit": "01166574615b3f43faf2adf6848a130df0c9a98e"
+            },
+            "results": {
+              "strategy_b_false_positives_assigned": 13,
+              "strategy_b_false_positives_total": 13,
+              "feature_4_verdict": "pass"
+            }
+          }
+        }
+      ],
+      "evidence": "docs/phase-3/PHASE3_FAILURE_CLUSTERS.md",
+      "status": "complete_manual_synthesis"
+    },
+    "P3-FEAT-TRACK": {
+      "artifacts": [
+        {
+          "path": "docs/phase-3/WORKSTREAM_8_EVIDENCE.md",
+          "sha256": "3118c70c25323b6f3a9d8a993b82725b54d4a399ab8e13cacde4c25dad3270fb",
+          "metadata": {
+            "measurement_environment": "synthetic_replay",
+            "phase3_protocol": {
+              "feature": "P3-FEAT-TRACK",
+              "protocol_version": "phase3-experiment-tracking-audit-1.0",
+              "audit_only": true,
+              "held_out_replay": false
+            },
+            "results": {
+              "decision": "keep_manual",
+              "repro_blocked_gaps": 0,
+              "manifest_fixable_gaps": 5,
+              "artifacts_in_manifest_at_audit": 4
+            }
+          }
+        }
+      ],
+      "evidence": "docs/phase-3/WORKSTREAM_8_EVIDENCE.md",
+      "status": "complete_keep_manual"
     }
+  },
+  "ws9_manifest_sync": {
+    "date_utc": "2026-10-11T21:51:03.354885+00:00",
+    "added_tracks": [
+      "P3-FEAT-EMBED-BASE",
+      "P3-FEAT-Q8",
+      "P3-FEAT-LOAD",
+      "P3-FEAT-CLUSTER",
+      "P3-FEAT-TRACK"
+    ],
+    "artifact_paths_before": 4,
+    "artifact_paths_after": 9
   }
 }

@@ -18,6 +18,35 @@ The scope is defined by the Phase 2 section of
 readiness evidence are tracked in
 `docs/phase-2/MILESTONE_11_REMAINING_GAPS_IMPLEMENTATION_PLAN.md`.
 
+Post-audit reconciliation:
+[`PHASE_2_REMEDIATION_IMPLEMENTATION_PLAN.md`](./PHASE_2_REMEDIATION_IMPLEMENTATION_PLAN.md)
+and [`PHASE_2_REMEDIATION_EVIDENCE.md`](./PHASE_2_REMEDIATION_EVIDENCE.md).
+
+## Remediation close-out (2026-10-12)
+
+Phase 2 **remediation is closed** at the defended evaluation scope documented in
+[`PHASE_2_REMEDIATION_EVIDENCE.md`](./PHASE_2_REMEDIATION_EVIDENCE.md) § Step 7.
+Canonical evaluation artifacts align with split manifest `0aca5b8d…`; optional
+evidence gates A–E are **keep-deferred** (not failures). Open items below are
+limitations or separate approvals, not incomplete remediation work.
+
+## Phase 2 scope and limitations (reconciled 2026-10-12)
+
+- **Benchmark:** 615 reviewed **compatibility** pairs (Phase 2 gate ≥500 met).
+  Roadmap **2,000+** pairs is not met. Correctness and preference labels are
+  **not collected** (`answer_availability: none` on all records).
+- **Evaluation:** synthetic replay only; credentialed real-provider measurement
+  is **unavailable** ([WORKSTREAM_4_EVIDENCE.md](./WORKSTREAM_4_EVIDENCE.md)).
+- **Decisions:** Strategy **C** is the canonical safety path. Strategy **B**
+  serves on similarity alone when explicitly enabled ([WORKSTREAM_1_EVIDENCE.md](./WORKSTREAM_1_EVIDENCE.md)).
+- **Freshness:** four-arm development replay; held-out freshness evidence is
+  **stable-only** ([WORKSTREAM_6_EVIDENCE.md](./WORKSTREAM_6_EVIDENCE.md)).
+- **Operations:** bounded local PostgreSQL package; **live container restart**
+  skipped ([WORKSTREAM_8_EVIDENCE.md](./WORKSTREAM_8_EVIDENCE.md)).
+- **Dashboard / dual-model:** read-only WS9 package with repo manifest lineage
+  checks; live dual-model and optional user product gates remain **deferred**
+  ([WORKSTREAM_9_EVIDENCE.md](./WORKSTREAM_9_EVIDENCE.md)).
+
 ## Learning objectives
 
 - [ ] Design a reviewed benchmark without split leakage.
@@ -48,11 +77,14 @@ readiness evidence are tracked in
 - [x] The benchmark contains at least 500 reviewed pairs and validated,
   disjoint development and held-out splits.
   - 400 / 215 / 615; `benchmark_validate --phase2 --production` passed (2026-10-08).
-- [ ] Every pair has independent compatibility, correctness, and preference
-  fields where applicable.
-- [ ] `SAFE`, `UNSAFE`, and `UNCERTAIN` decisions are explicit and tested.
-- [ ] Candidate-level traces explain retrieval, rules, thresholds, freshness,
-  and the final decision.
+- [x] Every pair has compatibility labels and metadata for evaluation.
+- [ ] Independent **correctness** and **preference** labels where applicable
+  (not collected; contracts frozen in Workstream 1).
+- [x] `SAFE`, `UNSAFE`, and `UNCERTAIN` are explicit and tested on Strategy C
+  ([WORKSTREAM_3_EVIDENCE.md](./WORKSTREAM_3_EVIDENCE.md); Strategy B excepted).
+- [x] Candidate-level traces on Strategy C explain retrieval, rules,
+  thresholds, freshness, and the final decision (Strategy B: first candidate
+  only).
 - [x] Results include confidence intervals and Pareto plots.
   - WS5 held-out comparison + Pareto JSON ([WORKSTREAM_5_EVIDENCE.md](./WORKSTREAM_5_EVIDENCE.md), 2026-10-08).
 - [x] Freshness policies are compared on stable, semi-dynamic, and dynamic
@@ -60,10 +92,12 @@ readiness evidence are tracked in
   - Four-arm development replay + frozen `conservative` held-out stable scope
     ([WORKSTREAM_6_EVIDENCE.md](./WORKSTREAM_6_EVIDENCE.md), 2026-10-09; held-out
     semi/dynamic unavailable).
-- [ ] Failure categories and representative examples are reported.
+- [x] Failure categories and representative examples are reported
+  ([WORKSTREAM_7_EVIDENCE.md](./WORKSTREAM_7_EVIDENCE.md); compatibility replay).
 - [x] No-cache, exact-cache, embedding-only, and compatibility-aware
   baselines are rerun on the final held-out split.
-  - `artifacts/evaluation/workstream5-held-out-comparison.json` (615-pair scale, 2026-10-08).
+  - Regenerated 2026-10-12; manifest `0aca5b8d…`
+    ([PHASE_2_REMEDIATION_EVIDENCE.md](./PHASE_2_REMEDIATION_EVIDENCE.md) § Step 2).
 - [x] Real-provider evidence is included, or its absence and consequences are
   explicitly reported.
   - Unavailable artifact + WS5 evidence § provider limitations (synthetic replay only).
@@ -75,9 +109,10 @@ readiness evidence are tracked in
   generate; unique insert wins; bottleneck `not_reached`. Not a production
   capacity claim. Phase 1 lite:
   [WORKSTREAM_8_OPS_LITE_EVIDENCE.md](./WORKSTREAM_8_OPS_LITE_EVIDENCE.md).
-- [ ] A dashboard is added only after the reports and data contracts are
-  stable.
-- [ ] Dual-model comparison is implemented only as a defined experiment.
+- [x] A bounded dashboard is added after report contracts stabilized
+  (WS9; optional user delivery-approval gate remains open).
+- [x] Dual-model comparison exists only as a defined, disabled experiment
+  (no live execution).
 
 ## Workstream 1 — Freeze the evaluation contracts
 
@@ -308,9 +343,12 @@ Acceptance criteria:
 
 ## Workstream 5 — Complete evaluation and statistical reporting
 
-Status: **final** synthetic held-out package on `reviewed-query-pairs-2.0`
-(2026-10-08). Live-provider measurements remain deferred. Evidence:
-[`WORKSTREAM_5_EVIDENCE.md`](./WORKSTREAM_5_EVIDENCE.md).
+Status: **closed (synthetic held-out compatibility package)** on
+`reviewed-query-pairs-2.0`. Not a correctness, provider, or full-storage claim.
+Artifact lineage refreshed 2026-10-12. Live-provider and held-out storage Pareto
+plane remain deferred. Evidence:
+[`WORKSTREAM_5_EVIDENCE.md`](./WORKSTREAM_5_EVIDENCE.md),
+[`PHASE_2_REMEDIATION_EVIDENCE.md`](./PHASE_2_REMEDIATION_EVIDENCE.md).
 
 - [x] Workstream 5 iteration 1 evidence links the held-out comparison,
   statistics, Pareto artifact, operating-point policy, and provider limitations.
@@ -443,8 +481,8 @@ Acceptance criteria:
   companion block (no WS7 replay of freshness policy).
 - [x] Static HTML regenerates from documented commands (`sscre-failure-gallery-export`,
   `sscre-gallery-export`; see evidence doc).
-- [x] Input artifact paths, schema versions, and aligned split manifest SHA are
-  recorded in [`WORKSTREAM_7_EVIDENCE.md`](./WORKSTREAM_7_EVIDENCE.md).
+- [x] Input artifact paths, schema versions, and split manifest SHA (`0aca5b8d…`,
+  remediation Step 2) are recorded in [`WORKSTREAM_7_EVIDENCE.md`](./WORKSTREAM_7_EVIDENCE.md).
 
 ## Workstream 8 — Operational verification
 

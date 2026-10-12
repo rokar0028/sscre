@@ -1,12 +1,24 @@
 # Workstream 5 Evidence
 
-## Benchmark 500+ scale-up — final evaluation package (2026-10-08)
+## Phase 2 remediation lineage (2026-10-12)
 
-**Status:** **final** for benchmark scale and synthetic held-out reporting.
+Held-out comparison, development sweep, and Pareto artifacts were regenerated
+against the current `benchmarks/split_manifest.json` (`0aca5b8d…`). Commands and
+file hashes:
+[`PHASE_2_REMEDIATION_EVIDENCE.md`](./PHASE_2_REMEDIATION_EVIDENCE.md) § Step 2.
+The sections below retain the 2026-10-08 narrative where still accurate;
+prefer the remediation evidence for manifest identity and artifact hashes.
 
-**Still deferred:** credentialed real-provider measurements (Step 11); held-out-aligned
-storage companion for the reuse/storage Pareto plane (development-only storage report
-remains on `reviewed-query-pairs-1.0` workload).
+## Benchmark 500+ scale-up — synthetic held-out package (2026-10-08 narrative)
+
+**Status:** **closed** for benchmark scale and **synthetic held-out compatibility**
+reporting. Not a claim about factual correctness, live-provider economics, or
+the reuse-vs-storage Pareto plane.
+
+**Still deferred:** credentialed real-provider measurements (Step 11);
+held-out-aligned storage companion for the reuse/storage Pareto plane;
+full in-process development replay to completion
+(`tests/test_workstream3_replay.py` full module not re-run at 400-pair scale).
 
 ### Frozen inputs and outputs
 

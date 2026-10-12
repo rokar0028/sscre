@@ -5,6 +5,9 @@
 **Dataset:** `reviewed-query-pairs-2.0`  
 **Config:** `evaluation-config-1.0`  
 **Config SHA-256:** `5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8`
+**Split manifest SHA-256:** `68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51`
+**Git commit (held-out artifact):** `8c65926227fbdc923a23994c183ac33ba378694f`
+(`git_worktree_dirty` **true** in `phase3-held-out-eviction.json` header)
 
 ## Implementation
 

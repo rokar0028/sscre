@@ -16,17 +16,31 @@ alwaysApply: false
   `SSCRE_LEARNING_AND_EXECUTION_GUIDE.md`, `SSCRE_SYSTEM_DESIGN.md`.
 - Use `docs/internal/` for release prep and private briefs, `docs/reference/`
   for technical specs, `docs/setup/` for environment setup, `docs/phase-1/`,
-  `docs/phase-2/`, and `docs/phase-3/` for milestone and workstream material.
-- Keep new Phase 2 and Phase 3 filenames in `docs/phase-2/` and `docs/phase-3/`
-  (flat folders). Code and benchmarks reference those paths; do not nest phase
-  files without updating every reference.
+  `docs/phase-2/`, `docs/phase-3/`, and `docs/phase-4/` for milestone and
+  workstream material.
+- Keep new Phase 2–4 filenames in `docs/phase-2/`, `docs/phase-3/`, and
+  `docs/phase-4/` (flat folders). Code and benchmarks reference those paths;
+  do not nest phase files without updating every reference.
 - When adding a notable file under `docs/phase-1/`, `docs/phase-2/`,
-  `docs/phase-3/`, or `docs/internal/`, add a row to that folder's `README.md`
-  index.
+  `docs/phase-3/`, `docs/phase-4/`, or `docs/internal/`, add a row to that
+  folder's `README.md` index and update `docs/README.md` if the directory map
+  or phase table is stale.
 - When closing a Phase 3 workstream plan step or promoting feature cards, update
   in the same pass: [`docs/phase-3/PHASE_3_IMPLEMENTATION_PLAN.md`](../docs/phase-3/PHASE_3_IMPLEMENTATION_PLAN.md)
   (Status, relevant workstream section, baseline gaps), linked evidence paths,
   and [`docs/phase-3/README.md`](../docs/phase-3/README.md) if new files were
   added. Do not leave the parent plan describing pre-close gaps.
+- Markdown links from flat `docs/phase-2/`, `docs/phase-3/`, or `docs/phase-4/`
+  files to repository-root paths (`src/`, `tests/`, `benchmarks/`, `artifacts/`,
+  `experiments/`) must use the `../../` prefix (e.g.
+  `../../src/sscre/cache.py`), not `../src/...`.
+- Phase 3 `*EVIDENCE.md` headers must match the cited frozen JSON artifact
+  (`git_commit`, `config_sha256`, and split proof: `split_manifest_sha256` on
+  held-out runs or `development_sha256` on development-only runs). If prose
+  predates a rerun, state that the artifact JSON header is authoritative.
+- When [`PHASE_3_IMPLEMENTATION_PLAN.md`](../docs/phase-3/PHASE_3_IMPLEMENTATION_PLAN.md)
+  definition-of-done is satisfied, its top **Status** must not remain
+  `partially complete` without naming the explicit remaining scope (e.g.
+  `SSCRE_PLAN.md` §20 int8 row left unchecked by design).
 - When moving or renaming docs, search the repo for the old path and update
   links in markdown, Python docstrings, and JSON metadata.

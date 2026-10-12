@@ -1,6 +1,9 @@
 # Workstream 7 — failure gallery and quality analysis (evidence)
 
-**Status:** implementation complete (Steps 1–11); parent plan handoff (Step 12) pending explicit Phase 2 WS7 acceptance sign-off.
+**Status:** implementation **closed** (Steps 1–11, 2026-10-10). Gallery and
+quality package regenerated on manifest `0aca5b8d…` (remediation Step 2,
+2026-10-12). Optional formal WS7 acceptance sign-off in the parent plan is a
+**process gate**, not a missing implementation artifact.
 
 ## Contract and schema
 
@@ -17,13 +20,13 @@
 - Measurement environment: `synthetic_replay`
 - Primary comparison input: `artifacts/evaluation/workstream5-held-out-comparison.json`
 
-## Input artifacts (aligned manifest)
+## Input artifacts (current manifest)
 
 | Artifact | Path | Notes |
 | --- | --- | --- |
 | WS5 comparison | `artifacts/evaluation/workstream5-held-out-comparison.json` | `baseline: comparison`, enriched `failure_gallery` |
 | WS6 freshness | `artifacts/evaluation/workstream6-held-out-freshness.json` | `selected_policy`: conservative (via development policy artifact) |
-| Split manifest | `benchmarks/split_manifest.json` | SHA `68912e3b1221aae9…` on WS5/WS6/WS7 inputs (2026-10-10 regen) |
+| Split manifest | `benchmarks/split_manifest.json` | SHA `0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9` on WS5/WS6/WS7 inputs (Phase 2 remediation Step 2, 2026-10-12) |
 
 ## Gallery counts (held-out comparison)
 

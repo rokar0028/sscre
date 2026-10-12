@@ -1,5 +1,13 @@
 # Workstream 3 evidence
 
+> **Historical scope note:** Verification below was recorded on the
+> **32-pair** `reviewed-query-pairs-1.1` artifact (2026-10-07). Strategy C
+> behavior at **615-pair** scale is covered by later workstreams (WS5 replay,
+> WS3 tests in the full suite) and remediation lineage
+> ([`PHASE_2_REMEDIATION_EVIDENCE.md`](./PHASE_2_REMEDIATION_EVIDENCE.md)).
+> Treat this file as the Workstream 3 implementation handoff, not the current
+> benchmark identity record.
+
 Decision-depth handoff for Phase 2 Workstreams 4–9. This record is the
 working-tree result on 2026-10-07. It is not a real-provider measurement and
 not a held-out operating-point claim.

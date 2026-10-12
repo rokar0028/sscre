@@ -1,0 +1,14 @@
+{
+  "gate_schema_version": "semantic-validity-local-embedding-gate-1.0",
+  "protocol_id": "P4-SEMVALID",
+  "config_path": "experiments/semantic-validity-evaluation-config-v1.json",
+  "status": "available",
+  "decided_at": "2026-10-12T08:41:13+00:00",
+  "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+  "dimension": 384,
+  "license": "Apache-2.0",
+  "optional_dependency": "pip install -e '.[local-embeddings]'",
+  "smoke_artifact": "artifacts/evaluation/phase4-semantic-validity-local-embedding-smoke.json",
+  "reason": "sentence-transformers is installed and the registered MiniLM model produced a finite 384-dimensional smoke vector on CPU.",
+  "unavailable_when": "sentence_transformers is not installed or the registered model cannot load in the environment"
+}

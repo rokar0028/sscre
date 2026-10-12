@@ -2,7 +2,7 @@
   "artifact_kind": "workstream7-quality-analysis",
   "dataset_version": "reviewed-query-pairs-2.0",
   "evaluation_split": "held-out",
-  "execution_timestamp": "2026-10-10T15:08:29.186282+00:00",
+  "execution_timestamp": "2026-10-12T03:59:06.738364+00:00",
   "failure_gallery": {
     "embedding_only_false_positives": [
       {
@@ -8858,7 +8858,7 @@
     "selected_policy": "conservative",
     "source_artifact_path": "artifacts/evaluation/workstream6-held-out-freshness.json",
     "source_schema_version": "freshness-evaluation-1.0",
-    "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+    "split_manifest_sha256": "0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9",
     "stale_exposure_accounting": {
       "allow_dynamic_entries": false,
       "answer_level_stale_exposure": {
@@ -8917,7 +8917,7 @@
       }
     }
   },
-  "git_commit": "51496c25ded2364a8c8cb513fb99afbc61f67db0",
+  "git_commit": "2f7aa5e75bc3bff7114c9a4213a270f9b4f62e3d",
   "git_worktree_dirty": true,
   "input_artifacts": {
     "comparison": {
@@ -8926,7 +8926,7 @@
       "path": "artifacts/evaluation/workstream5-held-out-comparison.json",
       "present": true,
       "schema_version": "1.0.0",
-      "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+      "split_manifest_sha256": "0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9",
       "statistics_schema_version": "evaluation-statistics-1.0"
     },
     "freshness": {
@@ -8935,7 +8935,7 @@
       "path": "artifacts/evaluation/workstream6-held-out-freshness.json",
       "present": true,
       "schema_version": "1.0.0",
-      "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51"
+      "split_manifest_sha256": "0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9"
     }
   },
   "limitations": [
@@ -10074,8 +10074,8 @@
     "measurement_environment": "synthetic_replay"
   },
   "software_version": "0.1.0",
-  "source_comparison_execution_timestamp": "2026-10-10T15:07:16.191026+00:00",
-  "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+  "source_comparison_execution_timestamp": "2026-10-12T03:57:52.778941+00:00",
+  "split_manifest_sha256": "0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9",
   "unavailable_sections": [
     "correctness_labeled_failures",
     "real_provider_failures"

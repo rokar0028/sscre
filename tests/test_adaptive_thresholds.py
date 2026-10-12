@@ -122,5 +122,12 @@ def test_adaptive_policy_preserves_compatibility_safety() -> None:
         threshold={"large": 0.8, "__default__": 0.95},
     )
 
-    assert report.false_positive_rate == 0.0
     assert report.unsafe_reuse_hits == 0
+    if report.labeled_reuse_hits == 0:
+        assert report.false_positive_rate is None
+        assert (
+            report.false_positive_rate_unavailable_reason
+            == "no_labeled_reuse_hits"
+        )
+    else:
+        assert report.false_positive_rate == 0.0

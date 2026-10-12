@@ -7,8 +7,17 @@ Feature cards: [PHASE3_PLAN.md](./PHASE3_PLAN.md).
 tracker (Status, workstream section, open baseline gaps) in the same edit pass.
 
 Phase 3 v1 stack is **implementation-complete** (2026-10-10). Workstream 1
-**registry closed** (2026-10-11): Features 4–8 cards promoted; WS5–8 execution
-and artifacts remain open. Agent workflow and gates live in
+**registry closed** (2026-10-11). Workstream 5 Gate A **closed** and Step 6
+**closed** (2026-10-11): float32 baseline recorded; int8 **not authorized**
+(`embedding_share` `0.123641`); the int8 compare was not scored; no held-out
+quantization run. Workstream 6 **Step 6 closed** (2026-10-11): memory and
+PostgreSQL L1–L3 ladders recorded; both `first_bottleneck` `not_reached`.
+Workstream 7 **closed** (2026-10-11): Feature 4 pass. Workstream 8 **closed**
+(2026-10-12): Feature 5 audit **pass**, **`keep_manual`**. Workstream 9 **closed** (2026-10-12): manifest sync, master plan, limitations,
+and verification ([`WORKSTREAM_9_EVIDENCE.md`](./WORKSTREAM_9_EVIDENCE.md)).
+Parent tracker status: **`closed (Phase 3 v1)`** (int8 master-plan row
+unchecked by design). Agent workflow
+and gates live in
 [../internal/PHASE3_TRANSITION.md](../internal/PHASE3_TRANSITION.md).
 
 | File | Purpose |
@@ -22,13 +31,16 @@ and artifacts remain open. Agent workflow and gates live in
 | [WORKSTREAM_2_IMPLEMENTATION_PLAN.md](./WORKSTREAM_2_IMPLEMENTATION_PLAN.md) | Feature 1 adaptive per-domain thresholds — passed 2026-10-10 |
 | [WORKSTREAM_3_IMPLEMENTATION_PLAN.md](./WORKSTREAM_3_IMPLEMENTATION_PLAN.md) | Feature 2 pattern-aware eviction — failed and deferred 2026-10-10 |
 | [WORKSTREAM_4_IMPLEMENTATION_PLAN.md](./WORKSTREAM_4_IMPLEMENTATION_PLAN.md) | Feature 3 Strategy D validator gate — deferred; trigger not fired |
-| [WORKSTREAM_7_IMPLEMENTATION_PLAN.md](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md) | Feature 4 failure clustering — manual synthesis from frozen JSON |
-| [WORKSTREAM_8_IMPLEMENTATION_PLAN.md](./WORKSTREAM_8_IMPLEMENTATION_PLAN.md) | Feature 5 experiment-tracking gate — manual provenance audit |
-| [WORKSTREAM_8_EVIDENCE.md](./WORKSTREAM_8_EVIDENCE.md) | Feature 5 audit log (placeholder until WS8 execution) |
+| [WORKSTREAM_7_IMPLEMENTATION_PLAN.md](./WORKSTREAM_7_IMPLEMENTATION_PLAN.md) | Feature 4 failure clustering — closed 2026-10-11 (pass) |
+| [PHASE3_FAILURE_CLUSTERS.md](./PHASE3_FAILURE_CLUSTERS.md) | Strategy B held-out false-positive cluster inventory and Feature 4 pass record |
+| [WORKSTREAM_8_IMPLEMENTATION_PLAN.md](./WORKSTREAM_8_IMPLEMENTATION_PLAN.md) | Feature 5 experiment-tracking gate — **closed** 2026-10-12 |
+| [WORKSTREAM_8_EVIDENCE.md](./WORKSTREAM_8_EVIDENCE.md) | Feature 5 provenance audit; decision **`keep_manual`** |
 | [WORKSTREAM_5_IMPLEMENTATION_PLAN.md](./WORKSTREAM_5_IMPLEMENTATION_PLAN.md) | Features 6–7 float32 baseline and conditional int8 quantization |
 | [PHASE3_QUANTIZATION_EVIDENCE.md](./PHASE3_QUANTIZATION_EVIDENCE.md) | Storage baseline and quantization compare commands and outcomes |
 | [WORKSTREAM_6_IMPLEMENTATION_PLAN.md](./WORKSTREAM_6_IMPLEMENTATION_PLAN.md) | Feature 8 simulated load ladder 1K→100K Q/day |
 | [PHASE3_LOAD_EVIDENCE.md](./PHASE3_LOAD_EVIDENCE.md) | Load ladder commands, budgets, bottleneck outcome |
+| [WORKSTREAM_9_IMPLEMENTATION_PLAN.md](./WORKSTREAM_9_IMPLEMENTATION_PLAN.md) | Final artifact manifest, master-plan, limitations, and README synchronization |
+| [WORKSTREAM_9_EVIDENCE.md](./WORKSTREAM_9_EVIDENCE.md) | WS9 corpus audit and close record (Step 1 inventory) |
 | [PHASE3_PLAN.md](./PHASE3_PLAN.md) | **Source of truth** — one hypothesis and pass/fail criterion per feature before implementation ([SSCRE_PLAN.md](../SSCRE_PLAN.md) § Phase 3) |
 | [PHASE3_FEATURE_1_EVIDENCE.md](./PHASE3_FEATURE_1_EVIDENCE.md) | Feature 1 implementation, evaluation commands, artifacts, and pass/fail result |
 | [PHASE3_FEATURE_2_EVIDENCE.md](./PHASE3_FEATURE_2_EVIDENCE.md) | Feature 2 implementation, evaluation commands, artifacts, and deferred result |

@@ -35166,7 +35166,7 @@
       "unsafe_reuse_hits": 0
     },
     "embedding-cache": {
-      "average_latency_ms": 0.14186046511627906,
+      "average_latency_ms": 0.03488372093023256,
       "baseline": "embedding-cache",
       "cache_hits": 27,
       "cache_lookup_cost_usd": 0.0,
@@ -35267,7 +35267,7 @@
       "output_tokens": 4239,
       "p50_latency_ms": 0.0,
       "p95_latency_ms": 0.0,
-      "p99_latency_ms": 4.7099999999999795,
+      "p99_latency_ms": 1.0,
       "precision": 0.13333333333333333,
       "preprocessing_cost_usd": 0.0,
       "recall": 0.023529411764705882,
@@ -37594,7 +37594,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 0.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0233",
           "safe_reuse_hit": 0
         },
@@ -38314,7 +38314,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 1.0,
+          "latency_ms": 0.0,
           "pair_id": "pair-0290",
           "safe_reuse_hit": 0
         },
@@ -38494,7 +38494,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 1.0,
+          "latency_ms": 0.0,
           "pair_id": "pair-0307",
           "safe_reuse_hit": 0
         },
@@ -38569,7 +38569,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 1.0,
+          "latency_ms": 0.0,
           "pair_id": "pair-0311",
           "safe_reuse_hit": 0
         },
@@ -39049,7 +39049,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 2.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0356",
           "safe_reuse_hit": 0
         },
@@ -39064,7 +39064,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 2.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0357",
           "safe_reuse_hit": 0
         },
@@ -39124,7 +39124,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 2.0,
+          "latency_ms": 0.0,
           "pair_id": "pair-0365",
           "safe_reuse_hit": 0
         },
@@ -39169,7 +39169,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 1.0,
+          "latency_ms": 0.0,
           "pair_id": "pair-0367",
           "safe_reuse_hit": 0
         },
@@ -40174,7 +40174,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 3.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0462",
           "safe_reuse_hit": 0
         },
@@ -40354,7 +40354,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 6.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0478",
           "safe_reuse_hit": 0
         },
@@ -40429,7 +40429,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 5.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0481",
           "safe_reuse_hit": 0
         },
@@ -40684,7 +40684,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 4.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0503",
           "safe_reuse_hit": 0
         },
@@ -40699,7 +40699,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 6.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0503",
           "safe_reuse_hit": 0
         },
@@ -40774,7 +40774,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 4.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0516",
           "safe_reuse_hit": 0
         },
@@ -41029,7 +41029,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 8.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0543",
           "safe_reuse_hit": 0
         },
@@ -41044,7 +41044,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 8.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0549",
           "safe_reuse_hit": 0
         },
@@ -41524,7 +41524,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 3.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0592",
           "safe_reuse_hit": 0
         },
@@ -41599,7 +41599,7 @@
           "generated": 0,
           "generation_input_tokens": 0,
           "generation_output_tokens": 0,
-          "latency_ms": 2.0,
+          "latency_ms": 1.0,
           "pair_id": "pair-0601",
           "safe_reuse_hit": 0
         },
@@ -41732,7 +41732,7 @@
       "threshold_rejections": 402,
       "tokens_saved": 284,
       "top_k": 5,
-      "total_latency_ms": 61,
+      "total_latency_ms": 15,
       "unsafe_reuse_hits": 13
     },
     "exact-cache": {
@@ -54778,7 +54778,7 @@
       "record_count": 615,
       "sha256": "8dbd3c503927006d27f18c4f41a0c3ae47c7294e583203d3371871fa2e0664cd"
     },
-    "split_manifest_sha256": "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51",
+    "split_manifest_sha256": "0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9",
     "split_record_count": 215,
     "split_record_identity": [
       {
@@ -56939,7 +56939,7 @@
   "config_sha256": "5734f113b827675785d610d97702ed95b7021fe83e35714a9a9de7df057b30d8",
   "config_version": "evaluation-config-1.0",
   "evaluation_split": "held-out",
-  "execution_timestamp": "2026-10-10T15:07:16.191026+00:00",
+  "execution_timestamp": "2026-10-12T03:57:52.778941+00:00",
   "failure_gallery": {
     "embedding_only_false_positives": [
       {
@@ -65795,7 +65795,7 @@
     "note": "Freshness policy metrics are produced by python -m sscre.freshness_evaluate; this block does not embed WS6 metrics.",
     "schema_version": "freshness-evaluation-1.0"
   },
-  "git_commit": "51496c25ded2364a8c8cb513fb99afbc61f67db0",
+  "git_commit": "2f7aa5e75bc3bff7114c9a4213a270f9b4f62e3d",
   "git_worktree_dirty": true,
   "measurement_environment": "synthetic_replay",
   "safety_contract_version": "1.0.0",
@@ -67082,11 +67082,11 @@
           },
           "latency_ms_mean": {
             "confidence_level": 0.95,
-            "lower": 0.07209302325581396,
+            "lower": 0.018604651162790697,
             "method": "bootstrap_percentile",
             "n": 430,
-            "point": 0.14186046511627906,
-            "upper": 0.22093023255813954
+            "point": 0.03488372093023256,
+            "upper": 0.05116279069767442
           },
           "latency_ms_p50": {
             "confidence_level": 0.95,
@@ -67102,15 +67102,15 @@
             "method": "bootstrap_percentile",
             "n": 430,
             "point": 0.0,
-            "upper": 1.0
+            "upper": 0.5499999999999545
           },
           "latency_ms_p99": {
             "confidence_level": 0.95,
-            "lower": 2.0,
+            "lower": 1.0,
             "method": "bootstrap_percentile",
             "n": 430,
-            "point": 4.7099999999999795,
-            "upper": 7.419999999999959
+            "point": 1.0,
+            "upper": 1.0
           },
           "request_tokens_mean": {
             "confidence_level": 0.95,
@@ -67269,11 +67269,11 @@
                 },
                 "latency_ms_mean": {
                   "confidence_level": 0.95,
-                  "lower": 0.0,
+                  "lower": 0.01020408163265306,
                   "method": "bootstrap_percentile",
                   "n": 98,
-                  "point": 0.15306122448979592,
-                  "upper": 0.3877551020408163
+                  "point": 0.04081632653061224,
+                  "upper": 0.08163265306122448
                 },
                 "latency_ms_p50": {
                   "confidence_level": 0.95,
@@ -67289,15 +67289,15 @@
                   "method": "bootstrap_percentile",
                   "n": 98,
                   "point": 0.0,
-                  "upper": 1.7499999999999574
+                  "upper": 1.0
                 },
                 "latency_ms_p99": {
                   "confidence_level": 0.95,
-                  "lower": 0.0,
+                  "lower": 0.030000000000001137,
                   "method": "bootstrap_percentile",
                   "n": 98,
-                  "point": 6.060000000000002,
-                  "upper": 8.0
+                  "point": 1.0,
+                  "upper": 1.0
                 },
                 "request_tokens_mean": {
                   "confidence_level": 0.95,
@@ -67370,8 +67370,8 @@
                   "lower": 0.0,
                   "method": "bootstrap_percentile",
                   "n": 24,
-                  "point": 0.16666666666666666,
-                  "upper": 0.5
+                  "point": 0.041666666666666664,
+                  "upper": 0.125
                 },
                 "latency_ms_p50": {
                   "confidence_level": 0.95,
@@ -67387,15 +67387,15 @@
                   "method": "bootstrap_percentile",
                   "n": 24,
                   "point": 0.0,
-                  "upper": 4.0
+                  "upper": 1.0
                 },
                 "latency_ms_p99": {
                   "confidence_level": 0.95,
                   "lower": 0.0,
                   "method": "bootstrap_percentile",
                   "n": 24,
-                  "point": 3.0799999999999983,
-                  "upper": 4.0
+                  "point": 0.7699999999999996,
+                  "upper": 1.0
                 },
                 "request_tokens_mean": {
                   "confidence_level": 0.95,
@@ -67553,11 +67553,11 @@
                 },
                 "latency_ms_mean": {
                   "confidence_level": 0.95,
-                  "lower": 0.09090909090909091,
+                  "lower": 0.045454545454545456,
                   "method": "bootstrap_percentile",
                   "n": 22,
-                  "point": 0.5,
-                  "upper": 1.0909090909090908
+                  "point": 0.18181818181818182,
+                  "upper": 0.36363636363636365
                 },
                 "latency_ms_p50": {
                   "confidence_level": 0.95,
@@ -67572,16 +67572,16 @@
                   "lower": 0.0,
                   "method": "bootstrap_percentile",
                   "n": 22,
-                  "point": 2.0,
-                  "upper": 5.0
+                  "point": 1.0,
+                  "upper": 1.0
                 },
                 "latency_ms_p99": {
                   "confidence_level": 0.95,
-                  "lower": 1.0,
+                  "lower": 0.7899999999999991,
                   "method": "bootstrap_percentile",
                   "n": 22,
-                  "point": 4.369999999999997,
-                  "upper": 5.0
+                  "point": 1.0,
+                  "upper": 1.0
                 },
                 "request_tokens_mean": {
                   "confidence_level": 0.95,
@@ -67651,11 +67651,11 @@
                 },
                 "latency_ms_mean": {
                   "confidence_level": 0.95,
-                  "lower": 0.044642857142857144,
+                  "lower": 0.008928571428571428,
                   "method": "bootstrap_percentile",
                   "n": 112,
-                  "point": 0.17857142857142858,
-                  "upper": 0.3392857142857143
+                  "point": 0.044642857142857144,
+                  "upper": 0.08928571428571429
                 },
                 "latency_ms_p50": {
                   "confidence_level": 0.95,
@@ -67670,16 +67670,16 @@
                   "lower": 0.0,
                   "method": "bootstrap_percentile",
                   "n": 112,
-                  "point": 1.0,
-                  "upper": 3.0
+                  "point": 0.0,
+                  "upper": 1.0
                 },
                 "latency_ms_p99": {
                   "confidence_level": 0.95,
-                  "lower": 1.0,
+                  "lower": 0.0,
                   "method": "bootstrap_percentile",
                   "n": 112,
-                  "point": 3.8900000000000006,
-                  "upper": 6.0
+                  "point": 1.0,
+                  "upper": 1.0
                 },
                 "request_tokens_mean": {
                   "confidence_level": 0.95,
@@ -67752,8 +67752,8 @@
                   "lower": 0.0,
                   "method": "bootstrap_percentile",
                   "n": 170,
-                  "point": 0.06470588235294118,
-                  "upper": 0.17647058823529413
+                  "point": 0.0058823529411764705,
+                  "upper": 0.01764705882352941
                 },
                 "latency_ms_p50": {
                   "confidence_level": 0.95,
@@ -67776,8 +67776,8 @@
                   "lower": 0.0,
                   "method": "bootstrap_percentile",
                   "n": 170,
-                  "point": 1.3100000000000023,
-                  "upper": 8.0
+                  "point": 0.0,
+                  "upper": 1.0
                 },
                 "request_tokens_mean": {
                   "confidence_level": 0.95,
@@ -67849,11 +67849,11 @@
                 },
                 "latency_ms_mean": {
                   "confidence_level": 0.95,
-                  "lower": 0.07441860465116279,
+                  "lower": 0.018604651162790697,
                   "method": "bootstrap_percentile",
                   "n": 430,
-                  "point": 0.14186046511627906,
-                  "upper": 0.2186046511627907
+                  "point": 0.03488372093023256,
+                  "upper": 0.053488372093023255
                 },
                 "latency_ms_p50": {
                   "confidence_level": 0.95,
@@ -67873,11 +67873,11 @@
                 },
                 "latency_ms_p99": {
                   "confidence_level": 0.95,
-                  "lower": 2.0,
+                  "lower": 1.0,
                   "method": "bootstrap_percentile",
                   "n": 430,
-                  "point": 4.7099999999999795,
-                  "upper": 7.419999999999959
+                  "point": 1.0,
+                  "upper": 1.0
                 },
                 "request_tokens_mean": {
                   "confidence_level": 0.95,
@@ -70845,7 +70845,7 @@
     "dataset_version": "reviewed-query-pairs-2.0",
     "reports": [
       {
-        "average_latency_ms": 0.49375,
+        "average_latency_ms": 0.2125,
         "baseline": "embedding-cache",
         "cache_hits": 530,
         "cache_lookup_cost_usd": 0.0,
@@ -73480,7 +73480,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 0.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0083",
             "safe_reuse_hit": 0
           },
@@ -74050,7 +74050,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 0.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0112",
             "safe_reuse_hit": 0
           },
@@ -74275,7 +74275,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 0.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0121",
             "safe_reuse_hit": 0
           },
@@ -74335,7 +74335,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0126",
             "safe_reuse_hit": 0
           },
@@ -74635,7 +74635,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0141",
             "safe_reuse_hit": 0
           },
@@ -74740,7 +74740,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 0.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0145",
             "safe_reuse_hit": 1
           },
@@ -74785,7 +74785,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 0.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0147",
             "safe_reuse_hit": 0
           },
@@ -74800,7 +74800,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 0.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0147",
             "safe_reuse_hit": 0
           },
@@ -75250,7 +75250,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0171",
             "safe_reuse_hit": 0
           },
@@ -75595,7 +75595,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0187",
             "safe_reuse_hit": 0
           },
@@ -75640,7 +75640,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0190",
             "safe_reuse_hit": 1
           },
@@ -75655,7 +75655,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0191",
             "safe_reuse_hit": 0
           },
@@ -75805,7 +75805,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0197",
             "safe_reuse_hit": 0
           },
@@ -75835,7 +75835,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0198",
             "safe_reuse_hit": 0
           },
@@ -75850,7 +75850,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0198",
             "safe_reuse_hit": 0
           },
@@ -75895,7 +75895,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0201",
             "safe_reuse_hit": 0
           },
@@ -75910,7 +75910,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0201",
             "safe_reuse_hit": 0
           },
@@ -75940,7 +75940,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0207",
             "safe_reuse_hit": 0
           },
@@ -76045,7 +76045,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0214",
             "safe_reuse_hit": 0
           },
@@ -76060,7 +76060,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0214",
             "safe_reuse_hit": 1
           },
@@ -76075,7 +76075,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0215",
             "safe_reuse_hit": 0
           },
@@ -76135,7 +76135,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0218",
             "safe_reuse_hit": 0
           },
@@ -76270,7 +76270,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0225",
             "safe_reuse_hit": 1
           },
@@ -76285,7 +76285,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0226",
             "safe_reuse_hit": 0
           },
@@ -76300,7 +76300,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0226",
             "safe_reuse_hit": 0
           },
@@ -76315,7 +76315,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0227",
             "safe_reuse_hit": 0
           },
@@ -76345,7 +76345,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0229",
             "safe_reuse_hit": 0
           },
@@ -76360,7 +76360,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0229",
             "safe_reuse_hit": 1
           },
@@ -76375,7 +76375,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0230",
             "safe_reuse_hit": 0
           },
@@ -76390,7 +76390,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0230",
             "safe_reuse_hit": 1
           },
@@ -76435,7 +76435,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 0.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0232",
             "safe_reuse_hit": 0
           },
@@ -76570,7 +76570,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 0.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0241",
             "safe_reuse_hit": 0
           },
@@ -76600,7 +76600,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0245",
             "safe_reuse_hit": 1
           },
@@ -76870,7 +76870,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0258",
             "safe_reuse_hit": 0
           },
@@ -76885,7 +76885,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0260",
             "safe_reuse_hit": 0
           },
@@ -76900,7 +76900,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0260",
             "safe_reuse_hit": 1
           },
@@ -76915,7 +76915,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 0.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0261",
             "safe_reuse_hit": 0
           },
@@ -76990,7 +76990,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0264",
             "safe_reuse_hit": 1
           },
@@ -77050,7 +77050,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0269",
             "safe_reuse_hit": 1
           },
@@ -77125,7 +77125,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 0.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0274",
             "safe_reuse_hit": 0
           },
@@ -77230,7 +77230,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0279",
             "safe_reuse_hit": 0
           },
@@ -77245,7 +77245,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0281",
             "safe_reuse_hit": 0
           },
@@ -77275,7 +77275,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0282",
             "safe_reuse_hit": 0
           },
@@ -77290,7 +77290,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0282",
             "safe_reuse_hit": 0
           },
@@ -77305,7 +77305,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0283",
             "safe_reuse_hit": 0
           },
@@ -77320,7 +77320,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0283",
             "safe_reuse_hit": 0
           },
@@ -77335,7 +77335,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0284",
             "safe_reuse_hit": 0
           },
@@ -77350,7 +77350,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0284",
             "safe_reuse_hit": 1
           },
@@ -77380,7 +77380,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0285",
             "safe_reuse_hit": 1
           },
@@ -77410,7 +77410,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0286",
             "safe_reuse_hit": 0
           },
@@ -77440,7 +77440,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0288",
             "safe_reuse_hit": 0
           },
@@ -77455,7 +77455,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 0.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0291",
             "safe_reuse_hit": 0
           },
@@ -77485,7 +77485,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0292",
             "safe_reuse_hit": 0
           },
@@ -77515,7 +77515,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0295",
             "safe_reuse_hit": 0
           },
@@ -77530,7 +77530,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0295",
             "safe_reuse_hit": 1
           },
@@ -77545,7 +77545,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0296",
             "safe_reuse_hit": 0
           },
@@ -77635,7 +77635,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0299",
             "safe_reuse_hit": 0
           },
@@ -77650,7 +77650,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0299",
             "safe_reuse_hit": 1
           },
@@ -77845,7 +77845,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0312",
             "safe_reuse_hit": 0
           },
@@ -77890,7 +77890,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0313",
             "safe_reuse_hit": 0
           },
@@ -77920,7 +77920,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0314",
             "safe_reuse_hit": 1
           },
@@ -77980,7 +77980,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0319",
             "safe_reuse_hit": 1
           },
@@ -77995,7 +77995,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0321",
             "safe_reuse_hit": 0
           },
@@ -78070,7 +78070,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0325",
             "safe_reuse_hit": 1
           },
@@ -78085,7 +78085,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0328",
             "safe_reuse_hit": 0
           },
@@ -78100,7 +78100,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0328",
             "safe_reuse_hit": 0
           },
@@ -78115,7 +78115,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0329",
             "safe_reuse_hit": 0
           },
@@ -78130,7 +78130,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0329",
             "safe_reuse_hit": 0
           },
@@ -78145,7 +78145,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0330",
             "safe_reuse_hit": 0
           },
@@ -78160,7 +78160,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0330",
             "safe_reuse_hit": 1
           },
@@ -78205,7 +78205,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0333",
             "safe_reuse_hit": 0
           },
@@ -78220,7 +78220,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0333",
             "safe_reuse_hit": 0
           },
@@ -78235,7 +78235,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0334",
             "safe_reuse_hit": 0
           },
@@ -78250,7 +78250,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0334",
             "safe_reuse_hit": 1
           },
@@ -78280,7 +78280,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0335",
             "safe_reuse_hit": 1
           },
@@ -78295,7 +78295,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0336",
             "safe_reuse_hit": 0
           },
@@ -78310,7 +78310,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0336",
             "safe_reuse_hit": 0
           },
@@ -78325,7 +78325,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0337",
             "safe_reuse_hit": 0
           },
@@ -78340,7 +78340,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0337",
             "safe_reuse_hit": 0
           },
@@ -78355,7 +78355,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0339",
             "safe_reuse_hit": 0
           },
@@ -78385,7 +78385,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0340",
             "safe_reuse_hit": 0
           },
@@ -78400,7 +78400,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0340",
             "safe_reuse_hit": 1
           },
@@ -78415,7 +78415,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0343",
             "safe_reuse_hit": 0
           },
@@ -78445,7 +78445,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0344",
             "safe_reuse_hit": 0
           },
@@ -78475,7 +78475,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0345",
             "safe_reuse_hit": 0
           },
@@ -78490,7 +78490,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0345",
             "safe_reuse_hit": 1
           },
@@ -78505,7 +78505,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0346",
             "safe_reuse_hit": 0
           },
@@ -78520,7 +78520,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0346",
             "safe_reuse_hit": 0
           },
@@ -78535,7 +78535,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0347",
             "safe_reuse_hit": 0
           },
@@ -78565,7 +78565,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0349",
             "safe_reuse_hit": 0
           },
@@ -78580,7 +78580,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0349",
             "safe_reuse_hit": 1
           },
@@ -78595,7 +78595,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0351",
             "safe_reuse_hit": 0
           },
@@ -78610,7 +78610,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0351",
             "safe_reuse_hit": 0
           },
@@ -78625,7 +78625,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0352",
             "safe_reuse_hit": 0
           },
@@ -78640,7 +78640,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0352",
             "safe_reuse_hit": 0
           },
@@ -78805,7 +78805,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0361",
             "safe_reuse_hit": 0
           },
@@ -78820,7 +78820,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0361",
             "safe_reuse_hit": 0
           },
@@ -78835,7 +78835,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0362",
             "safe_reuse_hit": 0
           },
@@ -78850,7 +78850,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0362",
             "safe_reuse_hit": 0
           },
@@ -78865,7 +78865,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0363",
             "safe_reuse_hit": 0
           },
@@ -78910,7 +78910,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0366",
             "safe_reuse_hit": 0
           },
@@ -78955,7 +78955,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0371",
             "safe_reuse_hit": 0
           },
@@ -78970,7 +78970,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0371",
             "safe_reuse_hit": 0
           },
@@ -79000,7 +79000,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0372",
             "safe_reuse_hit": 0
           },
@@ -79030,7 +79030,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0373",
             "safe_reuse_hit": 0
           },
@@ -79045,7 +79045,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0376",
             "safe_reuse_hit": 0
           },
@@ -79060,7 +79060,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0376",
             "safe_reuse_hit": 0
           },
@@ -79120,7 +79120,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0379",
             "safe_reuse_hit": 1
           },
@@ -79135,7 +79135,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0380",
             "safe_reuse_hit": 0
           },
@@ -79150,7 +79150,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0380",
             "safe_reuse_hit": 1
           },
@@ -79165,7 +79165,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0382",
             "safe_reuse_hit": 0
           },
@@ -79195,7 +79195,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0383",
             "safe_reuse_hit": 0
           },
@@ -79210,7 +79210,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0383",
             "safe_reuse_hit": 0
           },
@@ -79225,7 +79225,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0384",
             "safe_reuse_hit": 0
           },
@@ -79255,7 +79255,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0385",
             "safe_reuse_hit": 0
           },
@@ -79390,7 +79390,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0389",
             "safe_reuse_hit": 1
           },
@@ -79405,7 +79405,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0391",
             "safe_reuse_hit": 0
           },
@@ -79420,7 +79420,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0391",
             "safe_reuse_hit": 0
           },
@@ -79450,7 +79450,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0392",
             "safe_reuse_hit": 0
           },
@@ -79480,7 +79480,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0394",
             "safe_reuse_hit": 1
           },
@@ -79495,7 +79495,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0395",
             "safe_reuse_hit": 0
           },
@@ -79510,7 +79510,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0395",
             "safe_reuse_hit": 1
           },
@@ -79525,7 +79525,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0396",
             "safe_reuse_hit": 0
           },
@@ -79540,7 +79540,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0396",
             "safe_reuse_hit": 0
           },
@@ -79555,7 +79555,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0397",
             "safe_reuse_hit": 0
           },
@@ -79570,7 +79570,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0397",
             "safe_reuse_hit": 0
           },
@@ -79645,7 +79645,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0401",
             "safe_reuse_hit": 0
           },
@@ -79660,7 +79660,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0401",
             "safe_reuse_hit": 0
           },
@@ -79690,7 +79690,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0402",
             "safe_reuse_hit": 0
           },
@@ -79735,7 +79735,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0408",
             "safe_reuse_hit": 0
           },
@@ -79750,7 +79750,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0408",
             "safe_reuse_hit": 0
           },
@@ -79780,7 +79780,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0409",
             "safe_reuse_hit": 1
           },
@@ -79795,7 +79795,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0410",
             "safe_reuse_hit": 0
           },
@@ -79810,7 +79810,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0410",
             "safe_reuse_hit": 1
           },
@@ -79825,7 +79825,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0411",
             "safe_reuse_hit": 0
           },
@@ -80005,7 +80005,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0419",
             "safe_reuse_hit": 0
           },
@@ -80020,7 +80020,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0419",
             "safe_reuse_hit": 1
           },
@@ -80080,7 +80080,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0422",
             "safe_reuse_hit": 0
           },
@@ -80110,7 +80110,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0423",
             "safe_reuse_hit": 0
           },
@@ -80140,7 +80140,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0424",
             "safe_reuse_hit": 1
           },
@@ -80170,7 +80170,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0426",
             "safe_reuse_hit": 0
           },
@@ -80185,7 +80185,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0428",
             "safe_reuse_hit": 0
           },
@@ -80200,7 +80200,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0428",
             "safe_reuse_hit": 0
           },
@@ -80245,7 +80245,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0431",
             "safe_reuse_hit": 0
           },
@@ -80260,7 +80260,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0431",
             "safe_reuse_hit": 0
           },
@@ -80290,7 +80290,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0433",
             "safe_reuse_hit": 0
           },
@@ -80320,7 +80320,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0435",
             "safe_reuse_hit": 1
           },
@@ -80395,7 +80395,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0440",
             "safe_reuse_hit": 0
           },
@@ -80410,7 +80410,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0440",
             "safe_reuse_hit": 0
           },
@@ -80425,7 +80425,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0441",
             "safe_reuse_hit": 0
           },
@@ -80440,7 +80440,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0441",
             "safe_reuse_hit": 0
           },
@@ -80485,7 +80485,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0444",
             "safe_reuse_hit": 0
           },
@@ -80500,7 +80500,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0444",
             "safe_reuse_hit": 1
           },
@@ -80515,7 +80515,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0451",
             "safe_reuse_hit": 0
           },
@@ -80545,7 +80545,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0453",
             "safe_reuse_hit": 0
           },
@@ -80590,7 +80590,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0455",
             "safe_reuse_hit": 1
           },
@@ -80620,7 +80620,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0456",
             "safe_reuse_hit": 0
           },
@@ -80635,7 +80635,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0457",
             "safe_reuse_hit": 0
           },
@@ -80650,7 +80650,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0457",
             "safe_reuse_hit": 0
           },
@@ -80665,7 +80665,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0458",
             "safe_reuse_hit": 0
           },
@@ -80695,7 +80695,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0460",
             "safe_reuse_hit": 0
           },
@@ -80710,7 +80710,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0460",
             "safe_reuse_hit": 1
           },
@@ -80725,7 +80725,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0461",
             "safe_reuse_hit": 0
           },
@@ -80740,7 +80740,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0461",
             "safe_reuse_hit": 0
           },
@@ -80755,7 +80755,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0463",
             "safe_reuse_hit": 0
           },
@@ -80770,7 +80770,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0463",
             "safe_reuse_hit": 0
           },
@@ -80815,7 +80815,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0467",
             "safe_reuse_hit": 0
           },
@@ -80830,7 +80830,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0467",
             "safe_reuse_hit": 0
           },
@@ -80845,7 +80845,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0468",
             "safe_reuse_hit": 0
           },
@@ -80860,7 +80860,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0468",
             "safe_reuse_hit": 0
           },
@@ -80875,7 +80875,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0469",
             "safe_reuse_hit": 0
           },
@@ -80935,7 +80935,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0472",
             "safe_reuse_hit": 0
           },
@@ -80995,7 +80995,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0476",
             "safe_reuse_hit": 0
           },
@@ -81010,7 +81010,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0476",
             "safe_reuse_hit": 0
           },
@@ -81025,7 +81025,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0477",
             "safe_reuse_hit": 0
           },
@@ -81040,7 +81040,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0477",
             "safe_reuse_hit": 0
           },
@@ -81190,7 +81190,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0487",
             "safe_reuse_hit": 0
           },
@@ -81205,7 +81205,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0488",
             "safe_reuse_hit": 0
           },
@@ -81235,7 +81235,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0489",
             "safe_reuse_hit": 0
           },
@@ -81265,7 +81265,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0491",
             "safe_reuse_hit": 0
           },
@@ -81295,7 +81295,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0492",
             "safe_reuse_hit": 0
           },
@@ -81310,7 +81310,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0492",
             "safe_reuse_hit": 0
           },
@@ -81340,7 +81340,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0495",
             "safe_reuse_hit": 1
           },
@@ -81355,7 +81355,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0497",
             "safe_reuse_hit": 0
           },
@@ -81370,7 +81370,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0497",
             "safe_reuse_hit": 0
           },
@@ -81385,7 +81385,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0500",
             "safe_reuse_hit": 0
           },
@@ -81415,7 +81415,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0501",
             "safe_reuse_hit": 0
           },
@@ -81460,7 +81460,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0502",
             "safe_reuse_hit": 0
           },
@@ -81475,7 +81475,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0504",
             "safe_reuse_hit": 0
           },
@@ -81490,7 +81490,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0504",
             "safe_reuse_hit": 1
           },
@@ -81505,7 +81505,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0505",
             "safe_reuse_hit": 0
           },
@@ -81520,7 +81520,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0505",
             "safe_reuse_hit": 1
           },
@@ -81565,7 +81565,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0508",
             "safe_reuse_hit": 0
           },
@@ -81580,7 +81580,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0508",
             "safe_reuse_hit": 0
           },
@@ -81595,7 +81595,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0510",
             "safe_reuse_hit": 0
           },
@@ -81610,7 +81610,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0510",
             "safe_reuse_hit": 1
           },
@@ -81625,7 +81625,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0511",
             "safe_reuse_hit": 0
           },
@@ -81655,7 +81655,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0512",
             "safe_reuse_hit": 0
           },
@@ -81670,7 +81670,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0512",
             "safe_reuse_hit": 0
           },
@@ -81760,7 +81760,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0515",
             "safe_reuse_hit": 1
           },
@@ -81820,7 +81820,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0518",
             "safe_reuse_hit": 0
           },
@@ -81835,7 +81835,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0519",
             "safe_reuse_hit": 0
           },
@@ -81850,7 +81850,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0519",
             "safe_reuse_hit": 1
           },
@@ -81880,7 +81880,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0520",
             "safe_reuse_hit": 1
           },
@@ -81910,7 +81910,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0522",
             "safe_reuse_hit": 0
           },
@@ -81925,7 +81925,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0524",
             "safe_reuse_hit": 0
           },
@@ -81940,7 +81940,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0524",
             "safe_reuse_hit": 1
           },
@@ -81955,7 +81955,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0525",
             "safe_reuse_hit": 0
           },
@@ -81970,7 +81970,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0525",
             "safe_reuse_hit": 1
           },
@@ -81985,7 +81985,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0526",
             "safe_reuse_hit": 0
           },
@@ -82045,7 +82045,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0529",
             "safe_reuse_hit": 0
           },
@@ -82060,7 +82060,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0529",
             "safe_reuse_hit": 1
           },
@@ -82075,7 +82075,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0530",
             "safe_reuse_hit": 0
           },
@@ -82090,7 +82090,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0530",
             "safe_reuse_hit": 1
           },
@@ -82105,7 +82105,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0532",
             "safe_reuse_hit": 0
           },
@@ -82120,7 +82120,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0532",
             "safe_reuse_hit": 0
           },
@@ -82150,7 +82150,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0533",
             "safe_reuse_hit": 0
           },
@@ -82180,7 +82180,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0534",
             "safe_reuse_hit": 1
           },
@@ -82195,7 +82195,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0535",
             "safe_reuse_hit": 0
           },
@@ -82210,7 +82210,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0535",
             "safe_reuse_hit": 1
           },
@@ -82225,7 +82225,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0536",
             "safe_reuse_hit": 0
           },
@@ -82270,7 +82270,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0540",
             "safe_reuse_hit": 1
           },
@@ -82285,7 +82285,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0541",
             "safe_reuse_hit": 0
           },
@@ -82300,7 +82300,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0541",
             "safe_reuse_hit": 0
           },
@@ -82315,7 +82315,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0542",
             "safe_reuse_hit": 0
           },
@@ -82330,7 +82330,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0542",
             "safe_reuse_hit": 0
           },
@@ -82345,7 +82345,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0544",
             "safe_reuse_hit": 0
           },
@@ -82360,7 +82360,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0544",
             "safe_reuse_hit": 1
           },
@@ -82375,7 +82375,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0545",
             "safe_reuse_hit": 0
           },
@@ -82510,7 +82510,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0552",
             "safe_reuse_hit": 0
           },
@@ -82525,7 +82525,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0555",
             "safe_reuse_hit": 0
           },
@@ -82570,7 +82570,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0556",
             "safe_reuse_hit": 0
           },
@@ -82585,7 +82585,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0557",
             "safe_reuse_hit": 0
           },
@@ -82615,7 +82615,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0558",
             "safe_reuse_hit": 0
           },
@@ -82660,7 +82660,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0559",
             "safe_reuse_hit": 1
           },
@@ -82690,7 +82690,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0560",
             "safe_reuse_hit": 1
           },
@@ -82855,7 +82855,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0571",
             "safe_reuse_hit": 0
           },
@@ -82870,7 +82870,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0571",
             "safe_reuse_hit": 0
           },
@@ -82900,7 +82900,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0573",
             "safe_reuse_hit": 0
           },
@@ -82930,7 +82930,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0575",
             "safe_reuse_hit": 1
           },
@@ -82945,7 +82945,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0577",
             "safe_reuse_hit": 0
           },
@@ -82960,7 +82960,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0577",
             "safe_reuse_hit": 0
           },
@@ -82975,7 +82975,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0578",
             "safe_reuse_hit": 0
           },
@@ -82990,7 +82990,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0578",
             "safe_reuse_hit": 0
           },
@@ -83035,7 +83035,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0581",
             "safe_reuse_hit": 0
           },
@@ -83080,7 +83080,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0582",
             "safe_reuse_hit": 0
           },
@@ -83095,7 +83095,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0583",
             "safe_reuse_hit": 0
           },
@@ -83110,7 +83110,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0583",
             "safe_reuse_hit": 0
           },
@@ -83125,7 +83125,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0584",
             "safe_reuse_hit": 0
           },
@@ -83170,7 +83170,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0586",
             "safe_reuse_hit": 0
           },
@@ -83200,7 +83200,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0588",
             "safe_reuse_hit": 0
           },
@@ -83215,7 +83215,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0589",
             "safe_reuse_hit": 0
           },
@@ -83245,7 +83245,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0590",
             "safe_reuse_hit": 0
           },
@@ -83320,7 +83320,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0593",
             "safe_reuse_hit": 0
           },
@@ -83395,7 +83395,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0596",
             "safe_reuse_hit": 0
           },
@@ -83410,7 +83410,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0596",
             "safe_reuse_hit": 0
           },
@@ -83425,7 +83425,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0597",
             "safe_reuse_hit": 0
           },
@@ -83440,7 +83440,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0597",
             "safe_reuse_hit": 0
           },
@@ -83455,7 +83455,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0598",
             "safe_reuse_hit": 0
           },
@@ -83485,7 +83485,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0599",
             "safe_reuse_hit": 0
           },
@@ -83500,7 +83500,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0599",
             "safe_reuse_hit": 0
           },
@@ -83515,7 +83515,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0602",
             "safe_reuse_hit": 0
           },
@@ -83545,7 +83545,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0604",
             "safe_reuse_hit": 0
           },
@@ -83560,7 +83560,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0604",
             "safe_reuse_hit": 1
           },
@@ -83575,7 +83575,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0605",
             "safe_reuse_hit": 0
           },
@@ -83590,7 +83590,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 4.0,
             "pair_id": "pair-0605",
             "safe_reuse_hit": 1
           },
@@ -83605,7 +83605,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0606",
             "safe_reuse_hit": 0
           },
@@ -83620,7 +83620,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0606",
             "safe_reuse_hit": 0
           },
@@ -83665,7 +83665,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 5.0,
             "pair_id": "pair-0609",
             "safe_reuse_hit": 0
           },
@@ -83680,7 +83680,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0609",
             "safe_reuse_hit": 1
           },
@@ -83710,7 +83710,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0611",
             "safe_reuse_hit": 0
           },
@@ -83740,7 +83740,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0612",
             "safe_reuse_hit": 0
           },
@@ -83770,7 +83770,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0613",
             "safe_reuse_hit": 0
           },
@@ -83800,7 +83800,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0614",
             "safe_reuse_hit": 0
           }
@@ -83813,11 +83813,11 @@
         "threshold_rejections": 269,
         "tokens_saved": 9273,
         "top_k": 5,
-        "total_latency_ms": 395,
+        "total_latency_ms": 170,
         "unsafe_reuse_hits": 155
       },
       {
-        "average_latency_ms": 0.6025,
+        "average_latency_ms": 0.32125,
         "baseline": "embedding-cache",
         "cache_hits": 204,
         "cache_lookup_cost_usd": 0.0,
@@ -84205,8 +84205,8 @@
         "output_cost_per_1k_tokens": 0.0,
         "output_tokens": 6311,
         "p50_latency_ms": 0.0,
-        "p95_latency_ms": 4.0,
-        "p99_latency_ms": 6.0,
+        "p95_latency_ms": 2.0,
+        "p99_latency_ms": 3.0,
         "precision": 0.42452830188679247,
         "preprocessing_cost_usd": 0.0,
         "recall": 0.3,
@@ -85888,7 +85888,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0083",
             "safe_reuse_hit": 0
           },
@@ -87133,7 +87133,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 0.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0145",
             "safe_reuse_hit": 0
           },
@@ -87418,7 +87418,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0157",
             "safe_reuse_hit": 0
           },
@@ -87478,7 +87478,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0159",
             "safe_reuse_hit": 1
           },
@@ -87493,7 +87493,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0160",
             "safe_reuse_hit": 0
           },
@@ -87628,7 +87628,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0170",
             "safe_reuse_hit": 1
           },
@@ -87658,7 +87658,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0171",
             "safe_reuse_hit": 0
           },
@@ -87673,7 +87673,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0172",
             "safe_reuse_hit": 0
           },
@@ -87913,7 +87913,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0183",
             "safe_reuse_hit": 0
           },
@@ -88003,7 +88003,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0187",
             "safe_reuse_hit": 0
           },
@@ -88033,7 +88033,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0190",
             "safe_reuse_hit": 0
           },
@@ -88048,7 +88048,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0190",
             "safe_reuse_hit": 1
           },
@@ -88333,7 +88333,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0207",
             "safe_reuse_hit": 0
           },
@@ -88393,7 +88393,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0210",
             "safe_reuse_hit": 0
           },
@@ -88678,7 +88678,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0225",
             "safe_reuse_hit": 1
           },
@@ -88708,7 +88708,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0226",
             "safe_reuse_hit": 0
           },
@@ -88798,7 +88798,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0230",
             "safe_reuse_hit": 1
           },
@@ -88948,7 +88948,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0239",
             "safe_reuse_hit": 1
           },
@@ -89188,7 +89188,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0252",
             "safe_reuse_hit": 0
           },
@@ -89248,7 +89248,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0254",
             "safe_reuse_hit": 1
           },
@@ -89548,7 +89548,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0274",
             "safe_reuse_hit": 1
           },
@@ -89608,7 +89608,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0278",
             "safe_reuse_hit": 0
           },
@@ -89653,7 +89653,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0281",
             "safe_reuse_hit": 0
           },
@@ -89848,7 +89848,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0288",
             "safe_reuse_hit": 0
           },
@@ -89908,7 +89908,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0292",
             "safe_reuse_hit": 0
           },
@@ -90028,7 +90028,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0298",
             "safe_reuse_hit": 0
           },
@@ -90223,7 +90223,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0310",
             "safe_reuse_hit": 0
           },
@@ -90403,7 +90403,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0321",
             "safe_reuse_hit": 0
           },
@@ -90463,7 +90463,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0325",
             "safe_reuse_hit": 0
           },
@@ -90553,7 +90553,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0330",
             "safe_reuse_hit": 0
           },
@@ -90658,7 +90658,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0334",
             "safe_reuse_hit": 1
           },
@@ -90748,7 +90748,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0337",
             "safe_reuse_hit": 0
           },
@@ -90793,7 +90793,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0340",
             "safe_reuse_hit": 0
           },
@@ -90868,7 +90868,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0344",
             "safe_reuse_hit": 0
           },
@@ -90973,7 +90973,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0349",
             "safe_reuse_hit": 0
           },
@@ -91108,7 +91108,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0355",
             "safe_reuse_hit": 1
           },
@@ -91168,7 +91168,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0359",
             "safe_reuse_hit": 1
           },
@@ -91228,7 +91228,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0361",
             "safe_reuse_hit": 0
           },
@@ -91243,7 +91243,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0362",
             "safe_reuse_hit": 0
           },
@@ -91258,7 +91258,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0362",
             "safe_reuse_hit": 0
           },
@@ -91288,7 +91288,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0363",
             "safe_reuse_hit": 0
           },
@@ -91318,7 +91318,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0366",
             "safe_reuse_hit": 0
           },
@@ -91348,7 +91348,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0370",
             "safe_reuse_hit": 1
           },
@@ -91408,7 +91408,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0372",
             "safe_reuse_hit": 0
           },
@@ -91468,7 +91468,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0376",
             "safe_reuse_hit": 0
           },
@@ -91543,7 +91543,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0380",
             "safe_reuse_hit": 0
           },
@@ -91588,7 +91588,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0382",
             "safe_reuse_hit": 0
           },
@@ -91603,7 +91603,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0383",
             "safe_reuse_hit": 0
           },
@@ -91633,7 +91633,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0384",
             "safe_reuse_hit": 0
           },
@@ -91693,7 +91693,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0386",
             "safe_reuse_hit": 0
           },
@@ -91708,7 +91708,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0386",
             "safe_reuse_hit": 0
           },
@@ -91783,7 +91783,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0389",
             "safe_reuse_hit": 0
           },
@@ -91798,7 +91798,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0389",
             "safe_reuse_hit": 1
           },
@@ -91813,7 +91813,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0391",
             "safe_reuse_hit": 0
           },
@@ -91918,7 +91918,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0395",
             "safe_reuse_hit": 1
           },
@@ -92008,7 +92008,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0399",
             "safe_reuse_hit": 1
           },
@@ -92083,7 +92083,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 7.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0402",
             "safe_reuse_hit": 0
           },
@@ -92218,7 +92218,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0410",
             "safe_reuse_hit": 1
           },
@@ -92263,7 +92263,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0412",
             "safe_reuse_hit": 0
           },
@@ -92278,7 +92278,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0412",
             "safe_reuse_hit": 0
           },
@@ -92323,7 +92323,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0414",
             "safe_reuse_hit": 0
           },
@@ -92473,7 +92473,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0422",
             "safe_reuse_hit": 0
           },
@@ -92533,7 +92533,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0424",
             "safe_reuse_hit": 0
           },
@@ -92578,7 +92578,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0426",
             "safe_reuse_hit": 0
           },
@@ -92668,7 +92668,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0431",
             "safe_reuse_hit": 0
           },
@@ -92698,7 +92698,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0433",
             "safe_reuse_hit": 0
           },
@@ -92713,7 +92713,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0435",
             "safe_reuse_hit": 0
           },
@@ -92728,7 +92728,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0435",
             "safe_reuse_hit": 1
           },
@@ -92788,7 +92788,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0438",
             "safe_reuse_hit": 0
           },
@@ -92848,7 +92848,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0441",
             "safe_reuse_hit": 0
           },
@@ -92953,7 +92953,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0453",
             "safe_reuse_hit": 0
           },
@@ -92968,7 +92968,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0453",
             "safe_reuse_hit": 0
           },
@@ -92998,7 +92998,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 7.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0455",
             "safe_reuse_hit": 1
           },
@@ -93013,7 +93013,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0456",
             "safe_reuse_hit": 0
           },
@@ -93088,7 +93088,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0458",
             "safe_reuse_hit": 0
           },
@@ -93148,7 +93148,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0461",
             "safe_reuse_hit": 0
           },
@@ -93163,7 +93163,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0463",
             "safe_reuse_hit": 0
           },
@@ -93193,7 +93193,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0464",
             "safe_reuse_hit": 0
           },
@@ -93208,7 +93208,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0464",
             "safe_reuse_hit": 1
           },
@@ -93238,7 +93238,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 7.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0467",
             "safe_reuse_hit": 0
           },
@@ -93283,7 +93283,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0469",
             "safe_reuse_hit": 0
           },
@@ -93403,7 +93403,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0476",
             "safe_reuse_hit": 0
           },
@@ -93418,7 +93418,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0476",
             "safe_reuse_hit": 0
           },
@@ -93448,7 +93448,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0477",
             "safe_reuse_hit": 0
           },
@@ -93463,7 +93463,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0480",
             "safe_reuse_hit": 0
           },
@@ -93493,7 +93493,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0482",
             "safe_reuse_hit": 0
           },
@@ -93583,7 +93583,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0487",
             "safe_reuse_hit": 0
           },
@@ -93643,7 +93643,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0489",
             "safe_reuse_hit": 0
           },
@@ -93703,7 +93703,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0492",
             "safe_reuse_hit": 0
           },
@@ -93733,7 +93733,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0495",
             "safe_reuse_hit": 0
           },
@@ -93883,7 +93883,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0504",
             "safe_reuse_hit": 0
           },
@@ -93913,7 +93913,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0505",
             "safe_reuse_hit": 0
           },
@@ -93928,7 +93928,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0505",
             "safe_reuse_hit": 1
           },
@@ -93988,7 +93988,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0508",
             "safe_reuse_hit": 0
           },
@@ -94003,7 +94003,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0510",
             "safe_reuse_hit": 0
           },
@@ -94018,7 +94018,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0510",
             "safe_reuse_hit": 1
           },
@@ -94078,7 +94078,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0512",
             "safe_reuse_hit": 0
           },
@@ -94123,7 +94123,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0514",
             "safe_reuse_hit": 0
           },
@@ -94168,7 +94168,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0515",
             "safe_reuse_hit": 1
           },
@@ -94318,7 +94318,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0522",
             "safe_reuse_hit": 0
           },
@@ -94363,7 +94363,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0525",
             "safe_reuse_hit": 0
           },
@@ -94378,7 +94378,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0525",
             "safe_reuse_hit": 1
           },
@@ -94498,7 +94498,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0530",
             "safe_reuse_hit": 1
           },
@@ -94588,7 +94588,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0534",
             "safe_reuse_hit": 1
           },
@@ -94633,7 +94633,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0536",
             "safe_reuse_hit": 0
           },
@@ -94708,7 +94708,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0541",
             "safe_reuse_hit": 0
           },
@@ -94723,7 +94723,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0542",
             "safe_reuse_hit": 0
           },
@@ -94753,7 +94753,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0544",
             "safe_reuse_hit": 0
           },
@@ -94798,7 +94798,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0545",
             "safe_reuse_hit": 1
           },
@@ -94843,7 +94843,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0547",
             "safe_reuse_hit": 0
           },
@@ -94993,7 +94993,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0557",
             "safe_reuse_hit": 0
           },
@@ -95173,7 +95173,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0564",
             "safe_reuse_hit": 0
           },
@@ -95218,7 +95218,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0566",
             "safe_reuse_hit": 0
           },
@@ -95233,7 +95233,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0569",
             "safe_reuse_hit": 0
           },
@@ -95263,7 +95263,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0571",
             "safe_reuse_hit": 0
           },
@@ -95278,7 +95278,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0571",
             "safe_reuse_hit": 0
           },
@@ -95353,7 +95353,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0577",
             "safe_reuse_hit": 0
           },
@@ -95458,7 +95458,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0581",
             "safe_reuse_hit": 0
           },
@@ -95503,7 +95503,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0583",
             "safe_reuse_hit": 0
           },
@@ -95548,7 +95548,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0584",
             "safe_reuse_hit": 1
           },
@@ -95578,7 +95578,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0586",
             "safe_reuse_hit": 0
           },
@@ -95653,7 +95653,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0590",
             "safe_reuse_hit": 0
           },
@@ -95668,7 +95668,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0590",
             "safe_reuse_hit": 1
           },
@@ -95683,7 +95683,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0591",
             "safe_reuse_hit": 0
           },
@@ -95728,7 +95728,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0593",
             "safe_reuse_hit": 0
           },
@@ -95743,7 +95743,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0594",
             "safe_reuse_hit": 0
           },
@@ -95758,7 +95758,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0594",
             "safe_reuse_hit": 1
           },
@@ -95788,7 +95788,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0595",
             "safe_reuse_hit": 1
           },
@@ -95833,7 +95833,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0597",
             "safe_reuse_hit": 0
           },
@@ -95893,7 +95893,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0599",
             "safe_reuse_hit": 0
           },
@@ -95923,7 +95923,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0602",
             "safe_reuse_hit": 0
           },
@@ -95968,7 +95968,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0604",
             "safe_reuse_hit": 1
           },
@@ -95983,7 +95983,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0605",
             "safe_reuse_hit": 0
           },
@@ -96028,7 +96028,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0606",
             "safe_reuse_hit": 0
           },
@@ -96058,7 +96058,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0608",
             "safe_reuse_hit": 1
           },
@@ -96088,7 +96088,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 4.0,
             "pair_id": "pair-0609",
             "safe_reuse_hit": 1
           },
@@ -96221,11 +96221,11 @@
         "threshold_rejections": 595,
         "tokens_saved": 3174,
         "top_k": 5,
-        "total_latency_ms": 482,
+        "total_latency_ms": 257,
         "unsafe_reuse_hits": 61
       },
       {
-        "average_latency_ms": 0.34625,
+        "average_latency_ms": 0.17375,
         "baseline": "embedding-cache",
         "cache_hits": 88,
         "cache_lookup_cost_usd": 0.0,
@@ -96367,8 +96367,8 @@
         "output_cost_per_1k_tokens": 0.0,
         "output_tokens": 7542,
         "p50_latency_ms": 0.0,
-        "p95_latency_ms": 3.0,
-        "p99_latency_ms": 5.009999999999991,
+        "p95_latency_ms": 2.0,
+        "p99_latency_ms": 3.0,
         "precision": 0.5,
         "preprocessing_cost_usd": 0.0,
         "recall": 0.13333333333333333,
@@ -99220,7 +99220,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0141",
             "safe_reuse_hit": 0
           },
@@ -99655,7 +99655,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0160",
             "safe_reuse_hit": 0
           },
@@ -99820,7 +99820,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0171",
             "safe_reuse_hit": 0
           },
@@ -99835,7 +99835,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0172",
             "safe_reuse_hit": 0
           },
@@ -100195,7 +100195,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 1.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0190",
             "safe_reuse_hit": 0
           },
@@ -100495,7 +100495,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 0.0,
             "pair_id": "pair-0207",
             "safe_reuse_hit": 0
           },
@@ -101245,7 +101245,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0248",
             "safe_reuse_hit": 0
           },
@@ -102130,7 +102130,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0296",
             "safe_reuse_hit": 0
           },
@@ -102385,7 +102385,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0310",
             "safe_reuse_hit": 0
           },
@@ -102550,7 +102550,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0319",
             "safe_reuse_hit": 1
           },
@@ -102565,7 +102565,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0321",
             "safe_reuse_hit": 0
           },
@@ -102625,7 +102625,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0325",
             "safe_reuse_hit": 0
           },
@@ -102910,7 +102910,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0337",
             "safe_reuse_hit": 0
           },
@@ -102955,7 +102955,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0340",
             "safe_reuse_hit": 0
           },
@@ -103135,7 +103135,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0349",
             "safe_reuse_hit": 0
           },
@@ -103270,7 +103270,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0355",
             "safe_reuse_hit": 1
           },
@@ -103390,7 +103390,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0361",
             "safe_reuse_hit": 0
           },
@@ -103405,7 +103405,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0362",
             "safe_reuse_hit": 0
           },
@@ -103630,7 +103630,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0376",
             "safe_reuse_hit": 0
           },
@@ -103750,7 +103750,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 2.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0382",
             "safe_reuse_hit": 0
           },
@@ -103795,7 +103795,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0384",
             "safe_reuse_hit": 0
           },
@@ -103945,7 +103945,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0389",
             "safe_reuse_hit": 0
           },
@@ -104425,7 +104425,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 7.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0412",
             "safe_reuse_hit": 0
           },
@@ -104635,7 +104635,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0422",
             "safe_reuse_hit": 0
           },
@@ -104830,7 +104830,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0431",
             "safe_reuse_hit": 0
           },
@@ -104965,7 +104965,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 7.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0440",
             "safe_reuse_hit": 0
           },
@@ -105010,7 +105010,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0441",
             "safe_reuse_hit": 0
           },
@@ -105115,7 +105115,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0453",
             "safe_reuse_hit": 0
           },
@@ -105160,7 +105160,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 1.0,
             "pair_id": "pair-0455",
             "safe_reuse_hit": 1
           },
@@ -105175,7 +105175,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0456",
             "safe_reuse_hit": 0
           },
@@ -105355,7 +105355,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0464",
             "safe_reuse_hit": 0
           },
@@ -105370,7 +105370,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0464",
             "safe_reuse_hit": 1
           },
@@ -105445,7 +105445,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0469",
             "safe_reuse_hit": 0
           },
@@ -105565,7 +105565,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 9.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0476",
             "safe_reuse_hit": 0
           },
@@ -105745,7 +105745,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 10.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0487",
             "safe_reuse_hit": 0
           },
@@ -105865,7 +105865,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0492",
             "safe_reuse_hit": 0
           },
@@ -105895,7 +105895,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0495",
             "safe_reuse_hit": 0
           },
@@ -106075,7 +106075,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0505",
             "safe_reuse_hit": 0
           },
@@ -106090,7 +106090,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0505",
             "safe_reuse_hit": 1
           },
@@ -106225,7 +106225,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0512",
             "safe_reuse_hit": 0
           },
@@ -106390,7 +106390,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0518",
             "safe_reuse_hit": 0
           },
@@ -106525,7 +106525,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0525",
             "safe_reuse_hit": 0
           },
@@ -106795,7 +106795,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0536",
             "safe_reuse_hit": 0
           },
@@ -106870,7 +106870,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0541",
             "safe_reuse_hit": 0
           },
@@ -106885,7 +106885,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0542",
             "safe_reuse_hit": 0
           },
@@ -107095,7 +107095,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 7.0,
             "pair_id": "pair-0555",
             "safe_reuse_hit": 0
           },
@@ -107155,7 +107155,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0557",
             "safe_reuse_hit": 0
           },
@@ -107260,7 +107260,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0560",
             "safe_reuse_hit": 1
           },
@@ -107335,7 +107335,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0564",
             "safe_reuse_hit": 0
           },
@@ -107350,7 +107350,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0564",
             "safe_reuse_hit": 1
           },
@@ -107380,7 +107380,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0566",
             "safe_reuse_hit": 0
           },
@@ -107425,7 +107425,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0571",
             "safe_reuse_hit": 0
           },
@@ -107515,7 +107515,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0577",
             "safe_reuse_hit": 0
           },
@@ -107695,7 +107695,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0584",
             "safe_reuse_hit": 0
           },
@@ -107710,7 +107710,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0584",
             "safe_reuse_hit": 1
           },
@@ -107815,7 +107815,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0590",
             "safe_reuse_hit": 0
           },
@@ -107830,7 +107830,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0590",
             "safe_reuse_hit": 1
           },
@@ -107905,7 +107905,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 4.0,
             "pair_id": "pair-0594",
             "safe_reuse_hit": 0
           },
@@ -107920,7 +107920,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0594",
             "safe_reuse_hit": 1
           },
@@ -108130,7 +108130,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 4.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0604",
             "safe_reuse_hit": 1
           },
@@ -108145,7 +108145,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 3.0,
             "pair_id": "pair-0605",
             "safe_reuse_hit": 0
           },
@@ -108160,7 +108160,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0605",
             "safe_reuse_hit": 1
           },
@@ -108190,7 +108190,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 5.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0606",
             "safe_reuse_hit": 0
           },
@@ -108220,7 +108220,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 3.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0608",
             "safe_reuse_hit": 1
           },
@@ -108250,7 +108250,7 @@
             "generated": 0,
             "generation_input_tokens": 0,
             "generation_output_tokens": 0,
-            "latency_ms": 6.0,
+            "latency_ms": 2.0,
             "pair_id": "pair-0609",
             "safe_reuse_hit": 1
           },
@@ -108383,7 +108383,7 @@
         "threshold_rejections": 711,
         "tokens_saved": 1013,
         "top_k": 5,
-        "total_latency_ms": 277,
+        "total_latency_ms": 139,
         "unsafe_reuse_hits": 20
       }
     ],

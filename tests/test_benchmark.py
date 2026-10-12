@@ -757,9 +757,9 @@ def test_embedding_baseline_reports_reuse_and_false_positives() -> None:
         config=EmbeddingConfig(model_name="test-embedding", dimension=2),
         vectors={
             "alpha query": (1.0, 0.0),
-            "beta query": (1.0, 0.0),
-            "gamma query": (1.0, 0.0),
-            "delta query": (1.0, 0.0),
+            "beta query": (0.99, 0.01),
+            "gamma query": (0.0, 1.0),
+            "delta query": (0.01, 0.99),
         },
     )
 
@@ -770,11 +770,12 @@ def test_embedding_baseline_reports_reuse_and_false_positives() -> None:
         embedding_client=embedding_client,
     )
 
-    assert report.cache_hits == 3
+    assert report.cache_hits == 2
     assert report.safe_reuse_hits == 1
     assert report.unsafe_reuse_hits == 1
+    assert report.unlabeled_candidate_reuse_hits == 0
     assert report.precision == 0.5
-    assert report.false_positive_rate == pytest.approx(1 / 3)
+    assert report.false_positive_rate == pytest.approx(0.5)
     assert report.embedding_tokens > 0
 
 
@@ -1012,6 +1013,52 @@ def test_embedding_threshold_sweep_reports_unsatisfied_constraint(
 
     assert sweep.constraint_satisfied is False
     assert sweep.selected_threshold == 0.9
+
+
+def test_embedding_threshold_sweep_unknown_fpr_not_eligible(monkeypatch) -> None:
+    records = [
+        BenchmarkRecord.model_validate(
+            {
+                **valid_record("pair-0001"),
+                "query_a": "first query",
+                "query_b": "second query",
+                "reusable": True,
+                "compatibility_label": "compatible",
+                "reason": None,
+            }
+        )
+    ]
+    original_runner = baseline_module.run_embedding_cache_baseline
+
+    def unknown_fpr(records, **kwargs):
+        report = original_runner(records, **kwargs)
+        return replace(
+            report,
+            false_positive_rate=None,
+            false_positive_rate_unavailable_reason="no_labeled_reuse_hits",
+            labeled_reuse_hits=0,
+        )
+
+    monkeypatch.setattr(
+        baseline_module,
+        "run_embedding_cache_baseline",
+        unknown_fpr,
+    )
+    sweep = baseline_module.run_embedding_threshold_sweep(
+        records,
+        dataset_version="development-v1",
+        thresholds=[0.5, 0.9],
+        max_false_positive_rate=0.0,
+        embedding_client=FakeEmbeddingClient(
+            config=EmbeddingConfig(model_name="test-embedding", dimension=2),
+            vectors={
+                "first query": (1.0, 0.0),
+                "second query": (0.99, 0.141067),
+            },
+        ),
+    )
+
+    assert sweep.constraint_satisfied is False
 
 
 def test_evaluate_command_writes_selected_baseline_report(tmp_path) -> None:
