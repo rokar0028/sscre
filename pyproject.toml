@@ -28,11 +28,15 @@ dev = [
     "pytest>=8.0",
     "httpx>=0.27",
 ]
+local-embeddings = [
+    "sentence-transformers>=3.0",
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
 markers = [
+    "local_embedding: opt-in tests that load the registered local embedding model",
     "real_provider: opt-in tests that make bounded remote provider requests",
     "ws8_postgres_failure_recovery: opt-in WS8 PostgreSQL failure/recovery harness",
     "ws8_postgres_multiprocess: opt-in WS8 multi-process duplicate-generation harness",
