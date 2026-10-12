@@ -83,7 +83,13 @@ def test_request_sample_indicators_are_binary() -> None:
         threshold=0.9,
     )
     for sample in report.request_samples:
-        for key in ("cache_hit", "generated", "false_positive", "safe_reuse_hit"):
+        for key in (
+            "cache_hit",
+            "generated",
+            "false_positive",
+            "safe_reuse_hit",
+            "unlabeled_candidate_reuse",
+        ):
             assert sample[key] in (0, 1)
 
 

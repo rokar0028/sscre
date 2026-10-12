@@ -1,0 +1,26 @@
+{
+  "gate_schema_version": "semantic-validity-held-out-gate-1.0",
+  "protocol_id": "P4-SEMVALID",
+  "config_path": "experiments/semantic-validity-evaluation-config-v1.json",
+  "status": "held-out-deferred",
+  "decided_at": "2026-10-12T00:00:00+00:00",
+  "fresh_held_out_manifest_path": null,
+  "existing_split_manifest_sha256": "0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9",
+  "existing_held_out_split": {
+    "path": "benchmarks/held_out_test.jsonl",
+    "record_count": 215,
+    "classification": "contaminated_for_headline_gate"
+  },
+  "reason": "The 215-record held_out_test split has already been used for Phase 3 final reporting, Workstream 5 held-out comparisons, and related artifacts. No additional licensed, reviewed, leakage-checked held-out population exists in this repository at Step 3 close.",
+  "contamination_evidence": [
+    "artifacts/evaluation/phase3-final-held-out-comparison.json",
+    "artifacts/evaluation/workstream5-held-out-comparison.json",
+    "artifacts/evaluation/phase3-adaptive-held-out.json"
+  ],
+  "authorized_actions": {
+    "development_threshold_selection": "allowed_on_benchmarks_development_jsonl_under_frozen_protocol",
+    "held_out_headline_gate": "deferred_until_fresh_held_out_manifest_exists",
+    "relabel_existing_held_out_as_fresh": "forbidden"
+  },
+  "next_step_to_resolve": "Obtain or construct a genuinely fresh held-out scoring population from approved licensed sources, assign immutable IDs, review compatibility labels, and freeze benchmarks/semantic-validity-split-manifest.json (parent Steps 3 manifest task / Step 6 held-out run)."
+}

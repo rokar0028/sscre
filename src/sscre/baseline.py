@@ -20,6 +20,7 @@ from sscre.cache_controls import evaluate_cache_control
 from sscre.freshness_evaluation import FreshnessReplayClock
 from sscre.compatibility import evaluate_candidate_boundary
 from sscre.metadata import extract_metadata
+from sscre.canonical import hash_answer
 from sscre.query import hash_query, normalize_query
 from sscre.serialization import (
     attach_evaluation_report_schema,
@@ -34,12 +35,16 @@ from sscre.evaluation_labels import (
     correctness_metrics_bucket,
     expected_compatibility_decision,
 )
+from sscre.evaluation_attribution import (
+    DirectedPairReuseIndex,
+    attribute_served_reuse_outcome,
+    labeled_false_positive_rate_details,
+)
 from sscre.evaluation_statistics import (
     RequestObservationSample,
     RequestSampleCollector,
     enrich_evaluation_payload,
     estimate_request_observation_cost_usd,
-    reuse_outcome_indicators,
 )
 from sscre.safety import (
     CandidateTrace,
@@ -196,6 +201,11 @@ class ExactCacheReport:
     estimated_cost_usd: float
     cache_miss_categories: dict[str, int]
     failure_categories: dict[str, int]
+    unsafe_reuse_hits: int = 0
+    unlabeled_candidate_reuse_hits: int = 0
+    false_positive_rate: float | None = None
+    false_positive_rate_unavailable_reason: str | None = None
+    labeled_reuse_hits: int = 0
     request_samples: tuple[dict[str, object], ...] = ()
 
 
@@ -214,11 +224,11 @@ class EmbeddingCacheReport:
     hit_rate: float
     safe_reuse_hits: int
     unsafe_reuse_hits: int
+    unlabeled_candidate_reuse_hits: int
     reusable_opportunities: int
     safe_reuse_coverage: float
     precision: float
     recall: float
-    false_positive_rate: float
     threshold_rejections: int
     semantic_misses: int
     embedding_tokens: int
@@ -238,6 +248,9 @@ class EmbeddingCacheReport:
     estimated_cost_usd: float
     failure_categories: dict[str, int]
     false_positive_examples: list[dict[str, object]]
+    false_positive_rate: float | None = None
+    false_positive_rate_unavailable_reason: str | None = None
+    labeled_reuse_hits: int = 0
     request_samples: tuple[dict[str, object], ...] = ()
 
 
@@ -267,12 +280,12 @@ class CompatibilityCacheReport:
     hit_rate: float
     safe_reuse_hits: int
     unsafe_reuse_hits: int
+    unlabeled_candidate_reuse_hits: int
     uncertain_decisions: int
     reusable_opportunities: int
     safe_reuse_coverage: float
     precision: float
     recall: float
-    false_positive_rate: float
     abstention_rate: float
     embedding_tokens: int
     input_tokens: int
@@ -300,6 +313,9 @@ class CompatibilityCacheReport:
     false_positive_examples: list[dict[str, object]]
     observed_pair_records: list[dict[str, object]]
     disagreement_class_counts: dict[str, int]
+    false_positive_rate: float | None = None
+    false_positive_rate_unavailable_reason: str | None = None
+    labeled_reuse_hits: int = 0
     cache_control_outcome_counts: dict[str, int] = field(default_factory=dict)
     freshness_replay_policy_name: str | None = None
     policy_storage_snapshot: dict[str, int] = field(default_factory=dict)
@@ -310,6 +326,40 @@ def _benchmark_strata(record: BenchmarkRecord) -> tuple[str | None, str | None]:
     failure = record.failure_category
     freshness = str(record.freshness_class)
     return failure, freshness
+
+
+def _register_cache_insert_source(
+    insert_sources: dict[str, tuple[str, str]],
+    *,
+    query_hash: str,
+    pair_id: str,
+    direction: str,
+) -> None:
+    if query_hash not in insert_sources:
+        insert_sources[query_hash] = (pair_id, direction)
+
+
+def _attribute_cache_served_reuse(
+    *,
+    pair_index: DirectedPairReuseIndex,
+    insert_sources: dict[str, tuple[str, str]],
+    direction: str,
+    candidate_normalized_query: str,
+    candidate_answer_hash: str,
+    current_normalized_query: str,
+    candidate_query_hash: str,
+):
+    source_pair_id, source_direction = insert_sources.get(candidate_query_hash, (None, None))
+    return attribute_served_reuse_outcome(
+        direction=direction,  # type: ignore[arg-type]
+        served_reuse=True,
+        candidate_normalized_query=candidate_normalized_query,
+        candidate_answer_hash=candidate_answer_hash,
+        current_normalized_query=current_normalized_query,
+        pair_index=pair_index,
+        source_pair_id=source_pair_id,
+        source_direction=source_direction,  # type: ignore[arg-type]
+    )
 
 
 def no_cache_cost_kwargs_from_config(config: Mapping[str, Any]) -> dict[str, float]:
@@ -377,6 +427,7 @@ def run_no_cache_baseline(
                     generated=1,
                     false_positive=0,
                     safe_reuse_hit=0,
+                    unlabeled_candidate_reuse=0,
                     latency_ms=float(result.latency_ms),
                     embedding_tokens=0,
                     generation_input_tokens=result.input_tokens,
@@ -445,12 +496,16 @@ def run_exact_cache_baseline(
 
     model_client = llm_client or MockLLMClient()
     cache = InMemoryExactCache()
+    pair_index = DirectedPairReuseIndex.from_records(records)
+    insert_sources: dict[str, tuple[str, str]] = {}
     sample_collector = RequestSampleCollector(enabled=collect_request_samples)
     request_count = 0
     generated_requests = 0
     cache_hits = 0
     cache_misses = 0
     safe_reuse_hits = 0
+    unsafe_reuse_hits = 0
+    unlabeled_candidate_reuse_hits = 0
     reusable_opportunities = sum(record.reusable for record in records)
     input_tokens = 0
     output_tokens = 0
@@ -475,25 +530,39 @@ def run_exact_cache_baseline(
                 hit_output_tokens = len(cached_entry.answer.split())
                 input_tokens_saved += hit_input_tokens
                 output_tokens_saved += hit_output_tokens
-                false_positive, safe_reuse_hit = reuse_outcome_indicators(
+                reuse_outcome = _attribute_cache_served_reuse(
+                    pair_index=pair_index,
+                    insert_sources=insert_sources,
                     direction=direction,
-                    reusable=record.reusable,
-                    served_reuse=True,
+                    candidate_normalized_query=cached_entry.normalized_query,
+                    candidate_answer_hash=cached_entry.answer_hash,
+                    current_normalized_query=normalized_query,
+                    candidate_query_hash=cached_entry.query_hash,
                 )
-                if safe_reuse_hit:
+                if reuse_outcome.safe_reuse_hit:
                     safe_reuse_hits += 1
+                elif reuse_outcome.false_positive:
+                    unsafe_reuse_hits += 1
+                elif reuse_outcome.unlabeled_candidate_reuse:
+                    unlabeled_candidate_reuse_hits += 1
                 request_latency_ms = float(
                     int((perf_counter() - started_at) * 1000)
                 )
                 total_latency_ms += int(request_latency_ms)
+                provenance = (
+                    reuse_outcome.provenance.to_dict()
+                    if reuse_outcome.provenance is not None
+                    else None
+                )
                 sample_collector.record(
                     RequestObservationSample(
                         pair_id=record.id,
                         direction=direction,
                         cache_hit=1,
                         generated=0,
-                        false_positive=false_positive,
-                        safe_reuse_hit=safe_reuse_hit,
+                        false_positive=reuse_outcome.false_positive,
+                        safe_reuse_hit=reuse_outcome.safe_reuse_hit,
+                        unlabeled_candidate_reuse=reuse_outcome.unlabeled_candidate_reuse,
                         latency_ms=request_latency_ms,
                         embedding_tokens=0,
                         generation_input_tokens=0,
@@ -510,6 +579,7 @@ def run_exact_cache_baseline(
                         ),
                         failure_category=failure_category,
                         freshness_class=freshness_class,
+                        served_candidate_provenance=provenance,
                     )
                 )
                 continue
@@ -529,6 +599,7 @@ def run_exact_cache_baseline(
                     generated=1,
                     false_positive=0,
                     safe_reuse_hit=0,
+                    unlabeled_candidate_reuse=0,
                     latency_ms=float(result.latency_ms),
                     embedding_tokens=0,
                     generation_input_tokens=result.input_tokens,
@@ -554,6 +625,12 @@ def run_exact_cache_baseline(
                     normalized_query=normalized_query,
                     answer=result.text,
                 )
+            )
+            _register_cache_insert_source(
+                insert_sources,
+                query_hash=query_hash,
+                pair_id=record.id,
+                direction=direction,
             )
 
     tokens_saved = input_tokens_saved + output_tokens_saved
@@ -595,7 +672,62 @@ def run_exact_cache_baseline(
         estimated_cost_usd=estimated_cost_usd,
         cache_miss_categories=cache_miss_categories,
         failure_categories=failure_categories,
+        unsafe_reuse_hits=unsafe_reuse_hits,
+        unlabeled_candidate_reuse_hits=unlabeled_candidate_reuse_hits,
+        **_false_positive_rate_report_fields(
+            unsafe_reuse_hits,
+            safe_reuse_hits,
+        ),
         request_samples=sample_collector.as_tuple(),
+    )
+
+
+def _false_positive_rate_report_fields(
+    unsafe_reuse_hits: int,
+    safe_reuse_hits: int,
+) -> dict[str, object]:
+    details = labeled_false_positive_rate_details(
+        unsafe_reuse_hits,
+        safe_reuse_hits,
+    )
+    return {
+        "false_positive_rate": details.value,
+        "false_positive_rate_unavailable_reason": details.unavailable_reason,
+        "labeled_reuse_hits": details.labeled_reuse_hits,
+    }
+
+
+def _constraint_false_positive_rate_value(rate: float | None) -> float:
+    if rate is None:
+        return math.inf
+    return float(rate)
+
+
+def _constraint_false_positive_rate(
+    report: EmbeddingCacheReport,
+) -> float:
+    if report.false_positive_rate_unavailable_reason:
+        return math.inf
+    return _constraint_false_positive_rate_value(report.false_positive_rate)
+
+
+def _compatibility_constraint_false_positive_rate(report: object) -> float:
+    unavailable_reason = getattr(
+        report,
+        "false_positive_rate_unavailable_reason",
+        None,
+    )
+    if unavailable_reason:
+        return math.inf
+    rate = getattr(report, "false_positive_rate", None)
+    return _constraint_false_positive_rate_value(rate)
+
+
+def _reports_lack_labeled_reuse_fpr(reports: list[object]) -> bool:
+    return bool(reports) and all(
+        getattr(report, "false_positive_rate_unavailable_reason", None)
+        == "no_labeled_reuse_hits"
+        for report in reports
     )
 
 
@@ -648,6 +780,8 @@ def run_embedding_cache_baseline(
         max_top_k=top_k,
         embedding_dimension=vector_client.config.dimension,
     )
+    pair_index = DirectedPairReuseIndex.from_records(records)
+    insert_sources: dict[str, tuple[str, str]] = {}
     sample_collector = RequestSampleCollector(enabled=collect_request_samples)
     request_count = 0
     generated_requests = 0
@@ -655,6 +789,7 @@ def run_embedding_cache_baseline(
     cache_misses = 0
     safe_reuse_hits = 0
     unsafe_reuse_hits = 0
+    unlabeled_candidate_reuse_hits = 0
     threshold_rejections = 0
     semantic_misses = 0
     reusable_opportunities = sum(record.reusable for record in records)
@@ -686,16 +821,24 @@ def run_embedding_cache_baseline(
                 cache_hits += 1
                 tokens_saved += len(normalized_query.split())
                 tokens_saved += len(candidate.answer.split())
-                false_positive, safe_reuse_hit = reuse_outcome_indicators(
+                reuse_outcome = _attribute_cache_served_reuse(
+                    pair_index=pair_index,
+                    insert_sources=insert_sources,
                     direction=direction,
-                    reusable=record.reusable,
-                    served_reuse=True,
+                    candidate_normalized_query=candidate.normalized_query,
+                    candidate_answer_hash=hash_answer(candidate.answer),
+                    current_normalized_query=normalized_query,
+                    candidate_query_hash=candidate.query_hash,
                 )
                 if direction == "b_to_a":
-                    if safe_reuse_hit:
+                    if reuse_outcome.safe_reuse_hit:
                         safe_reuse_hits += 1
-                    elif false_positive:
+                    elif reuse_outcome.false_positive:
                         unsafe_reuse_hits += 1
+                        grounding = pair_index.lookup(
+                            hash_query(candidate.normalized_query),
+                            hash_query(normalized_query),
+                        )
                         false_positive_examples.append(
                             {
                                 "id": record.id,
@@ -703,9 +846,22 @@ def run_embedding_cache_baseline(
                                 "query_a": record.query_a,
                                 "query_b": record.query_b,
                                 "similarity": candidate.similarity,
-                                "reason": record.reason,
+                                "reason": (
+                                    grounding.reason if grounding is not None else record.reason
+                                ),
+                                "expected_reusable": (
+                                    grounding.reusable if grounding is not None else None
+                                ),
+                                "served_candidate_query": candidate.normalized_query,
                             }
                         )
+                    elif reuse_outcome.unlabeled_candidate_reuse:
+                        unlabeled_candidate_reuse_hits += 1
+                provenance = (
+                    reuse_outcome.provenance.to_dict()
+                    if reuse_outcome.provenance is not None
+                    else None
+                )
                 request_latency_ms = float(
                     embedding_result.latency_ms
                     + int((perf_counter() - started_at) * 1000)
@@ -718,8 +874,9 @@ def run_embedding_cache_baseline(
                         direction=direction,
                         cache_hit=1,
                         generated=0,
-                        false_positive=false_positive,
-                        safe_reuse_hit=safe_reuse_hit,
+                        false_positive=reuse_outcome.false_positive,
+                        safe_reuse_hit=reuse_outcome.safe_reuse_hit,
+                        unlabeled_candidate_reuse=reuse_outcome.unlabeled_candidate_reuse,
                         latency_ms=request_latency_ms,
                         embedding_tokens=embedding_result.input_tokens,
                         generation_input_tokens=0,
@@ -736,6 +893,7 @@ def run_embedding_cache_baseline(
                         ),
                         failure_category=failure_category,
                         freshness_class=freshness_class,
+                        served_candidate_provenance=provenance,
                     )
                 )
                 continue
@@ -762,6 +920,7 @@ def run_embedding_cache_baseline(
                     generated=1,
                     false_positive=0,
                     safe_reuse_hit=0,
+                    unlabeled_candidate_reuse=0,
                     latency_ms=request_latency_ms,
                     embedding_tokens=embedding_result.input_tokens,
                     generation_input_tokens=result.input_tokens,
@@ -780,16 +939,23 @@ def run_embedding_cache_baseline(
                     freshness_class=freshness_class,
                 )
             )
+            inserted_hash = hash_query(normalized_query)
             _insert_if_absent(
                 cache,
                 CacheEntry(
-                    query_hash=hash_query(normalized_query),
+                    query_hash=inserted_hash,
                     normalized_query=normalized_query,
                     answer=result.text,
                     embedding=embedding_result.vector,
                     embedding_model=embedding_result.model_name,
                     embedding_dimension=len(embedding_result.vector),
                 )
+            )
+            _register_cache_insert_source(
+                insert_sources,
+                query_hash=inserted_hash,
+                pair_id=record.id,
+                direction=direction,
             )
 
     evaluated_hits = safe_reuse_hits + unsafe_reuse_hits
@@ -807,6 +973,7 @@ def run_embedding_cache_baseline(
         hit_rate=cache_hits / request_count if request_count else 0.0,
         safe_reuse_hits=safe_reuse_hits,
         unsafe_reuse_hits=unsafe_reuse_hits,
+        unlabeled_candidate_reuse_hits=unlabeled_candidate_reuse_hits,
         reusable_opportunities=reusable_opportunities,
         safe_reuse_coverage=(
             safe_reuse_hits / reusable_opportunities
@@ -819,10 +986,9 @@ def run_embedding_cache_baseline(
             if reusable_opportunities
             else 0.0
         ),
-        false_positive_rate=(
-            unsafe_reuse_hits / cache_hits
-            if cache_hits
-            else 0.0
+        **_false_positive_rate_report_fields(
+            unsafe_reuse_hits,
+            safe_reuse_hits,
         ),
         threshold_rejections=threshold_rejections,
         semantic_misses=semantic_misses,
@@ -917,9 +1083,12 @@ def run_compatibility_cache_baseline(
         max_top_k=top_k,
         embedding_dimension=vector_client.config.dimension,
     )
+    pair_index = DirectedPairReuseIndex.from_records(records)
+    insert_sources: dict[str, tuple[str, str]] = {}
     sample_collector = RequestSampleCollector(enabled=collect_request_samples)
     request_count = generated_requests = cache_hits = cache_misses = 0
-    safe_reuse_hits = unsafe_reuse_hits = uncertain_decisions = 0
+    safe_reuse_hits = unsafe_reuse_hits = unlabeled_candidate_reuse_hits = 0
+    uncertain_decisions = 0
     reusable_opportunities = sum(record.reusable for record in records)
     embedding_tokens = input_tokens = output_tokens = tokens_saved = 0
     total_latency_ms = 0
@@ -1107,10 +1276,14 @@ def run_compatibility_cache_baseline(
                 record_breakdown(query_metadata, "SAFE")
                 tokens_saved += len(normalized_query.split())
                 tokens_saved += len(safe_candidate.answer.split())
-                false_positive, safe_reuse_hit = reuse_outcome_indicators(
+                reuse_outcome = _attribute_cache_served_reuse(
+                    pair_index=pair_index,
+                    insert_sources=insert_sources,
                     direction=direction,
-                    reusable=record.reusable,
-                    served_reuse=True,
+                    candidate_normalized_query=safe_candidate.normalized_query,
+                    candidate_answer_hash=hash_answer(safe_candidate.answer),
+                    current_normalized_query=normalized_query,
+                    candidate_query_hash=safe_candidate.query_hash,
                 )
                 if direction == "b_to_a":
                     winning = next(
@@ -1124,9 +1297,13 @@ def run_compatibility_cache_baseline(
                         reason=winning.reason,
                         traces=tuple(evaluated_traces),
                     )
-                    if safe_reuse_hit:
+                    grounding = pair_index.lookup(
+                        hash_query(safe_candidate.normalized_query),
+                        hash_query(normalized_query),
+                    )
+                    if reuse_outcome.safe_reuse_hit:
                         safe_reuse_hits += 1
-                    elif false_positive:
+                    elif reuse_outcome.false_positive:
                         unsafe_reuse_hits += 1
                         example = example_with_labels(
                             {
@@ -1136,19 +1313,35 @@ def run_compatibility_cache_baseline(
                                 "query_b": record.query_b,
                                 "similarity": safe_candidate.similarity,
                                 "predicted_decision": "SAFE",
-                                "expected_reusable": record.reusable,
-                                "expected_compatibility": record.compatibility_label,
-                                "reason": record.reason,
+                                "expected_reusable": (
+                                    grounding.reusable if grounding is not None else None
+                                ),
+                                "expected_compatibility": (
+                                    grounding.compatibility_label
+                                    if grounding is not None
+                                    else record.compatibility_label
+                                ),
+                                "reason": (
+                                    grounding.reason if grounding is not None else record.reason
+                                ),
                                 "failure_category": "false_positive",
                                 "candidate_traces": boundary_candidate_traces(
                                     tuple(evaluated_traces)
                                 ),
+                                "served_candidate_query": safe_candidate.normalized_query,
                             },
-                            record,
+                            grounding or record,
                             "SAFE",
                         )
                         false_positive_examples.append(example)
                         failure_examples.append(example)
+                    elif reuse_outcome.unlabeled_candidate_reuse:
+                        unlabeled_candidate_reuse_hits += 1
+                provenance = (
+                    reuse_outcome.provenance.to_dict()
+                    if reuse_outcome.provenance is not None
+                    else None
+                )
                 request_latency_ms = float(
                     embedding_result.latency_ms
                     + int((perf_counter() - started_at) * 1000)
@@ -1161,8 +1354,9 @@ def run_compatibility_cache_baseline(
                         direction=direction,
                         cache_hit=1,
                         generated=0,
-                        false_positive=false_positive,
-                        safe_reuse_hit=safe_reuse_hit,
+                        false_positive=reuse_outcome.false_positive,
+                        safe_reuse_hit=reuse_outcome.safe_reuse_hit,
+                        unlabeled_candidate_reuse=reuse_outcome.unlabeled_candidate_reuse,
                         latency_ms=request_latency_ms,
                         embedding_tokens=embedding_result.input_tokens,
                         generation_input_tokens=0,
@@ -1181,6 +1375,7 @@ def run_compatibility_cache_baseline(
                         failure_category=failure_category,
                         freshness_class=freshness_class,
                         runtime_temporal_class=query_metadata.temporal_class,
+                        served_candidate_provenance=provenance,
                     )
                 )
                 if freshness_replay_clock is not None:
@@ -1299,6 +1494,7 @@ def run_compatibility_cache_baseline(
                     generated=1,
                     false_positive=0,
                     safe_reuse_hit=0,
+                    unlabeled_candidate_reuse=0,
                     latency_ms=request_latency_ms,
                     embedding_tokens=embedding_result.input_tokens,
                     generation_input_tokens=result.input_tokens,
@@ -1319,10 +1515,11 @@ def run_compatibility_cache_baseline(
                     runtime_temporal_class=query_metadata.temporal_class,
                 )
             )
+            inserted_hash = hash_query(normalized_query)
             _insert_if_absent(
                 cache,
                 _baseline_cache_entry_after_generation(
-                    query_hash=hash_query(normalized_query),
+                    query_hash=inserted_hash,
                     normalized_query=normalized_query,
                     answer=result.text,
                     query_metadata=replace(
@@ -1335,6 +1532,12 @@ def run_compatibility_cache_baseline(
                 max_entries=max_entries,
                 max_bytes=max_bytes,
                 eviction_strategy=eviction_strategy,
+            )
+            _register_cache_insert_source(
+                insert_sources,
+                query_hash=inserted_hash,
+                pair_id=record.id,
+                direction=direction,
             )
             if freshness_replay_clock is not None:
                 freshness_replay_clock.advance()
@@ -1379,6 +1582,7 @@ def run_compatibility_cache_baseline(
         hit_rate=cache_hits / request_count if request_count else 0.0,
         safe_reuse_hits=safe_reuse_hits,
         unsafe_reuse_hits=unsafe_reuse_hits,
+        unlabeled_candidate_reuse_hits=unlabeled_candidate_reuse_hits,
         uncertain_decisions=uncertain_decisions,
         reusable_opportunities=reusable_opportunities,
         safe_reuse_coverage=(
@@ -1392,10 +1596,9 @@ def run_compatibility_cache_baseline(
             if reusable_opportunities
             else 0.0
         ),
-        false_positive_rate=(
-            unsafe_reuse_hits / cache_hits
-            if cache_hits
-            else 0.0
+        **_false_positive_rate_report_fields(
+            unsafe_reuse_hits,
+            safe_reuse_hits,
         ),
         abstention_rate=(
             uncertain_decisions / evaluated_decisions
@@ -1521,17 +1724,27 @@ def select_adaptive_domain_thresholds(
         eligible = [
             report
             for report in reports
-            if report.false_positive_rate <= max_false_positive_rate
+            if _compatibility_constraint_false_positive_rate(report)
+            <= max_false_positive_rate
         ]
+        vacuous_fpr = not eligible and _reports_lack_labeled_reuse_fpr(reports)
+        if vacuous_fpr:
+            eligible = list(reports)
         if eligible:
             chosen = max(
                 eligible,
                 key=lambda report: (report.hit_rate, -report.threshold),
             )
-            selection_rule = (
-                "maximize hit rate subject to development false-positive "
-                f"rate <= {max_false_positive_rate}; tie-break lowest threshold"
-            )
+            if vacuous_fpr:
+                selection_rule = (
+                    "maximize hit rate; labeled false-positive rate cap not "
+                    "evaluable (no labeled reuse hits)"
+                )
+            else:
+                selection_rule = (
+                    "maximize hit rate subject to development false-positive "
+                    f"rate <= {max_false_positive_rate}; tie-break lowest threshold"
+                )
         else:
             raise ValueError(
                 f"domain {domain!r} has no threshold satisfying the "
@@ -1570,21 +1783,21 @@ def select_embedding_threshold(
     eligible = [
         report
         for report in reports
-        if report.false_positive_rate <= max_false_positive_rate
+        if _constraint_false_positive_rate(report) <= max_false_positive_rate
     ]
     if eligible:
         return max(
             eligible,
             key=lambda report: (
                 report.safe_reuse_coverage,
-                -report.false_positive_rate,
+                -_constraint_false_positive_rate(report),
                 report.threshold,
             ),
         )
     return min(
         reports,
         key=lambda report: (
-            report.false_positive_rate,
+            _constraint_false_positive_rate(report),
             -report.safe_reuse_coverage,
             -report.threshold,
         ),
@@ -1631,7 +1844,7 @@ def run_embedding_threshold_sweep(
         max_false_positive_rate=max_false_positive_rate,
     )
     constraint_satisfied = any(
-        report.false_positive_rate <= max_false_positive_rate
+        _constraint_false_positive_rate(report) <= max_false_positive_rate
         for report in reports
     )
     return EmbeddingThresholdSweepReport(

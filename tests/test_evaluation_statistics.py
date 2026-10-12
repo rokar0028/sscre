@@ -308,3 +308,30 @@ def test_summarize_request_samples_by_failure_and_freshness() -> None:
     for entry in (*failure_strata.values(), *freshness_strata.values()):
         assert entry["sample_unit"] == "directed_request"
         assert entry["proportions"]["hit_rate"]["n"] == entry["sample_count"]
+
+
+def test_summarize_request_samples_without_unlabeled_field_defaults_to_zero() -> None:
+    settings = statistics_config_from_mapping(
+        {
+            "confidence_level": 0.95,
+            "bootstrap_seed": 42,
+            "bootstrap_iterations": 1000,
+        }
+    )
+    legacy_samples = (
+        {
+            "pair_id": "pair-1",
+            "direction": "b_to_a",
+            "cache_hit": 1,
+            "generated": 0,
+            "false_positive": 1,
+            "safe_reuse_hit": 0,
+            "latency_ms": 1.0,
+            "embedding_tokens": 0,
+            "generation_input_tokens": 0,
+            "generation_output_tokens": 0,
+            "estimated_cost_usd": 0.0,
+        },
+    )
+    summary = summarize_request_sample_statistics(legacy_samples, settings)
+    assert summary["proportions"]["false_positive_rate"]["point"] == 1.0

@@ -1,0 +1,166 @@
+{
+  "config_version": "semantic-validity-evaluation-config-1.0",
+  "protocol_id": "P4-SEMVALID",
+  "supersedes_config_version": "evaluation-config-1.0",
+  "supersedes_config_path": "experiments/evaluation_config.json",
+  "frozen_at": "2026-10-12T00:00:00+00:00",
+  "dataset_version": "reviewed-query-pairs-2.0",
+  "development_split": {
+    "path": "benchmarks/development.jsonl",
+    "purpose": "threshold_selection_and_development_reporting_only",
+    "split_manifest_sha256": "0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9",
+    "record_count": 400
+  },
+  "held_out_gate_reference": "benchmarks/semantic-validity-held-out-gate.json",
+  "embedding_thresholds": [
+    0.8,
+    0.9,
+    0.95
+  ],
+  "local_embedding_provider": {
+    "enabled": true,
+    "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "dimension": 384,
+    "provider_type": "local_sentence_transformer",
+    "license": "Apache-2.0",
+    "normalize_embeddings": true,
+    "dtype": "float32",
+    "device": "cpu",
+    "timeout_seconds": 30.0,
+    "batch_behavior": "single_query_per_embed_call",
+    "failure_behavior": "raises_local_embedding_error_no_cache_without_valid_vector"
+  },
+  "embedding_top_k": 5,
+  "max_false_positive_rate": 0.0,
+  "max_abstention_rate": 0.5,
+  "max_abstention_rate_enforcement": "phase4_step7_gate_scoring_on_compatibility_cache_report",
+  "max_abstention_rate_rationale": "Pre-registered ceiling stricter than historical fake-embedding C abstention (~0.61 on stale held-out); not tuned on held-out outcomes.",
+  "confidence_level": 0.95,
+  "bootstrap_seed": 42,
+  "bootstrap_iterations": 1000,
+  "proportion_interval_method": "wilson",
+  "minimum_n_proportion": 1,
+  "minimum_n_bootstrap": 5,
+  "input_cost_per_1k_tokens": 0.0,
+  "output_cost_per_1k_tokens": 0.0,
+  "embedding_cost_per_1k_tokens": 0.0,
+  "cache_lookup_cost_usd": 0.0,
+  "preprocessing_cost_usd": 0.0,
+  "cost_reporting": {
+    "development_and_held_out": "estimated_from_replay_token_counters_unless_provider_reported",
+    "provider_reported_fields": [
+      "input_tokens",
+      "output_tokens",
+      "embedding_tokens"
+    ],
+    "unavailable_reason_field": "cost_unavailable_reason"
+  },
+  "latency_reporting": {
+    "request_percentiles": [
+      "p50_latency_ms",
+      "p95_latency_ms",
+      "p99_latency_ms"
+    ],
+    "embedding_latency": "included_in_total_request_latency_replay_proxy",
+    "generation_latency": "not_split_from_total_in_replay_baseline"
+  },
+  "threshold_selection": {
+    "split": "development",
+    "rule": "maximize_safe_reuse_coverage_subject_to_development_false_positive_rate_cap",
+    "tie_break": [
+      "higher_safe_reuse_coverage",
+      "lower_false_positive_rate",
+      "higher_threshold"
+    ],
+    "fallback_when_no_eligible_threshold": "least_false_positive_rate_then_higher_safe_reuse_coverage_then_higher_threshold",
+    "constraint_satisfied_flag": "constraint_satisfied_on_embedding_threshold_sweep_report"
+  },
+  "primary_comparison": {
+    "strategy_a": "exact-cache",
+    "strategy_c": "compatibility-cache",
+    "strategy_b_role": "diagnostic_only_not_safety_approved"
+  },
+  "primary_headline_population": {
+    "unit": "benchmark_pair_record",
+    "split_authorization": "fresh_held_out_only_when_held_out_gate_status_is_fresh-held-out-ready",
+    "excluded_pair_ids": "context_required_pair_ids",
+    "included_directions_for_hit_rate": [
+      "a_to_b",
+      "b_to_a"
+    ],
+    "reuse_outcome_direction": "b_to_a_served_cache_hit_only"
+  },
+  "metric_denominators": {
+    "hit_rate": "all_directed_requests_in_primary_population",
+    "safe_reuse_coverage": "safe_reuse_hits_on_b_to_a_divided_by_reusable_opportunities_in_primary_population",
+    "false_positive_rate": "unsafe_reuse_hits_divided_by_labeled_b_to_a_served_reuse_hits_safe_plus_unsafe_excluding_unlabeled",
+    "precision": "safe_reuse_hits_divided_by_labeled_semantic_served_hits_strategy_b_and_c_only_exact_cache_has_no_precision_field",
+    "recall": "safe_reuse_hits_divided_by_reusable_opportunities_same_as_safe_reuse_coverage_denominator",
+    "abstention_rate": "uncertain_decisions_divided_by_evaluated_decisions_strategy_c_only",
+    "unlabeled_candidate_reuse": "reported_separately_excluded_from_headline_fpr_and_pass_rule"
+  },
+  "zero_denominator_reporting": {
+    "false_positive_rate_when_no_labeled_reuse": "unavailable_reason_no_labeled_reuse_hits_not_numeric_zero",
+    "applies_from_step": "phase4_step5_development_artifact"
+  },
+  "context_required_pairs": {
+    "policy": "retain_in_dataset_exclude_from_primary_headline_population_report_in_stratum",
+    "identification_rule": "identical_normalized_query_text_with_insufficient_evidence_context_stripped_cacheeval_rows",
+    "pair_ids": [
+      "pair-0036",
+      "pair-0066",
+      "pair-0096",
+      "pair-0141",
+      "pair-0161",
+      "pair-0171",
+      "pair-0196",
+      "pair-0221",
+      "pair-0226",
+      "pair-0236",
+      "pair-0246",
+      "pair-0276",
+      "pair-0296",
+      "pair-0311",
+      "pair-0316",
+      "pair-0356",
+      "pair-0361",
+      "pair-0376",
+      "pair-0431",
+      "pair-0441",
+      "pair-0461",
+      "pair-0481",
+      "pair-0541",
+      "pair-0566",
+      "pair-0586",
+      "pair-0601",
+      "pair-0606"
+    ],
+    "development_count": 17,
+    "held_out_test_count": 10,
+    "documentation_reason": "CacheEval conversational rows with identical surface text after context stripping; dialog context is not stored in the benchmark artifact."
+  },
+  "legacy_data_use": {
+    "historical_held_out_215_split": "debug_and_historical_artifacts_only_not_fresh_headline_gate",
+    "historical_manifest_68912e3b": "historical_stale_lineage_only",
+    "fake_embedding_artifacts": "tests_and_historical_comparison_only_not_semantic_headline"
+  },
+  "pre_registered_pass_rule": {
+    "population": "fresh_held_out_primary_headline_population_when_authorized",
+    "requirements": [
+      "strategy_c_safe_reuse_coverage_strictly_greater_than_strategy_a",
+      "strategy_c_false_positive_rate_at_or_below_max_false_positive_rate",
+      "strategy_c_abstention_rate_at_or_below_max_abstention_rate",
+      "unlabeled_candidate_reuse_does_not_materially_change_comparison"
+    ],
+    "fail_closed": "negative_result_retains_conservative_stack"
+  },
+  "evaluation_commands": {
+    "development_abc": "python -m sscre.evaluate --benchmark benchmarks/development.jsonl --config experiments/semantic-validity-evaluation-config-v1.json --baseline all --split development --production --output artifacts/evaluation/phase4-semantic-validity-development.json",
+    "held_out_abc_when_authorized": "python -m sscre.evaluate --benchmark <fresh-held-out-benchmark.jsonl> --config experiments/semantic-validity-evaluation-config-v1.json --baseline all --split held-out --production --output artifacts/evaluation/phase4-semantic-validity-held-out.json"
+  },
+  "p4_headline_scope": {
+    "freshness_policy_cli": "disallowed_use_evaluation_config_1_0_for_freshness_runs",
+    "adaptive_threshold_map": "disallowed_for_semantic_validity_headline_runs",
+    "note": "Headline A/B/C uses frozen global threshold from development sweep only."
+  }
+}
