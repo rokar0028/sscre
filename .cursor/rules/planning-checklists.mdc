@@ -22,6 +22,14 @@ alwaysApply: true
   evidence is not obvious from the changed files.
 - Before running or recording a verification command, confirm every referenced
   file, test path, marker, and CLI option exists in the current checkout.
+- When authoring an implementation plan, confirm every linked repo path in
+  **Parent**, **Evidence**, contracts, and **Verification** exists. If a
+  canonical path is missing, add an **Open baseline gaps** checkbox instead of
+  a dead link; do not mark authoring complete until the gap is resolved or
+  explicitly recorded.
+- Use **`## Out of scope for this document`** (or **`## Out of scope`**) for
+  excluded work in implementation plans. Do not use only **Non-goals** when the
+  plan already has a dedicated exclusion section.
 - Do not mark full-suite, integration, or lint checks complete when they were
   not run successfully; distinguish unavailable tooling from a clean result.
 - Recheck broad verification claims after later milestones change the codebase,
@@ -77,6 +85,15 @@ alwaysApply: true
   snapshots must be labeled **historical** or reconciled in the same pass when
   a later step closes them. The evidence file **Status** and final sections
   must not contradict earlier rows (e.g. “sync open” after Step 3 closed).
+- After a **read-only audit** step, label evidence **code inspection** (and
+  similar narrative) as a **historical snapshot** at that step’s close once a
+  later step edits the same paths. State explicitly when on-disk `artifacts/`
+  or `experiments/` JSON was not regenerated (inventory rows still describe
+  frozen files).
+- Close-out checkboxes that describe **forbidden later work** (e.g. “do not
+  start Step 2”) must be phrased so they stay true after later steps run—use
+  **at Step N close** wording (“At Step 1 close, Step 2 was not started”) rather
+  than an absolute future claim checked `[x]`.
 - Plan **Verification** blocks must cite commands that actually pass in this
   repo. If a check needs environment variables (e.g. `docker compose config` and
   `SSCRE_ADMIN_TOKEN`), document the same non-secret sample env as CI (see
