@@ -33,7 +33,7 @@
       "exact_lookup_empty_after_invalidation": true,
       "fresh_reuse_eligible_before_invalidation": true,
       "insert_verified": true,
-      "invalidation_latency_ms": 0.0051,
+      "invalidation_latency_ms": 0.0044,
       "regeneration_verified": true,
       "semantic_retrieval_excludes_invalidated_entry": true,
       "semantic_retrieval_includes_entry_before_invalidation": true

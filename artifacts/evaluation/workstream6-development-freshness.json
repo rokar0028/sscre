@@ -84,7 +84,7 @@
       "record_count": 615,
       "sha256": "8dbd3c503927006d27f18c4f41a0c3ae47c7294e583203d3371871fa2e0664cd"
     },
-    "split_manifest_sha256": "c0109b36346442858d712ec13c183c8178ebb3e244b082f845cb7426750d8bbd",
+    "split_manifest_sha256": "0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9",
     "split_record_count": 400,
     "split_record_identity": [
       {
@@ -4095,7 +4095,7 @@
   "config_version": "evaluation-config-1.0",
   "dataset_version": "reviewed-query-pairs-2.0",
   "evaluation_split": "development",
-  "execution_timestamp": "2026-10-08T18:12:14.818822+00:00",
+  "execution_timestamp": "2026-10-12T03:58:53.160421+00:00",
   "freshness_artifact_metadata": {
     "artifact_package_version": "1.0",
     "benchmark_path": "benchmarks/development.jsonl",
@@ -4175,7 +4175,7 @@
         "exact_lookup_empty_after_invalidation": true,
         "fresh_reuse_eligible_before_invalidation": true,
         "insert_verified": true,
-        "invalidation_latency_ms": 0.0051,
+        "invalidation_latency_ms": 0.0044,
         "regeneration_verified": true,
         "semantic_retrieval_excludes_invalidated_entry": true,
         "semantic_retrieval_includes_entry_before_invalidation": true
@@ -4200,15 +4200,15 @@
     "measurement_environment": "synthetic_replay",
     "metrics_by_cache_control_outcome": {
       "dynamic_entries_disabled": {
-        "candidate_count": 170,
-        "candidate_rate": 0.04275653923541248,
+        "candidate_count": 74,
+        "candidate_rate": 0.018611670020120725,
         "candidate_rate_interval": {
           "confidence_level": 0.95,
-          "lower": 0.03689708357629676,
+          "lower": 0.014851858488091918,
           "method": "wilson",
           "n": 3976,
-          "point": 0.04275653923541248,
-          "upper": 0.0494986842899391
+          "point": 0.018611670020120725,
+          "upper": 0.023300781608704246
         }
       },
       "expired": {
@@ -4224,15 +4224,15 @@
         }
       },
       "fresh": {
-        "candidate_count": 3806,
-        "candidate_rate": 0.9572434607645876,
+        "candidate_count": 3902,
+        "candidate_rate": 0.9813883299798792,
         "candidate_rate_interval": {
           "confidence_level": 0.95,
-          "lower": 0.950501315710061,
+          "lower": 0.9766992183912957,
           "method": "wilson",
           "n": 3976,
-          "point": 0.9572434607645876,
-          "upper": 0.9631029164237033
+          "point": 0.9813883299798792,
+          "upper": 0.9851481415119081
         }
       },
       "invalid_expiration": {
@@ -4263,9 +4263,9 @@
     "metrics_by_policy": {
       "conservative": {
         "cache_control_outcome_counts": {
-          "dynamic_entries_disabled": 170,
-          "expired": 1,
-          "fresh": 3805
+          "dynamic_entries_disabled": 74,
+          "expired": 4,
+          "fresh": 3898
         },
         "cache_hit_rate": 0.0,
         "candidate_count": 3976,
@@ -4276,14 +4276,14 @@
         "decision_rate_safe": 0.0,
         "decision_rate_uncertain": 0.10875,
         "decision_rate_unsafe": 0.89125,
-        "dynamic_disabled_blocked_count": 170,
-        "dynamic_disabled_blocked_rate": 0.04275653923541248,
+        "dynamic_disabled_blocked_count": 74,
+        "dynamic_disabled_blocked_rate": 0.018611670020120725,
         "dynamic_reuse_served_count": 0,
         "dynamic_reuse_served_rate": 0.0,
         "embedding_tokens": 5763,
         "estimated_cost_usd": 0.0,
-        "expired_candidate_blocked_count": 1,
-        "expired_candidate_blocked_rate": 0.00025150905432595576,
+        "expired_candidate_blocked_count": 4,
+        "expired_candidate_blocked_rate": 0.001006036217303823,
         "false_positive_rate": 0.0,
         "freshness_violation_count": 0,
         "freshness_violation_rate": 0.0,
@@ -4312,12 +4312,12 @@
             "physical_expiration_cleanup": "post-replay cleanup_expired removes expired rows from storage"
           },
           "entries": 728,
-          "entries_after_physical_cleanup": 22,
+          "entries_after_physical_cleanup": 8,
           "eviction_count": 0,
           "expiration_counter": 0,
-          "lazy_expired_rejection_count": 1,
+          "lazy_expired_rejection_count": 4,
           "measurement_environment": "synthetic_storage_simulation",
-          "physical_expiration_cleanup_count": 706,
+          "physical_expiration_cleanup_count": 720,
           "policy_name": "conservative",
           "policy_ttl": {
             "allow_dynamic_entries": false,
@@ -4327,15 +4327,15 @@
             "stable_ttl_seconds": 3600
           },
           "status": "evaluated",
-          "total_bytes": 188377,
-          "total_bytes_after_physical_cleanup": 6728
+          "total_bytes": 188417,
+          "total_bytes_after_physical_cleanup": 2141
         },
         "tokens_saved": 0
       },
       "default": {
         "cache_control_outcome_counts": {
-          "dynamic_entries_disabled": 170,
-          "fresh": 3806
+          "dynamic_entries_disabled": 74,
+          "fresh": 3902
         },
         "cache_hit_rate": 0.0,
         "candidate_count": 3976,
@@ -4346,8 +4346,8 @@
         "decision_rate_safe": 0.0,
         "decision_rate_uncertain": 0.10875,
         "decision_rate_unsafe": 0.89125,
-        "dynamic_disabled_blocked_count": 170,
-        "dynamic_disabled_blocked_rate": 0.04275653923541248,
+        "dynamic_disabled_blocked_count": 74,
+        "dynamic_disabled_blocked_rate": 0.018611670020120725,
         "dynamic_reuse_served_count": 0,
         "dynamic_reuse_served_rate": 0.0,
         "embedding_tokens": 5763,
@@ -4382,12 +4382,12 @@
             "physical_expiration_cleanup": "post-replay cleanup_expired removes expired rows from storage"
           },
           "entries": 728,
-          "entries_after_physical_cleanup": 22,
+          "entries_after_physical_cleanup": 8,
           "eviction_count": 0,
           "expiration_counter": 0,
           "lazy_expired_rejection_count": 0,
           "measurement_environment": "synthetic_storage_simulation",
-          "physical_expiration_cleanup_count": 706,
+          "physical_expiration_cleanup_count": 720,
           "policy_name": "default",
           "policy_ttl": {
             "allow_dynamic_entries": false,
@@ -4397,15 +4397,15 @@
             "stable_ttl_seconds": 2592000
           },
           "status": "evaluated",
-          "total_bytes": 188377,
-          "total_bytes_after_physical_cleanup": 6728
+          "total_bytes": 188417,
+          "total_bytes_after_physical_cleanup": 2141
         },
         "tokens_saved": 0
       },
       "dynamic-short": {
         "cache_control_outcome_counts": {
-          "expired": 56,
-          "fresh": 3920
+          "expired": 26,
+          "fresh": 3950
         },
         "cache_hit_rate": 0.0,
         "candidate_count": 3976,
@@ -4422,8 +4422,8 @@
         "dynamic_reuse_served_rate": 0.0,
         "embedding_tokens": 5763,
         "estimated_cost_usd": 0.0,
-        "expired_candidate_blocked_count": 56,
-        "expired_candidate_blocked_rate": 0.014084507042253521,
+        "expired_candidate_blocked_count": 26,
+        "expired_candidate_blocked_rate": 0.006539235412474849,
         "false_positive_rate": 0.0,
         "freshness_violation_count": 0,
         "freshness_violation_rate": 0.0,
@@ -4455,7 +4455,7 @@
           "entries_after_physical_cleanup": 0,
           "eviction_count": 0,
           "expiration_counter": 0,
-          "lazy_expired_rejection_count": 56,
+          "lazy_expired_rejection_count": 26,
           "measurement_environment": "synthetic_storage_simulation",
           "physical_expiration_cleanup_count": 728,
           "policy_name": "dynamic-short",
@@ -4467,15 +4467,15 @@
             "stable_ttl_seconds": 2592000
           },
           "status": "evaluated",
-          "total_bytes": 188377,
+          "total_bytes": 188417,
           "total_bytes_after_physical_cleanup": 0
         },
         "tokens_saved": 0
       },
       "long-lived": {
         "cache_control_outcome_counts": {
-          "dynamic_entries_disabled": 170,
-          "fresh": 3806
+          "dynamic_entries_disabled": 74,
+          "fresh": 3902
         },
         "cache_hit_rate": 0.0,
         "candidate_count": 3976,
@@ -4486,8 +4486,8 @@
         "decision_rate_safe": 0.0,
         "decision_rate_uncertain": 0.10875,
         "decision_rate_unsafe": 0.89125,
-        "dynamic_disabled_blocked_count": 170,
-        "dynamic_disabled_blocked_rate": 0.04275653923541248,
+        "dynamic_disabled_blocked_count": 74,
+        "dynamic_disabled_blocked_rate": 0.018611670020120725,
         "dynamic_reuse_served_count": 0,
         "dynamic_reuse_served_rate": 0.0,
         "embedding_tokens": 5763,
@@ -4522,12 +4522,12 @@
             "physical_expiration_cleanup": "post-replay cleanup_expired removes expired rows from storage"
           },
           "entries": 728,
-          "entries_after_physical_cleanup": 22,
+          "entries_after_physical_cleanup": 8,
           "eviction_count": 0,
           "expiration_counter": 0,
           "lazy_expired_rejection_count": 0,
           "measurement_environment": "synthetic_storage_simulation",
-          "physical_expiration_cleanup_count": 706,
+          "physical_expiration_cleanup_count": 720,
           "policy_name": "long-lived",
           "policy_ttl": {
             "allow_dynamic_entries": false,
@@ -4537,8 +4537,8 @@
             "stable_ttl_seconds": 7776000
           },
           "status": "evaluated",
-          "total_bytes": 188377,
-          "total_bytes_after_physical_cleanup": 6728
+          "total_bytes": 188417,
+          "total_bytes_after_physical_cleanup": 2141
         },
         "tokens_saved": 0
       }
@@ -10218,8 +10218,8 @@
     },
     "metrics_overall": {
       "cache_control_outcome_counts": {
-        "dynamic_entries_disabled": 170,
-        "fresh": 3806
+        "dynamic_entries_disabled": 74,
+        "fresh": 3902
       },
       "cache_hit_rate": 0.0,
       "candidate_count": 3976,
@@ -10230,8 +10230,8 @@
       "decision_rate_safe": 0.0,
       "decision_rate_uncertain": 0.10875,
       "decision_rate_unsafe": 0.89125,
-      "dynamic_disabled_blocked_count": 170,
-      "dynamic_disabled_blocked_rate": 0.04275653923541248,
+      "dynamic_disabled_blocked_count": 74,
+      "dynamic_disabled_blocked_rate": 0.018611670020120725,
       "dynamic_reuse_served_count": 0,
       "dynamic_reuse_served_rate": 0.0,
       "embedding_tokens": 5763,
@@ -12058,9 +12058,9 @@
       {
         "metrics": {
           "cache_control_outcome_counts": {
-            "dynamic_entries_disabled": 170,
-            "expired": 1,
-            "fresh": 3805
+            "dynamic_entries_disabled": 74,
+            "expired": 4,
+            "fresh": 3898
           },
           "cache_hit_rate": 0.0,
           "candidate_count": 3976,
@@ -12071,14 +12071,14 @@
           "decision_rate_safe": 0.0,
           "decision_rate_uncertain": 0.10875,
           "decision_rate_unsafe": 0.89125,
-          "dynamic_disabled_blocked_count": 170,
-          "dynamic_disabled_blocked_rate": 0.04275653923541248,
+          "dynamic_disabled_blocked_count": 74,
+          "dynamic_disabled_blocked_rate": 0.018611670020120725,
           "dynamic_reuse_served_count": 0,
           "dynamic_reuse_served_rate": 0.0,
           "embedding_tokens": 5763,
           "estimated_cost_usd": 0.0,
-          "expired_candidate_blocked_count": 1,
-          "expired_candidate_blocked_rate": 0.00025150905432595576,
+          "expired_candidate_blocked_count": 4,
+          "expired_candidate_blocked_rate": 0.001006036217303823,
           "false_positive_rate": 0.0,
           "freshness_violation_count": 0,
           "freshness_violation_rate": 0.0,
@@ -12107,12 +12107,12 @@
               "physical_expiration_cleanup": "post-replay cleanup_expired removes expired rows from storage"
             },
             "entries": 728,
-            "entries_after_physical_cleanup": 22,
+            "entries_after_physical_cleanup": 8,
             "eviction_count": 0,
             "expiration_counter": 0,
-            "lazy_expired_rejection_count": 1,
+            "lazy_expired_rejection_count": 4,
             "measurement_environment": "synthetic_storage_simulation",
-            "physical_expiration_cleanup_count": 706,
+            "physical_expiration_cleanup_count": 720,
             "policy_name": "conservative",
             "policy_ttl": {
               "allow_dynamic_entries": false,
@@ -12122,8 +12122,8 @@
               "stable_ttl_seconds": 3600
             },
             "status": "evaluated",
-            "total_bytes": 188377,
-            "total_bytes_after_physical_cleanup": 6728
+            "total_bytes": 188417,
+            "total_bytes_after_physical_cleanup": 2141
           },
           "tokens_saved": 0
         },
@@ -12141,8 +12141,8 @@
       {
         "metrics": {
           "cache_control_outcome_counts": {
-            "dynamic_entries_disabled": 170,
-            "fresh": 3806
+            "dynamic_entries_disabled": 74,
+            "fresh": 3902
           },
           "cache_hit_rate": 0.0,
           "candidate_count": 3976,
@@ -12153,8 +12153,8 @@
           "decision_rate_safe": 0.0,
           "decision_rate_uncertain": 0.10875,
           "decision_rate_unsafe": 0.89125,
-          "dynamic_disabled_blocked_count": 170,
-          "dynamic_disabled_blocked_rate": 0.04275653923541248,
+          "dynamic_disabled_blocked_count": 74,
+          "dynamic_disabled_blocked_rate": 0.018611670020120725,
           "dynamic_reuse_served_count": 0,
           "dynamic_reuse_served_rate": 0.0,
           "embedding_tokens": 5763,
@@ -12189,12 +12189,12 @@
               "physical_expiration_cleanup": "post-replay cleanup_expired removes expired rows from storage"
             },
             "entries": 728,
-            "entries_after_physical_cleanup": 22,
+            "entries_after_physical_cleanup": 8,
             "eviction_count": 0,
             "expiration_counter": 0,
             "lazy_expired_rejection_count": 0,
             "measurement_environment": "synthetic_storage_simulation",
-            "physical_expiration_cleanup_count": 706,
+            "physical_expiration_cleanup_count": 720,
             "policy_name": "default",
             "policy_ttl": {
               "allow_dynamic_entries": false,
@@ -12204,8 +12204,8 @@
               "stable_ttl_seconds": 2592000
             },
             "status": "evaluated",
-            "total_bytes": 188377,
-            "total_bytes_after_physical_cleanup": 6728
+            "total_bytes": 188417,
+            "total_bytes_after_physical_cleanup": 2141
           },
           "tokens_saved": 0
         },
@@ -12223,8 +12223,8 @@
       {
         "metrics": {
           "cache_control_outcome_counts": {
-            "expired": 56,
-            "fresh": 3920
+            "expired": 26,
+            "fresh": 3950
           },
           "cache_hit_rate": 0.0,
           "candidate_count": 3976,
@@ -12241,8 +12241,8 @@
           "dynamic_reuse_served_rate": 0.0,
           "embedding_tokens": 5763,
           "estimated_cost_usd": 0.0,
-          "expired_candidate_blocked_count": 56,
-          "expired_candidate_blocked_rate": 0.014084507042253521,
+          "expired_candidate_blocked_count": 26,
+          "expired_candidate_blocked_rate": 0.006539235412474849,
           "false_positive_rate": 0.0,
           "freshness_violation_count": 0,
           "freshness_violation_rate": 0.0,
@@ -12274,7 +12274,7 @@
             "entries_after_physical_cleanup": 0,
             "eviction_count": 0,
             "expiration_counter": 0,
-            "lazy_expired_rejection_count": 56,
+            "lazy_expired_rejection_count": 26,
             "measurement_environment": "synthetic_storage_simulation",
             "physical_expiration_cleanup_count": 728,
             "policy_name": "dynamic-short",
@@ -12286,7 +12286,7 @@
               "stable_ttl_seconds": 2592000
             },
             "status": "evaluated",
-            "total_bytes": 188377,
+            "total_bytes": 188417,
             "total_bytes_after_physical_cleanup": 0
           },
           "tokens_saved": 0
@@ -12305,8 +12305,8 @@
       {
         "metrics": {
           "cache_control_outcome_counts": {
-            "dynamic_entries_disabled": 170,
-            "fresh": 3806
+            "dynamic_entries_disabled": 74,
+            "fresh": 3902
           },
           "cache_hit_rate": 0.0,
           "candidate_count": 3976,
@@ -12317,8 +12317,8 @@
           "decision_rate_safe": 0.0,
           "decision_rate_uncertain": 0.10875,
           "decision_rate_unsafe": 0.89125,
-          "dynamic_disabled_blocked_count": 170,
-          "dynamic_disabled_blocked_rate": 0.04275653923541248,
+          "dynamic_disabled_blocked_count": 74,
+          "dynamic_disabled_blocked_rate": 0.018611670020120725,
           "dynamic_reuse_served_count": 0,
           "dynamic_reuse_served_rate": 0.0,
           "embedding_tokens": 5763,
@@ -12353,12 +12353,12 @@
               "physical_expiration_cleanup": "post-replay cleanup_expired removes expired rows from storage"
             },
             "entries": 728,
-            "entries_after_physical_cleanup": 22,
+            "entries_after_physical_cleanup": 8,
             "eviction_count": 0,
             "expiration_counter": 0,
             "lazy_expired_rejection_count": 0,
             "measurement_environment": "synthetic_storage_simulation",
-            "physical_expiration_cleanup_count": 706,
+            "physical_expiration_cleanup_count": 720,
             "policy_name": "long-lived",
             "policy_ttl": {
               "allow_dynamic_entries": false,
@@ -12368,8 +12368,8 @@
               "stable_ttl_seconds": 7776000
             },
             "status": "evaluated",
-            "total_bytes": 188377,
-            "total_bytes_after_physical_cleanup": 6728
+            "total_bytes": 188417,
+            "total_bytes_after_physical_cleanup": 2141
           },
           "tokens_saved": 0
         },
@@ -12492,7 +12492,7 @@
         "storage": {
           "entries": 728,
           "eviction_count": 0,
-          "total_bytes": 188377
+          "total_bytes": 188417
         },
         "x": {
           "direction": "maximize",
@@ -12502,7 +12502,7 @@
         "y": {
           "direction": "minimize",
           "metric": "total_bytes",
-          "value": 188377
+          "value": 188417
         }
       },
       {
@@ -12522,7 +12522,7 @@
         "storage": {
           "entries": 728,
           "eviction_count": 0,
-          "total_bytes": 188377
+          "total_bytes": 188417
         },
         "x": {
           "direction": "maximize",
@@ -12532,7 +12532,7 @@
         "y": {
           "direction": "minimize",
           "metric": "total_bytes",
-          "value": 188377
+          "value": 188417
         }
       },
       {
@@ -12552,7 +12552,7 @@
         "storage": {
           "entries": 728,
           "eviction_count": 0,
-          "total_bytes": 188377
+          "total_bytes": 188417
         },
         "x": {
           "direction": "maximize",
@@ -12562,7 +12562,7 @@
         "y": {
           "direction": "minimize",
           "metric": "total_bytes",
-          "value": 188377
+          "value": 188417
         }
       },
       {
@@ -12582,7 +12582,7 @@
         "storage": {
           "entries": 728,
           "eviction_count": 0,
-          "total_bytes": 188377
+          "total_bytes": 188417
         },
         "x": {
           "direction": "maximize",
@@ -12592,7 +12592,7 @@
         "y": {
           "direction": "minimize",
           "metric": "total_bytes",
-          "value": 188377
+          "value": 188417
         }
       }
     ],
@@ -12607,7 +12607,7 @@
         "max_stale_exposure_rate": 0.0
       },
       "dataset_version": "reviewed-query-pairs-2.0",
-      "git_commit": "88997ed1d7463c90fb57a2beee39b2b0a78f4b7c",
+      "git_commit": "2f7aa5e75bc3bff7114c9a4213a270f9b4f62e3d",
       "git_worktree_dirty": true,
       "name": "conservative",
       "objective": "safe_reuse_coverage",
@@ -12675,7 +12675,7 @@
       },
       "policy_name": "default",
       "protection_counts": {
-        "dynamic_reuse_blocked_count": 170,
+        "dynamic_reuse_blocked_count": 74,
         "expired_candidate_blocked_count": 0,
         "invalid_expiration_count": 0,
         "missing_expiration_count": 0
@@ -12732,8 +12732,8 @@
         },
         "policy_name": "conservative",
         "protection_counts": {
-          "dynamic_reuse_blocked_count": 170,
-          "expired_candidate_blocked_count": 1,
+          "dynamic_reuse_blocked_count": 74,
+          "expired_candidate_blocked_count": 4,
           "invalid_expiration_count": 0,
           "missing_expiration_count": 0
         },
@@ -12788,7 +12788,7 @@
         },
         "policy_name": "default",
         "protection_counts": {
-          "dynamic_reuse_blocked_count": 170,
+          "dynamic_reuse_blocked_count": 74,
           "expired_candidate_blocked_count": 0,
           "invalid_expiration_count": 0,
           "missing_expiration_count": 0
@@ -12845,7 +12845,7 @@
         "policy_name": "dynamic-short",
         "protection_counts": {
           "dynamic_reuse_blocked_count": 0,
-          "expired_candidate_blocked_count": 56,
+          "expired_candidate_blocked_count": 26,
           "invalid_expiration_count": 0,
           "missing_expiration_count": 0
         },
@@ -12900,7 +12900,7 @@
         },
         "policy_name": "long-lived",
         "protection_counts": {
-          "dynamic_reuse_blocked_count": 170,
+          "dynamic_reuse_blocked_count": 74,
           "expired_candidate_blocked_count": 0,
           "invalid_expiration_count": 0,
           "missing_expiration_count": 0
@@ -19965,12 +19965,12 @@
           "physical_expiration_cleanup": "post-replay cleanup_expired removes expired rows from storage"
         },
         "entries": 728,
-        "entries_after_physical_cleanup": 22,
+        "entries_after_physical_cleanup": 8,
         "eviction_count": 0,
         "expiration_counter": 0,
-        "lazy_expired_rejection_count": 1,
+        "lazy_expired_rejection_count": 4,
         "measurement_environment": "synthetic_storage_simulation",
-        "physical_expiration_cleanup_count": 706,
+        "physical_expiration_cleanup_count": 720,
         "policy_name": "conservative",
         "policy_ttl": {
           "allow_dynamic_entries": false,
@@ -19980,8 +19980,8 @@
           "stable_ttl_seconds": 3600
         },
         "status": "evaluated",
-        "total_bytes": 188377,
-        "total_bytes_after_physical_cleanup": 6728
+        "total_bytes": 188417,
+        "total_bytes_after_physical_cleanup": 2141
       },
       "default": {
         "canonical_answers": 728,
@@ -19993,12 +19993,12 @@
           "physical_expiration_cleanup": "post-replay cleanup_expired removes expired rows from storage"
         },
         "entries": 728,
-        "entries_after_physical_cleanup": 22,
+        "entries_after_physical_cleanup": 8,
         "eviction_count": 0,
         "expiration_counter": 0,
         "lazy_expired_rejection_count": 0,
         "measurement_environment": "synthetic_storage_simulation",
-        "physical_expiration_cleanup_count": 706,
+        "physical_expiration_cleanup_count": 720,
         "policy_name": "default",
         "policy_ttl": {
           "allow_dynamic_entries": false,
@@ -20008,8 +20008,8 @@
           "stable_ttl_seconds": 2592000
         },
         "status": "evaluated",
-        "total_bytes": 188377,
-        "total_bytes_after_physical_cleanup": 6728
+        "total_bytes": 188417,
+        "total_bytes_after_physical_cleanup": 2141
       },
       "dynamic-short": {
         "canonical_answers": 728,
@@ -20024,7 +20024,7 @@
         "entries_after_physical_cleanup": 0,
         "eviction_count": 0,
         "expiration_counter": 0,
-        "lazy_expired_rejection_count": 56,
+        "lazy_expired_rejection_count": 26,
         "measurement_environment": "synthetic_storage_simulation",
         "physical_expiration_cleanup_count": 728,
         "policy_name": "dynamic-short",
@@ -20036,7 +20036,7 @@
           "stable_ttl_seconds": 2592000
         },
         "status": "evaluated",
-        "total_bytes": 188377,
+        "total_bytes": 188417,
         "total_bytes_after_physical_cleanup": 0
       },
       "long-lived": {
@@ -20049,12 +20049,12 @@
           "physical_expiration_cleanup": "post-replay cleanup_expired removes expired rows from storage"
         },
         "entries": 728,
-        "entries_after_physical_cleanup": 22,
+        "entries_after_physical_cleanup": 8,
         "eviction_count": 0,
         "expiration_counter": 0,
         "lazy_expired_rejection_count": 0,
         "measurement_environment": "synthetic_storage_simulation",
-        "physical_expiration_cleanup_count": 706,
+        "physical_expiration_cleanup_count": 720,
         "policy_name": "long-lived",
         "policy_ttl": {
           "allow_dynamic_entries": false,
@@ -20064,8 +20064,8 @@
           "stable_ttl_seconds": 7776000
         },
         "status": "evaluated",
-        "total_bytes": 188377,
-        "total_bytes_after_physical_cleanup": 6728
+        "total_bytes": 188417,
+        "total_bytes_after_physical_cleanup": 2141
       }
     },
     "storage_overall": {
@@ -20078,12 +20078,12 @@
         "physical_expiration_cleanup": "post-replay cleanup_expired removes expired rows from storage"
       },
       "entries": 728,
-      "entries_after_physical_cleanup": 22,
+      "entries_after_physical_cleanup": 8,
       "eviction_count": 0,
       "expiration_counter": 0,
       "lazy_expired_rejection_count": 0,
       "measurement_environment": "synthetic_storage_simulation",
-      "physical_expiration_cleanup_count": 706,
+      "physical_expiration_cleanup_count": 720,
       "policy_name": "default",
       "policy_ttl": {
         "allow_dynamic_entries": false,
@@ -20093,12 +20093,12 @@
         "stable_ttl_seconds": 2592000
       },
       "status": "evaluated",
-      "total_bytes": 188377,
-      "total_bytes_after_physical_cleanup": 6728
+      "total_bytes": 188417,
+      "total_bytes_after_physical_cleanup": 2141
     },
     "threshold_selection_rule": "maximize safe reuse coverage subject to the development false-positive rate <= 0.0"
   },
-  "git_commit": "88997ed1d7463c90fb57a2beee39b2b0a78f4b7c",
+  "git_commit": "2f7aa5e75bc3bff7114c9a4213a270f9b4f62e3d",
   "git_worktree_dirty": true,
   "measurement_environment": "synthetic_replay",
   "safety_contract_version": "1.0.0",
