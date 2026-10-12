@@ -77,6 +77,13 @@ The current input identity is defined by:
 - `development.jsonl`
 - `held_out_test.jsonl`
 - `split_manifest.json`
+- Phase 4 semantic-validity held-out gate record:
+  [`semantic-validity-held-out-gate.json`](./semantic-validity-held-out-gate.json)
+  (`held-out-deferred` until a fresh manifest exists; do not treat the 215-record
+  `held_out_test` split as an untouched headline gate).
+- Phase 4 local embedding gate:
+  [`semantic-validity-local-embedding-gate.json`](./semantic-validity-local-embedding-gate.json)
+  (optional `local-embeddings` extra; smoke artifact under `artifacts/evaluation/`).
 - dataset version `reviewed-query-pairs-2.0`
 - schema version `1.1`
 - annotation guide version `1.0.0`
