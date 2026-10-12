@@ -40,7 +40,9 @@ provider quality claim, or default-path model-routing change.
 
 Primary held-out identity on the default package:
 `split_manifest_sha256` =
-`68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51`,
+`0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9`
+(regenerated 2026-10-12; see
+[`PHASE_2_REMEDIATION_EVIDENCE.md`](./PHASE_2_REMEDIATION_EVIDENCE.md) § Step 2),
 `dataset_version` = `reviewed-query-pairs-2.0`.
 
 ## Dashboard outputs
@@ -127,14 +129,16 @@ Dashboard export command above → passed (JSON + HTML written).
 ## Skipped gates and limitations
 
 - [ ] User implementation gate: explicit approval to treat the dashboard as
-  the bounded delivery form (plan checkbox still open).
+  the bounded delivery form (optional product gate; implementation artifacts
+  exist).
 - [ ] Dual-model approval gate: model pair and budget (`pending_approval` in
-  the checked-in definition).
-- [ ] Live dual-model provider run.
+  the checked-in definition; experiment definition only).
+- [ ] Live dual-model provider run (deferred; unavailable artifact packaged).
 - [x] WS5–WS7 default evidence is **synthetic replay**, not live-provider
   measurement.
-- [x] WS6 development freshness manifest differs from current held-out
-  identity; dashboard records `provenance_only_manifest_mismatch`.
+- [x] WS6 development vs held-out **split** differs by design; dashboard may
+  record `provenance_only_manifest_mismatch` for development provenance while
+  repo manifest lineage matches on regeneration (remediation Steps 2–3).
 - [x] WS5 held-out storage Pareto plane unavailable; dashboard marks storage
   unavailable on the Pareto view.
 - [x] WS4 provider artifacts use dataset 1.1 / development scope;

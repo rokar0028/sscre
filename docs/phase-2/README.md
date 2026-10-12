@@ -10,6 +10,8 @@ sections below to find what you need without reading every filename.
 | Document | Role |
 | --- | --- |
 | [PHASE_2_IMPLEMENTATION_PLAN.md](./PHASE_2_IMPLEMENTATION_PLAN.md) | Phase 2 definition of done and workstream status |
+| [PHASE_2_REMEDIATION_IMPLEMENTATION_PLAN.md](./PHASE_2_REMEDIATION_IMPLEMENTATION_PLAN.md) | Post-audit provenance repair — **closed** 2026-10-12 |
+| [PHASE_2_REMEDIATION_EVIDENCE.md](./PHASE_2_REMEDIATION_EVIDENCE.md) | Remediation inventory, gates, final limitations (§ Step 7) |
 | [MILESTONE_11_REMAINING_GAPS_IMPLEMENTATION_PLAN.md](./MILESTONE_11_REMAINING_GAPS_IMPLEMENTATION_PLAN.md) | Production-readiness gaps after Phase 1 |
 
 Phase 4 in-memory scale ([`../phase-4/PHASE4_SCALE_EVIDENCE.md`](../phase-4/PHASE4_SCALE_EVIDENCE.md))

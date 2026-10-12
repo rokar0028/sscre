@@ -1,13 +1,17 @@
 # Workstream 6 Evidence
 
-Status: **Mostly complete (2026-10-09, Option A).** Freshness policy replay,
-artifacts, regression tests, and parent-plan handoff are recorded below.
-Residual: sparse semi/dynamic development pairs, WS5 artifact merge not
-implemented, WS5 held-out manifest drift (Step 1).
+Status: **closed (Option A, development + held-out stable scope, 2026-10-09).**
+Held-out **semi-dynamic** and **dynamic** classes are unavailable on the split.
+WS5 held-out manifest drift from Step 1 was **closed** in Phase 2 remediation
+Step 2 (2026-10-12). Residual: sparse semi/dynamic development pairs; no
+answer-level stale exposure.
 
 Plan: [`WORKSTREAM_6_IMPLEMENTATION_PLAN.md`](./WORKSTREAM_6_IMPLEMENTATION_PLAN.md).
 
 ## Step 1 — Audit of freshness behavior and benchmark coverage
+
+**Historical:** audit environment and WS5 stale-manifest finding below reflect
+the 2026-10-09 working tree before remediation Step 2.
 
 Environment: Python 3.14.5, git `1beed4d`, working tree dirty (uncommitted
 benchmark and artifact changes).
@@ -114,8 +118,9 @@ Step 8.
    conclusions for those classes are not possible on the current split.
    Policy selection would have only 9 development pairs for those classes,
    so interval-backed claims there are weak.
-2. **`workstream5-held-out-comparison.json` is stale against the current
-   split.** It records split manifest SHA `69c90c41…` and `frozen_at`
+2. **(Historical — closed in remediation Step 2.)**
+   `workstream5-held-out-comparison.json` was stale against the then-current
+   split. It recorded split manifest SHA `69c90c41…` and `frozen_at`
    `2026-10-08T14:46:39+00:00`, with freshness strata of dynamic 6 /
    semi-dynamic 4 / stable 420 requests and held-out IDs such as `pair-0030`,
    `0031`, `0413`, `0612`, `0613`. The checked-in `split_manifest.json`
@@ -141,8 +146,8 @@ Step 8.
   `unavailable` in `freshness_experiment.held_out_freshness_scope`.
 - [x] Report **both** reviewed `freshness_class` and runtime temporal class
   (`freshness_class_reporting: both`).
-- [ ] Regenerate or annotate stale WS5 held-out artifacts (split manifest
-  mismatch; not blocking Step 2 schema).
+- [x] Regenerate stale WS5/WS6 held-out lineage — closed in
+  [`PHASE_2_REMEDIATION_EVIDENCE.md`](./PHASE_2_REMEDIATION_EVIDENCE.md) § Step 2.
 
 ## Step 2 — Freshness schema and policy config
 
@@ -399,9 +404,8 @@ credentials.
 3. **Synthetic replay only** for latency, cost, tokens, and storage (`measurement_environment` labels).
 4. **No real-provider freshness run**; do not conflate with Workstream 4 live
    measurements.
-5. **WS5 held-out comparison artifact** may predate the latest split manifest
-   SHA; refresh WS5 artifacts before merging freshness into a single dashboard
-   narrative (see Step 1 findings).
+5. **WS5 held-out comparison artifact** lineage was refreshed in remediation
+   Step 2 (2026-10-12); Step 1 stale-manifest text is historical.
 
 ### Parent plan link
 

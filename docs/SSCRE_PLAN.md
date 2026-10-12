@@ -729,22 +729,40 @@ minimum and is intentionally still unchecked above.
 
 ### Phase 2 — Depth (Weeks 7–10)
 
-- [x] Define and test `SAFE`, `UNSAFE`, and `UNCERTAIN`
-  (Workstream 1; [docs/phase-2/WORKSTREAM_1_EVIDENCE.md](phase-2/WORKSTREAM_1_EVIDENCE.md))
-- [x] Add candidate-level decision traces
-  (same evidence; Strategy B still records only the first candidate)
-- [ ] Expand benchmark to ≥500 reviewed pairs
-- [ ] Create development and held-out test splits
-- [x] Add threshold sweep configuration
-- [ ] Generate Pareto plots
-- [ ] Add confidence intervals
-- [ ] Add human correctness labels
-- [ ] Keep preference and correctness labels separate
-- [ ] Add freshness policy experiments
-- [ ] Build failure gallery
-- [ ] Add failure-category metrics
-- [ ] Add dashboard only after reports are stable
-- [ ] Add dual-model comparison only for a defined experiment
+Reconciled and remediation **closed** 2026-10-12
+([`docs/phase-2/PHASE_2_REMEDIATION_EVIDENCE.md`](phase-2/PHASE_2_REMEDIATION_EVIDENCE.md)
+§ Step 7). Phase 2 gate: **615** pairs (`reviewed-query-pairs-2.0`, 400 / 215).
+The roadmap’s **2,000+** pair aspiration remains a stretch goal, not met.
+
+- [x] Define and test `SAFE`, `UNSAFE`, and `UNCERTAIN` on Strategy C
+  (Workstream 1; [WORKSTREAM_1_EVIDENCE.md](phase-2/WORKSTREAM_1_EVIDENCE.md)).
+  Strategy B is an opt-in embedding-only baseline, not the canonical path.
+- [x] Add candidate-level decision traces for Strategy C
+  (Strategy B records only the first candidate).
+- [x] Expand benchmark to ≥500 reviewed compatibility-labeled pairs
+  (615; [BENCHMARK_500_SCALE_UP_EVIDENCE.md](phase-2/BENCHMARK_500_SCALE_UP_EVIDENCE.md)).
+- [x] Create development and held-out test splits with leakage validation.
+- [x] Add threshold sweep configuration.
+- [x] Generate Pareto plots (synthetic held-out; storage plane unavailable).
+- [x] Add confidence intervals on synthetic replay reports.
+- [ ] Add human **correctness** labels (all 615 records: `correctness_label`
+  null; `answer_availability: none`).
+- [x] Keep preference and correctness label **contracts** separate
+  ([EVALUATION_LABEL_CONTRACT_v1.md](../benchmarks/EVALUATION_LABEL_CONTRACT_v1.md));
+  preference labels not collected.
+- [x] Add freshness policy experiments (development: stable / semi-dynamic /
+  dynamic; held-out: **stable only** — [WORKSTREAM_6_EVIDENCE.md](phase-2/WORKSTREAM_6_EVIDENCE.md)).
+- [x] Build failure gallery ([WORKSTREAM_7_EVIDENCE.md](phase-2/WORKSTREAM_7_EVIDENCE.md)).
+- [x] Add failure-category metrics in consolidated quality analysis.
+- [x] Add bounded read-only dashboard after report contracts stabilized
+  ([WORKSTREAM_9_EVIDENCE.md](phase-2/WORKSTREAM_9_EVIDENCE.md); optional user
+  product-approval gates remain open).
+- [x] Dual-model comparison as a **defined, disabled** experiment only
+  (no live provider run; [WORKSTREAM_9_EVIDENCE.md](phase-2/WORKSTREAM_9_EVIDENCE.md)).
+
+**Not claimed for Phase 2:** live-provider cost/latency, factual correctness
+improvement, held-out semi-dynamic/dynamic freshness, live PostgreSQL restart,
+or production capacity (see remediation evidence § Step 7).
 
 ### Phase 3 — Advanced (Weeks 11–14, if justified)
 
