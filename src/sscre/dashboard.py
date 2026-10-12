@@ -28,6 +28,7 @@ from sscre.failure_gallery import (
 from sscre.freshness_artifacts import validate_freshness_artifact_package
 from sscre.freshness_evaluation import FRESHNESS_EVALUATION_SCHEMA_VERSION
 from sscre.freshness_invalidation import validate_invalidation_artifact
+from sscre.benchmark_splits import file_sha256
 from sscre.serialization import validate_redacted_report_payload
 
 DASHBOARD_SCHEMA_VERSION = "workstream9-dashboard-1.0"
@@ -79,6 +80,13 @@ DEFAULT_SOURCE_PATHS = {
 }
 DEFAULT_JSON_OUTPUT = Path("artifacts/evaluation/workstream9-dashboard.json")
 DEFAULT_HTML_OUTPUT = Path("artifacts/evaluation/workstream9-dashboard.html")
+DEFAULT_SPLIT_MANIFEST_PATH = Path("benchmarks/split_manifest.json")
+_REPO_LINEAGE_SOURCES = (
+    "comparison",
+    "quality",
+    "freshness_held_out",
+    "freshness_development",
+)
 
 _REQUIRED_SOURCES = frozenset(
     {"comparison", "freshness_held_out", "quality", "operations"}
@@ -458,6 +466,63 @@ def _load_sources(
         _validate_source_contract(source)
         sources[name] = source
     return sources
+
+
+def _payload_split_manifest_sha256(payload: Mapping[str, object]) -> str | None:
+    benchmark = payload.get("benchmark_artifact")
+    if isinstance(benchmark, Mapping):
+        manifest = benchmark.get("split_manifest_sha256")
+        if isinstance(manifest, str) and manifest:
+            return manifest
+    manifest = payload.get("split_manifest_sha256")
+    if isinstance(manifest, str) and manifest:
+        return manifest
+    primary = payload.get("primary_evaluation_identity")
+    if isinstance(primary, Mapping):
+        manifest = primary.get("split_manifest_sha256")
+        if isinstance(manifest, str) and manifest:
+            return manifest
+    return None
+
+
+def _validate_repo_split_manifest_lineage(
+    sources: Mapping[str, _LoadedSource],
+    *,
+    repo_root: Path,
+    allow_stale_manifest: bool,
+) -> dict[str, object]:
+    manifest_path = _path_for(DEFAULT_SPLIT_MANIFEST_PATH, repo_root)
+    if not manifest_path.is_file():
+        raise DashboardInputError(
+            f"benchmark split manifest is missing: {manifest_path.as_posix()}"
+        )
+    repo_sha = file_sha256(manifest_path)
+    stale_messages: list[str] = []
+    for name in _REPO_LINEAGE_SOURCES:
+        source = sources.get(name)
+        if source is None or source.payload is None:
+            continue
+        recorded = _payload_split_manifest_sha256(source.payload)
+        if recorded is None:
+            continue
+        if recorded != repo_sha:
+            stale_messages.append(
+                f"{name} records split_manifest_sha256 {recorded!r} but "
+                f"{DEFAULT_SPLIT_MANIFEST_PATH.as_posix()} hashes to {repo_sha!r}"
+            )
+    if stale_messages and not allow_stale_manifest:
+        raise DashboardInputError(
+            "artifact lineage is stale relative to "
+            f"{DEFAULT_SPLIT_MANIFEST_PATH.as_posix()}; use "
+            "--allow-metadata-mismatch for diagnostic export only: "
+            + "; ".join(stale_messages)
+        )
+    return {
+        "split_manifest_path": DEFAULT_SPLIT_MANIFEST_PATH.as_posix(),
+        "split_manifest_sha256": repo_sha,
+        "stale_source_messages": stale_messages,
+        "stale_lineage_override": allow_stale_manifest,
+    }
 
 
 def _identity(source: _LoadedSource) -> dict[str, object]:
@@ -1056,10 +1121,19 @@ def _add_generation_metadata(
         "generated_at": datetime.now(timezone.utc).isoformat(),
         **_git_metadata(repo_root),
     }
-    result["export_policy"] = {
+    repo_lineage = manifest.get("repo_lineage")
+    export_policy: dict[str, object] = {
         "metadata_mismatch_override": allow_metadata_mismatch,
         "metric_source": "upstream_artifacts",
     }
+    if isinstance(repo_lineage, Mapping):
+        export_policy["repo_split_manifest_sha256"] = repo_lineage.get(
+            "split_manifest_sha256"
+        )
+        export_policy["stale_lineage_override"] = repo_lineage.get(
+            "stale_lineage_override"
+        )
+    result["export_policy"] = export_policy
     return result
 
 
@@ -1391,6 +1465,7 @@ def export_dashboard(
     root = repo_root or _repo_root()
     manifest = build_dashboard_view_manifest(
         repo_root=root,
+        allow_stale_manifest=allow_metadata_mismatch,
         **source_paths,
     )
     mismatches = _metadata_mismatch_sections(manifest)
@@ -1427,7 +1502,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--allow-metadata-mismatch",
         action="store_true",
-        help="Write a diagnostic package while recording metadata mismatches.",
+        help=(
+            "Write a diagnostic package while recording metadata mismatches and "
+            "stale benchmark split-manifest lineage."
+        ),
     )
     args = parser.parse_args(argv)
     source_paths = {
@@ -1460,6 +1538,7 @@ def build_dashboard_view_manifest(
     provider_comparison_path: Path | None = None,
     provider_unavailable_path: Path | None = None,
     repo_root: Path | None = None,
+    allow_stale_manifest: bool = False,
 ) -> dict[str, object]:
     """Load aligned artifacts and return a bounded, read-only view manifest."""
     root = repo_root or _repo_root()
@@ -1480,6 +1559,11 @@ def build_dashboard_view_manifest(
         for value in [overrides[name]]
     }
     sources = _load_sources(paths, repo_root=root)
+    repo_lineage = _validate_repo_split_manifest_lineage(
+        sources,
+        repo_root=root,
+        allow_stale_manifest=allow_stale_manifest,
+    )
     comparison = sources["comparison"]
     assert comparison.payload is not None
     primary = _identity(comparison)
@@ -1509,6 +1593,7 @@ def build_dashboard_view_manifest(
             name: _descriptor(source) for name, source in sources.items()
         },
         "primary_evaluation_identity": primary,
+        "repo_lineage": repo_lineage,
         "sections": sections,
     }
     validate_dashboard_view_manifest(manifest)

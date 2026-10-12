@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from sscre import dashboard as dashboard_module
+from sscre.benchmark_splits import file_sha256
 from sscre.dashboard import (
     DASHBOARD_ARTIFACT_KIND,
     DASHBOARD_SCHEMA_VERSION,
@@ -28,6 +29,31 @@ _QUALITY = (
 _OPERATIONS = (
     _REPO_ROOT / "artifacts" / "operations" / "workstream8-operational-verification.json"
 )
+_SPLIT_MANIFEST = _REPO_ROOT / "benchmarks" / "split_manifest.json"
+_STALE_REGEN_MANIFEST = (
+    "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51"
+)
+_FRESHNESS_HELD_OUT = (
+    _REPO_ROOT / "artifacts" / "evaluation" / "workstream6-held-out-freshness.json"
+)
+_FRESHNESS_DEVELOPMENT = (
+    _REPO_ROOT / "artifacts" / "evaluation" / "workstream6-development-freshness.json"
+)
+
+
+def _write_payload(path: Path, payload: dict[str, object]) -> None:
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+def _set_split_manifest(payload: dict[str, object], manifest_sha: str) -> None:
+    benchmark = payload.get("benchmark_artifact")
+    if isinstance(benchmark, dict):
+        benchmark["split_manifest_sha256"] = manifest_sha
+    if "split_manifest_sha256" in payload:
+        payload["split_manifest_sha256"] = manifest_sha
+    primary = payload.get("primary_evaluation_identity")
+    if isinstance(primary, dict):
+        primary["split_manifest_sha256"] = manifest_sha
 
 
 @pytest.mark.skipif(
@@ -41,7 +67,7 @@ def test_build_dashboard_manifest_has_frozen_sections_and_source_identity() -> N
     assert set(manifest["sections"]) == set(SECTION_NAMES)
     assert (
         manifest["primary_evaluation_identity"]["split_manifest_sha256"]
-        == "68912e3b1221aae9c0b1b40d6b26ad351c211057898eb4f1e3b1bb87da8b1e51"
+        == file_sha256(_SPLIT_MANIFEST)
     )
     assert (
         manifest["sections"]["operating_point"]["data"]["selected_threshold"]
@@ -86,6 +112,10 @@ def test_build_dashboard_manifest_has_frozen_sections_and_source_identity() -> N
         == "compatibility-cache"
     )
     validate_dashboard_view_manifest(manifest)
+    repo_lineage = manifest["repo_lineage"]
+    assert isinstance(repo_lineage, dict)
+    assert repo_lineage["split_manifest_sha256"] == file_sha256(_SPLIT_MANIFEST)
+    assert repo_lineage["stale_source_messages"] == []
 
 
 def test_optional_provider_sources_can_be_absent(tmp_path: Path) -> None:
@@ -124,6 +154,57 @@ def test_unsupported_statistics_schema_fails_closed(tmp_path: Path) -> None:
         build_dashboard_view_manifest(comparison_path=bad)
 
 
+@pytest.mark.skipif(
+    not _COMPARISON.is_file() or not _QUALITY.is_file(),
+    reason="checked-in WS5/WS7 artifacts missing",
+)
+def test_repo_lineage_fails_when_sources_agree_on_stale_manifest(
+    tmp_path: Path,
+) -> None:
+    comparison = json.loads(_COMPARISON.read_text(encoding="utf-8"))
+    quality = json.loads(_QUALITY.read_text(encoding="utf-8"))
+    freshness_held_out = json.loads(_FRESHNESS_HELD_OUT.read_text(encoding="utf-8"))
+    freshness_development = json.loads(
+        _FRESHNESS_DEVELOPMENT.read_text(encoding="utf-8")
+    )
+    for payload in (
+        comparison,
+        quality,
+        freshness_held_out,
+        freshness_development,
+    ):
+        _set_split_manifest(payload, _STALE_REGEN_MANIFEST)
+
+    comparison_path = tmp_path / "comparison-stale.json"
+    quality_path = tmp_path / "quality-stale.json"
+    freshness_held_out_path = tmp_path / "freshness-held-out-stale.json"
+    freshness_development_path = tmp_path / "freshness-development-stale.json"
+    _write_payload(comparison_path, comparison)
+    _write_payload(quality_path, quality)
+    _write_payload(freshness_held_out_path, freshness_held_out)
+    _write_payload(freshness_development_path, freshness_development)
+
+    with pytest.raises(DashboardInputError, match="artifact lineage is stale"):
+        build_dashboard_view_manifest(
+            comparison_path=comparison_path,
+            quality_path=quality_path,
+            freshness_held_out_path=freshness_held_out_path,
+            freshness_development_path=freshness_development_path,
+        )
+
+    manifest = build_dashboard_view_manifest(
+        comparison_path=comparison_path,
+        quality_path=quality_path,
+        freshness_held_out_path=freshness_held_out_path,
+        freshness_development_path=freshness_development_path,
+        allow_stale_manifest=True,
+    )
+    repo_lineage = manifest["repo_lineage"]
+    assert isinstance(repo_lineage, dict)
+    assert repo_lineage["stale_lineage_override"] is True
+    assert repo_lineage["stale_source_messages"]
+
+
 def test_metadata_mismatch_is_explicit_and_not_silently_merged(
     tmp_path: Path,
 ) -> None:
@@ -132,7 +213,10 @@ def test_metadata_mismatch_is_explicit_and_not_silently_merged(
     mismatched = tmp_path / "quality-mismatch.json"
     mismatched.write_text(json.dumps(payload), encoding="utf-8")
 
-    manifest = build_dashboard_view_manifest(quality_path=mismatched)
+    manifest = build_dashboard_view_manifest(
+        quality_path=mismatched,
+        allow_stale_manifest=True,
+    )
 
     section = manifest["sections"]["failure_categories"]
     assert section["status"] == "metadata_mismatch"
@@ -189,7 +273,7 @@ def test_export_requires_explicit_override_for_metadata_mismatch(
     json_output = tmp_path / "dashboard.json"
     html_output = tmp_path / "dashboard.html"
 
-    with pytest.raises(DashboardInputError, match="allow-metadata-mismatch"):
+    with pytest.raises(DashboardInputError, match="artifact lineage is stale"):
         export_dashboard(
             quality_path=mismatched,
             json_output=json_output,
