@@ -33,6 +33,13 @@ alwaysApply: true
 - When closing a workstream milestone, sync the plan **Status**, **Execution
   sequence**, **Acceptance criteria**, and linked **evidence** file so unchecked
   boxes do not contradict implemented code or recorded deferrals.
+- When close-out records regenerated `artifacts/`, verification file hashes, or
+  code changes (e.g. remediation Steps 2–7), run `git status` on those canonical
+  paths before setting **Status** to `closed`. If they are still modified or
+  untracked, either commit them (user-approved `/commit`) or keep **Status**
+  explicit (`closed (docs only)` or `in progress — commit bundle pending`) and
+  list the paths in evidence; do not imply the remote or default branch already
+  contains the verified package.
 - When marking an implementation **step** complete in a workstream plan, update
   that step’s checkboxes and evidence in the same pass, and refresh **Current
   baseline** (especially **Open baseline gaps** and the canonical module table)
