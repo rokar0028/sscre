@@ -288,8 +288,10 @@ def build_from_files(
             records, threshold=threshold, **common
         )
         metrics = _report_metrics(compatibility_report.__dict__)
-        metrics["embedding_false_positive_rate"] = float(
-            embedding_report.false_positive_rate
+        metrics["embedding_false_positive_rate"] = (
+            float(embedding_report.false_positive_rate)
+            if embedding_report.false_positive_rate is not None
+            else None
         )
         metrics["embedding_safe_reuse_coverage"] = float(
             embedding_report.safe_reuse_coverage

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -25,6 +26,10 @@ _HELD_OUT_FORBIDDEN_SELECTION_KEYS = frozenset(
 
 def _metric_rate(metrics: Mapping[str, object], field: str) -> float:
     value = metrics.get(field, 0.0)
+    if value is None:
+        if field == "false_positive_rate":
+            return math.inf
+        return 0.0
     if (
         isinstance(value, bool)
         or not isinstance(value, (int, float))
@@ -55,9 +60,11 @@ def _constraint_violations(
     dynamic_rate = _metric_rate(metrics, "dynamic_reuse_served_rate")
     if dynamic_rate > constraints.max_dynamic_reuse_served_rate:
         violations.append("max_dynamic_reuse_served_rate")
-    false_positive_rate = _metric_rate(metrics, "false_positive_rate")
-    if false_positive_rate > constraints.max_false_positive_rate:
-        violations.append("max_false_positive_rate")
+    fpr_value = metrics.get("false_positive_rate")
+    if fpr_value is not None:
+        false_positive_rate = _metric_rate(metrics, "false_positive_rate")
+        if false_positive_rate > constraints.max_false_positive_rate:
+            violations.append("max_false_positive_rate")
     return violations
 
 

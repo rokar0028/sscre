@@ -73,11 +73,16 @@ def test_baseline_all_attaches_comparison_statistics(tmp_path: Path) -> None:
     assert payload["baseline"] == "comparison"
     statistics = payload["statistics"]
     assert statistics["operating_point"]["baseline"] == "compatibility-cache"
-    assert statistics["operating_point"]["constraint_satisfied"] is True
-    assert (
-        statistics["operating_point"]["observed_false_positive_rate"]
-        <= statistics["operating_point"]["max_false_positive_rate"]
-    )
+    observed_fpr = statistics["operating_point"]["observed_false_positive_rate"]
+    max_fpr = statistics["operating_point"]["max_false_positive_rate"]
+    if observed_fpr is None:
+        assert statistics["operating_point"][
+            "observed_false_positive_rate_unavailable_reason"
+        ]
+        assert statistics["operating_point"]["constraint_satisfied"] is False
+    else:
+        assert observed_fpr <= max_fpr
+        assert statistics["operating_point"]["constraint_satisfied"] is True
     assert "by_baseline" in statistics
     assert set(statistics["by_baseline"]) == {
         "no-cache",
