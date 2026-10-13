@@ -1,0 +1,59 @@
+{
+  "artifacts": [
+    {
+      "path": "experiments/semantic-validity-evaluation-config-v1.json",
+      "present": true,
+      "sha256": "8b6ff26d05fd4dbeb0d4014c706bc43342d676511f7ba6b09ffa06ea0d34062c"
+    },
+    {
+      "path": "benchmarks/semantic-validity-held-out-gate.json",
+      "present": true,
+      "sha256": "508c5f6b5f5f0b143443e06ca30dbc328fd274d67e4f212b06d435059e7d0282"
+    },
+    {
+      "path": "benchmarks/semantic-validity-local-embedding-gate.json",
+      "present": true,
+      "sha256": "54096b946737f4813fca485ae1e652a37b616821c26727b30719473f54ef532e"
+    },
+    {
+      "path": "artifacts/evaluation/phase4-semantic-validity-local-embedding-smoke.json",
+      "present": true,
+      "sha256": "99bc0c19e7e4be788bff34522fd9a280dbd7123535b268b134a45bb51385c5dc"
+    },
+    {
+      "path": "artifacts/evaluation/phase4-semantic-validity-development.json",
+      "present": true,
+      "sha256": "b09a4cafe350722f643d5d089e620b76d301b6c1329f8a113ce7efc55c6eb77c"
+    },
+    {
+      "path": "artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json",
+      "present": true,
+      "sha256": "01cb545ed9caae3250c0f93d21b79b2f7e6088143e6b1bfc9c75aa90094b61b2"
+    },
+    {
+      "path": "artifacts/evaluation/phase4-semantic-validity-gate.json",
+      "present": true,
+      "sha256": "f0a7d6c4c679724b33c3f058a2b9226917e5676672d7b576d339b5ff64a0b1a4"
+    },
+    {
+      "path": "artifacts/evaluation/phase4-semantic-validity-verification.json",
+      "present": true,
+      "sha256": "626c6ac3fc3b2aa1e0cfaac57420ce4f6036e76125ef398ad61832b68181dc65"
+    }
+  ],
+  "config_sha256_current": "8b6ff26d05fd4dbeb0d4014c706bc43342d676511f7ba6b09ffa06ea0d34062c",
+  "config_sha256_development_artifact_header": "cf23807941a639af751d02c250d22ab676e83a37a3dc373c9a17fc8846f51ac4",
+  "evidence": "docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md",
+  "generated_at_utc": "2026-10-12T18:16:07.985614+00:00",
+  "git_commit": "8c18d3772af3e690fa28af4a330de29cacafb08c",
+  "git_worktree_dirty": true,
+  "headline_gate_verdict": "deferred",
+  "implementation_plan": "docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_IMPLEMENTATION_PLAN.md",
+  "phase3_held_out_artifacts": "historical_stale_lineage_not_headline_eligible",
+  "protocol_id": "P4-SEMVALID",
+  "schema_version": "phase4-semantic-validity-manifest-1.0",
+  "semantic_claim_supported": false,
+  "split_manifest_sha256": "0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9",
+  "status": "closed_with_deferred_headline_gate",
+  "verification": "artifacts/evaluation/phase4-semantic-validity-verification.json"
+}

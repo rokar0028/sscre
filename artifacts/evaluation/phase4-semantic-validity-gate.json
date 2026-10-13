@@ -1,0 +1,25 @@
+{
+  "artifact_schema_version": "semantic-validity-gate-1.0",
+  "config_path": "experiments/semantic-validity-evaluation-config-v1.json",
+  "config_sha256": "8b6ff26d05fd4dbeb0d4014c706bc43342d676511f7ba6b09ffa06ea0d34062c",
+  "config_version": "semantic-validity-evaluation-config-1.0",
+  "conservative_stack_retained": true,
+  "gate_path": "benchmarks/semantic-validity-held-out-gate.json",
+  "gate_reason": "The 215-record held_out_test split has already been used for Phase 3 final reporting, Workstream 5 held-out comparisons, and related artifacts. No additional licensed, reviewed, leakage-checked held-out population exists in this repository at Step 3 close.",
+  "gate_sha256": "508c5f6b5f5f0b143443e06ca30dbc328fd274d67e4f212b06d435059e7d0282",
+  "gate_status": "held-out-deferred",
+  "git_commit": "8c18d3772af3e690fa28af4a330de29cacafb08c",
+  "git_worktree_dirty": true,
+  "headline_held_out_artifact": null,
+  "held_out_deferred_artifact": "artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json",
+  "held_out_deferred_artifact_sha256": "02740978e1f42692806da6207440167330e9fe8237575499108f14fd88b511f7",
+  "limitations": [
+    "Headline C-versus-A gate requires fresh held-out evaluation artifact and gate status 'fresh-held-out-ready'."
+  ],
+  "measurement_environment": "not_executed",
+  "protocol_id": "P4-SEMVALID",
+  "recorded_at": "2026-10-12T18:44:33.791942+00:00",
+  "requirement_checks": [],
+  "semantic_claim_supported": false,
+  "status": "deferred"
+}

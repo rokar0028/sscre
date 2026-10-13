@@ -1,0 +1,27 @@
+{
+  "artifact_schema_version": "semantic-validity-held-out-deferred-1.0",
+  "authorized_held_out_command_when_ready": "python -m sscre.evaluate --benchmark <fresh-held-out-benchmark.jsonl> --config experiments/semantic-validity-evaluation-config-v1.json --baseline all --split held-out --production --output artifacts/evaluation/phase4-semantic-validity-held-out.json",
+  "config_path": "experiments/semantic-validity-evaluation-config-v1.json",
+  "config_sha256": "8b6ff26d05fd4dbeb0d4014c706bc43342d676511f7ba6b09ffa06ea0d34062c",
+  "config_version": "semantic-validity-evaluation-config-1.0",
+  "contaminated_split": {
+    "classification": "contaminated_for_headline_gate",
+    "path": "benchmarks/held_out_test.jsonl",
+    "record_count": 215
+  },
+  "development_threshold_artifact": "artifacts/evaluation/phase4-semantic-validity-development.json",
+  "development_threshold_artifact_config_sha256": "cf23807941a639af751d02c250d22ab676e83a37a3dc373c9a17fc8846f51ac4",
+  "development_threshold_artifact_sha256": "b09a4cafe350722f643d5d089e620b76d301b6c1329f8a113ce7efc55c6eb77c",
+  "evaluation_split": "held-out",
+  "gate_path": "benchmarks/semantic-validity-held-out-gate.json",
+  "gate_reason": "The 215-record held_out_test split has already been used for Phase 3 final reporting, Workstream 5 held-out comparisons, and related artifacts. No additional licensed, reviewed, leakage-checked held-out population exists in this repository at Step 3 close.",
+  "gate_sha256": "508c5f6b5f5f0b143443e06ca30dbc328fd274d67e4f212b06d435059e7d0282",
+  "gate_status": "held-out-deferred",
+  "git_commit": "8c18d3772af3e690fa28af4a330de29cacafb08c",
+  "git_worktree_dirty": true,
+  "measurement_environment": "not_executed",
+  "next_step": "Obtain or construct a genuinely fresh held-out scoring population from approved licensed sources, assign immutable IDs, review compatibility labels, and freeze benchmarks/semantic-validity-split-manifest.json (parent Steps 3 manifest task / Step 6 held-out run).",
+  "protocol_id": "P4-SEMVALID",
+  "recorded_at": "2026-10-12T18:44:33.567108+00:00",
+  "status": "deferred"
+}
