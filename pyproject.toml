@@ -22,6 +22,7 @@ sscre-gallery-export = "sscre.gallery_export:main"
 sscre-failure-gallery-export = "sscre.failure_gallery_export:main"
 sscre-dashboard-export = "sscre.dashboard:main"
 sscre-dual-model = "sscre.dual_model:main"
+sscre-env-validate = "sscre.env_validate:main"
 
 [project.optional-dependencies]
 dev = [
