@@ -18,7 +18,9 @@ from sscre.local_embedding import (
     LocalEmbeddingProbeResult,
     LocalSentenceTransformerEmbeddingClient,
     build_local_embedding_smoke_artifact,
+    build_ws1_local_embedding_provenance_record,
     create_local_embedding_client_from_mapping,
+    hub_model_cache_directory_name,
     probe_local_embedding_environment,
     sentence_transformers_installed,
 )
@@ -166,6 +168,22 @@ def test_create_client_from_frozen_config_mapping(monkeypatch) -> None:
     )
     assert client is not None
     assert client.config.dimension == DEFAULT_LOCAL_MODEL_DIMENSION
+
+
+def test_hub_cache_directory_name_for_registered_model() -> None:
+    assert hub_model_cache_directory_name(DEFAULT_LOCAL_MODEL_ID) == (
+        "models--sentence-transformers--all-MiniLM-L6-v2"
+    )
+
+
+def test_ws1_provenance_record_is_redacted_without_smoke_load() -> None:
+    record = build_ws1_local_embedding_provenance_record(run_smoke_load=False)
+    serialized = str(record)
+    assert "semantic validity smoke probe" not in serialized
+    assert record["fake_embedding_scope"] == "tests_and_historical_artifacts_only"
+    assert record["smoke_load"]["performed"] is False
+    assert "validated_identity" in record
+    assert record["validated_identity"]["dimension"] == DEFAULT_LOCAL_MODEL_DIMENSION
 
 
 def test_smoke_artifact_never_includes_raw_query_text() -> None:

@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata
 import importlib.util
 import json
 import math
+import os
 import subprocess
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
@@ -25,6 +27,7 @@ from sscre.embedding import (
 )
 
 LOCAL_EMBEDDING_SCHEMA_VERSION = "phase4-local-embedding-smoke-1.0"
+WS1_LOCAL_EMBEDDING_PROVENANCE_SCHEMA_VERSION = "ws1-local-embedding-provenance-1.0"
 DEFAULT_LOCAL_MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
 DEFAULT_LOCAL_MODEL_DIMENSION = 384
 DEFAULT_NORMALIZE_EMBEDDINGS = True
@@ -86,6 +89,41 @@ def local_model_dimension(model_id: str) -> int:
 
 def sentence_transformers_installed() -> bool:
     return importlib.util.find_spec("sentence_transformers") is not None
+
+
+def hub_model_cache_directory_name(model_id: str) -> str:
+    return "models--" + model_id.replace("/", "--")
+
+
+def huggingface_hub_cache_root() -> Path | None:
+    """Resolve the Hugging Face hub cache directory without importing hub libraries."""
+    explicit = os.environ.get("HF_HUB_CACHE")
+    if explicit:
+        return Path(explicit).expanduser()
+    hf_home = os.environ.get("HF_HOME")
+    if hf_home:
+        return Path(hf_home).expanduser() / "hub"
+    return Path.home() / ".cache" / "huggingface" / "hub"
+
+
+def local_model_weights_cached(model_id: str) -> bool:
+    """True when at least one snapshot exists for the model in the local HF hub cache."""
+    cache_root = huggingface_hub_cache_root()
+    snapshots = (
+        cache_root
+        / hub_model_cache_directory_name(model_id)
+        / "snapshots"
+    )
+    if not snapshots.is_dir():
+        return False
+    return any(child.is_dir() for child in snapshots.iterdir())
+
+
+def optional_distribution_version(distribution_name: str) -> str | None:
+    try:
+        return importlib.metadata.version(distribution_name)
+    except importlib.metadata.PackageNotFoundError:
+        return None
 
 
 def probe_local_embedding_environment(
@@ -256,6 +294,127 @@ def vector_fingerprint_sha256(vector: Sequence[float]) -> str:
         ",".join(f"{float(value):.8f}" for value in vector).encode("utf-8")
     ).hexdigest()
     return digest
+
+
+def build_ws1_local_embedding_provenance_record(
+    *,
+    model_id: str = DEFAULT_LOCAL_MODEL_ID,
+    device: str = "cpu",
+    run_smoke_load: bool = False,
+) -> dict[str, Any]:
+    """Redacted WS1 provenance record (no query text, tokens, or credentials)."""
+    try:
+        expected_dimension = local_model_dimension(model_id)
+        spec = _LOCAL_MODEL_SPECS[model_id]
+    except (ValueError, KeyError):
+        return {
+            "schema_version": WS1_LOCAL_EMBEDDING_PROVENANCE_SCHEMA_VERSION,
+            "recorded_at": datetime.now(timezone.utc).isoformat(),
+            "git_commit": _git_commit(),
+            "status": "unavailable",
+            "reason": f"unsupported or unregistered model_id {model_id!r}",
+            "fake_embedding_scope": "tests_and_historical_artifacts_only",
+        }
+
+    package_installed = sentence_transformers_installed()
+    weights_cached_before = (
+        local_model_weights_cached(model_id) if package_installed else False
+    )
+    if not package_installed:
+        weights_state = "unavailable"
+        replayability = "not_claimed_optional_extra_not_installed"
+    elif weights_cached_before:
+        weights_state = "cached_on_disk"
+        replayability = "replayable_when_optional_extra_installed"
+    else:
+        weights_state = "not_cached_on_disk"
+        replayability = "not_claimed_until_weights_cached_or_smoke_load_passes"
+
+    record: dict[str, Any] = {
+        "schema_version": WS1_LOCAL_EMBEDDING_PROVENANCE_SCHEMA_VERSION,
+        "recorded_at": datetime.now(timezone.utc).isoformat(),
+        "git_commit": _git_commit(),
+        "status": "probe_only",
+        "validated_identity": {
+            "model_id": model_id,
+            "short_name": model_id.split("/", 1)[-1],
+            "dimension": expected_dimension,
+            "license": spec["license"],
+            "provider_type": spec["provider_type"],
+            "dtype": spec["dtype"],
+            "normalize_embeddings_default": DEFAULT_NORMALIZE_EMBEDDINGS,
+            "device_declared": device,
+        },
+        "optional_install": {
+            "extra": "local-embeddings",
+            "command": 'python -m pip install ".[local-embeddings]"',
+        },
+        "packages": {
+            "sentence_transformers": {
+                "installed": package_installed,
+                "version": optional_distribution_version("sentence-transformers"),
+            },
+            "torch": {
+                "installed": importlib.util.find_spec("torch") is not None,
+                "version": optional_distribution_version("torch"),
+            },
+        },
+        "weights": {
+            "state": weights_state,
+            "cached_before_smoke": weights_cached_before,
+            "replayability": replayability,
+            "source": "huggingface_hub_local_cache",
+            "weight_license": spec["license"],
+        },
+        "smoke_load": {"performed": False},
+        "fake_embedding_scope": "tests_and_historical_artifacts_only",
+        "phase4_references": {
+            "gate_json": "benchmarks/semantic-validity-local-embedding-gate.json",
+            "smoke_artifact": (
+                "artifacts/evaluation/phase4-semantic-validity-local-embedding-smoke.json"
+            ),
+        },
+        "probe": probe_local_embedding_environment(
+            model_id=model_id,
+            device=device,
+        ).to_dict(),
+    }
+
+    if not package_installed:
+        record["status"] = "unavailable"
+        record["reason"] = "sentence_transformers package is not installed"
+        return record
+
+    if not run_smoke_load:
+        record["reason"] = (
+            "probe and cache inspection only; smoke load not requested"
+        )
+        return record
+
+    smoke = build_local_embedding_smoke_artifact(model_id=model_id, device=device)
+    record["smoke_load"] = {
+        "performed": True,
+        "status": smoke.get("status"),
+        "reason": smoke.get("reason"),
+        "latency_ms": smoke.get("latency_ms"),
+        "vector_fingerprint_sha256": smoke.get("vector_fingerprint_sha256"),
+    }
+    if smoke.get("status") == "pass":
+        if weights_cached_before:
+            record["weights"]["state"] = "cached_on_disk"
+        else:
+            record["weights"]["state"] = "downloaded_during_smoke_load"
+        record["weights"]["replayability"] = (
+            "replayable_when_optional_extra_installed"
+        )
+        record["status"] = "smoke_pass"
+        record["reason"] = None
+    else:
+        record["status"] = "smoke_failed"
+        record["reason"] = smoke.get("reason")
+        if not weights_cached_before:
+            record["weights"]["replayability"] = "not_claimed_smoke_did_not_pass"
+    return record
 
 
 def build_local_embedding_smoke_artifact(
