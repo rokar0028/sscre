@@ -180,8 +180,10 @@ MIS-001 reported as **warning** when strategy is B, not a hard fail.
 
 Validated identity: `sentence-transformers/all-MiniLM-L6-v2`, 384-dim, Apache-2.0,
 CPU default. Fake `fake-embedding` (dim 8) scoped to tests and historical
-artifacts only. Default recorder is probe/cache-only; replayability is
-`not_claimed` when the optional extra is absent. Phase 4 smoke pass remains on
+artifacts only. After `.[local-embeddings]` install, refreshed provenance shows
+`weights.state=cached_on_disk` (probe-only). Development eval rerun:
+[`../../artifacts/evaluation/phase4-semantic-validity-development-local-rerun.json`](../../artifacts/evaluation/phase4-semantic-validity-development-local-rerun.json)
+(captured at pre-package `cbe5e0d…`, dirty worktree). Phase 4 smoke pass remains on
 [`../../artifacts/evaluation/phase4-semantic-validity-local-embedding-smoke.json`](../../artifacts/evaluation/phase4-semantic-validity-local-embedding-smoke.json).
 
 ### Verification (Step 1.6)
