@@ -24,9 +24,10 @@ documented deferral.
 
 ## Current baseline
 
-- The current worktree contains uncommitted Phase 4 implementation,
-  documentation, tests, and artifacts.
-- Gate A verification (WS1 Step 1.7) passed locally: **819** pytest tests,
+- WS0–WS1 stabilization package is committed on `main` (Gate A tooling, docs,
+  and verification artifacts).
+- Gate A verification (WS1 Step 1.7) passed locally: **835** pytest tests
+  (with optional `local-embeddings` installed),
   Compose config, import smoke, and env validator; see
   `artifacts/stabilization/gate-a-package-verification.json`.
 - PostgreSQL integration markers and live-provider tests remain opt-in
@@ -562,7 +563,7 @@ machine-readable redacted record.
 
 - [x] Run `python -m pytest -q`.
 
-      **819 passed**, 17 skipped, 21 deselected —
+      **835 passed**, 1 skipped, 21 deselected —
       [`gate-a-pytest.log`](../artifacts/stabilization/gate-a-pytest.log).
 
 - [x] Run `docker compose config -q` with the same non-secret sample values

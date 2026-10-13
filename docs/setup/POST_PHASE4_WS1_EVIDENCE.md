@@ -6,7 +6,8 @@
 ## Step 1.1 — Environment contract inventory
 
 **Date:** 2026-10-13  
-**HEAD:** `cbe5e0d1df7534ed28a2df025c55b351fabec239` (`main`)
+**HEAD (Step 1.1 capture):** `cbe5e0d1df7534ed28a2df025c55b351fabec239`  
+**Package commit (WS1 close):** `ed3e8b52033fa11d68782e7ddec979350b784cd2`
 
 ### Deliverables
 
@@ -86,7 +87,7 @@
 | `python scripts/gate_a_import_smoke.py` | exit `0` |
 | Log | [`../../artifacts/stabilization/gate-a-import-smoke.log`](../../artifacts/stabilization/gate-a-import-smoke.log) |
 
-Smoke summary (2026-10-13T08:24:54Z): Python 3.14.5; 7 core modules `ok`; 8/8
+Smoke summary (2026-10-13T08:24:54Z): Python 3.14.5; 7 core modules `ok`; 9/9
 console scripts registered; `Settings.from_environment()` without
 `SSCRE_DATABASE_URL`; `local_embeddings.available` varied by host (optional
 extra not required for Gate A; Step 1.7 records `unavailable` until
@@ -194,7 +195,7 @@ artifacts only. Default recorder is probe/cache-only; replayability is
 ## Step 1.7 — Gate A package verification
 
 **Date:** 2026-10-13  
-**HEAD:** `cbe5e0d1df7534ed28a2df025c55b351fabec239` (`main`)
+**Package commit:** `ed3e8b52033fa11d68782e7ddec979350b784cd2` (refreshed 2026-10-13)
 
 ### Deliverable
 
@@ -220,7 +221,7 @@ artifacts only. Default recorder is probe/cache-only; replayability is
 | `python scripts/gate_a_import_smoke.py` | exit `0` — [`gate-a-import-smoke.log`](../../artifacts/stabilization/gate-a-import-smoke.log) |
 | `python -m sscre.env_validate --mode unit-test --json` | `status: pass` |
 | `python -m sscre.env_validate --mode development-compose --json` | `status: pass` (CI sample env + `SSCRE_SEMANTIC_STRATEGY=C`) |
-| `python -m pytest -q` | **819 passed**, 17 skipped, 21 deselected — [`gate-a-pytest.log`](../../artifacts/stabilization/gate-a-pytest.log) |
+| `python -m pytest -q` | **835 passed**, 1 skipped, 21 deselected — [`gate-a-pytest.log`](../../artifacts/stabilization/gate-a-pytest.log) |
 | `docker compose config -q` | exit `0` — [`docker-compose-config.log`](../../artifacts/stabilization/docker-compose-config.log) |
 
 Dependency versions: [`gate-a-pip-list.json`](../../artifacts/stabilization/gate-a-pip-list.json).
@@ -232,7 +233,7 @@ Dependency versions: [`gate-a-pip-list.json`](../../artifacts/stabilization/gate
 | Live provider (Gate C) | **deferred** | No WS1 authorization or credentials |
 | `ws8_postgres_*` / `test_postgres_integration.py` | **deferred** | Gate B; not claimed from Gate A |
 | PostgreSQL readiness | **recorded** | `major-postgres-1` healthy; PG **16.15**; pgvector **0.8.7**; **12/12** migrations in `schema_migrations` |
-| Optional local embeddings | **unavailable** | `sentence-transformers` not installed; see Step 1.6 provenance JSON |
+| Optional local embeddings | **installed** (probe/cache) | `local-embedding-provenance.json`; weights `cached_on_disk` after refresh |
 
 Readiness logs: `postgres-readiness-version.log`, `postgres-readiness-pgvector.log`,
 `postgres-readiness-migrations.log` under `artifacts/stabilization/`.

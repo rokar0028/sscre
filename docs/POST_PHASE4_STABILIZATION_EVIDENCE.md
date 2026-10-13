@@ -236,7 +236,8 @@ provider measurement (unavailable).
 **Evidence:** [`setup/POST_PHASE4_WS1_EVIDENCE.md`](setup/POST_PHASE4_WS1_EVIDENCE.md)  
 **Package record:** [`../artifacts/stabilization/gate-a-package-verification.json`](../artifacts/stabilization/gate-a-package-verification.json)
 
-Gate A verification: `pytest -q` **819 passed**; import smoke; env validator;
+Gate A verification: `pytest -q` **835 passed** (refreshed at package commit);
+import smoke; env validator;
 Compose config. Live provider **deferred**; PostgreSQL integration **deferred**
 (readiness logged where Docker was available).
 

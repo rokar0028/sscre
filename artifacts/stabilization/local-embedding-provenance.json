@@ -1,18 +1,18 @@
 {
   "fake_embedding_scope": "tests_and_historical_artifacts_only",
-  "git_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239",
+  "git_commit": "ed3e8b52033fa11d68782e7ddec979350b784cd2",
   "optional_install": {
     "command": "python -m pip install \".[local-embeddings]\"",
     "extra": "local-embeddings"
   },
   "packages": {
     "sentence_transformers": {
-      "installed": false,
-      "version": null
+      "installed": true,
+      "version": "6.1.0"
     },
     "torch": {
-      "installed": false,
-      "version": null
+      "installed": true,
+      "version": "2.14.1"
     }
   },
   "phase4_references": {
@@ -20,22 +20,22 @@
     "smoke_artifact": "artifacts/evaluation/phase4-semantic-validity-local-embedding-smoke.json"
   },
   "probe": {
-    "device": null,
+    "device": "cpu",
     "expected_dimension": 384,
-    "license": null,
+    "license": "Apache-2.0",
     "model_id": "sentence-transformers/all-MiniLM-L6-v2",
-    "package_installed": false,
-    "provider_type": null,
-    "reason": "sentence_transformers package is not installed",
-    "status": "unavailable"
+    "package_installed": true,
+    "provider_type": "local_sentence_transformer",
+    "reason": null,
+    "status": "available"
   },
-  "reason": "sentence_transformers package is not installed",
-  "recorded_at": "2026-10-13T16:58:12.226827+00:00",
+  "reason": "probe and cache inspection only; smoke load not requested",
+  "recorded_at": "2026-10-13T18:26:17.880689+00:00",
   "schema_version": "ws1-local-embedding-provenance-1.0",
   "smoke_load": {
     "performed": false
   },
-  "status": "unavailable",
+  "status": "probe_only",
   "validated_identity": {
     "device_declared": "cpu",
     "dimension": 384,
@@ -47,10 +47,10 @@
     "short_name": "all-MiniLM-L6-v2"
   },
   "weights": {
-    "cached_before_smoke": false,
-    "replayability": "not_claimed_optional_extra_not_installed",
+    "cached_before_smoke": true,
+    "replayability": "replayable_when_optional_extra_installed",
     "source": "huggingface_hub_local_cache",
-    "state": "unavailable",
+    "state": "cached_on_disk",
     "weight_license": "Apache-2.0"
   }
 }

@@ -1,7 +1,7 @@
 {
   "schema_version": "ws1-gate-a-package-verification-1.0",
-  "recorded_at_utc": "2026-10-13T16:55:48Z",
-  "git_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239",
+  "recorded_at_utc": "2026-10-13T18:26:17Z",
+  "git_commit": "ed3e8b52033fa11d68782e7ddec979350b784cd2",
   "python": "3.14.5",
   "verification_paths_confirmed": {
     "scripts/gate_a_import_smoke.py": true,
@@ -44,8 +44,8 @@
     "pytest_default": {
       "command": "python -m pytest -q",
       "exit_code": 0,
-      "passed": 819,
-      "skipped": 17,
+      "passed": 835,
+      "skipped": 1,
       "deselected": 21,
       "log": "artifacts/stabilization/gate-a-pytest.log"
     },
@@ -79,8 +79,8 @@
       "notes": "Collation version warning on connect; not a Gate A failure"
     },
     "local_embedding_optional_extra": {
-      "status": "unavailable",
-      "reason": "sentence-transformers not installed; provenance recorded without replay claim"
+      "status": "installed_probe_only",
+      "reason": "sentence-transformers 6.1.0 installed; weights cached_on_disk; smoke load not re-run in this refresh"
     }
   },
   "secrets_hygiene": {
