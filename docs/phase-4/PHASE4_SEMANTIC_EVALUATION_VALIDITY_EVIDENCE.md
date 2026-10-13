@@ -2,10 +2,13 @@
 
 ## Status
 
-**Status:** `in progress` — Steps 1–5 closed in repo; Steps 6–8 not started
-(2026-10-12).
+**Status:** `closed (headline gate deferred)` — Steps 1–8 complete in repo
+(2026-10-12). Pre-registered C-versus-A verdict **`deferred`**; no semantic success
+claim. Future fresh held-out data unlocks headline replay + pass/fail scoring only.
 
-**Snapshot:** 2026-10-12 (execution on branch `phase4/setup`).
+**Snapshot (close-out):** 2026-10-12 on branch `main`, `git` HEAD `8c18d3772af3e690fa28af4a330de29cacafb08c`
+(worktree dirty at close-out). Steps 1–5 tables below that cite `phase4/setup` /
+`b7eda9d` are **historical** execution context unless a step header says otherwise.
 
 **Child plans:**
 [`PHASE4_STEP1_EVALUATION_AUDIT_IMPLEMENTATION_PLAN.md`](./PHASE4_STEP1_EVALUATION_AUDIT_IMPLEMENTATION_PLAN.md)
@@ -17,14 +20,18 @@
 [`PHASE4_STEP4_LOCAL_EMBEDDING_IMPLEMENTATION_PLAN.md`](./PHASE4_STEP4_LOCAL_EMBEDDING_IMPLEMENTATION_PLAN.md)
 (Step 4, closed);
 [`PHASE4_STEP5_DEVELOPMENT_EVALUATION_IMPLEMENTATION_PLAN.md`](./PHASE4_STEP5_DEVELOPMENT_EVALUATION_IMPLEMENTATION_PLAN.md)
-(Step 5, closed).
+(Step 5, closed);
+[`PHASE4_STEP6_HELD_OUT_EVALUATION_IMPLEMENTATION_PLAN.md`](./PHASE4_STEP6_HELD_OUT_EVALUATION_IMPLEMENTATION_PLAN.md)
+(Step 6, closed deferred).
 
 ## Repository context
 
 | Item | Value |
 | --- | --- |
-| `git rev-parse HEAD` | `b7eda9dd45823aaf98eb00897301a31145162627` (`b7eda9d`) |
-| Branch | `phase4/setup` (matches parent expected `b7eda9d` at audit time) |
+| `git rev-parse HEAD` (close-out) | `8c18d3772af3e690fa28af4a330de29cacafb08c` |
+| Branch (close-out) | `main` |
+| Worktree dirty (close-out) | yes (uncommitted P4-SEMVALID bundle) |
+| Historical Step 1 audit HEAD | `b7eda9dd45823aaf98eb00897301a31145162627` (`b7eda9d` on `phase4/setup`) |
 | Worktree dirty | yes at Step 1 audit time (docs/rules/review markdown) |
 | `src/` at Step 1 close | unchanged by the read-only audit; Step 2 later modified `baseline.py`, `evaluation_statistics.py`, and added `evaluation_attribution.py` |
 | Package import | `$env:PYTHONPATH='src'` (no `pip install` required for commands below) |
@@ -483,6 +490,157 @@ Result: exit **0**, ~386s wall time (CPU local embeddings).
 | `python -m pytest -q tests/test_evaluation_attribution.py tests/test_evaluation_protocol.py tests/test_evaluate_statistics_attachment.py` | **15 passed** |
 | `python -m pytest -q` (2026-10-12, fail-closed FPR rectification) | **794 passed**, 15 skipped |
 
+## Step 6 — Held-out evaluation (2026-10-12, deferred)
+
+**Child plan:**
+[`PHASE4_STEP6_HELD_OUT_EVALUATION_IMPLEMENTATION_PLAN.md`](./PHASE4_STEP6_HELD_OUT_EVALUATION_IMPLEMENTATION_PLAN.md).
+
+### Gate outcome
+
+| Item | Value |
+| --- | --- |
+| Gate status | `held-out-deferred` (unchanged) |
+| Headline held-out replay | **not executed** |
+| Deferred artifact | [`artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json`](../../artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json) |
+| Enforcement | [`semantic_validity_held_out.py`](../../src/sscre/semantic_validity_held_out.py) + `evaluate` preflight |
+
+### Commands
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m sscre.semantic_validity_held_out
+python -m pytest -q tests/test_semantic_validity_held_out.py
+```
+
+Blocked (expected):
+
+```powershell
+python -m sscre.evaluate --benchmark benchmarks/held_out_test.jsonl `
+  --config experiments/semantic-validity-evaluation-config-v1.json `
+  --baseline exact-cache --split held-out --production --output out.json
+```
+
+### Verification
+
+| Command | Result |
+| --- | --- |
+| `python -m sscre.semantic_validity_held_out` | exit 0, deferred JSON written |
+| `python -m pytest -q tests/test_semantic_validity_held_out.py` | **8 passed** |
+
+Deferred artifact `config_sha256` matches the **current** frozen protocol
+(`8b6ff26d05fd4dbeb0d4014c706bc43342d676511f7ba6b09ffa06ea0d34062c`; regenerated
+at close-out so `gate_sha256` aligns with
+`benchmarks/semantic-validity-held-out-gate.json`). The deferred record is
+non-operational metadata and is not passed through
+`redact_operational_evaluation_report` (no request samples or transcripts).
+`development_threshold_artifact_config_sha256` remains `cf238079…` (Step 5
+development replay identity).
+
+## Step 7 — Pre-registered gate scoring (2026-10-12, deferred)
+
+### Gate verdict
+
+| Item | Value |
+| --- | --- |
+| Headline verdict | **`deferred`** |
+| Pass/fail on fresh held-out | **not scored** (no `phase4-semantic-validity-held-out.json`) |
+| Held-out data gate | `held-out-deferred` (unchanged) |
+| Conservative stack | **retained** (`conservative_stack_retained: true`) |
+| Semantic claim supported | **no** |
+| Gate scoring artifact | [`artifacts/evaluation/phase4-semantic-validity-gate.json`](../../artifacts/evaluation/phase4-semantic-validity-gate.json) |
+| Implementation | [`semantic_validity_gate.py`](../../src/sscre/semantic_validity_gate.py) |
+
+Development A/B/C metrics are **not** substituted for the headline gate.
+When the held-out gate becomes `fresh-held-out-ready` and the authorized
+held-out evaluate command produces a comparison artifact, re-run:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m sscre.semantic_validity_gate
+```
+
+Pre-registered requirements enforced at scoring time: C safe-reuse coverage
+strictly greater than A; C FPR ≤ `max_false_positive_rate`; C abstention ≤
+`max_abstention_rate`; zero Strategy C `unlabeled_candidate_reuse_hits`.
+
+### Commands
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m sscre.semantic_validity_gate
+python -m pytest -q tests/test_semantic_validity_gate.py
+```
+
+### Verification
+
+| Command | Result |
+| --- | --- |
+| `python -m sscre.semantic_validity_gate` | exit 0, gate JSON `status=deferred` |
+| `python -m pytest -q tests/test_semantic_validity_gate.py` | **5 passed** |
+
+## Step 8 — Documentation and roadmap reconciliation (2026-10-12)
+
+### Roadmap
+
+- [`docs/SSCRE_PLAN.md`](../SSCRE_PLAN.md) §20: **Phase 4 — Validation follow-up and
+  semantic evaluation validity** (`P4-SEMVALID` checkboxes aligned to measured work).
+- [`docs/SSCRE_PLAN.md`](../SSCRE_PLAN.md) §24: **Phase 4 semantic validity**
+  block — development-only metrics, deferred headline gate, historical Phase 3
+  artifacts, open correctness labels, Compose Strategy **B** default documented.
+
+### Phase 3 artifact policy
+
+Phase 3 final held-out comparison and related fake-embedding artifacts are
+**not regenerated**. They remain **historical-stale** for P4 headline claims
+(manifest `68912e3b…` lineage; see Step 1 inventory). Authoritative P4 package:
+
+[`artifacts/evaluation/phase4-semantic-validity-manifest.json`](../../artifacts/evaluation/phase4-semantic-validity-manifest.json).
+
+Current frozen protocol SHA-256 (includes Step 6–7 config fields):
+`8b6ff26d05fd4dbeb0d4014c706bc43342d676511f7ba6b09ffa06ea0d34062c`.
+The development replay artifact header still records `cf238079…` from the Step 5
+run (config identity at generation time).
+
+### Deployment default
+
+`docker compose config` with CI sample env resolves
+`SSCRE_SEMANTIC_STRATEGY: B`. Strategy **C** is the compatibility-aware safety
+path; the Compose default is a documented gap (not changed in this workstream).
+
+### Correctness labels
+
+Human answer correctness remains **not collected** on all 615 benchmark records
+(`answer_availability: none`). P4 does not claim factual answer correctness.
+
+### Verification log
+
+[`artifacts/evaluation/phase4-semantic-validity-verification.json`](../../artifacts/evaluation/phase4-semantic-validity-verification.json)
+
+| Command | Result |
+| --- | --- |
+| `python -m pytest -q tests/test_benchmark.py tests/test_evaluation_labels.py` | **68 passed** |
+| `python -m pytest -q tests/test_workstream3_pure_evaluator.py tests/test_workstream3_serialization.py` | **65 passed**, 1 warning |
+| `python -m pytest -q` | **807 passed**, 15 skipped, 21 deselected, 1 warning |
+| `python -m sscre.benchmark_validate --benchmark-dir benchmarks --phase2 --production` | pass; `split_manifest_sha256=0aca5b8d…` |
+| `docker compose config` (CI env) | `SSCRE_SEMANTIC_STRATEGY: B` |
+| `redact_operational_evaluation_report` on development artifact | pass |
+| `python -m sscre.semantic_validity_gate` | `status=deferred` |
+
+Python **3.14.5**; PostgreSQL and `real_provider` markers skipped by default.
+
+### README links
+
+- [`docs/phase-4/README.md`](./README.md) — P4-SEMVALID row updated.
+- [`benchmarks/README.md`](../../benchmarks/README.md) — manifest and gate artifacts.
+
+### Close-out remediation (artifact hashes)
+
+Re-ran `python -m sscre.semantic_validity_held_out` and
+`python -m sscre.semantic_validity_gate` so deferred/gate JSON
+`gate_sha256` / `held_out_deferred_artifact_sha256` match on-disk gate and
+protocol files after Step 7 gate-record edits.
+
 ## Out of scope (unchanged)
 
-Parent Steps 6–8, fresh held-out headline gate, `docker-compose.yml` edits.
+Fresh held-out population construction, `docker-compose.yml` default change,
+Strategy D, and human correctness labeling remain outside this closed workstream.

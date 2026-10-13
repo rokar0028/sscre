@@ -84,6 +84,14 @@ The current input identity is defined by:
 - Phase 4 local embedding gate:
   [`semantic-validity-local-embedding-gate.json`](./semantic-validity-local-embedding-gate.json)
   (optional `local-embeddings` extra; smoke artifact under `artifacts/evaluation/`).
+- Phase 4 semantic-validity artifact manifest and verification (P4-SEMVALID):
+  [`../artifacts/evaluation/phase4-semantic-validity-manifest.json`](../artifacts/evaluation/phase4-semantic-validity-manifest.json),
+  [`../artifacts/evaluation/phase4-semantic-validity-verification.json`](../artifacts/evaluation/phase4-semantic-validity-verification.json),
+  gate verdict
+  [`../artifacts/evaluation/phase4-semantic-validity-gate.json`](../artifacts/evaluation/phase4-semantic-validity-gate.json)
+  (`deferred` until a fresh held-out population exists).
+- Evidence:
+  [`../docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md`](../docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md).
 - dataset version `reviewed-query-pairs-2.0`
 - schema version `1.1`
 - annotation guide version `1.0.0`

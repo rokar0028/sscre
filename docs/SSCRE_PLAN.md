@@ -795,6 +795,37 @@ or production capacity (see remediation evidence § Step 7).
 
 **Rule:** Phase 3 features require a written hypothesis + pass/fail criterion before implementation.
 
+### Phase 4 — Validation follow-up and semantic evaluation validity
+
+Post-Phase 3 tracks (Pareto, scale, release, provider deferral) are documented under
+[`docs/phase-4/`](phase-4/README.md). **P4-SEMVALID** (real-embedding evaluation
+validity) closed in repo with a **deferred** headline gate (2026-10-12); evidence:
+[`PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md`](phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md).
+
+- [x] Audit evaluation code and artifact lineage (`P4-SEMVALID` Step 1).
+- [x] Candidate-level served-reuse attribution and exact-cache labeled FPR reporting
+  ([`evaluation_attribution.py`](../src/sscre/evaluation_attribution.py)).
+- [x] Freeze semantic-validity protocol
+  (`experiments/semantic-validity-evaluation-config-v1.json`,
+  `semantic-validity-evaluation-config-1.0`).
+- [x] Validate local real embedding provider (`all-MiniLM-L6-v2`, 384-dim;
+  [`semantic-validity-local-embedding-gate.json`](../benchmarks/semantic-validity-local-embedding-gate.json)
+  → `available`).
+- [x] Development-only A/B/C replay with real embeddings
+  (`artifacts/evaluation/phase4-semantic-validity-development.json`; **not** a
+  semantic success claim).
+- [x] Record pre-registered gate scorer and **`deferred`** verdict
+  (`artifacts/evaluation/phase4-semantic-validity-gate.json`).
+- [ ] Fresh held-out C-versus-A headline evaluation (`held-out-deferred`; no fresh
+  population in repo).
+- [ ] Human **correctness** labels (unchanged — all 615 records lack answer
+  correctness review).
+- [ ] Change Docker Compose default from Strategy **B** to **C** (documented
+  deployment safety gap; default remains `SSCRE_SEMANTIC_STRATEGY: B`).
+
+Artifact index:
+[`artifacts/evaluation/phase4-semantic-validity-manifest.json`](../artifacts/evaluation/phase4-semantic-validity-manifest.json).
+
 ---
 
 ## 21. Data Model & API Sketch
@@ -891,6 +922,25 @@ Related-work section must cite 5–8 papers/products with explicit differentiati
 6. Results reproducible from fixed config + dataset version.
 7. Cache storage stays within configured cap under load test.
 8. Defensible conclusion: **where reuse works, where it fails, and why.**
+
+### Phase 4 semantic validity (`P4-SEMVALID`, measured — 2026-10-12)
+
+These are **development-split** or **process** claims unless noted; they do **not**
+substitute for the deferred fresh held-out headline gate.
+
+1. Real local embeddings (`all-MiniLM-L6-v2`) run end-to-end in the evaluation harness;
+   fake embeddings remain for tests and historical Phase 3 artifacts only.
+2. On the development primary population (383 pair records), replay at τ=0.9 shows
+   embedding-only (B) high safe-reuse coverage with labeled FPR ≈0.35; compatibility
+   (C) is conservative (safe-reuse coverage 0.0; 2 labeled reuse hits, FPR 1.0) —
+   engineering validation, **not** proof of semantic safe-reuse superiority.
+3. Pre-registered C-versus-A headline gate: **`deferred`** (215-record `held_out_test`
+   split classified contaminated; scorer records `conservative_stack_retained`).
+4. Phase 3 final held-out JSON (`phase3-final-held-out-comparison.json`, manifest
+   `68912e3b…`, fake-embedding B/C) is **historical** for new semantic claims.
+5. Human factual-correctness labels: **still not collected** on the benchmark.
+6. Docker Compose defaults to Strategy **B**; Strategy **C** remains the
+   compatibility-aware safety path for semantic reuse.
 
 ---
 

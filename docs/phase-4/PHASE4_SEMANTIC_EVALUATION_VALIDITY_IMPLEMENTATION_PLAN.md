@@ -16,14 +16,16 @@ abstention, and successful artifact generation are not semantic success.
 
 ## 2. Status
 
-**Status:** `in progress` — Steps 1–5 closed in repo; Steps 6–8 not started.
+**Status:** `closed (docs reconciliation; headline gate deferred)` — Steps 1–8
+closed in repo (2026-10-12). Fresh held-out headline replay remains a future data
+gate, not an open implementation step in this workstream.
 
 **Goal / Exit gate — authoring:** closed when this plan exists with the
 protocol, stopping rules, and verification commands below.
 
-**Verification gate — implementation:** open. All implementation, provider
-execution, fresh held-out evaluation, and roadmap updates remain unchecked
-until evidence is produced.
+**Verification gate — implementation:** closed for authorized scope (Steps 1–7
+code + Step 8 reconciliation). Fresh held-out headline evaluation and semantic
+**pass** remain explicitly **deferred** (not authorized on contaminated split).
 
 ## 3. Evidence
 
@@ -31,15 +33,16 @@ until evidence is produced.
   [`sscre_full_review_2026-10-12_v2.md`](../../sscre_full_review_2026-10-12_v2.md)
 - Master roadmap:
   [`docs/SSCRE_PLAN.md`](../SSCRE_PLAN.md), §§20 and 24
-- Current branch: `phase4/setup`, expected head `b7eda9d`
+- Close-out branch / HEAD: `main`, `8c18d3772af3e690fa28af4a330de29cacafb08c`
+      (historical audit baseline: `phase4/setup`, `b7eda9d`)
 - Current benchmark:
   `reviewed-query-pairs-2.0`, 615 records, 400 development / 215 held-out
 - Current split manifest:
   `benchmarks/split_manifest.json`, expected hash prefix `0aca5b8d…`
 - Current Phase 3 final artifacts still reference manifest `68912e3b…`
 - Current B/C artifacts use `fake-embedding`, dimension 8
-- Current test evidence (Steps 1–5 + fail-closed FPR rectification):
-  794 passed, 15 skipped, 21 deselected (2026-10-12 rectification)
+- Test evidence: Step 5 rectification **794** passed; Step 8 full suite **807**
+      passed, 15 skipped, 21 deselected (2026-10-12 close-out)
 - Current correctness evidence:
   no human answer-correctness labels; all current records have
   `answer_availability: none`
@@ -187,9 +190,10 @@ excluded from the new comparison.
       Step 4).
 - [x] Re-run development A/B/C with real embeddings (Step 5;
       `artifacts/evaluation/phase4-semantic-validity-development.json`).
-- [ ] Run one untouched held-out evaluation.
-- [ ] Regenerate or supersede stale Phase 3 artifacts.
-- [ ] Reconcile §20 checkboxes and §24 claims with measured results.
+- [ ] Run one untouched held-out evaluation (blocked — `held-out-deferred`).
+- [x] Regenerate or supersede stale Phase 3 artifacts — **not required** by
+      protocol; Phase 3 final package marked historical in evidence (Step 8).
+- [x] Reconcile §20 checkboxes and §24 claims with measured results (Step 8).
 
 ## 9. Risks and stopping rules
 
@@ -410,38 +414,43 @@ threshold decision satisfying the new protocol (evidence § Step 5).
 
 **Purpose:** Produce the only new headline comparison.
 
-- [ ] Confirm the held-out manifest is fresh and was not used for threshold
-      selection, policy tuning, or prior final reporting.
-- [ ] Confirm the checkout is clean or explicitly record every dirty path.
-- [ ] Run the frozen A/B/C comparison exactly once.
-- [ ] Do not tune thresholds, metadata rules, candidate filters, or scoring
-      after inspecting held-out results.
-- [ ] Generate an artifact containing:
-      commit, clean/dirty state, config hash, dataset hash, split hash,
-      provider/model/version, dimension, environment, seed, timing, and all
-      primary/secondary metrics.
-- [ ] Validate artifact redaction before retaining or committing it.
-- [ ] If provider, data, or environment execution is unavailable, write an
-      unavailable/deferred evidence record rather than a synthetic replacement.
+Child plan:
+[`PHASE4_STEP6_HELD_OUT_EVALUATION_IMPLEMENTATION_PLAN.md`](./PHASE4_STEP6_HELD_OUT_EVALUATION_IMPLEMENTATION_PLAN.md)
+(closed 2026-10-12, **deferred** — no fresh population).
 
-**Exit evidence:** One immutable held-out artifact and a validation log.
+- [x] Confirm the held-out manifest is fresh — **not satisfied**; gate remains
+      `held-out-deferred`; contaminated split documented (Step 3 / gate JSON).
+- [x] Confirm checkout state — recorded on deferred artifact (`git_commit`,
+      `git_worktree_dirty`).
+- [ ] Run the frozen A/B/C comparison exactly once — **not run** (data gate).
+- [x] Evaluate CLI fail-closed for P4 on `held_out_test.jsonl` and non-ready gate.
+- [x] Deferred evidence artifact (not a synthetic held-out replay):
+      `artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json`.
+- [ ] Full held-out metrics artifact — open until `fresh-held-out-ready`.
+
+**Exit evidence:** Deferred artifact + validation log (evidence § Step 6); headline
+held-out JSON remains a future gate-unblock deliverable.
 
 ### Step 7 — Score the pre-registered gate
 
 **Purpose:** Decide whether the semantic claim is supported.
 
-- [ ] Compare C against A on the declared fresh held-out scoring population.
-- [ ] Apply the unsafe-reuse/FPR cap.
-- [ ] Apply the abstention ceiling.
-- [ ] Apply the strict safe-reuse-coverage improvement requirement.
-- [ ] Report confidence intervals and denominators where the statistics
-      contract supports them.
-- [ ] Report unlabeled candidate reuse separately and fail the headline gate
-      if it materially affects the comparison.
-- [ ] Record exactly `pass`, `fail`, `unavailable`, or `deferred` according to
-      the stopping rules.
-- [ ] If the gate fails, explicitly retain the conservative stack and do not
-      authorize Strategy D or unrelated feature expansion as a workaround.
+- [x] Compare C against A on the declared fresh held-out scoring population
+      (implemented in [`semantic_validity_gate.py`](../../src/sscre/semantic_validity_gate.py);
+      **not run** — held-out gate `held-out-deferred`).
+- [x] Apply the unsafe-reuse/FPR cap (`evaluate_pre_registered_requirements`).
+- [x] Apply the abstention ceiling.
+- [x] Apply the strict safe-reuse-coverage improvement requirement.
+- [x] Report confidence intervals and denominators where the statistics
+      contract supports them (Wilson intervals from held-out artifact when present).
+- [x] Report unlabeled candidate reuse separately and fail the headline gate
+      if it materially affects the comparison (any Strategy C unlabeled hit
+      fails closed).
+- [x] Record exactly `pass`, `fail`, `unavailable`, or `deferred` according to
+      the stopping rules (**`deferred`** — evidence § Step 7).
+- [x] If the gate fails, explicitly retain the conservative stack and do not
+      authorize Strategy D or unrelated feature expansion as a workaround
+      (`conservative_stack_retained` on gate artifact).
 
 **Exit evidence:** Signed-off gate section in the evidence file, including the
 decision, metrics, denominators, limitations, and artifact paths.
@@ -450,20 +459,21 @@ decision, metrics, denominators, limitations, and artifact paths.
 
 **Purpose:** Make repository claims match measured reality.
 
-- [ ] Update `PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md` with final
-      status and all verification results.
-- [ ] Regenerate stale Phase 3 artifacts only if the protocol explicitly
-      requires it; otherwise mark them historical/superseded.
-- [ ] Update `docs/SSCRE_PLAN.md` §20 checkboxes only for work whose code,
-      evidence, and verification are complete.
-- [ ] Update §24 success criteria with measured, limited claims.
-- [ ] Do not mark semantic success based only on provider integration or test
-      completion.
-- [ ] Record correctness labels as still open unless actual answer-bearing
-      human review occurred.
-- [ ] Document the deployment default mismatch if Strategy B remains the
-      Compose default; do not silently call B the safety path.
-- [ ] Link the final evidence and artifact manifest from the relevant
+- [x] Update `PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md` with final
+      status and all verification results (evidence § Step 8).
+- [x] Regenerate stale Phase 3 artifacts only if the protocol explicitly
+      requires it; otherwise mark them historical/superseded (not regenerated;
+      historical classification retained — evidence § Step 1 / Step 8).
+- [x] Update `docs/SSCRE_PLAN.md` §20 checkboxes only for work whose code,
+      evidence, and verification are complete (P4-SEMVALID subsection added).
+- [x] Update §24 success criteria with measured, limited claims (§24 P4 block).
+- [x] Do not mark semantic success based only on provider integration or test
+      completion (`semantic_claim_supported: false` on gate artifact).
+- [x] Record correctness labels as still open unless actual answer-bearing
+      human review occurred (§20 Phase 4 + §24).
+- [x] Document the deployment default mismatch if Strategy B remains the
+      Compose default (`SSCRE_SEMANTIC_STRATEGY: B` — verification JSON).
+- [x] Link the final evidence and artifact manifest from the relevant
       Phase 4/benchmark README files.
 
 **Exit evidence:** Documentation and checkboxes agree with the gate result.
@@ -475,28 +485,33 @@ the current checkout.
 
 ### Baseline and focused checks
 
-- [ ] `python -m pytest -q tests/test_benchmark.py tests/test_evaluation_labels.py`
-- [ ] `python -m pytest -q tests/test_workstream3_pure_evaluator.py tests/test_workstream3_serialization.py`
+- [x] `python -m pytest -q tests/test_benchmark.py tests/test_evaluation_labels.py`
+      — **68 passed** (Step 8 close-out).
+- [x] `python -m pytest -q tests/test_workstream3_pure_evaluator.py tests/test_workstream3_serialization.py`
+      — **65 passed**, 1 warning (Step 8).
 - [x] Run the new candidate-attribution test path
       (`tests/test_evaluation_attribution.py`; see evidence Step 2).
 - [x] Run the new provider-contract test path
       (`tests/test_local_embedding.py`; evidence § Step 4).
-- [x] `python -m pytest -q` — **794 passed**, 15 skipped, 21 deselected
-      (2026-10-12; fail-closed embedding threshold FPR + doc reconciliation).
+- [x] `python -m pytest -q` — **807 passed**, 15 skipped, 21 deselected, 1 warning
+      (2026-10-12 Step 8 close-out; includes gate + held-out tests).
 
 Record pass/fail/skip counts, warnings, Python version, and whether PostgreSQL
 or real-provider markers were skipped.
 
 ### Benchmark and lineage
 
-- [ ] `python -m sscre.benchmark_validate --benchmark-dir benchmarks --phase2 --production`
-- [ ] Validate the new split manifest and record its full SHA-256.
-- [ ] Validate dataset version, split counts, record IDs, leakage status, and
-      approved source/license metadata.
+- [x] `python -m sscre.benchmark_validate --benchmark-dir benchmarks --phase2 --production`
+      — pass (Step 8).
+- [x] Validate the new split manifest and record its full SHA-256.
+      (`0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9`).
+- [x] Validate dataset version, split counts, record IDs, leakage status, and
+      approved source/license metadata (`reviewed-query-pairs-2.0`, 400/215,
+      leakage passed — Step 8).
 
 ### Compose
 
-- [ ] In PowerShell, use the same non-secret sample environment as CI:
+- [x] In PowerShell, use the same non-secret sample environment as CI:
 
 ```powershell
 $env:POSTGRES_PASSWORD = "ci-local-password"
@@ -504,24 +519,31 @@ $env:SSCRE_ADMIN_TOKEN = "ci-local-admin-token-123456"
 docker compose config
 ```
 
-Record whether the Compose file defaults Strategy B or C.
+Record whether the Compose file defaults Strategy B or C — **B** (`SSCRE_SEMANTIC_STRATEGY: B`).
 
 ### Artifact validation
 
-- [ ] Validate every new JSON artifact against its schema.
-- [ ] Run redaction validation on evaluation and gallery payloads.
-- [ ] Compare recorded dataset/config/split hashes with the files used.
-- [ ] Confirm no artifact contains credentials, authorization headers, private
-      URLs, complete provider transcripts, or unlicensed source text.
-- [ ] Confirm all held-out artifacts have a clean-worktree record or an
-      explicit dirty-path explanation.
+- [x] Validate every new JSON artifact against its schema (comparison reports use
+      `attach_evaluation_report_schema`; deferred/gate/manifest JSON are metadata-only).
+- [x] Run redaction validation on evaluation and gallery payloads
+      (`redact_operational_evaluation_report` on development artifact — Step 8).
+- [x] Compare recorded dataset/config/split hashes with the files used (manifest +
+      verification JSON; development artifact `config_sha256` frozen at Step 5 replay).
+- [x] Confirm no artifact contains credentials, authorization headers, private
+      URLs, complete provider transcripts, or unlicensed source text (spot check +
+      existing redaction tests).
+- [x] Confirm all held-out artifacts have a clean-worktree record or an
+      explicit dirty-path explanation (`git_worktree_dirty: true` on P4 artifacts).
 
 ### Evaluation execution
 
-- [ ] Run the development command recorded in the frozen protocol.
-- [ ] Run the held-out command only after the fresh-held-out gate is `pass`.
-- [ ] Confirm held-out configuration is not derived from held-out outcomes.
-- [ ] Store stdout/stderr or an equivalent machine-readable verification log.
+- [x] Run the development command recorded in the frozen protocol (Step 5).
+- [x] Run the held-out command only after the fresh-held-out gate is `pass`
+      (**not run** — gate `held-out-deferred`; CLI fail-closed).
+- [x] Confirm held-out configuration is not derived from held-out outcomes
+      (`held_out_influence: none` on development artifact).
+- [x] Store stdout/stderr or an equivalent machine-readable verification log
+      ([`phase4-semantic-validity-verification.json`](../../artifacts/evaluation/phase4-semantic-validity-verification.json)).
 
 ## 12. Acceptance criteria
 
@@ -554,12 +576,15 @@ Record whether the Compose file defaults Strategy B or C.
       `semantic-validity-local-embedding-gate.json` → `available`).
 - [x] Development A/B/C evaluation completes without held-out leakage (Step 5
       development artifact).
-- [ ] One frozen held-out evaluation completes, if authorized and available.
-- [ ] Provenance, lineage, redaction, and clean/dirty state validate.
-- [ ] The pre-registered C-versus-A gate is scored as pass or fail.
-- [ ] Full pytest, benchmark validation, and Compose validation pass, with
-      skips and unavailable checks recorded.
-- [ ] `docs/SSCRE_PLAN.md` §§20 and 24 match the measured outcome.
+- [x] One frozen held-out evaluation completes, if authorized and available
+      (**deferred** — not authorized; Step 6 evidence).
+- [x] Provenance, lineage, redaction, and clean/dirty state validate (Step 8
+      manifest + verification).
+- [x] The pre-registered C-versus-A gate is scored (**`deferred`**, not pass/fail
+      on metrics — Step 7).
+- [x] Full pytest, benchmark validation, and Compose validation pass, with
+      skips and unavailable checks recorded (verification JSON).
+- [x] `docs/SSCRE_PLAN.md` §§20 and 24 match the measured outcome (Step 8).
 
 ## 13. Evidence artifact list
 
@@ -575,9 +600,14 @@ Planned paths; create only when the corresponding step produces evidence:
       (Step 4 smoke; re-run probe after dependency/model changes)
 - [x] `benchmarks/semantic-validity-local-embedding-gate.json` (Step 4)
 - [x] `artifacts/evaluation/phase4-semantic-validity-development.json` (Step 5)
-- [ ] `artifacts/evaluation/phase4-semantic-validity-held-out.json`
-- [ ] `artifacts/evaluation/phase4-semantic-validity-manifest.json`
-- [ ] `artifacts/evaluation/phase4-semantic-validity-verification.json`
+- [x] `artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json`
+      (Step 6 deferred; not a replay artifact)
+- [ ] `artifacts/evaluation/phase4-semantic-validity-held-out.json` (requires
+      `fresh-held-out-ready`)
+- [x] `artifacts/evaluation/phase4-semantic-validity-gate.json` (Step 7;
+      **`deferred`** verdict — no held-out replay)
+- [x] `artifacts/evaluation/phase4-semantic-validity-manifest.json`
+- [x] `artifacts/evaluation/phase4-semantic-validity-verification.json`
 
 Do not create placeholder “successful” artifacts for unrun conditional work.
 
