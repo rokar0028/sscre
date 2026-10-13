@@ -67,7 +67,13 @@ Technical specs and evaluation notes — not milestone checklists.
 
 | File | Purpose |
 | --- | --- |
+| [LOCAL_ENVIRONMENT_MODES.md](./setup/LOCAL_ENVIRONMENT_MODES.md) | Gate A–C mode decision tree and commands |
+| [GATE_A_LOCAL_SETUP.md](./setup/GATE_A_LOCAL_SETUP.md) | Gate A venv, `pip install`, import smoke |
+| [PROVIDER_BOUNDARY.md](./setup/PROVIDER_BOUNDARY.md) | Gate C OpenAI-compatible provider rules |
+| [LOCAL_EMBEDDING_PROVENANCE.md](./setup/LOCAL_EMBEDDING_PROVENANCE.md) | WS1 local MiniLM identity and weight provenance |
 | [POSTGRESQL_LOCAL_SETUP.md](./setup/POSTGRESQL_LOCAL_SETUP.md) | Local Postgres + pgvector |
+| [POST_PHASE4_WS1_ENVIRONMENT_CONTRACT.md](./setup/POST_PHASE4_WS1_ENVIRONMENT_CONTRACT.md) | Stabilization WS1 env contract matrix |
+| [POST_PHASE4_WS1_EVIDENCE.md](./setup/POST_PHASE4_WS1_EVIDENCE.md) | Stabilization WS1 verification evidence |
 | [CURSOR_PORTABLE_SETUP.md](./setup/CURSOR_PORTABLE_SETUP.md) | Cursor rules/skills on another machine |
 
 ## Internal (`internal/`)

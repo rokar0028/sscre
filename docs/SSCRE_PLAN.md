@@ -820,8 +820,8 @@ validity) closed in repo with a **deferred** headline gate (2026-10-12); evidenc
   population in repo).
 - [ ] Human **correctness** labels (unchanged — all 615 records lack answer
   correctness review).
-- [ ] Change Docker Compose default from Strategy **B** to **C** (documented
-  deployment safety gap; default remains `SSCRE_SEMANTIC_STRATEGY: B`).
+- [x] Change Docker Compose default from Strategy **B** to **C** (WS1 Step 1.5;
+  `docker-compose.yml` and `.env.example` default `SSCRE_SEMANTIC_STRATEGY: C`).
 
 Artifact index:
 [`artifacts/evaluation/phase4-semantic-validity-manifest.json`](../artifacts/evaluation/phase4-semantic-validity-manifest.json).
@@ -939,8 +939,8 @@ substitute for the deferred fresh held-out headline gate.
 4. Phase 3 final held-out JSON (`phase3-final-held-out-comparison.json`, manifest
    `68912e3b…`, fake-embedding B/C) is **historical** for new semantic claims.
 5. Human factual-correctness labels: **still not collected** on the benchmark.
-6. Docker Compose defaults to Strategy **B**; Strategy **C** remains the
-   compatibility-aware safety path for semantic reuse.
+6. Docker Compose and `.env.example` default to Strategy **C** (compatibility-aware
+   safety path); Strategy **B** remains an explicit opt-in embedding-only baseline.
 
 ---
 
