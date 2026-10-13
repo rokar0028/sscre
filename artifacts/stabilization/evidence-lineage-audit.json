@@ -1,0 +1,8 @@
+{
+  "schema_version": "stabilization-evidence-lineage-audit-1.0",
+  "step": "0.4",
+  "head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239",
+  "recorded_at_utc": "2026-10-13T08:00:51.014121+00:00",
+  "missing_reference_claims": [],
+  "all_claims_referenced_paths_exist": true
+}

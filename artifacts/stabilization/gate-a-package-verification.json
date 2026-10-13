@@ -1,0 +1,94 @@
+{
+  "schema_version": "ws1-gate-a-package-verification-1.0",
+  "recorded_at_utc": "2026-10-13T16:55:48Z",
+  "git_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239",
+  "python": "3.14.5",
+  "verification_paths_confirmed": {
+    "scripts/gate_a_import_smoke.py": true,
+    "src/sscre/env_validate.py": true,
+    "tests/test_env_validate.py": true,
+    "scripts/ws1_local_embedding_provenance.py": true,
+    "docker-compose.yml": true,
+    "pyproject.toml": true
+  },
+  "pytest_markers_deselected_by_default": [
+    "ws8_postgres_failure_recovery",
+    "ws8_postgres_multiprocess",
+    "ws8_postgres_contention",
+    "ws8_postgres_load"
+  ],
+  "commands": {
+    "pip_install_dev": {
+      "command": "python -m pip install \".[dev]\"",
+      "exit_code": 0,
+      "log": "artifacts/stabilization/gate-a-pip-install.log"
+    },
+    "import_smoke": {
+      "command": "python scripts/gate_a_import_smoke.py",
+      "exit_code": 0,
+      "log": "artifacts/stabilization/gate-a-import-smoke.log"
+    },
+    "env_validate_unit_test": {
+      "command": "python -m sscre.env_validate --mode unit-test --json",
+      "exit_code": 0,
+      "status": "pass",
+      "log": "artifacts/stabilization/env-validate-unit-test.log"
+    },
+    "env_validate_development_compose": {
+      "command": "python -m sscre.env_validate --mode development-compose --json",
+      "exit_code": 0,
+      "status": "pass",
+      "sample_env": "POSTGRES_PASSWORD and SSCRE_ADMIN_TOKEN per ci.yml; SSCRE_SEMANTIC_STRATEGY=C",
+      "log": "artifacts/stabilization/env-validate-development-compose.log"
+    },
+    "pytest_default": {
+      "command": "python -m pytest -q",
+      "exit_code": 0,
+      "passed": 819,
+      "skipped": 17,
+      "deselected": 21,
+      "log": "artifacts/stabilization/gate-a-pytest.log"
+    },
+    "docker_compose_config": {
+      "command": "docker compose config -q",
+      "exit_code": 0,
+      "log": "artifacts/stabilization/docker-compose-config.log"
+    }
+  },
+  "conditional_checks": {
+    "live_provider": {
+      "status": "deferred",
+      "reason": "Gate C not approved in WS1; no credentials or bounded quota run"
+    },
+    "postgresql_integration_tests": {
+      "status": "deferred",
+      "reason": "Gate B scope; WS1 recorded readiness only (version, pgvector, migrations)"
+    },
+    "postgresql_readiness": {
+      "status": "available",
+      "service": "major-postgres-1 healthy",
+      "postgresql_version": "16.15 (pgvector/pgvector:pg16 image)",
+      "pgvector_version": "0.8.7",
+      "migrations_applied": 12,
+      "migrations_expected": 12,
+      "logs": [
+        "artifacts/stabilization/postgres-readiness-version.log",
+        "artifacts/stabilization/postgres-readiness-pgvector.log",
+        "artifacts/stabilization/postgres-readiness-migrations.log"
+      ],
+      "notes": "Collation version warning on connect; not a Gate A failure"
+    },
+    "local_embedding_optional_extra": {
+      "status": "unavailable",
+      "reason": "sentence-transformers not installed; provenance recorded without replay claim"
+    }
+  },
+  "secrets_hygiene": {
+    "dotenv_gitignored": true,
+    "dotenv_tracked": false,
+    "validator_logs_contain_raw_tokens": false
+  },
+  "dependency_versions": "artifacts/stabilization/gate-a-pip-list.json",
+  "local_embedding_provenance": "artifacts/stabilization/local-embedding-provenance.json",
+  "evidence_doc": "docs/setup/POST_PHASE4_WS1_EVIDENCE.md"
+}

@@ -1,0 +1,1453 @@
+{
+  "schema_version": "stabilization-claim-inventory-1.1",
+  "workstream": 0,
+  "step": "0.4",
+  "inventory_at_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239",
+  "inventory_at_branch": "main",
+  "recorded_at_utc": "2026-10-13T07:57:23.633344+00:00",
+  "scope_documents": [
+    "docs/SSCRE_PLAN.md",
+    "docs/phase-2/",
+    "docs/phase-3/",
+    "docs/phase-4/"
+  ],
+  "status_vocabulary": [
+    "implemented",
+    "locally verified",
+    "PostgreSQL verified",
+    "provider verified",
+    "evaluation verified",
+    "deferred",
+    "unavailable",
+    "out of scope"
+  ],
+  "claims": [
+    {
+      "claim_id": "CLM-001",
+      "topic": "benchmark",
+      "source": {
+        "path": "docs/SSCRE_PLAN.md",
+        "section": "\u00a720 Phase 2",
+        "text": "615 reviewed compatibility-labeled pairs with development/held-out splits and leakage validation."
+      },
+      "references": [
+        "benchmarks/split_manifest.json",
+        "docs/phase-2/BENCHMARK_500_SCALE_UP_EVIDENCE.md",
+        "docs/phase-2/PHASE_2_REMEDIATION_EVIDENCE.md"
+      ],
+      "evidence_commit_or_date": "2026-10-12 remediation close",
+      "status": "evaluation verified",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "benchmarks/split_manifest.json",
+          "docs/phase-2/PHASE_2_REMEDIATION_EVIDENCE.md"
+        ],
+        "verification_command": "PYTHONPATH=src python -m sscre.benchmark_validate --benchmark-dir benchmarks --phase2 --production",
+        "provenance": "committed_head",
+        "measurement_environment": "frozen_benchmark",
+        "contamination_flags": [],
+        "path_checks": [
+          {
+            "path": "benchmarks/split_manifest.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "docs/phase-2/BENCHMARK_500_SCALE_UP_EVIDENCE.md",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "docs/phase-2/PHASE_2_REMEDIATION_EVIDENCE.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013002+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-002",
+      "topic": "benchmark",
+      "source": {
+        "path": "docs/SSCRE_PLAN.md",
+        "section": "\u00a719 Persistence (stale checkbox)",
+        "text": "Create benchmark v1 with \u2265100 reviewed pairs remains unchecked while \u00a720 documents 615 pairs."
+      },
+      "references": [
+        "docs/SSCRE_PLAN.md"
+      ],
+      "evidence_commit_or_date": "HEAD cbe5e0d1",
+      "status": "implemented",
+      "present_at_head": true,
+      "quality_flags": [
+        "stale",
+        "duplicated"
+      ],
+      "notes": "\u00a719 checklist not reconciled with Phase 2 close; substance covered by CLM-001.",
+      "evidence_lineage": {
+        "primary_evidence": [
+          "docs/SSCRE_PLAN.md"
+        ],
+        "verification_command": null,
+        "provenance": "committed_head",
+        "measurement_environment": "document_only",
+        "contamination_flags": [
+          "stale_documentation"
+        ],
+        "path_checks": [
+          {
+            "path": "docs/SSCRE_PLAN.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013039+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-003",
+      "topic": "correctness",
+      "source": {
+        "path": "docs/SSCRE_PLAN.md",
+        "section": "\u00a720 Phase 2 / Phase 4",
+        "text": "Human factual correctness labels are not collected (correctness_label null on all 615 records)."
+      },
+      "references": [
+        "benchmarks/EVALUATION_LABEL_CONTRACT_v1.md"
+      ],
+      "evidence_commit_or_date": "2026-10-12",
+      "status": "deferred",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "benchmarks/EVALUATION_LABEL_CONTRACT_v1.md",
+          "docs/SSCRE_PLAN.md"
+        ],
+        "verification_command": null,
+        "provenance": "committed_head",
+        "measurement_environment": "document_only",
+        "deferral_reason": "labels not collected by design",
+        "path_checks": [
+          {
+            "path": "benchmarks/EVALUATION_LABEL_CONTRACT_v1.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013064+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-004",
+      "topic": "runtime",
+      "source": {
+        "path": "docs/SSCRE_PLAN.md",
+        "section": "\u00a720 Phase 2",
+        "text": "Strategy C defines SAFE/UNSAFE/UNCERTAIN compatibility rules; Strategy B is opt-in embedding-only baseline."
+      },
+      "references": [
+        "src/sscre/baseline.py",
+        "docs/phase-2/WORKSTREAM_1_EVIDENCE.md"
+      ],
+      "evidence_commit_or_date": "Phase 2 WS1 close",
+      "status": "locally verified",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "docs/phase-2/WORKSTREAM_1_EVIDENCE.md",
+          "src/sscre/baseline.py"
+        ],
+        "verification_command": "python -m pytest -q (default suite; WS1 safety coverage)",
+        "provenance": "committed_head",
+        "measurement_environment": "local_unit_tests",
+        "path_checks": [
+          {
+            "path": "src/sscre/baseline.py",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "docs/phase-2/WORKSTREAM_1_EVIDENCE.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013105+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-005",
+      "topic": "semantic reuse",
+      "source": {
+        "path": "docs/phase-3/PHASE3_FINAL_EVIDENCE.md",
+        "section": "Final held-out package",
+        "text": "On held_out_test with fake embeddings, retained stack reports Strategy C FPR 0.0 vs Strategy B FPR ~0.48."
+      },
+      "references": [
+        "artifacts/evaluation/phase3-final-held-out-comparison.json",
+        "benchmarks/held_out_test.jsonl"
+      ],
+      "evidence_commit_or_date": "2026-10-10",
+      "status": "evaluation verified",
+      "present_at_head": true,
+      "quality_flags": [
+        "historical"
+      ],
+      "notes": "SSCRE_PLAN \u00a724.4 item 4: historical for new real-embedding semantic claims.",
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/phase3-final-held-out-comparison.json"
+        ],
+        "verification_command": "PYTHONPATH=src python -m sscre.evaluate --benchmark benchmarks/held_out_test.jsonl --config experiments/evaluation_config.json --baseline all --split held-out --production --output artifacts/evaluation/phase3-final-held-out-comparison.json",
+        "provenance": "historical_run",
+        "measurement_environment": "synthetic_fake_provider",
+        "contamination_flags": [
+          "historical",
+          "fake_embeddings",
+          "held_out_split_used"
+        ],
+        "path_checks": [
+          {
+            "path": "artifacts/evaluation/phase3-final-held-out-comparison.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "benchmarks/held_out_test.jsonl",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013149+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-006",
+      "topic": "semantic reuse",
+      "source": {
+        "path": "docs/SSCRE_PLAN.md",
+        "section": "\u00a724 Phase 4 semantic validity",
+        "text": "Pre-registered C-versus-A headline semantic gate is deferred (held_out_test contaminated for fresh gate)."
+      },
+      "references": [
+        "artifacts/evaluation/phase4-semantic-validity-gate.json",
+        "artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json",
+        "docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md"
+      ],
+      "evidence_commit_or_date": "2026-10-12",
+      "status": "deferred",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/phase4-semantic-validity-gate.json",
+          "artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json"
+        ],
+        "verification_command": "P4-SEMVALID gate scorer (see semantic validity evidence)",
+        "provenance": "committed_head",
+        "measurement_environment": "frozen_gate_artifact",
+        "contamination_flags": [
+          "held_out_contaminated_for_fresh_gate"
+        ],
+        "deferral_reason": "pre-registered deferral; no fresh population",
+        "path_checks": [
+          {
+            "path": "artifacts/evaluation/phase4-semantic-validity-gate.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013214+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-007",
+      "topic": "semantic reuse",
+      "source": {
+        "path": "docs/SSCRE_PLAN.md",
+        "section": "\u00a724 Phase 4 semantic validity item 2",
+        "text": "Development-only real-embedding replay shows B high coverage with labeled FPR ~0.35 and conservative C at \u03c4=0.9 \u2014 engineering validation, not superiority proof."
+      },
+      "references": [
+        "artifacts/evaluation/phase4-semantic-validity-development.json",
+        "benchmarks/semantic-validity-local-embedding-gate.json"
+      ],
+      "evidence_commit_or_date": "2026-10-12",
+      "status": "evaluation verified",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/phase4-semantic-validity-development.json"
+        ],
+        "verification_command": "PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE Step 5 commands",
+        "provenance": "historical_run",
+        "measurement_environment": "real_local_embedding_development_only",
+        "contamination_flags": [
+          "development_split_only"
+        ],
+        "path_checks": [
+          {
+            "path": "artifacts/evaluation/phase4-semantic-validity-development.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "benchmarks/semantic-validity-local-embedding-gate.json",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013256+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-008",
+      "topic": "semantic reuse",
+      "source": {
+        "path": "docs/SSCRE_PLAN.md",
+        "section": "\u00a724 Success criteria 3",
+        "text": "Compatibility-aware caching (C) reduces FPR vs (B) at comparable tokens saved (project success criterion)."
+      },
+      "references": [
+        "docs/SSCRE_PLAN.md \u00a724"
+      ],
+      "evidence_commit_or_date": null,
+      "status": "deferred",
+      "present_at_head": true,
+      "quality_flags": [
+        "overstated_if_read_without_CLM-006"
+      ],
+      "notes": "Supported only on historical fake-embedding held-out (CLM-005); fresh real-embedding headline gate deferred (CLM-006).",
+      "evidence_lineage": {
+        "primary_evidence": [
+          "docs/SSCRE_PLAN.md"
+        ],
+        "verification_command": null,
+        "provenance": "committed_head",
+        "measurement_environment": "aspirational_success_criterion",
+        "deferral_reason": "headline evidence deferred (CLM-006)",
+        "workstream_8_resolution": "XCL-002",
+        "path_checks": [
+          {
+            "path": "docs/SSCRE_PLAN.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013277+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-009",
+      "topic": "providers",
+      "source": {
+        "path": "docs/phase-4/PHASE4_PROVIDER_EVIDENCE.md",
+        "section": "Status",
+        "text": "No credentialed live-provider measurement; fail-closed unavailable artifact only."
+      },
+      "references": [
+        "artifacts/evaluation/phase4-provider-validation.json",
+        "artifacts/evaluation/workstream4-real-provider-unavailable.json"
+      ],
+      "evidence_commit_or_date": "2026-10-10",
+      "status": "unavailable",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/phase4-provider-validation.json"
+        ],
+        "verification_command": "python -m sscre.provider_measure (exit 0; live_opt_in_missing)",
+        "provenance": "committed_head",
+        "measurement_environment": "unavailable_conditional_path",
+        "unavailable_reason": "no credentialed provider",
+        "path_checks": [
+          {
+            "path": "artifacts/evaluation/phase4-provider-validation.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "artifacts/evaluation/workstream4-real-provider-unavailable.json",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013319+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-010",
+      "topic": "providers",
+      "source": {
+        "path": "docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md",
+        "section": "Local embedding gate",
+        "text": "Local real embeddings (all-MiniLM-L6-v2, 384-dim) run end-to-end in evaluation harness."
+      },
+      "references": [
+        "benchmarks/semantic-validity-local-embedding-gate.json",
+        "src/sscre/embedding.py"
+      ],
+      "evidence_commit_or_date": "2026-10-12",
+      "status": "locally verified",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "benchmarks/semantic-validity-local-embedding-gate.json"
+        ],
+        "verification_command": "P4 Step 4 local embedding gate workflow",
+        "provenance": "committed_head",
+        "measurement_environment": "real_local_embedding",
+        "path_checks": [
+          {
+            "path": "benchmarks/semantic-validity-local-embedding-gate.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "src/sscre/embedding.py",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013357+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-011",
+      "topic": "PostgreSQL",
+      "source": {
+        "path": "docs/phase-2/WORKSTREAM_8_EVIDENCE.md",
+        "section": "Scope",
+        "text": "Bounded local PostgreSQL operational package (failure recovery, contention, load) \u2014 not production SLA."
+      },
+      "references": [
+        "artifacts/operations/workstream8-operational-verification.json",
+        "artifacts/operations/workstream8-pg-load-v1.json"
+      ],
+      "evidence_commit_or_date": "2026-10-11",
+      "status": "PostgreSQL verified",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/operations/workstream8-operational-verification.json",
+          "artifacts/operations/workstream8-pg-load-v1.json"
+        ],
+        "verification_command": "pytest -m ws8_postgres_* (opt-in; WS8 evidence)",
+        "provenance": "historical_run",
+        "measurement_environment": "local_postgresql_bounded",
+        "contamination_flags": [
+          "dirty_worktree_at_generation"
+        ],
+        "artifact_git_commit": "4997e667 per WS8 evidence (may differ from inventory HEAD)",
+        "path_checks": [
+          {
+            "path": "artifacts/operations/workstream8-operational-verification.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "artifacts/operations/workstream8-pg-load-v1.json",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013399+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-012",
+      "topic": "PostgreSQL",
+      "source": {
+        "path": "docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md",
+        "section": "Pytest markers",
+        "text": "Default pytest deselects ws8_postgres_* integration markers; PostgreSQL paths are opt-in."
+      },
+      "references": [
+        "pyproject.toml"
+      ],
+      "evidence_commit_or_date": "HEAD cbe5e0d1",
+      "status": "locally verified",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "pyproject.toml"
+        ],
+        "verification_command": "python -m pytest --collect-only -q",
+        "provenance": "committed_head",
+        "measurement_environment": "code_inspection",
+        "path_checks": [
+          {
+            "path": "pyproject.toml",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013420+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-013",
+      "topic": "performance",
+      "source": {
+        "path": "docs/phase-4/PHASE4_SCALE_EVIDENCE.md",
+        "section": "Frozen protocol",
+        "text": "Bounded in-memory scale profile (32 requests, concurrency 4, fake providers) \u2014 no production capacity claim."
+      },
+      "references": [
+        "artifacts/evaluation/phase4-scale-profile.json"
+      ],
+      "evidence_commit_or_date": "2026-10-10",
+      "status": "locally verified",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/phase4-scale-profile.json"
+        ],
+        "verification_command": "python -m sscre.load_test per PHASE4_SCALE_EVIDENCE",
+        "provenance": "historical_run",
+        "measurement_environment": "synthetic_fake_provider_in_memory",
+        "contamination_flags": [
+          "synthetic",
+          "bounded_workload"
+        ],
+        "path_checks": [
+          {
+            "path": "artifacts/evaluation/phase4-scale-profile.json",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013443+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-014",
+      "topic": "performance",
+      "source": {
+        "path": "docs/phase-3/PHASE3_LOAD_EVIDENCE.md",
+        "section": "Load ladder",
+        "text": "1K\u2192100K simulated queries/day ladder run on synthetic replay; bottleneck not_reached on recorded ladders."
+      },
+      "references": [
+        "artifacts/operations/phase3-load-ladder-memory.json",
+        "artifacts/operations/phase3-load-ladder-postgres.json"
+      ],
+      "evidence_commit_or_date": "2026-10-11",
+      "status": "locally verified",
+      "present_at_head": true,
+      "quality_flags": [
+        "synthetic"
+      ],
+      "notes": "PostgreSQL ladder is bounded operational evidence, not universal SLA.",
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/operations/phase3-load-ladder-memory.json",
+          "artifacts/operations/phase3-load-ladder-postgres.json"
+        ],
+        "verification_command": "phase3 load ladder per PHASE3_LOAD_EVIDENCE",
+        "provenance": "historical_run",
+        "measurement_environment": "synthetic_replay",
+        "contamination_flags": [
+          "synthetic"
+        ],
+        "path_checks": [
+          {
+            "path": "artifacts/operations/phase3-load-ladder-memory.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "artifacts/operations/phase3-load-ladder-postgres.json",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013483+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-015",
+      "topic": "cost",
+      "source": {
+        "path": "docs/SSCRE_PLAN.md",
+        "section": "\u00a720 Phase 2 not claimed",
+        "text": "Live-provider cost and latency are not claimed for Phase 2."
+      },
+      "references": [
+        "docs/phase-2/PHASE_2_REMEDIATION_EVIDENCE.md"
+      ],
+      "evidence_commit_or_date": "2026-10-12",
+      "status": "out of scope",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "docs/phase-2/PHASE_2_REMEDIATION_EVIDENCE.md"
+        ],
+        "provenance": "committed_head",
+        "measurement_environment": "explicit_non_claim",
+        "path_checks": [
+          {
+            "path": "docs/phase-2/PHASE_2_REMEDIATION_EVIDENCE.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013502+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-016",
+      "topic": "authentication",
+      "source": {
+        "path": "docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md",
+        "section": "Current baseline",
+        "text": "Public POST /v1/query has no client authentication, tenant, or namespace boundary."
+      },
+      "references": [
+        "src/sscre/app.py"
+      ],
+      "evidence_commit_or_date": "HEAD cbe5e0d1",
+      "status": "implemented",
+      "present_at_head": true,
+      "notes": "Stabilization plan documents gap; code matches at HEAD.",
+      "evidence_lineage": {
+        "primary_evidence": [
+          "src/sscre/app.py"
+        ],
+        "verification_command": "code inspection: POST /v1/query",
+        "provenance": "committed_head",
+        "measurement_environment": "code_inspection",
+        "path_checks": [
+          {
+            "path": "src/sscre/app.py",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013537+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-017",
+      "topic": "tenancy",
+      "source": {
+        "path": "docs/SSCRE_PLAN.md",
+        "section": "\u00a725 Further improvements",
+        "text": "Multi-tenant isolation listed as future production readiness work."
+      },
+      "references": [
+        "docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md WS2"
+      ],
+      "evidence_commit_or_date": null,
+      "status": "out of scope",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "docs/SSCRE_PLAN.md"
+        ],
+        "provenance": "committed_head",
+        "measurement_environment": "document_only",
+        "path_checks": [
+          {
+            "path": "docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013566+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-018",
+      "topic": "deployment",
+      "source": {
+        "path": "docker-compose.yml",
+        "section": "SSCRE_SEMANTIC_STRATEGY default",
+        "text": "Docker Compose defaults semantic strategy to B unless overridden."
+      },
+      "references": [
+        "docker-compose.yml",
+        "docs/SSCRE_PLAN.md \u00a724 item 6"
+      ],
+      "evidence_commit_or_date": "HEAD cbe5e0d1",
+      "status": "implemented",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "docker-compose.yml"
+        ],
+        "verification_command": "docker compose config",
+        "provenance": "committed_head",
+        "measurement_environment": "code_inspection",
+        "path_checks": [
+          {
+            "path": "docker-compose.yml",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "docs/SSCRE_PLAN.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013603+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-019",
+      "topic": "deployment",
+      "source": {
+        "path": "docs/SSCRE_PLAN.md",
+        "section": "\u00a724 Phase 4 item 6",
+        "text": "Strategy C is the compatibility-aware safety path for semantic reuse despite Compose default B."
+      },
+      "references": [
+        "src/sscre/config.py"
+      ],
+      "evidence_commit_or_date": "2026-10-12",
+      "status": "implemented",
+      "present_at_head": true,
+      "quality_flags": [
+        "deployment_misalignment"
+      ],
+      "notes": "Documented safety gap (CLM-018); not a factual contradiction.",
+      "evidence_lineage": {
+        "primary_evidence": [
+          "src/sscre/config.py",
+          "docs/SSCRE_PLAN.md"
+        ],
+        "provenance": "committed_head",
+        "measurement_environment": "code_and_document",
+        "contamination_flags": [
+          "deployment_misalignment_with_CLM-018"
+        ],
+        "path_checks": [
+          {
+            "path": "src/sscre/config.py",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013625+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-020",
+      "topic": "runtime",
+      "source": {
+        "path": "docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md",
+        "section": "Current baseline",
+        "text": "Timed-out dependency calls may retain executor capacity after the request returns."
+      },
+      "references": [
+        "src/sscre/"
+      ],
+      "evidence_commit_or_date": "stabilization baseline",
+      "status": "implemented",
+      "present_at_head": true,
+      "notes": "Known gap; fix deferred to Workstream 3.",
+      "evidence_lineage": {
+        "primary_evidence": [
+          "docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md"
+        ],
+        "provenance": "dirty_worktree",
+        "measurement_environment": "stabilization_audit",
+        "notes": "Documented gap; dedicated timeout test not run in Step 0.4.",
+        "path_checks": [
+          {
+            "path": "src/sscre",
+            "exists": true,
+            "kind": "dir"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013663+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-021",
+      "topic": "release",
+      "source": {
+        "path": "docs/phase-4/PHASE4_RELEASE_EVIDENCE.md",
+        "section": "Status",
+        "text": "Phase 4 release audit complete with clean-checkout replay deferred."
+      },
+      "references": [
+        "artifacts/evaluation/phase4-paper-artifact-manifest.json",
+        "docs/phase-4/PHASE4_RELEASE_EVIDENCE.md"
+      ],
+      "evidence_commit_or_date": "2026-10-10",
+      "status": "locally verified",
+      "present_at_head": true,
+      "quality_flags": [
+        "deferred_replay"
+      ],
+      "notes": "Manifest lists clean-checkout replay in deferred[].",
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/phase4-paper-artifact-manifest.json",
+          "docs/phase-4/PHASE4_RELEASE_EVIDENCE.md"
+        ],
+        "verification_command": "PHASE4_RELEASE_EVIDENCE verification table",
+        "provenance": "historical_run",
+        "measurement_environment": "local_audit",
+        "contamination_flags": [
+          "dirty_worktree_at_generation",
+          "clean_checkout_replay_deferred"
+        ],
+        "path_checks": [
+          {
+            "path": "artifacts/evaluation/phase4-paper-artifact-manifest.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "docs/phase-4/PHASE4_RELEASE_EVIDENCE.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013719+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-022",
+      "topic": "release",
+      "source": {
+        "path": "docs/phase-3/PHASE_3_IMPLEMENTATION_PLAN.md",
+        "section": "Goal Status",
+        "text": "Phase 3 v1 closed; Workstreams 1\u20139 closed through 2026-10-12."
+      },
+      "references": [
+        "docs/phase-3/WORKSTREAM_9_EVIDENCE.md"
+      ],
+      "evidence_commit_or_date": "2026-10-12",
+      "status": "locally verified",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "docs/phase-3/WORKSTREAM_9_EVIDENCE.md",
+          "docs/phase-3/PHASE_3_IMPLEMENTATION_PLAN.md"
+        ],
+        "verification_command": "WS9 registry audit in WORKSTREAM_9_EVIDENCE",
+        "provenance": "committed_head",
+        "measurement_environment": "document_audit",
+        "path_checks": [
+          {
+            "path": "docs/phase-3/WORKSTREAM_9_EVIDENCE.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013756+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-023",
+      "topic": "release",
+      "source": {
+        "path": "docs/phase-2/PHASE_2_REMEDIATION_EVIDENCE.md",
+        "section": "Status",
+        "text": "Phase 2 remediation closed Steps 1\u20137 (2026-10-12)."
+      },
+      "references": [
+        "docs/phase-2/PHASE_2_REMEDIATION_EVIDENCE.md"
+      ],
+      "evidence_commit_or_date": "2026-10-12",
+      "status": "locally verified",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "docs/phase-2/PHASE_2_REMEDIATION_EVIDENCE.md"
+        ],
+        "verification_command": "remediation Step 2 regeneration commands",
+        "provenance": "committed_head",
+        "measurement_environment": "synthetic_replay_regeneration",
+        "path_checks": [
+          {
+            "path": "docs/phase-2/PHASE_2_REMEDIATION_EVIDENCE.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013776+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-024",
+      "topic": "semantic reuse",
+      "source": {
+        "path": "docs/phase-3/PHASE3_FEATURE_3_EVIDENCE.md",
+        "section": "Decision",
+        "text": "Strategy D cross-encoder validator deferred; trigger not met."
+      },
+      "references": [
+        "docs/phase-3/PHASE3_FEATURE_3_EVIDENCE.md"
+      ],
+      "evidence_commit_or_date": "Phase 3",
+      "status": "deferred",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "docs/phase-3/PHASE3_FEATURE_3_EVIDENCE.md"
+        ],
+        "provenance": "committed_head",
+        "measurement_environment": "document_only",
+        "deferral_reason": "trigger not met",
+        "path_checks": [
+          {
+            "path": "docs/phase-3/PHASE3_FEATURE_3_EVIDENCE.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013798+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-025",
+      "topic": "performance",
+      "source": {
+        "path": "docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md",
+        "section": "int8 gate",
+        "text": "int8 embedding quantization not run; embedding_share below dominance gate."
+      },
+      "references": [
+        "artifacts/evaluation/phase3-embedding-storage-baseline.json"
+      ],
+      "evidence_commit_or_date": "2026-10-11",
+      "status": "deferred",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/phase3-embedding-storage-baseline.json",
+          "docs/phase-3/PHASE3_QUANTIZATION_EVIDENCE.md"
+        ],
+        "provenance": "committed_head",
+        "measurement_environment": "synthetic_storage_simulation",
+        "deferral_reason": "dominance gate not met",
+        "path_checks": [
+          {
+            "path": "artifacts/evaluation/phase3-embedding-storage-baseline.json",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013820+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-026",
+      "topic": "semantic reuse",
+      "source": {
+        "path": "docs/phase-3/PHASE3_FEATURE_1_EVIDENCE.md",
+        "section": "Adaptive thresholds",
+        "text": "Per-domain adaptive thresholds passed pre-registered development criteria."
+      },
+      "references": [
+        "artifacts/evaluation/phase3-adaptive-development.json",
+        "artifacts/evaluation/phase3-adaptive-held-out.json"
+      ],
+      "evidence_commit_or_date": "Phase 3 Feature 1",
+      "status": "evaluation verified",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/phase3-adaptive-development.json",
+          "artifacts/evaluation/phase3-adaptive-held-out.json"
+        ],
+        "verification_command": "sscre.evaluate per PHASE3_FEATURE_1_EVIDENCE",
+        "provenance": "historical_run",
+        "measurement_environment": "synthetic_fake_provider",
+        "contamination_flags": [
+          "fake_embeddings"
+        ],
+        "path_checks": [
+          {
+            "path": "artifacts/evaluation/phase3-adaptive-development.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "artifacts/evaluation/phase3-adaptive-held-out.json",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013861+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-027",
+      "topic": "semantic reuse",
+      "source": {
+        "path": "docs/phase-3/PHASE3_FEATURE_2_EVIDENCE.md",
+        "section": "Eviction",
+        "text": "Pattern-aware eviction failed reuse criterion and remains deferred."
+      },
+      "references": [
+        "artifacts/evaluation/phase3-pattern-eviction-policy.json"
+      ],
+      "evidence_commit_or_date": "Phase 3 Feature 2",
+      "status": "deferred",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/phase3-pattern-eviction-policy.json",
+          "docs/phase-3/PHASE3_FEATURE_2_EVIDENCE.md"
+        ],
+        "verification_command": "sscre.phase3_eviction per PHASE3_FEATURE_2_EVIDENCE",
+        "provenance": "historical_run",
+        "measurement_environment": "synthetic_fake_provider",
+        "deferral_reason": "failed reuse criterion",
+        "path_checks": [
+          {
+            "path": "artifacts/evaluation/phase3-pattern-eviction-policy.json",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013884+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-028",
+      "topic": "benchmark",
+      "source": {
+        "path": "docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md",
+        "section": "Split manifest",
+        "text": "Canonical split_manifest_sha256 0aca5b8d\u2026 passes benchmark_validate; 68912e3b\u2026 is historical Phase 3 lineage."
+      },
+      "references": [
+        "benchmarks/split_manifest.json",
+        "artifacts/evaluation/phase3-paper-artifact-manifest.json"
+      ],
+      "evidence_commit_or_date": "2026-10-12 audit",
+      "status": "evaluation verified",
+      "present_at_head": true,
+      "quality_flags": [
+        "lineage"
+      ],
+      "notes": "Phase 3 docs citing 68912e3b\u2026 are historical for split identity, not contradictory if labeled.",
+      "evidence_lineage": {
+        "primary_evidence": [
+          "benchmarks/split_manifest.json",
+          "artifacts/evaluation/phase3-paper-artifact-manifest.json"
+        ],
+        "verification_command": "PYTHONPATH=src python -m sscre.benchmark_validate --benchmark-dir benchmarks --phase2 --production",
+        "provenance": "committed_head",
+        "measurement_environment": "frozen_benchmark",
+        "contamination_flags": [
+          "historical_manifest_in_phase3_artifacts"
+        ],
+        "path_checks": [
+          {
+            "path": "benchmarks/split_manifest.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "artifacts/evaluation/phase3-paper-artifact-manifest.json",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013923+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-029",
+      "topic": "runtime",
+      "source": {
+        "path": "docs/phase-2/WORKSTREAM_9_EVIDENCE.md",
+        "section": "Scope",
+        "text": "Read-only dashboard export exists; not a production analytics service."
+      },
+      "references": [
+        "artifacts/evaluation/workstream9-dashboard.json",
+        "src/sscre/dashboard.py"
+      ],
+      "evidence_commit_or_date": "2026-10-11",
+      "status": "locally verified",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/workstream9-dashboard.json",
+          "src/sscre/dashboard.py"
+        ],
+        "verification_command": "dashboard export per WORKSTREAM_9_EVIDENCE",
+        "provenance": "committed_head",
+        "measurement_environment": "synthetic_replay",
+        "path_checks": [
+          {
+            "path": "artifacts/evaluation/workstream9-dashboard.json",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "src/sscre/dashboard.py",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013962+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-030",
+      "topic": "providers",
+      "source": {
+        "path": "docs/phase-2/WORKSTREAM_9_EVIDENCE.md",
+        "section": "Dual-model",
+        "text": "Dual-model comparison defined but live provider run deferred."
+      },
+      "references": [
+        "artifacts/evaluation/workstream9-dual-model-v1.json"
+      ],
+      "evidence_commit_or_date": "2026-10-11",
+      "status": "unavailable",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/workstream9-dual-model-v1.json"
+        ],
+        "provenance": "committed_head",
+        "measurement_environment": "unavailable_conditional_path",
+        "unavailable_reason": "live dual-model provider not run",
+        "path_checks": [
+          {
+            "path": "artifacts/evaluation/workstream9-dual-model-v1.json",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.013994+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-031",
+      "topic": "semantic reuse",
+      "source": {
+        "path": "docs/phase-4/PHASE4_PARETO_EVIDENCE.md",
+        "section": "Status",
+        "text": "Phase 4 Pareto follow-up complete under protocol reset (synthetic replay)."
+      },
+      "references": [
+        "artifacts/evaluation/phase4-selected-stack-pareto.json"
+      ],
+      "evidence_commit_or_date": "2026-10-10",
+      "status": "evaluation verified",
+      "present_at_head": true,
+      "quality_flags": [
+        "synthetic"
+      ],
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/phase4-selected-stack-pareto.json"
+        ],
+        "verification_command": "P4 Pareto replay per PHASE4_PARETO_EVIDENCE",
+        "provenance": "historical_run",
+        "measurement_environment": "synthetic_replay",
+        "contamination_flags": [
+          "synthetic",
+          "protocol_reset"
+        ],
+        "path_checks": [
+          {
+            "path": "artifacts/evaluation/phase4-selected-stack-pareto.json",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.014015+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-032",
+      "topic": "correctness",
+      "source": {
+        "path": "docs/SSCRE_PLAN.md",
+        "section": "\u00a79 preference vs correctness",
+        "text": "Preference and correctness label contracts are separate; preference labels not collected."
+      },
+      "references": [
+        "benchmarks/EVALUATION_LABEL_CONTRACT_v1.md"
+      ],
+      "evidence_commit_or_date": "Phase 2",
+      "status": "implemented",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "benchmarks/EVALUATION_LABEL_CONTRACT_v1.md",
+          "src/sscre/evaluation_labels.py"
+        ],
+        "provenance": "committed_head",
+        "measurement_environment": "code_and_contract",
+        "path_checks": [
+          {
+            "path": "benchmarks/EVALUATION_LABEL_CONTRACT_v1.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.014034+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-033",
+      "topic": "deployment",
+      "source": {
+        "path": "docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md",
+        "section": "Overall exit verdict",
+        "text": "External multi-user deployment requires Workstream 2 and Workstream 4 portions \u2014 not authorized yet."
+      },
+      "references": [
+        "docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md"
+      ],
+      "evidence_commit_or_date": "plan authoring",
+      "status": "out of scope",
+      "present_at_head": false,
+      "notes": "Claim exists only in untracked stabilization plan until committed.",
+      "evidence_lineage": {
+        "primary_evidence": [
+          "docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md"
+        ],
+        "provenance": "dirty_worktree",
+        "measurement_environment": "plan_authoring",
+        "path_checks": [
+          {
+            "path": "docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.014056+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-034",
+      "topic": "runtime",
+      "source": {
+        "path": "docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md",
+        "section": "Candidate attribution",
+        "text": "Served-candidate attribution and labeled FPR reporting implemented for Strategies B/C."
+      },
+      "references": [
+        "src/sscre/evaluation_attribution.py",
+        "artifacts/evaluation/phase4-semantic-validity-verification.json"
+      ],
+      "evidence_commit_or_date": "2026-10-12",
+      "status": "locally verified",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "artifacts/evaluation/phase4-semantic-validity-verification.json",
+          "src/sscre/evaluation_attribution.py"
+        ],
+        "verification_command": "P4-SEMVALID verification / attribution tests",
+        "provenance": "committed_head",
+        "measurement_environment": "local_unit_tests_and_artifact",
+        "path_checks": [
+          {
+            "path": "src/sscre/evaluation_attribution.py",
+            "exists": true,
+            "kind": "file"
+          },
+          {
+            "path": "artifacts/evaluation/phase4-semantic-validity-verification.json",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.014098+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    },
+    {
+      "claim_id": "CLM-035",
+      "topic": "release",
+      "source": {
+        "path": "docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md",
+        "section": "Status",
+        "text": "P4-SEMVALID closed with headline gate deferred \u2014 no semantic success claim."
+      },
+      "references": [
+        "docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md"
+      ],
+      "evidence_commit_or_date": "2026-10-12",
+      "status": "deferred",
+      "present_at_head": true,
+      "evidence_lineage": {
+        "primary_evidence": [
+          "docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md",
+          "artifacts/evaluation/phase4-semantic-validity-gate.json"
+        ],
+        "provenance": "committed_head",
+        "measurement_environment": "process_close_with_deferred_gate",
+        "deferral_reason": "headline gate deferred",
+        "workstream_8_resolution": "XCL-002",
+        "path_checks": [
+          {
+            "path": "docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md",
+            "exists": true,
+            "kind": "file"
+          }
+        ],
+        "referenced_paths_all_exist": true,
+        "reconciled_at_utc": "2026-10-13T08:00:51.014119+00:00",
+        "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239"
+      }
+    }
+  ],
+  "cross_claim_issues": [
+    {
+      "issue_id": "XCL-001",
+      "type": "stale",
+      "summary": "SSCRE_PLAN \u00a719 benchmark \u2265100 checkbox unchecked while \u00a720 documents 615 pairs.",
+      "claim_ids": [
+        "CLM-001",
+        "CLM-002"
+      ]
+    },
+    {
+      "issue_id": "XCL-002",
+      "type": "overstated_without_gate",
+      "summary": "\u00a724 success criterion 3 can be read as current headline without fresh real-embedding held-out gate.",
+      "claim_ids": [
+        "CLM-005",
+        "CLM-006",
+        "CLM-008"
+      ]
+    },
+    {
+      "issue_id": "XCL-003",
+      "type": "deployment_misalignment",
+      "summary": "Compose defaults to Strategy B while docs designate C as the compatibility-aware safety path.",
+      "claim_ids": [
+        "CLM-018",
+        "CLM-019"
+      ]
+    },
+    {
+      "issue_id": "XCL-004",
+      "type": "historical_lineage",
+      "summary": "Phase 3 artifacts and prose reference split manifest 68912e3b\u2026; current canonical manifest is 0aca5b8d\u2026.",
+      "claim_ids": [
+        "CLM-028",
+        "CLM-005"
+      ]
+    },
+    {
+      "issue_id": "XCL-005",
+      "type": "vocabulary",
+      "summary": "Phase evidence files use 'complete' and 'closed'; stabilization inventory uses evaluation/deferred/unavailable \u2014 map per claim row.",
+      "claim_ids": [
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-035"
+      ]
+    }
+  ],
+  "summary_by_status": {
+    "implemented": 6,
+    "locally verified": 9,
+    "PostgreSQL verified": 1,
+    "provider verified": 0,
+    "evaluation verified": 7,
+    "deferred": 8,
+    "unavailable": 2,
+    "out of scope": 3
+  },
+  "lineage_reconciliation": {
+    "recorded_at_utc": "2026-10-13T08:00:51.014121+00:00",
+    "head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239",
+    "verified_claim_count": 17,
+    "claims_with_missing_references": [],
+    "contradictions_deferred_to_workstream_8": [
+      "XCL-001",
+      "XCL-002",
+      "XCL-003",
+      "XCL-004",
+      "XCL-005"
+    ]
+  }
+}

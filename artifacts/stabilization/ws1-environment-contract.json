@@ -1,0 +1,482 @@
+{
+  "schema_version": "ws1-environment-contract-1.0",
+  "workstream": 1,
+  "step": "1.1",
+  "recorded_at_utc": "2026-10-13T08:15:00+00:00",
+  "inventory_head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239",
+  "sources": [
+    "docker-compose.yml",
+    "src/sscre/config.py",
+    ".env.example",
+    "src/sscre/provider_config.py",
+    "src/sscre/migrate.py",
+    "src/sscre/app.py",
+    "src/sscre/provider_measure.py",
+    "src/sscre/postgres_failure_harness.py",
+    "docs/setup/POSTGRESQL_LOCAL_SETUP.md",
+    ".github/workflows/ci.yml"
+  ],
+  "git_secrets_check": {
+    "env_ignored": true,
+    "env_tracked": false,
+    "env_example_tracked": true,
+    "env_example_placeholders_only": true
+  },
+  "variables": [
+    {
+      "name": "POSTGRES_DB",
+      "in_config_settings": false,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "PostgreSQL-only",
+      "compose_required": "optional with default sscre",
+      "notes": "Postgres image env; not read by Settings.from_environment()."
+    },
+    {
+      "name": "POSTGRES_USER",
+      "in_config_settings": false,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "PostgreSQL-only",
+      "compose_required": "optional with default sscre"
+    },
+    {
+      "name": "POSTGRES_PASSWORD",
+      "in_config_settings": false,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "PostgreSQL-only",
+      "compose_required": "required for compose up",
+      "notes": "Compose interpolation :?Set POSTGRES_PASSWORD; placeholder in .env.example."
+    },
+    {
+      "name": "SSCRE_POSTGRES_PORT",
+      "in_config_settings": false,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "development-only",
+      "notes": "Host port mapping only."
+    },
+    {
+      "name": "SSCRE_API_PORT",
+      "in_config_settings": false,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "development-only"
+    },
+    {
+      "name": "SSCRE_DATABASE_URL",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "PostgreSQL-only",
+      "notes": "Required for production profile; optional for unit tests."
+    },
+    {
+      "name": "SSCRE_MIGRATIONS_DIR",
+      "in_config_settings": false,
+      "in_compose": true,
+      "in_env_example": false,
+      "classification": "PostgreSQL-only",
+      "notes": "Set in compose to /app/migrations; migrate CLI reads env; absent from .env.example."
+    },
+    {
+      "name": "SSCRE_RUNTIME_PROFILE",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default",
+      "config_default": "development",
+      "compose_default": "development"
+    },
+    {
+      "name": "SSCRE_LOG_LEVEL",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default",
+      "config_default": "INFO"
+    },
+    {
+      "name": "SSCRE_ADMIN_TOKEN",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "production-only",
+      "notes": "Required for compose api service; required in production profile (length >= 16)."
+    },
+    {
+      "name": "SSCRE_ADMIN_READ_TOKEN",
+      "in_config_settings": true,
+      "in_compose": false,
+      "in_env_example": true,
+      "classification": "optional with default",
+      "notes": "Read by Settings; not forwarded to api container in compose."
+    },
+    {
+      "name": "SSCRE_ADMIN_TOKEN_EXPIRES_AT",
+      "in_config_settings": true,
+      "in_compose": false,
+      "in_env_example": true,
+      "classification": "production-only",
+      "notes": "Required when runtime_profile=production; not in compose api env."
+    },
+    {
+      "name": "SSCRE_ADMIN_READ_TOKEN_EXPIRES_AT",
+      "in_config_settings": true,
+      "in_compose": false,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_SEMANTIC_ENABLED",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default",
+      "config_default": "true"
+    },
+    {
+      "name": "SSCRE_SEMANTIC_STRATEGY",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default",
+      "config_default": "C",
+      "compose_default": "C",
+      "env_example_value": "C",
+      "mismatch_id": null,
+      "resolved_at": "2026-10-13",
+      "resolution": "WS1 Step 1.5 aligned docker-compose.yml and .env.example with Settings default C"
+    },
+    {
+      "name": "SSCRE_SEMANTIC_TOP_K",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_SEMANTIC_SIMILARITY_THRESHOLD",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_CACHE_STABLE_TTL_SECONDS",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_CACHE_SEMI_DYNAMIC_TTL_SECONDS",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_CACHE_DYNAMIC_TTL_SECONDS",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_CACHE_ALLOW_DYNAMIC_ENTRIES",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_CACHE_MAX_ANSWER_BYTES",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_CACHE_MAX_METADATA_BYTES",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_CACHE_MAX_QUERY_BYTES",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_CACHE_MAX_ENTRIES",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_CACHE_MAX_BYTES",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_TIMEOUT_REQUEST_SECONDS",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_TIMEOUT_EMBEDDING_SECONDS",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_TIMEOUT_GENERATION_SECONDS",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_TIMEOUT_REPOSITORY_SECONDS",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_TIMEOUT_HEALTH_SECONDS",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_TIMEOUT_ADMIN_SECONDS",
+      "in_config_settings": true,
+      "in_compose": true,
+      "in_env_example": true,
+      "classification": "optional with default"
+    },
+    {
+      "name": "SSCRE_PROVIDER_PRICING_JSON",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific",
+      "read_by": ["src/sscre/app.py", "src/sscre/provider_measure.py"]
+    },
+    {
+      "name": "SSCRE_REAL_PROVIDER",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific",
+      "read_by": ["src/sscre/provider_config.py"]
+    },
+    {
+      "name": "SSCRE_REAL_PROVIDER_LIVE",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific",
+      "read_by": ["src/sscre/provider_measure.py", "tests"]
+    },
+    {
+      "name": "SSCRE_PROVIDER_ALLOWED_HOSTS",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_ENDPOINT",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_GENERATION_MODEL",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_EMBEDDING_MODEL",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_EMBEDDING_DIMENSION",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_REQUEST_TIMEOUT_SECONDS",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_GENERATION_TIMEOUT_SECONDS",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_EMBEDDING_TIMEOUT_SECONDS",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_RETRY_LIMIT",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_MIN_BACKOFF_SECONDS",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_MAX_BACKOFF_SECONDS",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_MAX_RETRY_ELAPSED_SECONDS",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_EXPERIMENT_ID",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_DATASET_VERSION",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_SPLIT",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_PRICING_SCHEDULE_ID",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific"
+    },
+    {
+      "name": "SSCRE_PROVIDER_CREDENTIAL",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "provider-specific",
+      "notes": "Secret; must never appear in .env.example or artifacts."
+    },
+    {
+      "name": "SSCRE_WS8_LIVE_POSTGRES_RESTART",
+      "in_config_settings": false,
+      "in_compose": false,
+      "in_env_example": false,
+      "classification": "PostgreSQL-only",
+      "notes": "Opt-in WS8 harness only; not part of Gate A .env.example."
+    }
+  ],
+  "resolved_mismatches": [
+    {
+      "id": "MIS-001",
+      "summary": "Semantic strategy defaults aligned to C in docker-compose.yml, .env.example, and Settings.",
+      "resolved_at": "2026-10-13",
+      "resolution_workstream_step": "WS1 Step 1.5"
+    }
+  ],
+  "unresolved_mismatches": [
+    {
+      "id": "MIS-002",
+      "summary": "Admin read token and token expiry variables are in .env.example and Settings but not forwarded to the compose api service environment.",
+      "resolution_workstream_step": "WS1 Step 1.5 or document intentional omission",
+      "action": "defer_change"
+    },
+    {
+      "id": "MIS-003",
+      "summary": "SSCRE_MIGRATIONS_DIR is set in compose but omitted from .env.example; local migrate CLI may rely on default path when not using compose.",
+      "resolution_workstream_step": "WS1 Step 1.2 documentation",
+      "action": "defer_change"
+    },
+    {
+      "id": "MIS-004",
+      "summary": "Production profile requires SSCRE_ADMIN_TOKEN_EXPIRES_AT; compose uses development profile and does not set expiry env vars.",
+      "resolution_workstream_step": "WS1 Step 1.2 mode documentation",
+      "action": "document_only"
+    },
+    {
+      "id": "MIS-005",
+      "summary": "Provider-specific variables are intentionally absent from .env.example; Gate C must supply them out of band.",
+      "resolution_workstream_step": "WS1 Step 1.5",
+      "action": "document_only"
+    },
+    {
+      "id": "MIS-006",
+      "summary": "CI compose-config job sets only POSTGRES_PASSWORD and SSCRE_ADMIN_TOKEN; does not exercise full .env.example surface.",
+      "resolution_workstream_step": "WS1 Step 1.7 / Workstream 7",
+      "action": "document_only"
+    }
+  ],
+  "settings_compose_forwarding_gap": [
+    "SSCRE_ADMIN_READ_TOKEN",
+    "SSCRE_ADMIN_READ_TOKEN_EXPIRES_AT",
+    "SSCRE_ADMIN_TOKEN_EXPIRES_AT"
+  ],
+  "env_example_covers_all_settings_vars": false,
+  "env_example_missing_for_settings": ["SSCRE_MIGRATIONS_DIR"],
+  "notes": [
+    "Step 1.1 is inventory only; defaults were not changed.",
+    "Provider variables listed for contract completeness; not required in .env.example."
+  ]
+}

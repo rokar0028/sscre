@@ -1,0 +1,15 @@
+﻿docker : WARNING:  database "sscre" has a collation version mismatch
+At C:\Users\Admin\AppData\Local\Temp\ps-script-68abce8d-eddb-4a29-8f04-805127c8f9ac.ps1:113 char:463
++ ... rsion.log ; docker compose exec -T postgres psql -U sscre -d sscre -c ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING:  datab...ersion mismatch:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+DETAIL:  The database was created using collation version 2.41, but the operating system provides version 2.36.
+HINT:  Rebuild all objects in this database that use the default collation and run ALTER DATABASE sscre REFRESH 
+COLLATION VERSION, or build PostgreSQL with the right library version.
+ extname | extversion 
+---------+------------
+ vector  | 0.8.7
+(1 row)
+
