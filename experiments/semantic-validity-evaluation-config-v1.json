@@ -154,9 +154,15 @@
     ],
     "fail_closed": "negative_result_retains_conservative_stack"
   },
+  "development_threshold_artifact": "artifacts/evaluation/phase4-semantic-validity-development.json",
+  "held_out_deferred_artifact": "artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json",
+  "held_out_headline_artifact": "artifacts/evaluation/phase4-semantic-validity-held-out.json",
+  "gate_scoring_artifact": "artifacts/evaluation/phase4-semantic-validity-gate.json",
   "evaluation_commands": {
     "development_abc": "python -m sscre.evaluate --benchmark benchmarks/development.jsonl --config experiments/semantic-validity-evaluation-config-v1.json --baseline all --split development --production --output artifacts/evaluation/phase4-semantic-validity-development.json",
-    "held_out_abc_when_authorized": "python -m sscre.evaluate --benchmark <fresh-held-out-benchmark.jsonl> --config experiments/semantic-validity-evaluation-config-v1.json --baseline all --split held-out --production --output artifacts/evaluation/phase4-semantic-validity-held-out.json"
+    "held_out_abc_when_authorized": "python -m sscre.evaluate --benchmark <fresh-held-out-benchmark.jsonl> --config experiments/semantic-validity-evaluation-config-v1.json --baseline all --split held-out --production --output artifacts/evaluation/phase4-semantic-validity-held-out.json",
+    "record_held_out_deferred": "python -m sscre.semantic_validity_held_out --config experiments/semantic-validity-evaluation-config-v1.json --output artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json",
+    "score_pre_registered_gate": "python -m sscre.semantic_validity_gate --config experiments/semantic-validity-evaluation-config-v1.json --output artifacts/evaluation/phase4-semantic-validity-gate.json"
   },
   "p4_headline_scope": {
     "freshness_policy_cli": "disallowed_use_evaluation_config_1_0_for_freshness_runs",

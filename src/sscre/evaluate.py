@@ -44,6 +44,7 @@ from sscre.evaluation_protocol import (
     reuse_attribution_summary,
     validate_semantic_validity_cli_options,
 )
+from sscre.semantic_validity_held_out import validate_p4_held_out_headline_run
 from sscre.local_embedding import LocalSentenceTransformerEmbeddingClient
 from sscre.freshness_artifacts import freshness_companion_artifact_references
 from sscre.freshness_evaluation import (
@@ -526,6 +527,11 @@ def main(argv: list[str] | None = None) -> int:
             freshness_policy=args.freshness_policy,
             adaptive_threshold_map=args.adaptive_threshold_map,
             adaptive_threshold_map_output=args.adaptive_threshold_map_output,
+        )
+        validate_p4_held_out_headline_run(
+            config,
+            split=args.split,
+            benchmark_path=benchmark_path,
         )
         embedding_client = resolve_semantic_embedding_client(config)
         freshness_replay_clock = None

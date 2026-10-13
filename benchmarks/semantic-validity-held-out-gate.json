@@ -22,5 +22,18 @@
     "held_out_headline_gate": "deferred_until_fresh_held_out_manifest_exists",
     "relabel_existing_held_out_as_fresh": "forbidden"
   },
-  "next_step_to_resolve": "Obtain or construct a genuinely fresh held-out scoring population from approved licensed sources, assign immutable IDs, review compatibility labels, and freeze benchmarks/semantic-validity-split-manifest.json (parent Steps 3 manifest task / Step 6 held-out run)."
+  "next_step_to_resolve": "Obtain or construct a genuinely fresh held-out scoring population from approved licensed sources, assign immutable IDs, review compatibility labels, and freeze benchmarks/semantic-validity-split-manifest.json (parent Steps 3 manifest task / Step 6 held-out run).",
+  "step_6_headline_evaluation": {
+    "status": "deferred",
+    "recorded_at": "2026-10-12T18:00:00+00:00",
+    "deferred_evidence_artifact": "artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json",
+    "evaluate_cli_blocked": "P4-SEMVALID held-out runs fail closed until status is fresh-held-out-ready"
+  },
+  "step_7_gate_scoring": {
+    "status": "deferred",
+    "recorded_at": "2026-10-12T23:30:00+00:00",
+    "gate_scoring_artifact": "artifacts/evaluation/phase4-semantic-validity-gate.json",
+    "headline_verdict": "deferred",
+    "reason": "Step 6 held-out replay not executed; C-versus-A pass/fail not scored on contaminated split or development data."
+  }
 }
