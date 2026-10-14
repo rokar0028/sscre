@@ -39,7 +39,9 @@ def test_scoped_eviction_deletes_only_inside_the_hash_list() -> None:
     owned = "a" * 64
     cursor = _Cursor([(2, 10), (owned,), (1, 10)])
 
-    assert repository._evict_cursor(cursor, 1, 100, [owned]) == 1
+    assert (
+        repository._evict_cursor(cursor, 1, 100, only_query_hashes=[owned]) == 1
+    )
 
     deletes = _deletes(cursor)
     assert len(deletes) == 1
@@ -55,19 +57,21 @@ def test_unscoped_eviction_keeps_the_global_oldest_delete() -> None:
     repository = _repository()
     cursor = _Cursor([(2, 10), ("b" * 64,), (1, 10)])
 
-    assert repository._evict_cursor(cursor, 1, 100, None) == 1
+    assert repository._evict_cursor(cursor, 1, 100, only_query_hashes=None) == 1
 
     deletes = _deletes(cursor)
     assert len(deletes) == 1
     assert "ANY(%s)" not in deletes[0][0]
-    assert deletes[0][1] is None
+    assert deletes[0][1] in (None, ())
 
 
 def test_scoped_eviction_stops_when_the_owned_set_is_within_the_cap() -> None:
     repository = _repository()
     cursor = _Cursor([(1, 10)])
 
-    assert repository._evict_cursor(cursor, 1, 100, ["owned"]) == 0
+    assert (
+        repository._evict_cursor(cursor, 1, 100, only_query_hashes=["owned"]) == 0
+    )
     assert _deletes(cursor) == []
 
 
@@ -75,7 +79,7 @@ def test_empty_scope_does_not_read_or_delete_rows() -> None:
     repository = _repository()
     cursor = _Cursor([])
 
-    assert repository._evict_cursor(cursor, 1, 100, []) == 0
+    assert repository._evict_cursor(cursor, 1, 100, only_query_hashes=[]) == 0
     assert cursor.calls == []
 
 

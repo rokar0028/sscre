@@ -8,7 +8,7 @@ from sscre.cache import CacheEntry, InMemoryExactCache
 from sscre.config import Settings
 from sscre.llm import LLMResult
 from sscre.metadata import extract_metadata
-from sscre.query import hash_query
+from sscre.query import hash_query, storage_query_hash
 from sscre.safety import QueryMetadata
 
 
@@ -17,7 +17,7 @@ def test_expired_exact_entry_is_not_reused() -> None:
     cache = InMemoryExactCache()
     cache.insert(
         CacheEntry(
-            query_hash=hashlib.sha256(query.encode()).hexdigest(),
+            query_hash=storage_query_hash(query),
             normalized_query=query,
             answer="expired answer",
             metadata=QueryMetadata(
@@ -46,9 +46,7 @@ def test_expired_exact_entry_is_not_reused() -> None:
     assert body["decision"] == "UNSAFE"
     assert body["candidate_traces"][0]["cache_control_outcome"] == "expired"
     assert body["answer"] != "expired answer"
-    stored = cache.get_by_query_hash(
-        hashlib.sha256(query.encode()).hexdigest()
-    )
+    stored = cache.get_by_query_hash(storage_query_hash(query))
     assert stored is not None
     assert stored.answer == body["answer"]
 
@@ -58,7 +56,7 @@ def test_expired_compatible_entry_is_not_served_on_replacement() -> None:
     cache = InMemoryExactCache()
     cache.insert(
         CacheEntry(
-            query_hash=hash_query(query),
+            query_hash=storage_query_hash(query),
             normalized_query=query,
             answer="expired answer",
             metadata=extract_metadata(query),
@@ -80,7 +78,7 @@ def test_expired_compatible_entry_is_not_served_on_replacement() -> None:
     assert body["decision"] == "UNSAFE"
     assert body["candidate_traces"][0]["cache_control_outcome"] == "expired"
     assert body["answer"] != "expired answer"
-    stored = cache.get_by_query_hash(hash_query(query))
+    stored = cache.get_by_query_hash(storage_query_hash(query))
     assert stored is not None
     assert stored.answer == body["answer"]
 
@@ -90,7 +88,7 @@ def test_missing_ttl_metadata_is_not_reused() -> None:
     cache = InMemoryExactCache()
     cache.insert(
         CacheEntry(
-            query_hash=hashlib.sha256(query.encode()).hexdigest(),
+            query_hash=storage_query_hash(query),
             normalized_query=query,
             answer="unbounded answer",
             metadata=QueryMetadata(),
@@ -122,8 +120,7 @@ def test_generated_stable_entry_receives_configured_ttl() -> None:
     assert response.status_code == 200
     assert response.json()["freshness_class"] == "stable"
     assert response.json()["cache_control_reason"] == "fresh"
-    query_hash = hashlib.sha256(b"What is caching?").hexdigest()
-    entry = cache.get_by_query_hash(query_hash)
+    entry = cache.get_by_query_hash(storage_query_hash("What is caching?"))
     assert entry is not None
     assert entry.ttl_expires_at is not None
     assert entry.ttl_expires_at > datetime.now(timezone.utc)

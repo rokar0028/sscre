@@ -27,7 +27,9 @@ from sscre.safety import QueryMetadata
 
 
 def _query_hash(query: str) -> str:
-    return preprocess_query(QueryRequest(query=query)).query_hash
+    from sscre.query import trusted_local_scope
+
+    return preprocess_query(QueryRequest(query=query), trusted_local_scope()).query_hash
 
 
 def _python_search_meta() -> QueryMetadata:
@@ -539,6 +541,8 @@ def test_generated_entry_metadata_matches_preprocess_for_exact_recheck() -> None
     assert first["source"] == "generated"
     assert second["source"] == "cache"
     assert second["decision"] == "SAFE"
-    stored = cache.get_by_query_hash(hashlib.sha256(query.encode()).hexdigest())
+    from sscre.query import storage_query_hash
+
+    stored = cache.get_by_query_hash(storage_query_hash(query))
     assert stored is not None
     assert stored.metadata == extract_metadata(query)

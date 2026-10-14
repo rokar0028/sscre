@@ -26,7 +26,9 @@ from sscre.safety import QueryMetadata
 
 
 def _query_hash(query: str) -> str:
-    return preprocess_query(QueryRequest(query=query)).query_hash
+    from sscre.query import trusted_local_scope
+
+    return preprocess_query(QueryRequest(query=query), trusted_local_scope()).query_hash
 
 
 def _python_search_meta() -> QueryMetadata:

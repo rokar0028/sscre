@@ -119,7 +119,14 @@ def test_top_k_embedding_search_returns_ranked_candidates(
         for entry in entries:
             repository.insert(entry)
 
-        candidates = repository.search_by_embedding((1.0, 0.0), top_k=1)
+        from sscre.api_auth import DEFAULT_NAMESPACE, TRUSTED_LOCAL_TENANT
+
+        candidates = repository.search_by_embedding(
+            (1.0, 0.0),
+            top_k=1,
+            tenant_id=TRUSTED_LOCAL_TENANT,
+            namespace_id=DEFAULT_NAMESPACE,
+        )
 
         assert len(candidates) == 1
         assert candidates[0].query_hash == entries[0].query_hash
@@ -284,10 +291,14 @@ def test_postgres_search_returns_expired_candidates(
         for entry in entries:
             repository.insert(entry)
 
+        from sscre.api_auth import DEFAULT_NAMESPACE, TRUSTED_LOCAL_TENANT
+
         candidates = repository.search_by_embedding(
             (1.0, 0.0),
             top_k=10,
             embedding_model="test-embedding",
+            tenant_id=TRUSTED_LOCAL_TENANT,
+            namespace_id=DEFAULT_NAMESPACE,
         )
 
         assert expired_query in {

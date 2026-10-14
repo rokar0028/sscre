@@ -2,11 +2,16 @@ import pytest
 from pydantic import ValidationError
 
 from sscre.query import (
+    CACHE_KEY_VERSION,
     MAX_QUERY_LENGTH,
     QueryRequest,
+    CacheScope,
+    content_query_hash,
     hash_query,
     normalize_query,
     preprocess_query,
+    scoped_cache_key,
+    trusted_local_scope,
 )
 
 
@@ -36,7 +41,10 @@ def test_hash_is_stable_and_whitespace_equivalent() -> None:
     second = QueryRequest(query=" What is Python? ")
 
     assert hash_query(first.query) == hash_query(second.query)
-    assert preprocess_query(first).query_hash == preprocess_query(second).query_hash
+    scope = trusted_local_scope()
+    assert preprocess_query(first, scope).query_hash == preprocess_query(
+        second, scope
+    ).query_hash
 
 
 def test_hash_is_sha256_hex() -> None:
@@ -51,8 +59,16 @@ def test_different_normalized_queries_have_different_hashes() -> None:
     assert hash_query("Python") != hash_query("Java")
 
 
+def test_query_request_rejects_untrusted_scope_fields() -> None:
+    with pytest.raises(ValidationError):
+        QueryRequest.model_validate({"query": "hello", "tenant_id": "evil"})
+
+
 def test_preprocess_extracts_metadata_without_changing_normalization() -> None:
-    processed = preprocess_query(QueryRequest(query="  Explain   caching  "))
+    processed = preprocess_query(
+        QueryRequest(query="  Explain   caching  "),
+        trusted_local_scope(),
+    )
 
     assert processed.normalized_query == "Explain caching"
     assert processed.metadata.intent == "explain"
