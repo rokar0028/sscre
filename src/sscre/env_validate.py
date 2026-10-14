@@ -9,6 +9,8 @@ import sys
 from datetime import datetime, timezone
 from typing import Any
 
+from sscre.api_abuse_controls import validate_abuse_control_configuration
+from sscre.api_auth import validate_api_exposure_configuration
 from sscre.config import Settings
 
 SCHEMA_VERSION = "sscre-env-validate-1.0"
@@ -43,6 +45,12 @@ def _redacted_settings_summary(settings: Settings) -> dict[str, Any]:
         "admin_read_token_configured": settings.admin_read_token is not None,
         "admin_token_expires_at_configured": settings.admin_token_expires_at
         is not None,
+        "api_exposure_mode": settings.api_exposure_mode,
+        "client_auth_json_configured": settings.client_auth_json is not None,
+        "max_request_body_bytes": settings.max_request_body_bytes,
+        "rate_limit_requests_per_minute": settings.rate_limit_requests_per_minute,
+        "tenant_max_concurrent_queries": settings.tenant_max_concurrent_queries,
+        "tenant_provider_budget_per_minute": settings.tenant_provider_budget_per_minute,
         "request_timeout_seconds": settings.request_timeout_seconds,
         "embedding_timeout_seconds": settings.embedding_timeout_seconds,
         "generation_timeout_seconds": settings.generation_timeout_seconds,
@@ -140,6 +148,8 @@ def validate_environment(mode: str) -> dict[str, Any]:
 
     report["settings"] = _redacted_settings_summary(settings)
     report["errors"].extend(validate_timeout_relationship(settings))
+    report["errors"].extend(validate_api_exposure_configuration(settings))
+    report["errors"].extend(validate_abuse_control_configuration(settings))
 
     if mode == "production" and settings.runtime_profile != "production":
         report["errors"].append(
