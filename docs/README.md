@@ -74,6 +74,9 @@ Technical specs and evaluation notes — not milestone checklists.
 | [POSTGRESQL_LOCAL_SETUP.md](./setup/POSTGRESQL_LOCAL_SETUP.md) | Local Postgres + pgvector |
 | [POST_PHASE4_WS1_ENVIRONMENT_CONTRACT.md](./setup/POST_PHASE4_WS1_ENVIRONMENT_CONTRACT.md) | Stabilization WS1 env contract matrix |
 | [POST_PHASE4_WS1_EVIDENCE.md](./setup/POST_PHASE4_WS1_EVIDENCE.md) | Stabilization WS1 verification evidence |
+| [POST_PHASE4_WS2_API_AUTH_BOUNDARY.md](./setup/POST_PHASE4_WS2_API_AUTH_BOUNDARY.md) | Stabilization WS2 threat model and API/auth contract |
+| [POST_PHASE4_WS2_EVIDENCE.md](./setup/POST_PHASE4_WS2_EVIDENCE.md) | Stabilization WS2 verification evidence |
+| [POST_PHASE4_WS2_STORAGE_ISOLATION.md](./setup/POST_PHASE4_WS2_STORAGE_ISOLATION.md) | WS2 tenant/namespace storage isolation |
 | [CURSOR_PORTABLE_SETUP.md](./setup/CURSOR_PORTABLE_SETUP.md) | Cursor rules/skills on another machine |
 
 ## Internal (`internal/`)
