@@ -5,8 +5,16 @@ from threading import RLock
 from math import sqrt
 from typing import Protocol
 
+from sscre.api_auth import DEFAULT_NAMESPACE, TRUSTED_LOCAL_TENANT
 from sscre.canonical import CanonicalAnswer, canonical_answer, hash_answer
 from sscre.cache_controls import CacheControlPolicy
+from sscre.query import (
+    CacheScope,
+    content_query_hash,
+    entry_matches_scope,
+    resolve_operation_scope,
+    scoped_cache_key,
+)
 from sscre.safety import QueryMetadata
 
 _MISSING_TTL = object()
@@ -17,6 +25,9 @@ class CacheEntry:
     query_hash: str
     normalized_query: str
     answer: str
+    tenant_id: str = TRUSTED_LOCAL_TENANT
+    namespace_id: str = DEFAULT_NAMESPACE
+    content_query_hash: str | None = None
     embedding: tuple[float, ...] | None = None
     embedding_model: str | None = None
     embedding_dimension: int | None = None
@@ -33,6 +44,17 @@ class CacheEntry:
         return hash_answer(self.answer)
 
     def __post_init__(self) -> None:
+        content_hash = self.content_query_hash or content_query_hash(
+            self.normalized_query
+        )
+        if self.content_query_hash is None:
+            object.__setattr__(self, "content_query_hash", content_hash)
+        scoped_key = scoped_cache_key(
+            CacheScope(self.tenant_id, self.namespace_id),
+            self.normalized_query,
+        )
+        if self.query_hash == content_hash:
+            object.__setattr__(self, "query_hash", scoped_key)
         if self.ttl_expires_at is _MISSING_TTL:
             freshness_class = (
                 self.metadata.temporal_class
@@ -174,6 +196,43 @@ class DuplicateCacheEntryError(CacheRepositoryError):
     """Raised when an entry already exists for the query hash."""
 
 
+def _call_with_optional_scope(
+    operation: object,
+    *args: object,
+    tenant_id: str,
+    namespace_id: str,
+) -> object:
+    try:
+        return operation(
+            *args,
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+        )
+    except TypeError:
+        return operation(*args)
+
+
+def _validate_scoped_insert_entry(
+    entry: CacheEntry,
+    *,
+    require_predicates: bool,
+) -> CacheScope | None:
+    if not require_predicates:
+        return None
+    scope = resolve_operation_scope(
+        tenant_id=entry.tenant_id,
+        namespace_id=entry.namespace_id,
+        require_predicates=True,
+        operation="cache insert",
+    )
+    expected_key = scoped_cache_key(scope, entry.normalized_query)
+    if entry.query_hash != expected_key:
+        raise ValueError(
+            "query_hash does not match tenant_id and namespace_id scope"
+        )
+    return scope
+
+
 class ExactCacheRepository(Protocol):
     def get_by_query_hash(self, query_hash: str) -> CacheEntry | None:
         """Return an entry or None when the query hash is not cached."""
@@ -204,6 +263,9 @@ class SemanticCacheRepository(ExactCacheRepository, Protocol):
         embedding: tuple[float, ...],
         top_k: int,
         embedding_model: str | None = None,
+        *,
+        tenant_id: str,
+        namespace_id: str,
     ) -> tuple[CacheCandidate, ...]:
         """Return nearest model-compatible candidates in descending similarity."""
         ...
@@ -248,6 +310,7 @@ class InMemoryExactCache:
         max_top_k: int = 100,
         embedding_dimension: int | None = None,
         deduplicate: bool = True,
+        require_scoped_operations: bool = False,
     ) -> None:
         if max_top_k <= 0:
             raise ValueError("max_top_k must be positive")
@@ -266,12 +329,38 @@ class InMemoryExactCache:
         self._max_top_k = max_top_k
         self._embedding_dimension = embedding_dimension
         self._deduplicate = deduplicate
+        self._require_scoped_operations = require_scoped_operations
 
-    def get_by_query_hash(self, query_hash: str) -> CacheEntry | None:
+    def get_by_query_hash(
+        self,
+        query_hash: str,
+        *,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
+    ) -> CacheEntry | None:
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations,
+            operation="cache lookup",
+        )
         with self._lock:
-            return self._entries.get(query_hash)
+            entry = self._entries.get(query_hash)
+            if entry is None:
+                return None
+            if scope is not None and not entry_matches_scope(
+                entry.tenant_id,
+                entry.namespace_id,
+                scope,
+            ):
+                return None
+            return entry
 
     def insert(self, entry: CacheEntry) -> None:
+        _validate_scoped_insert_entry(
+            entry,
+            require_predicates=self._require_scoped_operations,
+        )
         with self._lock:
             if entry.query_hash in self._entries:
                 raise DuplicateCacheEntryError(
@@ -292,6 +381,9 @@ class InMemoryExactCache:
                     query_hash=entry.query_hash,
                     normalized_query=entry.normalized_query,
                     answer=canonical.answer,
+                    tenant_id=entry.tenant_id,
+                    namespace_id=entry.namespace_id,
+                    content_query_hash=entry.content_query_hash,
                     embedding=entry.embedding,
                     embedding_model=entry.embedding_model,
                     embedding_dimension=entry.embedding_dimension,
@@ -321,11 +413,31 @@ class InMemoryExactCache:
                 max_entries,
                 max_bytes,
                 eviction_strategy=eviction_strategy,
+                scope=CacheScope(entry.tenant_id, entry.namespace_id),
             )
 
-    def record_hit(self, query_hash: str) -> None:
+    def record_hit(
+        self,
+        query_hash: str,
+        *,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
+    ) -> None:
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations,
+            operation="cache hit accounting",
+        )
         with self._lock:
-            if query_hash not in self._entries:
+            entry = self._entries.get(query_hash)
+            if entry is None:
+                return
+            if scope is not None and not entry_matches_scope(
+                entry.tenant_id,
+                entry.namespace_id,
+                scope,
+            ):
                 return
             self._access_sequence += 1
             self._access_order[query_hash] = self._access_sequence
@@ -375,23 +487,69 @@ class InMemoryExactCache:
         with self._lock:
             return self._byte_breakdown_unlocked().total_bytes
 
-    def storage_stats(self) -> CacheStorageStats:
+    def storage_stats(
+        self,
+        *,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
+    ) -> CacheStorageStats:
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations,
+            operation="cache statistics",
+        )
         with self._lock:
+            if scope is None:
+                return CacheStorageStats(
+                    entries=len(self._entries),
+                    canonical_answers=len(self._canonical_answers),
+                    total_bytes=self.storage_bytes(),
+                    deduplication_hits=self._deduplication_hits,
+                    deduplication_savings_bytes=self._deduplication_savings_bytes,
+                    expirations=self._expiration_count,
+                    evictions=self._eviction_count,
+                )
+            scoped_entries = self._scoped_entries(scope)
+            canonical_hashes = {
+                entry.canonical_answer_hash
+                for entry in scoped_entries.values()
+                if entry.canonical_answer_hash
+            }
             return CacheStorageStats(
-                entries=len(self._entries),
-                canonical_answers=len(self._canonical_answers),
-                total_bytes=self.storage_bytes(),
+                entries=len(scoped_entries),
+                canonical_answers=len(canonical_hashes),
+                total_bytes=self._scoped_storage_bytes(scope),
                 deduplication_hits=self._deduplication_hits,
                 deduplication_savings_bytes=self._deduplication_savings_bytes,
                 expirations=self._expiration_count,
                 evictions=self._eviction_count,
             )
 
-    def delete_by_query_hash(self, query_hash: str) -> None:
+    def delete_by_query_hash(
+        self,
+        query_hash: str,
+        *,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
+    ) -> None:
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations,
+            operation="cache delete",
+        )
         with self._lock:
-            entry = self._entries.pop(query_hash, None)
+            entry = self._entries.get(query_hash)
             if entry is None:
                 return
+            if scope is not None and not entry_matches_scope(
+                entry.tenant_id,
+                entry.namespace_id,
+                scope,
+            ):
+                return
+            entry = self._entries.pop(query_hash)
             self._access_order.pop(query_hash, None)
             self._hit_counts.pop(query_hash, None)
             canonical_hash = entry.canonical_answer_hash
@@ -401,14 +559,27 @@ class InMemoryExactCache:
             ):
                 self._canonical_answers.pop(canonical_hash, None)
 
-    def cleanup_expired(self, limit: int = 100) -> int:
+    def cleanup_expired(
+        self,
+        limit: int = 100,
+        *,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
+    ) -> int:
         if limit <= 0:
             raise ValueError("cleanup limit must be positive")
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations,
+            operation="cache expiration cleanup",
+        )
         with self._lock:
             now = datetime.now(timezone.utc)
+            source = self._scoped_entries(scope)
             expired = [
                 query_hash
-                for query_hash, entry in self._entries.items()
+                for query_hash, entry in source.items()
                 if entry.ttl_expires_at is not None
                 and entry.ttl_expires_at <= now
             ][:limit]
@@ -446,22 +617,54 @@ class InMemoryExactCache:
             query_hash,
         )
 
+    def _scoped_entries(self, scope: CacheScope | None) -> dict[str, CacheEntry]:
+        if scope is None:
+            return self._entries
+        return {
+            query_hash: entry
+            for query_hash, entry in self._entries.items()
+            if entry.tenant_id == scope.tenant_id
+            and entry.namespace_id == scope.namespace_id
+        }
+
+    def _scoped_storage_bytes(self, scope: CacheScope | None) -> int:
+        scoped = self._scoped_entries(scope)
+        total = 0
+        for entry in scoped.values():
+            total += self._entry_size(entry)
+        if scope is not None and self._deduplicate:
+            canonical_hashes = {
+                entry.canonical_answer_hash
+                for entry in scoped.values()
+                if entry.canonical_answer_hash
+            }
+            total += sum(
+                len(self._canonical_answers[answer_hash].answer.encode("utf-8"))
+                for answer_hash in canonical_hashes
+                if answer_hash in self._canonical_answers
+            )
+        elif scope is None:
+            return self.storage_bytes()
+        return total
+
     def _evict_to_limits(
         self,
         max_entries: int,
         max_bytes: int,
         *,
         eviction_strategy: str = "lru",
+        scope: CacheScope | None = None,
     ) -> int:
         if max_entries <= 0 or max_bytes <= 0:
             raise ValueError("cache limits must be positive")
         evicted = 0
+        scoped = self._scoped_entries(scope)
         while (
-            len(self._entries) > max_entries
-            or self.storage_bytes() > max_bytes
+            len(scoped) > max_entries
+            or self._scoped_storage_bytes(scope) > max_bytes
         ):
             query_hash = min(
-                self._entries,
+                scoped,
                 key=lambda value: self._eviction_key(value, eviction_strategy),
             )
             entry = self._entries.pop(query_hash)
@@ -474,6 +677,7 @@ class InMemoryExactCache:
                 for other in self._entries.values()
             ):
                 self._canonical_answers.pop(canonical_hash, None)
+            scoped = self._scoped_entries(scope)
         self._eviction_count += evicted
         return evicted
 
@@ -483,17 +687,49 @@ class InMemoryExactCache:
         max_bytes: int,
         *,
         eviction_strategy: str = "lru",
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
     ) -> int:
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations,
+            operation="cache eviction",
+        )
         with self._lock:
             return self._evict_to_limits(
                 max_entries,
                 max_bytes,
                 eviction_strategy=eviction_strategy,
+                scope=scope,
             )
 
-    def get_canonical_answer(self, answer_hash: str) -> CanonicalAnswer | None:
+    def get_canonical_answer(
+        self,
+        answer_hash: str,
+        *,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
+    ) -> CanonicalAnswer | None:
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations,
+            operation="canonical answer lookup",
+        )
         with self._lock:
-            return self._canonical_answers.get(answer_hash)
+            canonical = self._canonical_answers.get(answer_hash)
+            if canonical is None:
+                return None
+            if scope is None:
+                return canonical
+            referenced = any(
+                entry.canonical_answer_hash == answer_hash
+                for entry in self._scoped_entries(scope).values()
+            )
+            if not referenced:
+                return None
+            return canonical
 
     def canonical_answer_count(self) -> int:
         with self._lock:
@@ -510,7 +746,17 @@ class InMemoryExactCache:
         embedding: tuple[float, ...],
         top_k: int,
         embedding_model: str | None = None,
+        *,
+        tenant_id: str,
+        namespace_id: str,
     ) -> tuple[CacheCandidate, ...]:
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=True,
+            operation="semantic cache search",
+        )
+        assert scope is not None
         validate_vector_search(
             embedding,
             top_k,
@@ -519,7 +765,7 @@ class InMemoryExactCache:
         )
         candidates: list[CacheCandidate] = []
         with self._lock:
-            entries = tuple(self._entries.values())
+            entries = tuple(self._scoped_entries(scope).values())
         for entry in entries:
             if entry.embedding is None:
                 continue

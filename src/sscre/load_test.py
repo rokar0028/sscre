@@ -108,6 +108,9 @@ class DisabledCache:
         embedding: tuple[float, ...],
         top_k: int,
         embedding_model: str | None = None,
+        *,
+        tenant_id: str = "",
+        namespace_id: str = "",
     ) -> tuple[()]:
         return ()
 
@@ -262,6 +265,9 @@ class _TimedRepository:
         embedding: tuple[float, ...],
         top_k: int,
         embedding_model: str | None = None,
+        *,
+        tenant_id: str,
+        namespace_id: str,
     ) -> Any:
         with _component_timer(
             lambda elapsed: self._hub.add_vector(embedding, "vector_search", elapsed)
@@ -270,6 +276,8 @@ class _TimedRepository:
                 embedding,
                 top_k,
                 embedding_model,
+                tenant_id=tenant_id,
+                namespace_id=namespace_id,
             )
 
     def insert_and_evict(self, entry: Any, max_entries: int, max_bytes: int) -> Any:

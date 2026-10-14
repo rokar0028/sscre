@@ -21,7 +21,7 @@ from sscre.freshness_evaluation import FreshnessReplayClock
 from sscre.compatibility import evaluate_candidate_boundary
 from sscre.metadata import extract_metadata
 from sscre.canonical import hash_answer
-from sscre.query import hash_query, normalize_query
+from sscre.query import hash_query, normalize_query, storage_query_hash
 from sscre.serialization import (
     attach_evaluation_report_schema,
     redact_operational_evaluation_report,
@@ -520,7 +520,7 @@ def run_exact_cache_baseline(
         for direction, query in (("a_to_b", record.query_a), ("b_to_a", record.query_b)):
             started_at = perf_counter()
             normalized_query = normalize_query(query)
-            query_hash = hash_query(normalized_query)
+            query_hash = storage_query_hash(normalized_query)
             cached_entry = cache.get_by_query_hash(query_hash)
             request_count += 1
 
@@ -811,9 +811,13 @@ def run_embedding_cache_baseline(
             normalized_query = normalize_query(query)
             embedding_result = vector_client.embed(normalized_query)
             embedding_tokens += embedding_result.input_tokens
+            from sscre.api_auth import DEFAULT_NAMESPACE, TRUSTED_LOCAL_TENANT
+
             candidates = cache.search_by_embedding(
                 embedding_result.vector,
                 top_k,
+                tenant_id=TRUSTED_LOCAL_TENANT,
+                namespace_id=DEFAULT_NAMESPACE,
             )
             request_count += 1
             candidate = candidates[0] if candidates else None
@@ -939,7 +943,7 @@ def run_embedding_cache_baseline(
                     freshness_class=freshness_class,
                 )
             )
-            inserted_hash = hash_query(normalized_query)
+            inserted_hash = storage_query_hash(normalized_query)
             _insert_if_absent(
                 cache,
                 CacheEntry(
@@ -1217,9 +1221,13 @@ def run_compatibility_cache_baseline(
             query_metadata = extract_metadata(normalized_query)
             embedding_result = vector_client.embed(normalized_query)
             embedding_tokens += embedding_result.input_tokens
+            from sscre.api_auth import DEFAULT_NAMESPACE, TRUSTED_LOCAL_TENANT
+
             candidates = cache.search_by_embedding(
                 embedding_result.vector,
                 top_k,
+                tenant_id=TRUSTED_LOCAL_TENANT,
+                namespace_id=DEFAULT_NAMESPACE,
             )
             request_count += 1
 
@@ -1515,7 +1523,7 @@ def run_compatibility_cache_baseline(
                     runtime_temporal_class=query_metadata.temporal_class,
                 )
             )
-            inserted_hash = hash_query(normalized_query)
+            inserted_hash = storage_query_hash(normalized_query)
             _insert_if_absent(
                 cache,
                 _baseline_cache_entry_after_generation(

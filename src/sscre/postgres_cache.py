@@ -11,8 +11,10 @@ from sscre.cache import (
     CacheStorageStats,
     DuplicateCacheEntryError,
     ExactCacheRepository,
+    _validate_scoped_insert_entry,
     validate_vector_search,
 )
+from sscre.query import resolve_operation_scope
 from sscre.config import Settings
 from sscre.safety import QueryMetadata
 from sscre.migrate import default_migrations_dir, validate_migration_state
@@ -137,6 +139,7 @@ class PostgresExactCacheRepository(ExactCacheRepository):
         *,
         max_top_k: int = 100,
         embedding_dimension: int | None = None,
+        require_scoped_operations: bool = False,
     ) -> None:
         self._database_url = (
             database_url or Settings.from_environment().database_url
@@ -162,6 +165,7 @@ class PostgresExactCacheRepository(ExactCacheRepository):
             raise ValueError("embedding_dimension must be positive")
         self._max_top_k = max_top_k
         self._embedding_dimension = embedding_dimension
+        self._require_scoped_operations = require_scoped_operations
 
     def check_ready(self, timeout_seconds: int = 1) -> None:
         if timeout_seconds <= 0:
@@ -178,12 +182,29 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                 "PostgreSQL is unavailable or migrations are invalid"
             ) from exc
 
-    def get_by_query_hash(self, query_hash: str) -> CacheEntry | None:
+    def get_by_query_hash(
+        self,
+        query_hash: str,
+        *,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
+    ) -> CacheEntry | None:
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations,
+            operation="cache lookup",
+        )
+        params: list[object] = [query_hash]
+        scope_sql = ""
+        if scope is not None:
+            scope_sql = " AND ce.tenant_id = %s AND ce.namespace_id = %s"
+            params.extend([scope.tenant_id, scope.namespace_id])
         try:
             with psycopg.connect(self._database_url) as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        """
+                        f"""
                         SELECT ce.query_hash, ce.normalized_query,
                                   COALESCE(
                                       (
@@ -193,14 +214,16 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                                       ),
                                       ce.answer
                                   ),
+                                  ce.tenant_id, ce.namespace_id,
+                                  ce.content_query_hash,
                                   ce.embedding::text, ce.embedding_model,
                                   ce.embedding_dimension, ce.metadata,
                                   ce.ttl_expires_at,
                                   ce.canonical_answer_hash
                         FROM cache_entries AS ce
-                        WHERE ce.query_hash = %s
+                        WHERE ce.query_hash = %s{scope_sql}
                         """,
-                        (query_hash,),
+                        tuple(params),
                     )
                     row = cursor.fetchone()
         except psycopg.Error as exc:
@@ -214,124 +237,142 @@ class PostgresExactCacheRepository(ExactCacheRepository):
             query_hash=row[0],
             normalized_query=row[1],
             answer=row[2],
-            embedding=_parse_vector(row[3]),
-            embedding_model=row[4],
-            embedding_dimension=row[5],
-            metadata=_parse_metadata(row[6]),
-            ttl_expires_at=row[7],
-            canonical_answer_hash=row[8],
+            tenant_id=row[3],
+            namespace_id=row[4],
+            content_query_hash=row[5],
+            embedding=_parse_vector(row[6]),
+            embedding_model=row[7],
+            embedding_dimension=row[8],
+            metadata=_parse_metadata(row[9]),
+            ttl_expires_at=row[10],
+            canonical_answer_hash=row[11],
         )
 
-    def record_hit(self, query_hash: str) -> None:
+    def record_hit(
+        self,
+        query_hash: str,
+        *,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
+    ) -> None:
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations,
+            operation="cache hit accounting",
+        )
+        params: list[object] = [query_hash]
+        scope_sql = ""
+        if scope is not None:
+            scope_sql = " AND tenant_id = %s AND namespace_id = %s"
+            params.extend([scope.tenant_id, scope.namespace_id])
         try:
             with psycopg.connect(self._database_url) as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        """
+                        f"""
                         UPDATE cache_entries
                         SET hit_count = hit_count + 1,
                             last_accessed_at = now()
-                        WHERE query_hash = %s
+                        WHERE query_hash = %s{scope_sql}
                         """,
-                        (query_hash,),
+                        tuple(params),
                     )
         except psycopg.Error as exc:
             raise CacheRepositoryError(
                 "failed to update PostgreSQL cache access metadata"
             ) from exc
 
+    def _scoped_entry_filters(
+        self,
+        *,
+        only_query_hashes: Sequence[str] | None,
+        tenant_id: str | None,
+        namespace_id: str | None,
+    ) -> tuple[str, list[object]]:
+        clauses: list[str] = []
+        params: list[object] = []
+        if tenant_id is not None and namespace_id is not None:
+            clauses.append("tenant_id = %s AND namespace_id = %s")
+            params.extend([tenant_id, namespace_id])
+        if only_query_hashes is not None:
+            scope = list(only_query_hashes)
+            if not scope:
+                return "FALSE", []
+            clauses.append("query_hash = ANY(%s)")
+            params.append(scope)
+        if not clauses:
+            return "TRUE", []
+        return " AND ".join(clauses), params
+
     def _evict_cursor(
         self,
         cursor: object,
         max_entries: int,
         max_bytes: int,
+        *,
         only_query_hashes: Sequence[str] | None = None,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
     ) -> int:
-        scope = None if only_query_hashes is None else list(only_query_hashes)
-        evicted = 0
-        if scope is not None and not scope:
+        where_sql, where_params = self._scoped_entry_filters(
+            only_query_hashes=only_query_hashes,
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+        )
+        if where_sql == "FALSE":
             return 0
+        evicted = 0
         while True:
-            if scope is None:
-                cursor.execute(
-                    """
-                    SELECT
-                        (SELECT count(*) FROM cache_entries),
-                        COALESCE(
-                            (SELECT sum(storage_bytes) FROM cache_entries),
-                            0
-                        )
-                        + COALESCE(
-                            (SELECT sum(octet_length(answer))
-                             FROM canonical_answers),
-                            0
-                        )
-                    """
-                )
-            else:
-                cursor.execute(
-                    """
-                    SELECT
+            cursor.execute(
+                f"""
+                SELECT
+                    (
+                        SELECT count(*)
+                        FROM cache_entries
+                        WHERE {where_sql}
+                    ),
+                    COALESCE(
                         (
-                            SELECT count(*)
+                            SELECT sum(storage_bytes)
                             FROM cache_entries
-                            WHERE query_hash = ANY(%s)
+                            WHERE {where_sql}
                         ),
-                        COALESCE(
-                            (
-                                SELECT sum(storage_bytes)
+                        0
+                    )
+                    + COALESCE(
+                        (
+                            SELECT sum(octet_length(ca.answer))
+                            FROM canonical_answers AS ca
+                            WHERE ca.answer_hash IN (
+                                SELECT canonical_answer_hash
                                 FROM cache_entries
-                                WHERE query_hash = ANY(%s)
-                            ),
-                            0
-                        )
-                        + COALESCE(
-                            (
-                                SELECT sum(octet_length(ca.answer))
-                                FROM canonical_answers AS ca
-                                WHERE ca.answer_hash IN (
-                                    SELECT canonical_answer_hash
-                                    FROM cache_entries
-                                    WHERE query_hash = ANY(%s)
-                                      AND canonical_answer_hash IS NOT NULL
-                                )
-                            ),
-                            0
-                        )
-                    """,
-                    (scope, scope, scope),
-                )
+                                WHERE {where_sql}
+                                  AND canonical_answer_hash IS NOT NULL
+                            )
+                        ),
+                        0
+                    )
+                """,
+                (*where_params, *where_params, *where_params),
+            )
             entry_count, byte_count = cursor.fetchone()
             if entry_count <= max_entries and byte_count <= max_bytes:
                 break
-            if scope is None:
-                cursor.execute(
-                    """
-                    DELETE FROM cache_entries
-                    WHERE query_hash = (
-                        SELECT query_hash
-                        FROM cache_entries
-                        ORDER BY last_accessed_at ASC, query_hash ASC
-                        LIMIT 1
-                    )
-                    RETURNING canonical_answer_hash
-                    """
+            cursor.execute(
+                f"""
+                DELETE FROM cache_entries
+                WHERE query_hash = (
+                    SELECT query_hash
+                    FROM cache_entries
+                    WHERE {where_sql}
+                    ORDER BY last_accessed_at ASC, query_hash ASC
+                    LIMIT 1
                 )
-            else:
-                cursor.execute(
-                    """
-                    DELETE FROM cache_entries
-                    WHERE query_hash = (
-                        SELECT query_hash
-                        FROM cache_entries
-                        WHERE query_hash = ANY(%s)
-                        ORDER BY last_accessed_at ASC, query_hash ASC
-                        LIMIT 1
-                    )
-                    RETURNING canonical_answer_hash
-                    """,
-                    (scope,),
-                )
+                RETURNING canonical_answer_hash
+                """,
+                tuple(where_params),
+            )
             deleted = cursor.fetchone()
             if deleted is None:
                 break
@@ -348,9 +389,22 @@ class PostgresExactCacheRepository(ExactCacheRepository):
             )
         return evicted
 
-    def evict_to_limits(self, max_entries: int, max_bytes: int) -> int:
+    def evict_to_limits(
+        self,
+        max_entries: int,
+        max_bytes: int,
+        *,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
+    ) -> int:
         if max_entries <= 0 or max_bytes <= 0:
             raise ValueError("cache limits must be positive")
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations,
+            operation="cache eviction",
+        )
         try:
             with psycopg.connect(self._database_url) as connection:
                 with connection.cursor() as cursor:
@@ -358,6 +412,8 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                         cursor,
                         max_entries,
                         max_bytes,
+                        tenant_id=scope.tenant_id if scope is not None else None,
+                        namespace_id=scope.namespace_id if scope is not None else None,
                     )
         except psycopg.Error as exc:
             raise CacheRepositoryError(
@@ -365,33 +421,108 @@ class PostgresExactCacheRepository(ExactCacheRepository):
             ) from exc
         return evicted
 
-    def storage_stats(self) -> "CacheStorageStats":
+    def storage_stats(
+        self,
+        *,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
+    ) -> "CacheStorageStats":
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations,
+            operation="cache statistics",
+        )
+        scoped = scope is not None
         try:
             with psycopg.connect(self._database_url) as connection:
                 with connection.cursor() as cursor:
-                    cursor.execute(
-                        """
-                        SELECT
-                            (SELECT count(*) FROM cache_entries),
-                            (SELECT count(*) FROM canonical_answers),
-                            (SELECT COALESCE(sum(storage_bytes), 0)
-                             FROM cache_entries)
-                            + (SELECT COALESCE(sum(octet_length(answer)), 0)
-                               FROM canonical_answers),
-                            (SELECT deduplication_hits
-                             FROM cache_lifecycle_counters
-                             WHERE singleton),
-                            (SELECT deduplication_savings_bytes
-                             FROM cache_lifecycle_counters
-                             WHERE singleton),
-                            (SELECT expirations
-                             FROM cache_lifecycle_counters
-                             WHERE singleton),
-                            (SELECT evictions
-                             FROM cache_lifecycle_counters
-                             WHERE singleton)
-                        """
-                    )
+                    if scoped:
+                        cursor.execute(
+                            """
+                            SELECT
+                                (
+                                    SELECT count(*)
+                                    FROM cache_entries
+                                    WHERE tenant_id = %s AND namespace_id = %s
+                                ),
+                                (
+                                    SELECT count(DISTINCT ce.canonical_answer_hash)
+                                    FROM cache_entries AS ce
+                                    WHERE ce.tenant_id = %s
+                                      AND ce.namespace_id = %s
+                                      AND ce.canonical_answer_hash IS NOT NULL
+                                ),
+                                COALESCE(
+                                    (
+                                        SELECT sum(storage_bytes)
+                                        FROM cache_entries
+                                        WHERE tenant_id = %s AND namespace_id = %s
+                                    ),
+                                    0
+                                )
+                                + COALESCE(
+                                    (
+                                        SELECT sum(octet_length(ca.answer))
+                                        FROM canonical_answers AS ca
+                                        WHERE ca.answer_hash IN (
+                                            SELECT canonical_answer_hash
+                                            FROM cache_entries
+                                            WHERE tenant_id = %s
+                                              AND namespace_id = %s
+                                              AND canonical_answer_hash IS NOT NULL
+                                        )
+                                    ),
+                                    0
+                                ),
+                                (SELECT deduplication_hits
+                                 FROM cache_lifecycle_counters
+                                 WHERE singleton),
+                                (SELECT deduplication_savings_bytes
+                                 FROM cache_lifecycle_counters
+                                 WHERE singleton),
+                                (SELECT expirations
+                                 FROM cache_lifecycle_counters
+                                 WHERE singleton),
+                                (SELECT evictions
+                                 FROM cache_lifecycle_counters
+                                 WHERE singleton)
+                            """,
+                            (
+                                scope.tenant_id,
+                                scope.namespace_id,
+                                scope.tenant_id,
+                                scope.namespace_id,
+                                scope.tenant_id,
+                                scope.namespace_id,
+                                scope.tenant_id,
+                                scope.namespace_id,
+                            ),
+                        )
+                    else:
+                        cursor.execute(
+                            """
+                            SELECT
+                                (SELECT count(*) FROM cache_entries),
+                                (SELECT count(*) FROM canonical_answers),
+                                (SELECT COALESCE(sum(storage_bytes), 0)
+                                 FROM cache_entries)
+                                + (SELECT COALESCE(sum(octet_length(answer)), 0)
+                                   FROM canonical_answers),
+                                (SELECT deduplication_hits
+                                 FROM cache_lifecycle_counters
+                                 WHERE singleton),
+                                (SELECT deduplication_savings_bytes
+                                 FROM cache_lifecycle_counters
+                                 WHERE singleton),
+                                (SELECT expirations
+                                 FROM cache_lifecycle_counters
+                                 WHERE singleton),
+                                (SELECT evictions
+                                 FROM cache_lifecycle_counters
+                                 WHERE singleton)
+                            """
+                        )
                     row = cursor.fetchone()
         except psycopg.Error as exc:
             raise CacheRepositoryError(
@@ -407,17 +538,34 @@ class PostgresExactCacheRepository(ExactCacheRepository):
             evictions=row[6],
         )
 
-    def delete_by_query_hash(self, query_hash: str) -> None:
+    def delete_by_query_hash(
+        self,
+        query_hash: str,
+        *,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
+    ) -> None:
+        scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations,
+            operation="cache delete",
+        )
+        params: list[object] = [query_hash]
+        scope_sql = ""
+        if scope is not None:
+            scope_sql = " AND tenant_id = %s AND namespace_id = %s"
+            params.extend([scope.tenant_id, scope.namespace_id])
         try:
             with psycopg.connect(self._database_url) as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        """
+                        f"""
                         DELETE FROM cache_entries
-                        WHERE query_hash = %s
+                        WHERE query_hash = %s{scope_sql}
                         RETURNING canonical_answer_hash
                         """,
-                        (query_hash,),
+                        tuple(params),
                     )
                     row = cursor.fetchone()
                     if row is not None:
@@ -432,47 +580,64 @@ class PostgresExactCacheRepository(ExactCacheRepository):
         limit: int = 100,
         *,
         only_query_hashes: Sequence[str] | None = None,
+        tenant_id: str | None = None,
+        namespace_id: str | None = None,
     ) -> int:
         if limit <= 0:
             raise ValueError("cleanup limit must be positive")
-        scope = None if only_query_hashes is None else list(only_query_hashes)
-        if scope is not None and not scope:
+        hash_scope = None if only_query_hashes is None else list(only_query_hashes)
+        if hash_scope is not None and not hash_scope:
             return 0
+        tenant_scope = resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=self._require_scoped_operations
+            and hash_scope is None,
+            operation="cache expiration cleanup",
+        )
+        tenant_sql = ""
+        tenant_params: list[object] = []
+        if tenant_scope is not None:
+            tenant_sql = " AND tenant_id = %s AND namespace_id = %s"
+            tenant_params = [
+                tenant_scope.tenant_id,
+                tenant_scope.namespace_id,
+            ]
         try:
             with psycopg.connect(self._database_url) as connection:
                 with connection.cursor() as cursor:
-                    if scope is None:
+                    if hash_scope is None:
                         cursor.execute(
-                            """
+                            f"""
                             DELETE FROM cache_entries
                             WHERE query_hash IN (
                                 SELECT query_hash
                                 FROM cache_entries
                                 WHERE ttl_expires_at IS NOT NULL
-                                  AND ttl_expires_at <= now()
+                                  AND ttl_expires_at <= now(){tenant_sql}
                                 ORDER BY ttl_expires_at ASC, query_hash ASC
                                 LIMIT %s
                             )
                             RETURNING canonical_answer_hash
                             """,
-                            (limit,),
+                            (*tenant_params, limit),
                         )
                     else:
                         cursor.execute(
-                            """
+                            f"""
                             DELETE FROM cache_entries
                             WHERE query_hash IN (
                                 SELECT query_hash
                                 FROM cache_entries
                                 WHERE ttl_expires_at IS NOT NULL
                                   AND ttl_expires_at <= now()
-                                  AND query_hash = ANY(%s)
+                                  AND query_hash = ANY(%s){tenant_sql}
                                 ORDER BY ttl_expires_at ASC, query_hash ASC
                                 LIMIT %s
                             )
                             RETURNING canonical_answer_hash
                             """,
-                            (scope, limit),
+                            (hash_scope, *tenant_params, limit),
                         )
                     removed = cursor.fetchall()
                     deleted = len(removed)
@@ -519,6 +684,9 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                             query_hash,
                             normalized_query,
                             answer,
+                            tenant_id,
+                            namespace_id,
+                            content_query_hash,
                             embedding,
                             embedding_model,
                             embedding_dimension,
@@ -528,13 +696,16 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                             storage_bytes
                         )
                         VALUES (
-                            %s, %s, NULL, %s::vector, %s, %s, %s::jsonb,
-                            %s, %s, %s
+                            %s, %s, NULL, %s, %s, %s, %s::vector, %s, %s,
+                            %s::jsonb, %s, %s, %s
                         )
                         """,
                         (
                             entry.query_hash,
                             entry.normalized_query,
+                            entry.tenant_id,
+                            entry.namespace_id,
+                            entry.content_query_hash,
                             _serialize_vector(entry.embedding),
                             entry.embedding_model,
                             entry.embedding_dimension,
@@ -546,6 +717,10 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                     )
 
     def insert(self, entry: CacheEntry) -> None:
+        _validate_scoped_insert_entry(
+            entry,
+            require_predicates=self._require_scoped_operations,
+        )
         try:
             with psycopg.connect(self._database_url) as connection:
                 with connection.cursor() as cursor:
@@ -569,6 +744,10 @@ class PostgresExactCacheRepository(ExactCacheRepository):
     ) -> None:
         if max_entries <= 0 or max_bytes <= 0:
             raise ValueError("cache limits must be positive")
+        _validate_scoped_insert_entry(
+            entry,
+            require_predicates=self._require_scoped_operations,
+        )
         scope = only_query_hashes
         if scope is not None:
             scope = list(dict.fromkeys([*scope, entry.query_hash]))
@@ -580,7 +759,14 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                         ("sscre.cache.write",),
                     )
                     self._insert_cursor(cursor, entry)
-                    self._evict_cursor(cursor, max_entries, max_bytes, scope)
+                    self._evict_cursor(
+                        cursor,
+                        max_entries,
+                        max_bytes,
+                        only_query_hashes=scope,
+                        tenant_id=entry.tenant_id,
+                        namespace_id=entry.namespace_id,
+                    )
         except UniqueViolation as exc:
             raise DuplicateCacheEntryError(
                 f"query hash already exists: {entry.query_hash}"
@@ -595,7 +781,16 @@ class PostgresExactCacheRepository(ExactCacheRepository):
         embedding: tuple[float, ...],
         top_k: int,
         embedding_model: str | None = None,
+        *,
+        tenant_id: str,
+        namespace_id: str,
     ) -> tuple[CacheCandidate, ...]:
+        resolve_operation_scope(
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
+            require_predicates=True,
+            operation="semantic cache search",
+        )
         validate_vector_search(
             embedding,
             top_k,
@@ -621,6 +816,8 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                         WHERE ce.embedding IS NOT NULL
                           AND ce.embedding_dimension = %s
                           AND (%s::text IS NULL OR ce.embedding_model = %s)
+                          AND ce.tenant_id = %s
+                          AND ce.namespace_id = %s
                         ORDER BY ce.embedding <=> %s::vector, ce.query_hash
                         LIMIT %s
                         """,
@@ -629,6 +826,8 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                             len(embedding),
                             embedding_model,
                             embedding_model,
+                            tenant_id,
+                            namespace_id,
                             vector,
                             top_k,
                         ),

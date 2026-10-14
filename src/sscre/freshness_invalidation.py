@@ -12,7 +12,7 @@ from sscre.freshness_evaluation import (
     FreshnessPolicySpec,
     FreshnessReplayClock,
 )
-from sscre.query import hash_query, normalize_query
+from sscre.query import normalize_query, storage_query_hash
 from sscre.safety import QueryMetadata
 
 INVALIDATION_EXPERIMENT_VERSION = "1.0"
@@ -55,7 +55,7 @@ def run_in_memory_invalidation_sequence(
         temporal_class="stable",
     )
     normalized = normalize_query(_CONTROL_QUERY)
-    query_hash = hash_query(normalized)
+    query_hash = storage_query_hash(normalized)
     cache = InMemoryExactCache(
         max_top_k=5,
         embedding_dimension=len(_SEMANTIC_PROBE),
@@ -79,7 +79,14 @@ def run_in_memory_invalidation_sequence(
     control = clock.evaluate_cache_control("stable", stored.ttl_expires_at)
     fresh_reuse_eligible = control.reusable and control.reason == "fresh"
 
-    semantic_before = cache.search_by_embedding(_SEMANTIC_PROBE, top_k=5)
+    from sscre.api_auth import DEFAULT_NAMESPACE, TRUSTED_LOCAL_TENANT
+
+    semantic_before = cache.search_by_embedding(
+        _SEMANTIC_PROBE,
+        top_k=5,
+        tenant_id=TRUSTED_LOCAL_TENANT,
+        namespace_id=DEFAULT_NAMESPACE,
+    )
     semantic_hit_before = any(
         candidate.query_hash == query_hash for candidate in semantic_before
     )
@@ -90,7 +97,12 @@ def run_in_memory_invalidation_sequence(
     storage_after_delete = _storage_snapshot(cache)
 
     lookup_after_delete = cache.get_by_query_hash(query_hash) is None
-    semantic_after = cache.search_by_embedding(_SEMANTIC_PROBE, top_k=5)
+    semantic_after = cache.search_by_embedding(
+        _SEMANTIC_PROBE,
+        top_k=5,
+        tenant_id=TRUSTED_LOCAL_TENANT,
+        namespace_id=DEFAULT_NAMESPACE,
+    )
     semantic_excludes_deleted = all(
         candidate.query_hash != query_hash for candidate in semantic_after
     )
