@@ -2,14 +2,15 @@
 
 ## Goal
 
-Make the current SSCRE implementation stable, reproducible, and honestly
-deployable before adding new capabilities. This plan closes existing safety,
-runtime, infrastructure, evaluation, and documentation gaps. It does not add
-new product features.
+Establish whether SSCRE's compatibility-aware semantic reuse is useful under a
+fresh, reproducible evaluation protocol, while keeping deployment hardening
+honest and explicitly deferred where it is not required for the research
+result. This plan closes the minimum runtime and evidence gaps first; it does
+not add new product features or provider-specific integrations.
 
 ## Status
 
-**Status:** `in progress — Workstream 1 closed (Gate A); Workstream 2 not started`
+**Status:** `in progress — research-first reprioritization; Workstreams 0–1 closed, Workstream 2 in-memory verification passed, Gate B deferred`
 
 **Evidence:** [`docs/POST_PHASE4_STABILIZATION_EVIDENCE.md`](POST_PHASE4_STABILIZATION_EVIDENCE.md) (Workstream 0 closed)
 
@@ -17,24 +18,32 @@ new product features.
 
 **Scope:** Stabilization after Phase 4 semantic-validity deferral.
 
-**Exit:** The repository has a reproducible local environment, verified
-failure-closed runtime behavior, explicit deployment boundaries, current CI
-coverage, and either a valid fresh held-out semantic result or an explicit
+**Research exit:** The repository has a reproducible local environment, a
+diagnosed Strategy C decision profile, an authorized bounded provider run when
+available, and either a valid fresh held-out semantic result or an explicit
 documented deferral.
+
+**Deployment exit (separate):** External multi-user readiness remains
+deferred until Workstreams 2 and 4 pass their applicable gates. Deployment
+hardening must not block the research exit unless it affects the validity or
+failure safety of the evaluation path.
 
 ## Current baseline
 
-- WS0–WS1 stabilization package is committed on `main` (Gate A tooling, docs,
-  and verification artifacts).
-- Gate A verification (WS1 Step 1.7) passed locally: **835** pytest tests
-  (with optional `local-embeddings` installed),
-  Compose config, import smoke, and env validator; see
-  `artifacts/stabilization/gate-a-package-verification.json`.
+- The current working tree is on local branch `main`, tracking
+  `origin/phase4/p4-semvalid-close`; stabilization changes are not yet
+  committed at this plan revision.
+- The earlier Gate A package recorded **835** pytest tests (with optional
+  `local-embeddings` installed), Compose config, import smoke, and env
+  validation. The latest full-suite run records **857 passed, 20 skipped, and
+  21 deselected**; these counts must not be conflated with the older Gate A
+  artifact.
 - PostgreSQL integration markers and live-provider tests remain opt-in
   (Gate B / Gate C); WS1 recorded DB readiness only where Docker was available.
 - `docker-compose.yml` and `.env.example` default to Strategy **C**.
-- The public query endpoint has no client authentication, tenant, or namespace
-  boundary.
+- Workstream 2 now supplies client authentication and tenant/namespace
+  boundaries in the in-memory path; PostgreSQL Gate B and multi-worker abuse
+  enforcement remain deferred.
 - Timed-out dependency calls can retain executor capacity after the request
   returns.
 - The Phase 4 fresh held-out semantic gate is deferred because the existing
@@ -561,9 +570,9 @@ machine-readable redacted record.
       [`env-validate-unit-test.log`](../artifacts/stabilization/env-validate-unit-test.log),
       [`env-validate-development-compose.log`](../artifacts/stabilization/env-validate-development-compose.log).
 
-- [x] Run `python -m pytest -q`.
+- [x] Run `python -m pytest -q` for the historical Gate A snapshot.
 
-      **835 passed**, 1 skipped, 21 deselected —
+      **Historical result:** 835 passed, 1 skipped, 21 deselected —
       [`gate-a-pytest.log`](../artifacts/stabilization/gate-a-pytest.log).
 
 - [x] Run `docker compose config -q` with the same non-secret sample values
@@ -653,39 +662,314 @@ licensing, or endpoint compatibility is not explicitly approved.
 ## Workstream 2 — Public API safety, authentication, and tenancy boundary
 
 **Purpose:** Prevent unauthorized cache reads, cache poisoning, provider abuse,
-and cross-tenant disclosure before external exposure.
+cross-tenant disclosure, and uncontrolled provider spend before external
+exposure. This workstream defines the boundary and enforcement required for
+external deployment; it does not add a dashboard, account-management product,
+or provider-specific identity system.
 
-- [ ] Decide and document whether the service is single-tenant trusted-local
-      software or a multi-tenant API.
-- [ ] If externally reachable, require authenticated client requests on
-      `POST /v1/query`.
-- [ ] Define tenant/namespace identity and include it in exact-cache keys,
-      semantic search filters, canonical-answer ownership, eviction, and
+**Status:** `closed (in-memory verification)` — PostgreSQL Gate B **deferred**; external deployment **not authorized** until Gate B is recorded
+
+**Evidence:** [`docs/setup/POST_PHASE4_WS2_EVIDENCE.md`](setup/POST_PHASE4_WS2_EVIDENCE.md)
+
+**Parent:** This plan’s Workstream 2 and the external-deployment verdict in
+[`docs/SSCRE_PLAN.md`](SSCRE_PLAN.md), §§20, 23, and 24.
+
+**Code baseline:** The API and current authorization helper are in
+[`src/sscre/app.py`](../src/sscre/app.py); request validation and the current
+query hash are in [`src/sscre/query.py`](../src/sscre/query.py); repository
+interfaces are in [`src/sscre/cache.py`](../src/sscre/cache.py), with the
+PostgreSQL implementation in
+[`src/sscre/postgres_cache.py`](../src/sscre/postgres_cache.py). Existing
+schema evolution is under [`migrations/`](../migrations/).
+
+### Boundary decision
+
+The supported contract has two deliberately different modes:
+
+1. **Trusted-local mode:** the service is single-tenant, binds only to a
+   loopback or explicitly private interface, and may use the current
+   development setup. This mode is not evidence for external deployment.
+2. **External mode:** the service is a multi-tenant API. Every query request
+   carries authenticated client credentials that resolve to exactly one
+   tenant and an optional namespace. The caller cannot choose or override that
+   identity in the JSON body. Admin credentials remain separate from client
+   credentials.
+
+The first implementation may use a deployment-configured client-auth
+adapter/token registry; it must not silently treat an arbitrary
+`X-Tenant-ID` header, query parameter, or body field as authentication.
+Account provisioning, token issuance, rotation UI, and federated identity are
+out of scope. If an approved client-auth adapter cannot be supplied, external
+mode remains unavailable and the service must fail closed at startup or ingress.
+
+### Detailed implementation procedure
+
+#### Step 2.1 — Freeze the threat model and deployment contract
+
+- [x] Inventory every HTTP route and every repository operation reachable from
+      the API, starting with `/health`, `/ready`, `/v1/query`, and
+      `/v1/cache/stats` in `src/sscre/app.py`.
+- [x] Record the protected assets: cached answers, query metadata, embeddings,
+      canonical answers, provider capacity and spend, storage limits, request
+      metrics, and readiness information.
+- [x] Record the threats: unauthenticated cache reads, cache poisoning,
+      cross-tenant exact hits, cross-tenant vector selection, canonical-answer
+      disclosure, quota exhaustion, oversized payloads, token leakage, and
+      high-cardinality metric abuse.
+- [x] Document the trusted-local ingress requirements: loopback/private
+      binding, no direct Internet exposure, and an operator-controlled network
+      boundary.
+- [x] Document the external-mode requirements: authenticated client identity,
+      tenant/namespace derivation, TLS or an equivalent trusted proxy boundary,
+      bounded quotas, and separate admin ingress.
+- [x] Mark external mode `deferred` if the deployment cannot provide an
+      approved client-auth adapter, tenant registry, or trusted ingress.
+
+**Deliverable:** A checked-in threat-model and API/auth contract document under
+`docs/setup/` or `docs/internal/` (choose the location according to whether it
+describes supported deployment or internal release control). It must state
+which mode each route supports and what evidence is required before exposure.
+
+      [`docs/setup/POST_PHASE4_WS2_API_AUTH_BOUNDARY.md`](setup/POST_PHASE4_WS2_API_AUTH_BOUNDARY.md);
+      [`artifacts/stabilization/ws2-api-auth-boundary.json`](../artifacts/stabilization/ws2-api-auth-boundary.json);
+      [`docs/setup/POST_PHASE4_WS2_EVIDENCE.md`](setup/POST_PHASE4_WS2_EVIDENCE.md).
+
+#### Step 2.2 — Define the authenticated request context
+
+- [x] Introduce one internal request-context value containing the authenticated
+      principal, tenant ID, namespace, granted scopes, and a stable request ID.
+      Do not pass raw bearer tokens into repository methods or logs.
+- [x] Define the client credential contract, including token scheme,
+      constant-time verification, expiry/rotation behavior, tenant binding,
+      scope vocabulary, and failure responses.
+- [x] Keep admin authentication separate from client authentication. Existing
+      `admin_token` and `admin_read_token` must not authorize arbitrary tenant
+      queries.
+- [x] Require authenticated client context for `POST /v1/query` in external
+      mode before preprocessing, cache lookup, embedding, generation, or any
+      provider call.
+- [x] Make missing, malformed, expired, unknown, and insufficient credentials
+      return a stable 401/403 response with no tenant existence oracle and no
+      provider invocation.
+- [x] Ensure request IDs are returned through `X-Request-ID` on protected
+      errors and are safe to include in logs.
+- [x] Add configuration validation for external mode so an absent or invalid
+      auth adapter cannot fall back to anonymous access.
+
+      [`src/sscre/api_auth.py`](../src/sscre/api_auth.py);
+      [`tests/test_api_client_auth.py`](../tests/test_api_client_auth.py);
+      boundary doc § Client credential contract (Step 2.2).
+
+**Implementation touchpoints:** `src/sscre/app.py`, `src/sscre/config.py`,
+`src/sscre/env_validate.py`, and the existing admin tests in
+`tests/test_admin.py`. Reuse the project’s standard library and installed
+FastAPI/Pydantic facilities; do not add an identity-provider dependency.
+
+#### Step 2.3 — Make tenant and namespace identity part of cache identity
+
+- [x] Define the canonical identity tuple:
+      `(tenant_id, namespace_id, normalized_query)` for exact lookup and
+      insertion. Treat the namespace as a tenant-owned value; use a documented
+      default only where the authenticated contract permits it.
+- [x] Version the derived cache-key format rather than silently changing the
+      current global SHA-256 interpretation. Preserve the query hash as a
+      diagnostic field, but ensure repository identity cannot collide across
+      tenants or namespaces.
+- [x] Decide whether the public response may expose query hashes or selected
+      candidate hashes. If retained for diagnostics, make them opaque to
+      another tenant and document that they are not authorization credentials.
+- [x] Carry tenant and namespace identity through exact lookup, semantic search,
+      candidate evaluation, insertion, replacement, expiration cleanup, and
+      hit accounting.
+- [x] Reject caller-supplied tenant or namespace values that disagree with the
+      authenticated request context. Do not infer tenant identity from query
+      text or an untrusted header.
+- [x] Add unit tests for normalization, key versioning, same-query separation,
+      and stable behavior for the permitted default namespace.
+
+      [`src/sscre/query.py`](../src/sscre/query.py) (`CACHE_KEY_VERSION`, `CacheScope`,
+      `storage_query_hash`); migration
+      [`migrations/012_cache_tenant_namespace.sql`](../migrations/012_cache_tenant_namespace.sql);
+      [`tests/test_cache_scope.py`](../tests/test_cache_scope.py).
+
+**Implementation touchpoints:** `src/sscre/query.py`, `src/sscre/cache.py`,
+`src/sscre/app.py`, `src/sscre/postgres_cache.py`, and their focused tests.
+
+#### Step 2.4 — Add storage isolation and migration evidence
+
+- [x] Choose the storage representation for tenant and namespace IDs and
+      record length, character, and case-normalization rules.
+- [x] Add non-null tenant/namespace columns to cache entries, with a
+      versioned backfill policy for existing rows. Existing rows must not be
+      assigned to a real external tenant without an explicit operator decision.
+- [x] Make the uniqueness constraint cover the scoped cache identity, not only
+      the current global `query_hash`.
+- [x] Scope canonical-answer ownership and foreign-key references so a
+      canonical answer cannot be selected or deleted across tenant boundaries.
+      If canonical answers are intentionally shared, record the separate
+      authorization proof and prevent answer content disclosure through
+      unscoped joins.
+- [x] Scope hit counters, eviction, cleanup, storage-byte accounting, and
+      statistics. Define whether caps are per tenant/namespace or global with
+      an independently enforced per-tenant quota; the default external
+      contract should be per tenant/namespace.
+- [x] Update both the in-memory repository and PostgreSQL repository so tests
+      cannot pass only because the in-memory implementation has weaker scope.
+- [x] Add migration checksum, backfill, rollback/restore, and least-privilege
+      notes. Run migration validation before claiming PostgreSQL verification.
+- [x] Add PostgreSQL constraints and indexes for scoped lookup and vector
+      filtering. Consider row-level security only after measuring the role and
+      connection-pooling boundary; do not claim RLS protection unless it is
+      enabled, tested, and documented.
+
+**Planned implementation artifact:** a new numbered migration after
+`011_validate_sha256_hashes.sql`; the exact filename is chosen during
+implementation and must be recorded in the evidence manifest.
+
+      [`migrations/012_cache_tenant_namespace.sql`](../migrations/012_cache_tenant_namespace.sql),
+      [`migrations/013_cache_scoped_identity.sql`](../migrations/013_cache_scoped_identity.sql);
+      [`docs/setup/POST_PHASE4_WS2_STORAGE_ISOLATION.md`](setup/POST_PHASE4_WS2_STORAGE_ISOLATION.md);
+      [`tests/test_postgres_cache_scope.py`](../tests/test_postgres_cache_scope.py).
+
+#### Step 2.5 — Enforce scoped lookup, semantic search, and canonical access
+
+- [x] Require tenant/namespace predicates in exact-cache reads and writes.
+- [x] Require the same predicates in vector search before similarity ordering
+      and candidate selection. A post-query Python filter is insufficient.
+- [x] Verify that metadata, freshness, compatibility, and canonical-answer
+      validation run only on candidates from the authenticated scope.
+- [x] Ensure replacement of an unsafe or stale answer can affect only the
+      current scoped identity.
+- [x] Scope canonical-answer reads and unreferenced-canonical deletion to the
+      owning tenant/namespace policy.
+- [x] Make repository methods reject a missing scope in external mode rather
+      than interpreting it as “all tenants.” Keep any migration/admin-wide
+      operation explicit and admin-only.
+- [x] Add tests where tenant A and tenant B use identical queries, identical
+      embeddings, identical answers, and overlapping namespaces; neither may
+      read, select, replace, evict, or count the other’s data.
+
+      [`src/sscre/query.py`](../src/sscre/query.py) (`resolve_operation_scope`,
+      `MissingCacheScopeError`); [`src/sscre/cache.py`](../src/sscre/cache.py);
+      [`src/sscre/postgres_cache.py`](../src/sscre/postgres_cache.py);
+      [`src/sscre/app.py`](../src/sscre/app.py);
+      [`tests/test_cache_scope_enforcement.py`](../tests/test_cache_scope_enforcement.py).
+
+#### Step 2.6 — Define route authorization and operational exposure
+
+- [x] Require a client scope such as `query:execute` for `/v1/query`.
+- [x] Keep `/v1/cache/stats` admin-only and decide whether statistics are
+      tenant-scoped by default or platform-wide only for a separate privileged
+      scope. Never return platform-wide counts to a tenant-scoped caller.
+- [x] Define authorization for future purge, cache inspection, export, and
+      evaluation routes before adding any such route. No new destructive route
+      is required to close this workstream.
+- [x] Keep `/health` unauthenticated only when it returns no tenant, provider,
+      database, configuration, or capacity detail and ingress is documented.
+- [x] Keep `/ready` restricted to trusted ingress or a separately authorized
+      health probe if its response or timing could reveal infrastructure state.
+- [x] Use safe error bodies that do not expose SQL, provider payloads, cache
+      contents, credential values, or whether another tenant has a matching
+      key.
+- [x] Document reverse-proxy and container binding settings. Compose
+      development exposure must not be presented as an external deployment
+      boundary.
+
+      [`src/sscre/api_auth.py`](../src/sscre/api_auth.py);
+      [`docs/setup/POST_PHASE4_WS2_API_AUTH_BOUNDARY.md`](setup/POST_PHASE4_WS2_API_AUTH_BOUNDARY.md);
+      [`tests/test_api_route_authorization.py`](../tests/test_api_route_authorization.py).
+
+#### Step 2.7 — Add abuse controls without weakening fail-closed behavior
+
+- [x] Enforce the configured query/body byte limits before provider work and
+      add an explicit request-body limit at the HTTP/server boundary where
+      supported.
+- [x] Add bounded per-client/per-tenant request rate limiting with a defined
+      algorithm, clock behavior, storage scope, and response (`429` plus safe
+      retry guidance). If shared rate-limit storage is unavailable, fail closed
+      for external mode rather than silently disabling the control.
+- [x] Add per-tenant concurrency and provider-budget limits, distinguishing
+      request admission from the dependency timeout work in Workstream 3.
+- [x] Ensure failed authentication, rejected size/rate/quota checks, malformed
+      requests, repository failures, and provider failures do not insert or
+      serve an answer.
+- [x] Bound metric labels and logs to stable tenant/principal identifiers;
+      never log bearer tokens, raw prompts, answers, embeddings, or provider
+      credentials.
+- [x] Add tests for oversized bodies, invalid JSON, rate-limit exhaustion,
+      budget exhaustion, concurrent admission, and recovery after rejection.
+
+      [`src/sscre/api_abuse_controls.py`](../src/sscre/api_abuse_controls.py);
+      [`src/sscre/config.py`](../src/sscre/config.py);
+      [`src/sscre/app.py`](../src/sscre/app.py);
+      [`tests/test_api_abuse_controls.py`](../tests/test_api_abuse_controls.py).
+
+#### Step 2.8 — Verify the boundary in both storage modes
+
+- [x] Confirm every referenced test path, migration, marker, and CLI option
+      exists before running verification.
+- [x] Run focused authentication and route tests with the in-memory repository.
+- [x] Run focused same-query and semantic cross-tenant isolation tests with
+      deterministic fake clients; assert zero provider calls on rejected
+      requests.
+- [x] Run malformed-input, oversized-body, safe-error, request-ID, and health
+      exposure tests.
+- [ ] If PostgreSQL is available, apply migrations with the documented role
+      boundary and run the scoped exact, vector, canonical, eviction, cleanup,
+      statistics, and concurrent isolation tests.
+- [x] Record PostgreSQL version, pgvector version, migration state/checksums,
+      role configuration, workload, and skipped tests. If unavailable, record
+      `unavailable` or `deferred`; do not call in-memory results PostgreSQL
+      verification.
+- [x] Run the full default unit suite after the focused tests and preserve the
+      pre-existing Workstream 1 verification boundary.
+- [x] Perform a redaction audit of logs, response bodies, and generated
+      evidence before marking the verification gate complete.
+
+      [`artifacts/stabilization/ws2-boundary-verification.json`](../artifacts/stabilization/ws2-boundary-verification.json);
+      [`tests/test_ws2_boundary_gate.py`](../tests/test_ws2_boundary_gate.py);
+      [`docs/setup/POST_PHASE4_WS2_EVIDENCE.md`](setup/POST_PHASE4_WS2_EVIDENCE.md).
+
+**Evidence deliverables:** threat model, API/auth contract, migration and
+schema report, redacted route/isolation test output, and a machine-readable
+verification record under `artifacts/stabilization/` with commit, worktree,
+configuration mode, dependency versions, and unavailable-path explanations.
+
+### Workstream 2 gates and acceptance criteria
+
+**Authoring gate:** The boundary decision, threat model, API/auth contract,
+scope/key design, storage design, route matrix, abuse-control design, and
+verification protocol exist. Authoring does not authorize external exposure.
+
+- [x] Trusted-local mode is explicitly loopback/private-ingress only and is
+      not described as multi-user or production-ready.
+- [x] External mode requires an approved authenticated client context before
+      any query cache or provider operation.
+- [x] Tenant and namespace scope is enforced in exact lookup, vector search,
+      canonical-answer access, insertion, replacement, cleanup, eviction, and
       statistics.
-- [ ] Add database constraints and, if appropriate, PostgreSQL row-level
-      security for the chosen tenancy model.
-- [ ] Define authorization for cache reuse, generation, cache insertion, stats,
-      purge, and evaluation operations.
-- [ ] Add abuse controls: request rate limits, provider budget limits, bounded
-      request body size, and safe error responses.
-- [ ] Add regression tests proving one tenant cannot read or select another
-      tenant's cached answer.
-- [ ] Keep `/health` and `/ready` exposure explicitly documented and ingress
-      restricted where required.
+- [x] Admin credentials cannot be used as tenant client identity and tenant
+      credentials cannot access admin operations.
+- [x] Unauthorized, malformed, oversized, rate-limited, quota-exhausted, and
+      repository-failure requests fail closed without provider calls or cache
+      writes.
+- [x] Health/readiness exposure and trusted ingress requirements are documented.
 
-**Acceptance criteria:**
-
-- [ ] No externally reachable query path is unauthenticated unless the
-      deployment contract explicitly places it behind trusted authentication.
-- [ ] Cross-tenant lookup, vector search, canonical-answer access, eviction,
-      and metrics are isolated.
-- [ ] Unauthorized and malformed requests fail closed without provider calls.
-
-**Evidence:** Threat model, API/auth contract, migration/schema evidence, and
-passing isolation/authorization tests.
+**Verification gate:** Workstream 2 passes only when the applicable focused
+tests pass in-memory, the PostgreSQL isolation tests pass when Gate B is
+available (or are explicitly recorded as unavailable/deferred), the full
+allowed suite passes, and all evidence is redacted and tied to the current
+commit/worktree. A conditional test that was not run is not pass or fail.
 
 **Stopping rule:** No external or multi-user deployment is authorized until
-this workstream passes.
+the verification gate passes. Stop immediately if tenant identity can be
+caller-supplied, if any repository path can omit scope in external mode, if
+canonical answers remain globally readable, if rate/quota enforcement can be
+bypassed on dependency failure, or if the selected auth/storage boundary
+cannot be tested in the actual PostgreSQL path. External mode must also run
+with one application process unless a shared rate-limit and provider-budget
+store is implemented and verified; process-local controls are not sufficient
+for multi-worker or multi-replica deployment.
 
 ## Workstream 3 — Timeout, concurrency, and failure-closed runtime stability
 
@@ -724,6 +1008,69 @@ and failure-path verification output.
 
 **Stopping rule:** Stop if the chosen timeout mechanism cannot guarantee
 bounded resource behavior; document the required process or worker isolation.
+
+## Research track R1 — Strategy C diagnosis and authorized provider run
+
+**Purpose:** Explain the observed low Strategy C reuse rate and obtain the
+minimum real-provider evidence needed before constructing the fresh headline
+evaluation. This track uses existing cache, trace, evaluation, and provider
+interfaces; it does not add a second cache layer, a new rate-limit module, or a
+provider-specific SDK.
+
+### Step R1.1 — Diagnose Strategy C before changing policy
+
+- [ ] Select a reproducible diagnostic population that is not used for the
+      fresh headline result.
+- [ ] Export decision-trace counts by exact versus semantic path, decision,
+      reason, stage, similarity band, freshness outcome, missing/conflicting
+      metadata, and unlabeled-candidate reuse.
+- [ ] Compare candidate availability with candidate rejection so low reuse is
+      not attributed to the threshold without evidence.
+- [ ] Record the denominators, configuration, model/dimension identity,
+      protocol version, commit, and worktree state.
+- [ ] Do not retune thresholds or compatibility rules from this diagnostic
+      population unless the protocol explicitly permits development-only
+      tuning.
+
+**Acceptance criteria:**
+
+- [ ] The dominant causes of Strategy C abstention are identified or recorded
+      as unavailable.
+- [ ] The diagnostic report is clearly non-headline and cannot be mistaken for
+      fresh held-out evidence.
+- [ ] No safety rule is weakened to increase reuse during diagnosis.
+
+**Evidence:** One redacted Strategy C diagnosis report and the command or
+fixture needed to reproduce it.
+
+### Step R1.2 — Run a bounded real-provider measurement when authorized
+
+- [ ] Obtain explicit provider approval, credentials, quota, pricing, and
+      endpoint/model approval under Gate C.
+- [ ] Run the smallest authorized provider measurement over the existing
+      development/tuning population (currently 400 records) before any fresh
+      held-out run.
+- [ ] Record provider, model, embedding dimension, request count, retries,
+      failures, estimated cost, rate-limit behavior, and redacted outputs.
+- [ ] Keep provider results separate from synthetic, fake-provider, historical,
+      and fresh-held-out evidence.
+- [ ] If approval or credentials are unavailable, record Gate C as deferred;
+      do not substitute fake-provider numbers.
+
+**Acceptance criteria:**
+
+- [ ] The run is reproducible from a checked-in command and configuration
+      description, with secrets supplied out of band.
+- [ ] Provider and cost evidence are complete enough to decide whether the
+      fresh evaluation can proceed.
+- [ ] No live-provider result is presented as a semantic headline result until
+      Workstream 5 passes its fresh-data gate.
+
+**Evidence:** Redacted provider-run manifest, cost/usage summary, failure
+summary, and unavailable/deferred explanation when applicable.
+
+**Stopping rule:** Stop before provider execution without explicit approval,
+valid credentials, bounded quota, and a redaction plan.
 
 ## Workstream 4 — PostgreSQL correctness, schema, and vector-search readiness
 
@@ -914,18 +1261,28 @@ scope.
 
 1. [x] Workstream 0 — freeze baseline and claim inventory.
 2. [x] Workstream 1 — establish reproducible local and Compose setup.
-3. [ ] Workstream 3 — fix timeout and concurrency safety.
-4. [ ] Workstream 2 — define and enforce the external API safety boundary.
-5. [ ] Workstream 4 — verify PostgreSQL and vector behavior.
-6. [ ] Workstream 5 — construct and run the fresh semantic gate.
-7. [ ] Workstream 6 — add correctness labels only if factual claims are required.
-8. [ ] Workstream 7 — enforce the verified paths in CI.
-9. [ ] Workstream 8 — reconcile documentation and release status.
+3. [ ] Workstream 3 — complete only the timeout and concurrency fixes that
+      affect bounded research execution.
+4. [ ] Research track R1 — diagnose Strategy C and run the bounded authorized
+      provider measurement, or record Gate C as deferred.
+5. [ ] Workstream 5 — construct and run the fresh semantic gate.
+6. [ ] Workstream 7 — enforce the verified research paths in CI.
+7. [ ] Workstream 8 — reconcile documentation and release status.
+8. [x] Deferred deployment track — Workstream 2 external API safety boundary
+      implemented; in-memory
+      verification gate passed ([`POST_PHASE4_WS2_EVIDENCE.md`](setup/POST_PHASE4_WS2_EVIDENCE.md));
+      PostgreSQL Gate B and multi-worker deployment remain deferred.
+9. [ ] Deferred deployment track — Workstream 4 PostgreSQL and vector behavior,
+      only if external
+      deployment, scale, or PostgreSQL-backed evidence is required.
+10. [ ] Optional research extension — Workstream 6 correctness labels, only if
+      factual answer-quality claims are required.
 
 ## Overall exit verdict
 
-The project may be called **stabilized for local research use** only when
-Workstreams 0, 1, 3, and 7 pass and all remaining limitations are documented.
+The project may be called **research-ready for local evaluation** only when
+Workstreams 0, 1, the research-relevant portion of 3, R1, 5, and 7 pass, and
+all remaining limitations are documented.
 
 The project may be called **ready for external multi-user deployment** only
 when Workstream 2 and the required portions of Workstream 4 pass.
