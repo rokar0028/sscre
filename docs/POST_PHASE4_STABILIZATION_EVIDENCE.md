@@ -261,3 +261,45 @@ Open documentation conflicts **XCL-001**–**XCL-005** remain for Workstream 8.
 - [x] Phase 2–4 scoped claims inventoried with status vocabulary.
 - [x] Verified claims linked to lineage; historical/synthetic separated.
 - [x] Next workstream and prerequisites documented.
+
+## Workstream 3 — Step 3.1 timeout audit
+
+**Status:** `closed (audit/probe)` — see
+[`setup/POST_PHASE4_WS3_STEP31_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP31_EVIDENCE.md).
+
+- [x] Timeout budgets, `run_with_timeout` call-site matrix, and capacity snapshot
+      recorded in
+      [`artifacts/stabilization/ws3-step31-timeout-audit.json`](../artifacts/stabilization/ws3-step31-timeout-audit.json).
+- [x] Probe tests:
+      `python -m pytest tests/test_workstream3_timeout_capacity_probe.py -q` →
+      **2 passed** (2026-10-14).
+- [x] Step 3.1 gate: transient slot retention fails pass rule; admission must
+      be reclaimed or isolated (see Step 3.1 evidence).
+- [x] Step 3.2 design selected:
+      [`setup/POST_PHASE4_WS3_STEP32_RUNTIME_DESIGN.md`](setup/POST_PHASE4_WS3_STEP32_RUNTIME_DESIGN.md)
+      (`admission_release_with_request_epoch`).
+
+## Workstream 3 — Step 3.6 cross-process duplicate semantics
+
+**Status:** `closed (live verified)` — see
+[`setup/POST_PHASE4_WS3_STEP36_MULTIPROCESS_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP36_MULTIPROCESS_EVIDENCE.md).
+
+- [x] Live `pytest -m ws8_postgres_multiprocess` with migrated PostgreSQL → **1 passed** (2026-10-14).
+- [x] Opt-in harness:
+      [`tests/test_postgres_multiprocess_duplicate.py`](../tests/test_postgres_multiprocess_duplicate.py)
+      (`ws8-multiprocess-dup-v1`).
+- [x] Verified record:
+      [`artifacts/stabilization/ws3-step36-multiprocess-duplicate.json`](../artifacts/stabilization/ws3-step36-multiprocess-duplicate.json).
+- [x] Cross-process claims not inferred from in-process WS3 concurrency tests.
+
+## Workstream 3 — close (Steps 3.1–3.7)
+
+**Status:** `closed (verification complete — commit bundle pending)` — see
+[`setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md).
+
+- [x] Runtime design `admission_release_with_request_epoch` implemented and verified.
+- [x] Focused WS3 pytest → **65 passed**; default `python -m pytest -q` → **892 passed**, **1 skipped**, **21 deselected** (2026-10-14, HEAD `2d7323fa31aa5db576e2d11aa9854832a9d0b9f5`).
+- [x] Cross-process duplicate semantics **verified** (Step 3.6).
+- [x] Machine-readable close record:
+      [`artifacts/stabilization/ws3-step37-verification.json`](../artifacts/stabilization/ws3-step37-verification.json).
+- [ ] User-approved commit containing WS3 code, tests, artifacts, and evidence docs.

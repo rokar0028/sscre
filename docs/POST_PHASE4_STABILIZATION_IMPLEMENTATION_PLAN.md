@@ -10,7 +10,7 @@ not add new product features or provider-specific integrations.
 
 ## Status
 
-**Status:** `in progress — research-first reprioritization; Workstreams 0–1 closed, Workstream 2 in-memory verification passed, Gate B deferred`
+**Status:** `in progress — research-first reprioritization; Workstreams 0–1 closed, Workstream 2 in-memory verification passed (Gate B deferred), Workstream 3 verification complete (commit bundle pending)`
 
 **Evidence:** [`docs/POST_PHASE4_STABILIZATION_EVIDENCE.md`](POST_PHASE4_STABILIZATION_EVIDENCE.md) (Workstream 0 closed)
 
@@ -35,17 +35,22 @@ failure safety of the evaluation path.
   committed at this plan revision.
 - The earlier Gate A package recorded **835** pytest tests (with optional
   `local-embeddings` installed), Compose config, import smoke, and env
-  validation. The latest full-suite run records **857 passed, 20 skipped, and
-  21 deselected**; these counts must not be conflated with the older Gate A
-  artifact.
+  validation. The latest full-suite run records **892 passed, 1 skipped, and
+  21 deselected** (Workstream 3 close, 2026-10-14); these counts must not be
+  conflated with the older Gate A artifact (**835** tests).
 - PostgreSQL integration markers and live-provider tests remain opt-in
   (Gate B / Gate C); WS1 recorded DB readiness only where Docker was available.
 - `docker-compose.yml` and `.env.example` default to Strategy **C**.
 - Workstream 2 now supplies client authentication and tenant/namespace
   boundaries in the in-memory path; PostgreSQL Gate B and multi-worker abuse
   enforcement remain deferred.
-- Timed-out dependency calls can retain executor capacity after the request
-  returns.
+- Workstream 3 (Steps 3.1–3.7) implements bounded dependency execution in
+  [`src/sscre/dependency_runtime.py`](../src/sscre/dependency_runtime.py):
+  admission slots release on client-visible timeout, per-request
+  `RequestCancellation` blocks cache-visible late completions, and the shared
+  dependency executor shuts down on app lifespan teardown. Orphaned callables
+  may still run on fixed pool workers; subprocess isolation remains deferred.
+  Verification complete; WS3 commit bundle pending at recorded HEAD.
 - The Phase 4 fresh held-out semantic gate is deferred because the existing
   215-record held-out split has already been used.
 - Human answer-correctness labels are not present.
@@ -976,38 +981,268 @@ for multi-worker or multi-replica deployment.
 **Purpose:** Ensure bounded requests do not exhaust workers or produce
 uncontrolled errors.
 
-- [ ] Reproduce and test executor-slot retention after a timed-out dependency
-      callable continues running.
-- [ ] Replace or redesign timeout execution so capacity is not silently
-      exhausted by uninterruptible work; document any unavoidable isolation
-      boundary.
-- [ ] Convert generation-lock timeout into a controlled 503/504 response with
-      request ID and no cache reuse.
-- [ ] Test simultaneous generation, embedding, repository, and cache-write
-      timeouts.
-- [ ] Test repeated timeout recovery and bounded memory/thread growth.
-- [ ] Review local embedding timeout executors for thread retention under
-      repeated provider stalls.
-- [ ] Verify duplicate-generation behavior across processes remains explicitly
-      distinguished from duplicate-insert prevention.
-- [ ] Preserve fail-closed behavior for lookup, semantic search, freshness,
-      embedding validation, generation, insertion, and replacement failures.
+**Status:** `closed (verification complete — commit bundle pending)`
 
-**Acceptance criteria:**
+**Evidence:** [`docs/setup/POST_PHASE4_WS3_STEP31_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP31_EVIDENCE.md),
+[`docs/setup/POST_PHASE4_WS3_STEP32_RUNTIME_DESIGN.md`](setup/POST_PHASE4_WS3_STEP32_RUNTIME_DESIGN.md),
+[`docs/setup/POST_PHASE4_WS3_STEP36_MULTIPROCESS_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP36_MULTIPROCESS_EVIDENCE.md),
+[`docs/setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md)
+([`ws3-step31-timeout-audit.json`](../artifacts/stabilization/ws3-step31-timeout-audit.json),
+[`ws3-step32-runtime-design.json`](../artifacts/stabilization/ws3-step32-runtime-design.json),
+[`ws3-step36-multiprocess-duplicate.json`](../artifacts/stabilization/ws3-step36-multiprocess-duplicate.json),
+[`ws3-step37-verification.json`](../artifacts/stabilization/ws3-step37-verification.json))
 
-- [ ] Timeout storms do not permanently consume the configured request
-      capacity.
-- [ ] Lock contention returns a controlled response, not an unhandled 500.
-- [ ] No expired, unsafe, malformed, or unauthorized answer is served after a
-      dependency failure.
-- [ ] Concurrency tests pass both in-process and, when PostgreSQL is available,
-      across multiple processes.
+**Parent:** This document’s Workstream 3 and the runtime-safety requirements in
+[`docs/SSCRE_PLAN.md`](SSCRE_PLAN.md), §§20, 23, and 24.
 
-**Evidence:** Focused timeout/concurrency tests, bounded resource measurements,
-and failure-path verification output.
+**Code baseline:** Bounded dependency execution is centralized in
+[`src/sscre/dependency_runtime.py`](../src/sscre/dependency_runtime.py).
+`run_with_timeout` acquires a dependency `BoundedSemaphore`, submits work to the
+shared eight-worker `ThreadPoolExecutor` in [`src/sscre/app.py`](../src/sscre/app.py),
+releases the slot on client-visible timeout (in addition to on future
+completion), and uses per-request `RequestCancellation` so late completions
+cannot publish cache hits, inserts, or replacements. HTTP mapping for timeout
+categories is via `dependency_timeout_http_exception` (including generation-lock
+wait and generation timeouts). [`src/sscre/local_embedding.py`](../src/sscre/local_embedding.py)
+uses a long-lived one-worker executor (injectable for tests), the same
+`run_with_timeout` + slot pattern, and `close()` for owned executors. Orphaned
+Python thread work may still finish after timeout; Step 3.2 Option E
+(subprocess isolation) remains deferred. In-process generation lock contention
+is bounded with a controlled error; separate processes are not coordinated for
+generation—only duplicate **row** insertion is constrained (Step 3.6).
 
-**Stopping rule:** Stop if the chosen timeout mechanism cannot guarantee
-bounded resource behavior; document the required process or worker isolation.
+**Existing verification surface:** [`tests/test_workstream3_timeout_capacity_probe.py`](../tests/test_workstream3_timeout_capacity_probe.py),
+[`tests/test_workstream3_timeout_http_gaps.py`](../tests/test_workstream3_timeout_http_gaps.py),
+[`tests/test_workstream3_concurrency.py`](../tests/test_workstream3_concurrency.py),
+[`tests/test_workstream3_failure_paths.py`](../tests/test_workstream3_failure_paths.py),
+[`tests/test_workstream3_strategy_c_paths.py`](../tests/test_workstream3_strategy_c_paths.py),
+[`tests/test_local_embedding.py`](../tests/test_local_embedding.py), and the
+opt-in PostgreSQL multiprocess harness
+[`tests/test_postgres_multiprocess_duplicate.py`](../tests/test_postgres_multiprocess_duplicate.py).
+
+### Scope and invariants
+
+Included (verified Steps 3.3–3.7):
+
+- [x] Bound dependency execution for lookup, semantic search, embedding,
+      generation, cache insertion, cache replacement, eviction, and access
+      accounting.
+- [x] Preserve request, dependency, and tenant/provider budgets while ensuring
+      timeout handling cannot silently convert uninterruptible work into
+      unlimited retained capacity (admission release on timeout; bounded shared
+      executor).
+- [x] Return a request-correlated controlled error when generation lock
+      contention exceeds its budget.
+- [x] Verify that every dependency failure either serves no answer or serves
+      only an already-validated reusable answer; failed generation must never
+      create a cache entry.
+- [x] Keep in-process duplicate-generation behavior separate from
+      cross-process duplicate-insert prevention.
+
+Excluded (honored at close):
+
+- [x] Do not add a distributed generation lock, queue, new provider SDK, retry
+      policy, or second cache layer in this workstream.
+- [x] Do not claim multi-process timeout-capacity guarantees from in-process
+      tests. Those claims require the PostgreSQL/process protocol below or an
+      explicitly documented isolation boundary.
+- [x] Do not weaken freshness, compatibility, embedding validation,
+      authorization, tenant isolation, rate, quota, or cache-write checks.
+
+### Step 3.1 — Audit the timeout and capacity boundary
+
+- [x] Record the current call graph and timeout budget for each dependency
+      operation, including `request_timeout_seconds`,
+      `embedding_timeout_seconds`, `generation_timeout_seconds`, and
+      `repository_timeout_seconds` in [`src/sscre/config.py`](../src/sscre/config.py).
+- [x] Enumerate every `run_with_timeout` call in
+      [`src/sscre/app.py`](../src/sscre/app.py) and classify it as
+      `must fail the request`, `may return generated without caching`, or
+      `best-effort accounting/eviction`.
+- [x] Capture the current executor worker count, dependency-slot count,
+      generation-lock behavior, thread names, and shutdown behavior as a
+      historical code-inspection snapshot.
+- [x] Add a deterministic probe that blocks a submitted callable beyond its
+      timeout, records request return, future completion, active worker count,
+      and available capacity, and proves whether a slot remains retained.
+- [x] Define the pass rule before implementation: after request timeout, the
+      service must reclaim capacity safely or route the operation to an
+      isolation boundary whose retained work cannot exhaust request capacity.
+      A merely cancelled `Future` is insufficient evidence if the callable
+      continues running.
+
+**Step 3.1 gate:** Stop and record a design decision if the current
+thread-based mechanism cannot provide the pass rule. The decision must state
+whether the accepted boundary is cooperative cancellation, bounded dedicated
+workers, subprocess/worker isolation, or an explicitly deferred capability.
+
+**Step 3.1 close (2026-10-14):** Gate triggered. The probe in
+[`tests/test_workstream3_timeout_capacity_probe.py`](../tests/test_workstream3_timeout_capacity_probe.py)
+shows **transient** slot retention until the stalled callable completes (slots
+are released afterward). The current design does not reclaim admission on
+client-visible timeout. Evidence:
+[`POST_PHASE4_WS3_STEP31_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP31_EVIDENCE.md).
+HTTP gap baselines:
+[`tests/test_workstream3_timeout_http_gaps.py`](../tests/test_workstream3_timeout_http_gaps.py).
+
+### Step 3.2 — Choose and document the smallest safe runtime design
+
+- [x] Compare feasible designs against cancellation semantics, Python thread
+      behavior, provider/network behavior, memory cleanup, Windows process
+      behavior, startup/shutdown behavior, observability, and test
+      determinism.
+- [x] Select one design without changing provider policy. Specify ownership
+      and lifecycle for executors/processes, admission capacity, timeout
+      behavior, late-result handling, and application shutdown.
+- [x] Define the invariant that a timed-out operation cannot publish a cache
+      hit, cache insert, replacement, canonical answer, or success metric after
+      its request has failed.
+- [x] If a late callable may finish in the background, bound retained
+      operations, prevent double slot release, prevent request-state mutation,
+      and expose a stable metric/log classification without raw prompts,
+      answers, embeddings, or credentials.
+- [x] Document any required process or worker isolation boundary in the
+      evidence record before changing the implementation.
+
+**Step 3.2 close (2026-10-14):** Selected design
+`admission_release_with_request_epoch`; subprocess isolation deferred unless
+verification requires it. Dedicated worker pools alone are **rejected**. Evidence:
+[`POST_PHASE4_WS3_STEP32_RUNTIME_DESIGN.md`](setup/POST_PHASE4_WS3_STEP32_RUNTIME_DESIGN.md).
+
+### Step 3.3 — Implement dependency timeout handling
+
+- [x] Update `run_with_timeout` and query-path callers via
+      [`src/sscre/dependency_runtime.py`](../src/sscre/dependency_runtime.py)
+      and `dependency_call` in [`src/sscre/app.py`](../src/sscre/app.py).
+- [x] Keep timeout categories distinguishable:
+      `request_deadline`, `capacity_exhausted`, `dependency_timeout`,
+      `generation_lock_timeout`, and `late_completion` where applicable.
+- [x] Ensure semaphore acquisition, completion, cancellation, and cleanup
+      have exactly-once accounting under success, timeout, exception, and
+      shutdown races (admission released on timeout; executor shutdown on app
+      lifespan).
+- [x] Map **generation-lock wait** timeout and **generation**
+      `run_with_timeout` timeout to controlled `503` or `504` responses with
+      `X-Request-ID` ([`tests/test_workstream3_timeout_http_gaps.py`](../tests/test_workstream3_timeout_http_gaps.py)).
+- [x] Preserve fail-closed behavior for repository lookup, semantic search,
+      freshness, malformed/non-finite or wrong-dimension embeddings, provider
+      generation, cache insertion, duplicate insertion, and replacement
+      (WS3 failure/concurrency suites).
+- [x] Keep best-effort accounting failures non-serving and non-authoritative;
+      they must not turn an unsafe or failed operation into a cache hit.
+
+**Step 3.3 close (2026-10-14):** `python -m pytest tests/test_workstream3_timeout_capacity_probe.py tests/test_workstream3_timeout_http_gaps.py tests/test_workstream3_failure_paths.py tests/test_workstream3_concurrency.py -q` → **25 passed**.
+
+### Step 3.4 — Eliminate local-embedding timeout retention
+
+- [x] Review the per-call executor in
+      [`src/sscre/local_embedding.py`](../src/sscre/local_embedding.py) against
+      the selected runtime design.
+- [x] Implement the minimum compatible lifecycle change needed to prevent
+      repeated stalled encoders from creating unbounded live threads or
+      retained executor objects.
+- [x] Preserve the `LocalEmbeddingError("timeout")` contract, dimension and
+      finite-value validation, redaction behavior, and the rule that an
+      embedding timeout cannot create or serve a cache entry.
+- [x] Add a repeated-stall test that records live thread names and retained
+      capacity before, during, and after timeout recovery with a deterministic
+      cleanup condition.
+
+**Step 3.4 close (2026-10-14):** Shared `ThreadPoolExecutor` + `run_with_timeout`
+per client; `test_repeated_local_embedding_timeout_keeps_bounded_worker_threads`
+in [`tests/test_local_embedding.py`](../tests/test_local_embedding.py).
+
+### Step 3.5 — Add focused timeout and recovery tests
+
+- [x] Extend [`tests/test_workstream3_failure_paths.py`](../tests/test_workstream3_failure_paths.py)
+      for lookup, semantic search, embedding, generation, insertion,
+      replacement, freshness, and cache-accounting timeout/error paths.
+- [x] Extend [`tests/test_workstream3_concurrency.py`](../tests/test_workstream3_concurrency.py)
+      for simultaneous generation, embedding, repository, and cache-write
+      stalls; lock contention; repeated recovery; and bounded thread/slot
+      growth.
+- [x] Verify every controlled error includes the request ID and that no
+      timeout response contains provider payload, raw query, answer, embedding,
+      token, or credential.
+- [x] Verify a timed-out request followed by a healthy request recovers within
+      configured capacity and does not wait for an unbounded number of
+      abandoned operations.
+- [x] Verify expired, incompatible, metadata-less, malformed, or unauthorized
+      candidates are never served after dependency failure.
+- [x] Rerun the existing Strategy C path tests in
+      [`tests/test_workstream3_strategy_c_paths.py`](../tests/test_workstream3_strategy_c_paths.py)
+      to ensure timeout changes do not alter safe-reuse decisions.
+
+**Step 3.5 close (2026-10-14):** `python -m pytest tests/test_workstream3_failure_paths.py tests/test_workstream3_concurrency.py tests/test_workstream3_strategy_c_paths.py -q` → **46 passed**.
+
+### Step 3.6 — Verify cross-process duplicate semantics
+
+- [x] Run the opt-in protocol in
+      [`tests/test_postgres_multiprocess_duplicate.py`](../tests/test_postgres_multiprocess_duplicate.py)
+      when PostgreSQL and Docker are available.
+- [x] Record per process: request status, provider-generation count,
+      successful insert count, duplicate-insert conflict count, and served
+      source.
+- [x] Confirm that a database uniqueness constraint can prevent duplicate rows
+      while independent processes may still perform duplicate generation
+      without a distributed lock.
+- [x] If PostgreSQL or the multiprocess environment is unavailable, record
+      `deferred` or `unavailable`; do not call in-process concurrency
+      verification cross-process evidence.
+
+**Step 3.6 close (2026-10-14):** migrate **012–013** + `python -m pytest tests/test_postgres_multiprocess_duplicate.py -m ws8_postgres_multiprocess -q` → **1 passed** (PostgreSQL 16.15 / Docker). Evidence:
+[`POST_PHASE4_WS3_STEP36_MULTIPROCESS_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP36_MULTIPROCESS_EVIDENCE.md),
+[`ws3-step36-multiprocess-duplicate.json`](../artifacts/stabilization/ws3-step36-multiprocess-duplicate.json).
+
+### Step 3.7 — Verification and evidence close
+
+- [x] Run focused tests first:
+      `python -m pytest tests/test_workstream3_concurrency.py tests/test_workstream3_failure_paths.py tests/test_workstream3_strategy_c_paths.py tests/test_local_embedding.py`
+      (plus probe/HTTP gap suites) → **65 passed**.
+- [x] Run the relevant default suite afterward and record the exact command,
+      result, skips, deselections, commit, and worktree state.
+- [x] Run PostgreSQL multiprocess tests only when prerequisites are present;
+      record database version, migration state, workload, and skipped-test
+      explanation (Step 3.6 verified; cited in Step 3.7 record).
+- [x] Run a redaction audit over logs, response bodies, and generated evidence.
+- [x] Write a machine-readable timeout/concurrency verification record under
+      `artifacts/stabilization/` containing configuration, resource
+      measurements, timeout categories, test results, and unavailable-path
+      explanations. Exclude prompts, answers, embeddings, tokens, and
+      credentials.
+- [x] Update the human-readable stabilization evidence document with the
+      implementation decision, historical baseline, focused results,
+      cross-process boundary, and remaining limitations.
+
+**Step 3.7 close (2026-10-14):** `python -m pytest -q` → **892 passed**, **1 skipped**, **21 deselected**. Evidence:
+[`POST_PHASE4_WS3_STEP37_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md),
+[`ws3-step37-verification.json`](../artifacts/stabilization/ws3-step37-verification.json).
+
+### Workstream 3 acceptance gate
+
+Workstream 3 may be closed only when:
+
+- [x] A timed-out dependency cannot permanently consume configured request
+      capacity, or the required isolation boundary is explicitly documented
+      and verified.
+- [x] Generation-lock contention returns a controlled request-correlated
+      response and performs no cache reuse or cache write.
+- [x] Timeout storms recover with bounded worker/thread/slot growth.
+- [x] Lookup, semantic search, freshness, embedding validation, generation,
+      insertion, replacement, and authorization failures remain fail closed.
+- [x] In-process concurrency tests pass, and PostgreSQL multiprocess behavior
+      is separately recorded as verified, deferred, or unavailable.
+- [x] Evidence is redacted and tied to the current commit/worktree.
+
+**Evidence:** Focused timeout/concurrency tests, deterministic bounded-resource
+measurements, local-embedding retention results, failure-path output, and the
+machine-readable verification record under `artifacts/stabilization/`.
+
+**Stopping rule:** Stop before claiming Workstream 3 verified if the selected
+timeout mechanism cannot guarantee bounded resource behavior, if a late
+operation can mutate cache or request state, or if a required PostgreSQL/
+process test is unavailable. Record the boundary as `deferred` or
+`unavailable` rather than substituting an in-process result.
 
 ## Research track R1 — Strategy C diagnosis and authorized provider run
 
@@ -1261,8 +1496,8 @@ scope.
 
 1. [x] Workstream 0 — freeze baseline and claim inventory.
 2. [x] Workstream 1 — establish reproducible local and Compose setup.
-3. [ ] Workstream 3 — complete only the timeout and concurrency fixes that
-      affect bounded research execution.
+3. [x] Workstream 3 — timeout and concurrency fixes verified (Steps 3.1–3.7);
+      commit bundle pending.
 4. [ ] Research track R1 — diagnose Strategy C and run the bounded authorized
       provider measurement, or record Gate C as deferred.
 5. [ ] Workstream 5 — construct and run the fresh semantic gate.
