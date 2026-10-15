@@ -113,7 +113,7 @@ def run_r1_step12_measurement(
 
     if not live_enabled:
         reason = "live_opt_in_missing"
-    elif gate_c.get("status") != "approved" and not gate_c.get("approval_recorded"):
+    elif gate_c.get("status") != "approved":
         reason = "gate_c_approval_missing"
     elif provider_config is None:
         reason = "provider_configuration_missing"

@@ -119,7 +119,7 @@ def test_requirement_checks_pass_and_fail() -> None:
     assert not all(check["satisfied"] for check in failing)
 
 
-def test_score_gate_pass_on_synthetic_held_out() -> None:
+def test_score_gate_rejects_synthetic_held_out() -> None:
     config = {
         "protocol_id": "P4-SEMVALID",
         "config_version": "semantic-validity-evaluation-config-1.0",
@@ -133,15 +133,14 @@ def test_score_gate_pass_on_synthetic_held_out() -> None:
         c_fpr=0.0,
         c_abstention=0.2,
     )
-    payload = score_p4_pre_registered_gate(
-        config,
-        gate=gate,
-        held_out_artifact=artifact,
-        config_sha256="abc",
-    )
-    assert payload["status"] == "pass"
-    assert payload["semantic_claim_supported"] is True
-    assert payload["conservative_stack_retained"] is False
+    artifact["measurement_environment"] = "synthetic_replay"
+    with pytest.raises(ValueError, match="local_embedding_replay"):
+        score_p4_pre_registered_gate(
+            config,
+            gate=gate,
+            held_out_artifact=artifact,
+            config_sha256="abc",
+        )
 
 
 def test_write_gate_scoring_evidence_deferred(tmp_path: Path) -> None:

@@ -73,6 +73,10 @@ class Settings:
         if self.runtime_profile == "production":
             if not self.database_url:
                 raise ValueError("database_url is required in production")
+            if self.api_exposure_mode != "external":
+                raise ValueError(
+                    "api_exposure_mode must be external in production"
+                )
             if self.admin_token is None:
                 raise ValueError("admin_token is required in production")
             if len(self.admin_token) < 16:

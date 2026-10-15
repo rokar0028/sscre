@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import json
+import inspect
 from threading import RLock
 from math import sqrt
 from typing import Protocol
@@ -203,12 +204,26 @@ def _call_with_optional_scope(
     namespace_id: str,
 ) -> object:
     try:
+        parameters = inspect.signature(operation).parameters
+    except (TypeError, ValueError):
+        parameters = None
+    accepts_scope = parameters is None or (
+        "tenant_id" in parameters
+        and "namespace_id" in parameters
+    ) or (
+        parameters is not None
+        and any(
+            parameter.kind is inspect.Parameter.VAR_KEYWORD
+            for parameter in parameters.values()
+        )
+    )
+    if accepts_scope:
         return operation(
             *args,
             tenant_id=tenant_id,
             namespace_id=namespace_id,
         )
-    except TypeError:
+    else:
         return operation(*args)
 
 

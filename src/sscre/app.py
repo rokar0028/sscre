@@ -509,8 +509,10 @@ def create_app(
                 detail=exc.detail,
                 headers=headers,
             ) from exc
-        abuse_controller.acquire_tenant_slot(request_context.tenant_id)
+        slot_acquired = False
         try:
+            abuse_controller.acquire_tenant_slot(request_context.tenant_id)
+            slot_acquired = True
             try:
                 return _execute_authenticated_query(
                     request_context=request_context,
@@ -532,7 +534,8 @@ def create_app(
                 headers=headers,
             ) from exc
         finally:
-            abuse_controller.release_tenant_slot(request_context.tenant_id)
+            if slot_acquired:
+                abuse_controller.release_tenant_slot(request_context.tenant_id)
 
     def _execute_authenticated_query(
         *,

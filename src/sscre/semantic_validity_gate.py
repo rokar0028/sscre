@@ -243,6 +243,14 @@ def score_p4_pre_registered_gate(
             f"{evaluation_split!r}"
         )
 
+    measurement_environment = held_out_artifact.get("measurement_environment")
+    if measurement_environment != "local_embedding_replay":
+        raise ValueError(
+            "headline gate scoring requires measurement_environment="
+            "'local_embedding_replay', got "
+            f"{measurement_environment!r}"
+        )
+
     if config_sha256 is not None:
         artifact_config_sha = held_out_artifact.get("config_sha256")
         if artifact_config_sha != config_sha256:
@@ -318,9 +326,7 @@ def score_p4_pre_registered_gate(
         "config_sha256": config_sha256 or held_out_artifact.get("config_sha256"),
         "status": status,
         "gate_status": gate_status,
-        "measurement_environment": held_out_artifact.get(
-            "measurement_environment"
-        ),
+        "measurement_environment": measurement_environment,
         "headline_held_out_artifact": held_out_artifact.get("artifact_path"),
         "evaluation_split": evaluation_split,
         "requirement_checks": checks,

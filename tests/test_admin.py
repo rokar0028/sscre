@@ -109,5 +109,9 @@ def test_production_profile_rejects_default_fake_providers() -> None:
                 database_url="postgresql://localhost/sscre",
                 admin_token="a-production-token",
                 admin_token_expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+                api_exposure_mode="external",
+                client_auth_json="registry-placeholder.json",
+                rate_limit_requests_per_minute=100,
+                tenant_provider_budget_per_minute=100,
             ),
         )

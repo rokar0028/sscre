@@ -212,6 +212,7 @@ def validate_p4_held_out_headline_run(
         )
     if gate is not None:
         gate_payload = dict(gate)
+        validate_fresh_held_out_gate_record(gate_payload, repo_root=root)
     else:
         resolved_gate_path = gate_path or resolve_held_out_gate_path(
             config,

@@ -77,6 +77,12 @@ def test_production_valid_sample_passes(monkeypatch) -> None:
     monkeypatch.setenv(
         "SSCRE_ADMIN_TOKEN_EXPIRES_AT", "2030-01-01T00:00:00+00:00"
     )
+    monkeypatch.setenv("SSCRE_API_EXPOSURE_MODE", "external")
+    monkeypatch.setenv(
+        "SSCRE_CLIENT_AUTH_JSON", "experiments/client_auth_registry_sample.json"
+    )
+    monkeypatch.setenv("SSCRE_RATE_LIMIT_REQUESTS_PER_MINUTE", "120")
+    monkeypatch.setenv("SSCRE_TENANT_PROVIDER_BUDGET_PER_MINUTE", "60")
     monkeypatch.setenv("SSCRE_SEMANTIC_STRATEGY", "C")
 
     report = validate_environment("production")

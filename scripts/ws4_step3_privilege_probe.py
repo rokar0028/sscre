@@ -34,8 +34,11 @@ TENANT = "ws4-priv-probe"
 NAMESPACE = "ws4-priv-probe"
 
 
-def _password(name: str, default: str) -> str:
-    return os.environ.get(name, default)
+def _password(name: str) -> str:
+    value = os.environ.get(name)
+    if not value:
+        raise ValueError(f"{name} is required; do not use a default probe password")
+    return value
 
 
 def _url_for_role(admin_url: str, role: str, password: str, database: str) -> str:
@@ -357,10 +360,26 @@ def main() -> int:
         print("SSCRE_DATABASE_URL required", file=sys.stderr)
         return 1
 
-    migrate_pw = _password("SSCRE_WS4_MIGRATE_PASSWORD", "ws4-local-migrate-only")
-    app_pw = _password("SSCRE_WS4_APP_PASSWORD", "ws4-local-app-only")
+    try:
+        migrate_pw = _password("SSCRE_WS4_MIGRATE_PASSWORD")
+        app_pw = _password("SSCRE_WS4_APP_PASSWORD")
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
     parsed = urlparse(admin_url)
     main_db = parsed.path.lstrip("/") or "sscre"
+    if (
+        main_db != PROBE_DB
+        and os.environ.get("SSCRE_WS4_ALLOW_MAIN_DB_MUTATION", "").lower()
+        != "true"
+    ):
+        print(
+            "Refusing to mutate the primary database. Set "
+            "SSCRE_WS4_ALLOW_MAIN_DB_MUTATION=true only for an intentional "
+            "local probe.",
+            file=sys.stderr,
+        )
+        return 1
 
     migrate_url = _url_for_role(admin_url, MIGRATE_ROLE, migrate_pw, main_db)
     migrate_probe_url = _url_for_role(admin_url, MIGRATE_ROLE, migrate_pw, PROBE_DB)
