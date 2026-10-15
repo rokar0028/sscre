@@ -84,7 +84,7 @@ def _repo() -> PostgresExactCacheRepository:
 def test_ct_dup_key_duplicate_insert_is_deterministic() -> None:
     """CT-dup-key: eight threads, one query_hash, one surviving row."""
     query = f"ws8 ct-dup-key {uuid4()}"
-    query_hash = hash_query(query)
+    query_hash = _entry(query, "ct-dup-key-probe").query_hash
     repo = _repo()
     barrier = Barrier(DUP_KEY_THREADS)
 
