@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import math
+import threading
 import time
 
 import pytest
@@ -75,6 +76,7 @@ def test_local_embedding_success_and_validation() -> None:
     assert len(result.vector) == DEFAULT_LOCAL_MODEL_DIMENSION
     assert result.provider_name == "local_sentence_transformer"
     assert result.usage_source == "estimated"
+    client.close()
 
 
 @pytest.mark.parametrize(
@@ -117,6 +119,41 @@ def test_embed_timeout_is_bounded() -> None:
         client.embed("query")
 
     assert exc_info.value.category == "timeout"
+    client.close()
+
+
+def test_repeated_local_embedding_timeout_keeps_bounded_worker_threads() -> None:
+    from concurrent.futures import ThreadPoolExecutor
+
+    def slow(text: str) -> list[float]:
+        if text != "stall":
+            return _dim_vector(0.1)
+        time.sleep(0.25)
+        return _dim_vector(0.1)
+
+    prefix = "sscre-ws3-embed-probe"
+    executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix=prefix)
+    client = LocalSentenceTransformerEmbeddingClient(
+        model_id=DEFAULT_LOCAL_MODEL_ID,
+        encoder=slow,
+        timeout_seconds=0.05,
+        executor=executor,
+    )
+
+    for _ in range(4):
+        with pytest.raises(LocalEmbeddingError) as exc_info:
+            client.embed("stall")
+        assert exc_info.value.category == "timeout"
+        time.sleep(0.3)
+
+    worker_threads = [
+        thread for thread in threading.enumerate() if thread.name.startswith(prefix)
+    ]
+    assert len(worker_threads) <= 1
+
+    result = client.embed("recover")
+    assert len(result.vector) == DEFAULT_LOCAL_MODEL_DIMENSION
+    executor.shutdown(wait=True)
 
 
 def test_embedding_failure_does_not_cache_with_local_client() -> None:

@@ -10,13 +10,15 @@ import math
 import os
 import subprocess
 from collections.abc import Callable, Mapping, Sequence
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+from threading import BoundedSemaphore
 from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter
 from typing import Any, Literal
 
+from sscre.dependency_runtime import DependencyTimeoutError, run_with_timeout
 from sscre.embedding import (
     EmbeddingConfig,
     EmbeddingProviderError,
@@ -199,6 +201,7 @@ class LocalSentenceTransformerEmbeddingClient:
         timeout_seconds: float = 30.0,
         encoder: Encoder | None = None,
         batch_behavior: str = "single_query_per_embed_call",
+        executor: ThreadPoolExecutor | None = None,
     ) -> None:
         if timeout_seconds <= 0:
             raise ValueError("timeout_seconds must be positive")
@@ -222,6 +225,20 @@ class LocalSentenceTransformerEmbeddingClient:
             model_name=model_id,
             dimension=resolved_dimension,
         )
+        if executor is None:
+            self._executor = ThreadPoolExecutor(
+                max_workers=1,
+                thread_name_prefix="sscre-local-embedding",
+            )
+            self._owns_executor = True
+        else:
+            self._executor = executor
+            self._owns_executor = False
+        self._dependency_slots = BoundedSemaphore(1)
+
+    def close(self) -> None:
+        if self._owns_executor:
+            self._executor.shutdown(wait=False, cancel_futures=True)
 
     @property
     def config(self) -> EmbeddingConfig:
@@ -246,18 +263,22 @@ class LocalSentenceTransformerEmbeddingClient:
     def embed(self, text: str) -> EmbeddingResult:
         text = validate_embedding_text(text)
         started_at = perf_counter()
-        executor = ThreadPoolExecutor(max_workers=1)
         try:
-            future = executor.submit(self._encoder, text)
-            raw_vector = future.result(timeout=self._timeout_seconds)
-        except FutureTimeoutError as exc:
-            raise LocalEmbeddingError("timeout") from exc
+            raw_vector = run_with_timeout(
+                self._executor,
+                lambda: self._encoder(text),
+                self._timeout_seconds,
+                "local_embedding",
+                self._dependency_slots,
+            )
+        except DependencyTimeoutError as exc:
+            if exc.category in {"capacity_exhausted", "dependency_timeout"}:
+                raise LocalEmbeddingError("timeout") from exc
+            raise LocalEmbeddingError("provider_failure") from exc
         except LocalEmbeddingError:
             raise
         except Exception as exc:
             raise LocalEmbeddingError("provider_failure") from exc
-        finally:
-            executor.shutdown(wait=False, cancel_futures=True)
 
         vector = _coerce_vector(raw_vector, self._config.dimension)
         result = EmbeddingResult(

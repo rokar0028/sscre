@@ -2,9 +2,9 @@ import json
 import logging
 import hmac
 import os
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+from concurrent.futures import ThreadPoolExecutor
 from collections.abc import Callable
-from contextlib import contextmanager
+from contextlib import asynccontextmanager, contextmanager
 from dataclasses import asdict, replace
 from datetime import datetime, timezone
 from threading import BoundedSemaphore, Lock
@@ -40,6 +40,12 @@ from sscre.cache import (
     _call_with_optional_scope,
 )
 from sscre.config import Settings
+from sscre.dependency_runtime import (
+    DependencyTimeoutError,
+    RequestCancellation,
+    dependency_timeout_http_exception,
+    run_with_timeout,
+)
 from sscre.embedding import (
     EmbeddingClient,
     FakeEmbeddingClient,
@@ -86,31 +92,6 @@ def _cost_metric_fields(cost: CostBreakdown) -> dict[str, object]:
         "cost_source": cost.cost_source,
         "pricing_schedule_id": cost.pricing_schedule_id,
     }
-
-
-class DependencyTimeoutError(RuntimeError):
-    """Raised when a bounded dependency operation exceeds its budget."""
-
-
-def run_with_timeout(
-    executor: ThreadPoolExecutor,
-    operation: Callable[[], object],
-    timeout_seconds: float,
-    operation_name: str,
-    slots: BoundedSemaphore | None = None,
-) -> object:
-    if timeout_seconds <= 0:
-        raise DependencyTimeoutError(f"{operation_name} timed out")
-    if slots is not None and not slots.acquire(timeout=timeout_seconds):
-        raise DependencyTimeoutError(f"{operation_name} capacity exhausted")
-    future = executor.submit(operation)
-    if slots is not None:
-        future.add_done_callback(lambda _: slots.release())
-    try:
-        return future.result(timeout=timeout_seconds)
-    except FutureTimeoutError as exc:
-        future.cancel()
-        raise DependencyTimeoutError(f"{operation_name} timed out") from exc
 
 
 def create_app(
@@ -205,7 +186,18 @@ def create_app(
     max_cache_entries = runtime_settings.max_cache_entries
     max_cache_bytes = runtime_settings.max_cache_bytes
 
-    app = FastAPI(title="SSCRE")
+    dependency_executor = ThreadPoolExecutor(
+        max_workers=8,
+        thread_name_prefix="sscre-dependency",
+    )
+    dependency_slots = BoundedSemaphore(8)
+
+    @asynccontextmanager
+    async def _app_lifespan(_app: FastAPI):
+        yield
+        dependency_executor.shutdown(wait=False, cancel_futures=True)
+
+    app = FastAPI(title="SSCRE", lifespan=_app_lifespan)
 
     @app.middleware("http")
     async def limit_request_body_size(
@@ -286,11 +278,6 @@ def create_app(
     abuse_controller = InProcessAbuseController.from_settings(runtime_settings)
     # In-process only: does not coordinate Uvicorn workers, hosts, or processes.
     generation_lock = Lock()
-    dependency_executor = ThreadPoolExecutor(
-        max_workers=8,
-        thread_name_prefix="sscre-dependency",
-    )
-    dependency_slots = BoundedSemaphore(8)
 
     def cache_control_for(entry: CacheEntry | CacheCandidate):
         # Rows loaded from storage without TTL metadata fail closed. New
@@ -524,11 +511,17 @@ def create_app(
             ) from exc
         abuse_controller.acquire_tenant_slot(request_context.tenant_id)
         try:
-            return _execute_authenticated_query(
-                request_context=request_context,
-                request=request,
-                request_id=request_id,
-            )
+            try:
+                return _execute_authenticated_query(
+                    request_context=request_context,
+                    request=request,
+                    request_id=request_id,
+                )
+            except DependencyTimeoutError as exc:
+                raise dependency_timeout_http_exception(
+                    exc,
+                    request_id,
+                ) from exc
         except AbuseControlError as exc:
             headers = {"X-Request-ID": str(request_id)}
             if exc.retry_after_seconds is not None:
@@ -578,6 +571,23 @@ def create_app(
         decision_traces: tuple[CandidateTrace, ...] = ()
         cache_skip_reason: str | None = None
         reuse_block_reason: str | None = None
+        request_cancellation = RequestCancellation()
+
+        def dependency_call(
+            operation: Callable[[], object],
+            timeout_seconds: float,
+            operation_name: str,
+        ) -> object:
+            return run_with_timeout(
+                dependency_executor,
+                operation,
+                timeout_seconds,
+                operation_name,
+                dependency_slots,
+                cancellation=request_cancellation,
+                request_id=request_id,
+                logger=logger,
+            )
 
         def lookup_cached_entry(query_hash: str) -> CacheEntry | None:
             return _call_with_optional_scope(
@@ -627,7 +637,11 @@ def create_app(
                 perf_counter() - started_at
             )
             if remaining <= 0:
-                raise DependencyTimeoutError("request timeout exceeded")
+                raise DependencyTimeoutError(
+                    "request timeout exceeded",
+                    category="request_deadline",
+                    operation_name="request",
+                )
             return min(float(configured_seconds), remaining)
 
         def ensure_request_budget() -> None:
@@ -651,7 +665,11 @@ def create_app(
                 )
             )
             if not acquired:
-                raise DependencyTimeoutError("generation lock timed out")
+                raise DependencyTimeoutError(
+                    "generation lock timed out",
+                    category="generation_lock_timeout",
+                    operation_name="generation_lock",
+                )
             try:
                 yield
             finally:
@@ -908,12 +926,10 @@ def create_app(
             return trace_with_context(trace, candidate, 1)
 
         try:
-            cached_entry = run_with_timeout(
-                dependency_executor,
+            cached_entry = dependency_call(
                 lambda: lookup_cached_entry(processed.query_hash),
                 dependency_budget(runtime_settings.repository_timeout_seconds),
                 "cache lookup",
-                dependency_slots,
             )
         except (CacheRepositoryError, DependencyTimeoutError) as exc:
             logger.warning(
@@ -955,12 +971,10 @@ def create_app(
         embedding_result = None
         if semantic_enabled:
             try:
-                embedding_result = run_with_timeout(
-                    dependency_executor,
+                embedding_result = dependency_call(
                     run_embedding,
                     dependency_budget(runtime_settings.embedding_timeout_seconds),
                     "embedding",
-                    dependency_slots,
                 )
                 if not hasattr(embedding_result, "vector"):
                     raise ValueError("embedding provider returned an invalid result")
@@ -970,8 +984,7 @@ def create_app(
                 )
                 search = getattr(cache, "search_by_embedding", None)
                 if callable(search):
-                    candidates = run_with_timeout(
-                            dependency_executor,
+                    candidates = dependency_call(
                             lambda: search(
                                 embedding_result.vector,
                                 semantic_top_k,
@@ -983,7 +996,6 @@ def create_app(
                                 runtime_settings.repository_timeout_seconds
                             ),
                             "semantic cache search",
-                            dependency_slots,
                     )
                     reusable_candidates = tuple(
                         candidate
@@ -1121,12 +1133,10 @@ def create_app(
             # Recheck after waiting so concurrent requests do not generate the
             # same uncached query more than once in this process.
             try:
-                cached_entry = run_with_timeout(
-                    dependency_executor,
+                cached_entry = dependency_call(
                     lambda: lookup_cached_entry(processed.query_hash),
                     dependency_budget(runtime_settings.repository_timeout_seconds),
                     "cache lookup",
-                    dependency_slots,
                 )
             except (CacheRepositoryError, DependencyTimeoutError) as exc:
                 logger.warning(
@@ -1165,14 +1175,15 @@ def create_app(
                         reuse_block_reason = exact_control.reason
 
             try:
-                result = run_with_timeout(
-                    dependency_executor,
+                result = dependency_call(
                     run_generation,
                     dependency_budget(runtime_settings.generation_timeout_seconds),
                     "generation",
-                    dependency_slots,
                 )
                 result = validate_llm_result(result)
+            except DependencyTimeoutError as exc:
+                request_cancellation.cancel()
+                raise exc
             except AbuseControlError:
                 raise
             except Exception as exc:
@@ -1202,12 +1213,10 @@ def create_app(
 
             if embedding_result is None and semantic_enabled:
                 try:
-                    embedding_result = run_with_timeout(
-                        dependency_executor,
+                    embedding_result = dependency_call(
                         run_embedding,
                         dependency_budget(runtime_settings.embedding_timeout_seconds),
                         "embedding",
-                        dependency_slots,
                     )
                     validate_embedding_result(
                         embedding_result,
@@ -1267,8 +1276,7 @@ def create_app(
                     )
                     insert_and_evict = getattr(cache, "insert_and_evict", None)
                     if callable(insert_and_evict):
-                        run_with_timeout(
-                            dependency_executor,
+                        dependency_call(
                             lambda: insert_and_evict(
                                 entry,
                                 max_cache_entries,
@@ -1278,23 +1286,19 @@ def create_app(
                                 runtime_settings.repository_timeout_seconds
                             ),
                             "cache insert and eviction",
-                            dependency_slots,
                         )
                     else:
-                        run_with_timeout(
-                            dependency_executor,
+                        dependency_call(
                             lambda: cache.insert(entry),
                             dependency_budget(
                                 runtime_settings.repository_timeout_seconds
                             ),
                             "cache insert",
-                            dependency_slots,
                         )
                         evict = getattr(cache, "evict_to_limits", None)
                         if callable(evict):
                             try:
-                                run_with_timeout(
-                                    dependency_executor,
+                                dependency_call(
                                     lambda: _call_with_optional_scope(
                                         evict,
                                         max_cache_entries,
@@ -1306,7 +1310,6 @@ def create_app(
                                         runtime_settings.repository_timeout_seconds
                                     ),
                                     "cache eviction",
-                                    dependency_slots,
                                 )
                             except (CacheRepositoryError, DependencyTimeoutError) as exc:
                                 logger.warning(
@@ -1318,14 +1321,12 @@ def create_app(
                     # Another process may have filled a shared repository while
                     # this request was generating.
                     try:
-                        cached_entry = run_with_timeout(
-                            dependency_executor,
+                        cached_entry = dependency_call(
                             lambda: lookup_cached_entry(processed.query_hash),
                             dependency_budget(
                                 runtime_settings.repository_timeout_seconds
                             ),
                             "cache lookup",
-                            dependency_slots,
                         )
                     except (CacheRepositoryError, DependencyTimeoutError) as exc:
                         raise HTTPException(
@@ -1366,8 +1367,7 @@ def create_app(
                         )
                         if callable(delete_entry):
                             try:
-                                run_with_timeout(
-                                    dependency_executor,
+                                dependency_call(
                                     lambda: _call_with_optional_scope(
                                         delete_entry,
                                         processed.query_hash,
@@ -1378,11 +1378,9 @@ def create_app(
                                         runtime_settings.repository_timeout_seconds
                                     ),
                                     "cache replacement",
-                                    dependency_slots,
                                 )
                                 if callable(insert_and_evict):
-                                    run_with_timeout(
-                                        dependency_executor,
+                                    dependency_call(
                                         lambda: insert_and_evict(
                                             entry,
                                             max_cache_entries,
@@ -1392,17 +1390,14 @@ def create_app(
                                             runtime_settings.repository_timeout_seconds
                                         ),
                                         "cache insert and eviction",
-                                        dependency_slots,
                                     )
                                 else:
-                                    run_with_timeout(
-                                        dependency_executor,
+                                    dependency_call(
                                         lambda: cache.insert(entry),
                                         dependency_budget(
                                             runtime_settings.repository_timeout_seconds
                                         ),
                                         "cache insert",
-                                        dependency_slots,
                                     )
                             except (
                                 CacheRepositoryError,

@@ -169,7 +169,7 @@ def test_postgres_storage_stats_can_scope_to_tenant_namespace() -> None:
 def test_in_memory_and_postgres_both_enforce_scoped_vector_search() -> None:
     embedding = (1.0, 0.0)
     query = "shared isolation wording"
-    memory = InMemoryExactCache(embedding_dimension=1)
+    memory = InMemoryExactCache(embedding_dimension=2)
     memory.insert(
         _entry("mem-a", DEFAULT_NAMESPACE, query, "a", embedding=embedding)
     )

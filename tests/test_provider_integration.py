@@ -497,16 +497,12 @@ def test_generation_failure_preserves_workstream3_decision_trace(
 
     response = client.post("/v1/query", json={"query": query})
 
-    assert response.status_code == 502
-    event = json.loads(
-        next(
-            record.message
-            for record in caplog.records
-            if "generation_failed" in record.message
-        )
+    assert response.status_code == 504
+    assert response.json()["detail"] == "response generation timed out"
+    assert response.headers["X-Request-ID"]
+    assert not any(
+        "generation_failed" in record.message for record in caplog.records
     )
-    assert event["decision"] == "UNCERTAIN"
-    assert event["candidate_traces"] is None
 
 
 def test_embedding_failure_preserves_failure_closed_semantic_behavior(

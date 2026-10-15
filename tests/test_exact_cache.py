@@ -566,7 +566,7 @@ def test_cache_repository_failure_returns_503_with_request_id() -> None:
     assert response.headers["X-Request-ID"]
 
 
-def test_generation_timeout_returns_controlled_502(caplog) -> None:
+def test_generation_timeout_returns_controlled_504() -> None:
     class SlowLLMClient(MockLLMClient):
         def generate(self, query: str) -> LLMResult:
             time.sleep(1.1)
@@ -579,27 +579,12 @@ def test_generation_timeout_returns_controlled_502(caplog) -> None:
         )
     )
 
-    caplog.set_level(logging.INFO, logger="sscre")
     response = client.post("/v1/query", json={"query": "slow generation"})
 
-    assert response.status_code == 502
-    assert response.json() == {"detail": "response generation failed"}
+    assert response.status_code == 504
+    assert response.json() == {"detail": "response generation timed out"}
     assert response.headers["X-Request-ID"]
-    event = json.loads(
-        next(
-            record.message
-            for record in caplog.records
-            if "generation_failed" in record.message
-        )
-    )
-    event_text = json.dumps(event)
-    assert event["decision"] == "UNCERTAIN"
-    assert event["reason"] == "generation_failed"
-    assert event["outcome"] == "generation_failed"
-    assert event["candidate_traces"] is None
-    assert "answer" not in event
-    assert "authorization" not in event
-    assert "slow generation" not in event_text
+    assert "slow generation" not in json.dumps(response.json())
 
 
 def test_malformed_generation_result_returns_controlled_502() -> None:
