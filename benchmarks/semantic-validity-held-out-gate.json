@@ -39,5 +39,5 @@
     "reason": "Pre-registered C-versus-A rule scored on fresh held-out primary population (100 pairs)."
   },
   "fresh_held_out_benchmark_path": "benchmarks/fresh_held_out.jsonl",
-  "fresh_held_out_manifest_sha256": "54a6344a199de48584026b211aeb92ec2121066c3b2b7e68b4059c64ec687e0a"
+  "fresh_held_out_manifest_sha256": "914b7be5e01e5c3d382c22d82580ce3822cf64af3df8d1edde10976cd0fc7bca"
 }

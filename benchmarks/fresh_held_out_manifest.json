@@ -8,7 +8,7 @@
   "held_out_influence": "none",
   "source_population": {
     "path": "benchmarks/fresh_held_out.jsonl",
-    "sha256": "dd500d5e0013aac4b53d8c52e6f68ac940016f6106c4e06bd2c3132e33725573",
+    "sha256": "6bc52e6b2aafd2df4e8b8d04d474e5fffa02d580d1a570f7396baead715ecba3",
     "record_count": 100,
     "record_ids": [
       "pair-0616",

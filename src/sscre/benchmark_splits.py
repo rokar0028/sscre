@@ -36,7 +36,8 @@ class LeakageReport:
 
 
 def file_sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    """Hash text datasets independently of platform line endings."""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def normalized_pair_key(record: BenchmarkRecord) -> tuple[str, str]:

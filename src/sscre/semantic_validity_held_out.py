@@ -51,9 +51,9 @@ def _git_worktree_dirty(repo_root: Path) -> bool | None:
 
 
 def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    digest.update(path.read_bytes().replace(b"\r\n", b"\n"))
-    return digest.hexdigest()
+    return hashlib.sha256(
+        path.read_bytes().replace(b"\r\n", b"\n")
+    ).hexdigest()
 
 
 def resolve_held_out_gate_path(
