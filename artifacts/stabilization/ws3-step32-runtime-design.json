@@ -1,0 +1,37 @@
+{
+  "schema_version": "ws3-step32-runtime-design-1.0",
+  "workstream": 3,
+  "step": "3.2",
+  "status": "design_selected",
+  "parent_evidence": "artifacts/stabilization/ws3-step31-timeout-audit.json",
+  "selected_design": {
+    "id": "admission_release_with_request_epoch",
+    "summary": "Release dependency admission on client-visible timeout; use per-request cancellation tokens so late callables cannot publish cache or success metrics; keep bounded shared executor.",
+    "rejected_without_changes": [
+      "status_quo_slot_held_until_completion",
+      "dedicated_worker_pools_only",
+      "cooperative_provider_cancellation_only"
+    ],
+    "deferred_escalation": "bounded_subprocess_isolation_for_generation_or_local_embedding"
+  },
+  "pass_rule_interpretation": {
+    "failure_mode": "transient_admission_denial_under_stall_not_unbounded_leak",
+    "slot_eventually_released_when_callable_completes": true,
+    "future_cancel_stops_in_flight_thread": false
+  },
+  "http_mapping_targets_step_33": {
+    "generation_lock_timeout": {
+      "current": "HTTP 500 unhandled DependencyTimeoutError",
+      "target": "HTTP 503 or 504 with X-Request-ID"
+    },
+    "generation_dependency_timeout": {
+      "current": "HTTP 502 response generation failed",
+      "target": "HTTP 504 with X-Request-ID"
+    }
+  },
+  "implementation_steps": [
+    "3.3 — run_with_timeout admission release + request epoch in app.py",
+    "3.3 — controlled HTTP mapping for lock and generation timeouts",
+    "3.4 — align local_embedding.py executor lifecycle with same admission model"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "schema_version": "ws3-step37-verification-1.0",
+  "workstream": 3,
+  "step": "3.7",
+  "status": "closed",
+  "git_commit": "2d7323fa31aa5db576e2d11aa9854832a9d0b9f5",
+  "verification_date": "2026-10-14",
+  "worktree_note": "WS3 code and evidence paths modified; commit bundle pending user approval",
+  "design": {
+    "selected": "admission_release_with_request_epoch",
+    "artifact": "artifacts/stabilization/ws3-step32-runtime-design.json",
+    "implementation_modules": [
+      "src/sscre/dependency_runtime.py",
+      "src/sscre/app.py",
+      "src/sscre/local_embedding.py"
+    ]
+  },
+  "timeout_categories_verified": [
+    "request_deadline",
+    "capacity_exhausted",
+    "dependency_timeout",
+    "generation_lock_timeout",
+    "late_completion",
+    "request_cancelled"
+  ],
+  "resource_bounds": {
+    "dependency_executor_max_workers": 8,
+    "dependency_slots": 8,
+    "admission_released_on_client_visible_timeout": true,
+    "probe_tests": "tests/test_workstream3_timeout_capacity_probe.py"
+  },
+  "pytest": {
+    "focused_ws3": {
+      "command": "python -m pytest tests/test_workstream3_concurrency.py tests/test_workstream3_failure_paths.py tests/test_workstream3_strategy_c_paths.py tests/test_local_embedding.py tests/test_workstream3_timeout_capacity_probe.py tests/test_workstream3_timeout_http_gaps.py -q",
+      "passed": 65,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 79.76
+    },
+    "default_suite": {
+      "command": "python -m pytest -q",
+      "passed": 892,
+      "failed": 0,
+      "skipped": 1,
+      "deselected": 21,
+      "elapsed_seconds": 409.72,
+      "note": "After aligning generation-timeout tests to HTTP 504 and fixing scoped vector dimension in test_postgres_cache_scope."
+    },
+    "postgres_multiprocess": {
+      "command": "python -m pytest tests/test_postgres_multiprocess_duplicate.py -m ws8_postgres_multiprocess -q",
+      "outcome": "verified",
+      "passed": 1,
+      "artifact": "artifacts/stabilization/ws3-step36-multiprocess-duplicate.json"
+    }
+  },
+  "acceptance_gate": {
+    "bounded_capacity_after_timeout": true,
+    "generation_lock_controlled_response": true,
+    "timeout_storm_bounded_threads": true,
+    "failure_paths_fail_closed": true,
+    "in_process_concurrency_pass": true,
+    "cross_process_recorded_verified": true,
+    "evidence_redacted": true
+  },
+  "redaction_audit": {
+    "artifacts_scanned": [
+      "artifacts/stabilization/ws3-step31-timeout-audit.json",
+      "artifacts/stabilization/ws3-step32-runtime-design.json",
+      "artifacts/stabilization/ws3-step36-multiprocess-duplicate.json",
+      "artifacts/stabilization/ws3-step37-verification.json"
+    ],
+    "findings": "No prompts, answers, embedding vectors, API tokens, or connection credentials stored in WS3 stabilization JSON artifacts."
+  },
+  "limitations": [
+    "In-process generation_lock does not coordinate separate processes; cross-process duplicate generation remains possible.",
+    "Orphaned dependency callables may complete after timeout; late_completion logging only; no distributed timeout-capacity guarantee.",
+    "Windows Docker localhost loopback may require non-loopback host/port for host-side psycopg (documented in Step 3.6 evidence)."
+  ]
+}
