@@ -14,9 +14,9 @@
   "environment": {
     "cpu_count": 8,
     "database_mode": "postgres",
-    "git_commit": "4997e6670bc6a2609cb9351bdf3bae882d61c01c",
+    "git_commit": "6d579304ca6b9afa00af71a168bf7faedf47c9d3",
     "machine": "AMD64",
-    "measured_at": "2026-10-10T16:31:04.756865+00:00",
+    "measured_at": "2026-10-15T13:54:07.908852+00:00",
     "os": "Windows-11-10.0.26200-SP0",
     "postgresql_version": "16.15 (Debian 16.15-1.pgdg12+2)",
     "process_count": 1,
@@ -25,12 +25,12 @@
     "python_implementation": "cpython",
     "worker_count": 1
   },
-  "git_commit": "4997e6670bc6a2609cb9351bdf3bae882d61c01c",
+  "git_commit": "6d579304ca6b9afa00af71a168bf7faedf47c9d3",
   "human_evidence": "docs/phase-2/WORKSTREAM_8_EVIDENCE.md",
   "kind": "workstream8-operational-verification",
   "limitation": "Bounded local PostgreSQL operational verification for declared WS8 protocols. Not a production capacity, SLA, multi-host, multi-region, or managed-PostgreSQL guarantee.",
-  "measured_at": "2026-10-10T16:31:04.756865+00:00",
-  "packaged_at": "2026-10-10T20:56:38.003957+00:00",
+  "measured_at": "2026-10-15T13:54:07.908852+00:00",
+  "packaged_at": "2026-10-15T14:20:45.256679+00:00",
   "protocol_id": "ws8-operational-verification-v1",
   "protocols": {
     "ws8-contention-v1": {
@@ -39,6 +39,7 @@
         "database_error",
         "validation_error"
       ],
+      "evidence_note": "Frozen summary from 2026-10-10 WS8 verification; not re-run during Post\u2013Phase 4 WS4 close-out.",
       "expired_and_disallowed_cannot_win_lookup": true,
       "limitations": [
         "Eviction and cleanup delete only the run's query hashes. The 2026-10-10 measurement used a relative cap window before that guard. Not a production eviction-capacity claim."
@@ -154,6 +155,7 @@
       "coordination": "in_process_lock_only",
       "duplicate_generation_prevented": false,
       "duplicate_insert_prevented": true,
+      "evidence_note": "Frozen summary from 2026-10-10 WS8 verification; not re-run during Post\u2013Phase 4 WS4 close-out.",
       "final_row_count": 1,
       "insert_conflict": {
         "max": 1,
@@ -186,52 +188,31 @@
           "provider_data": "synthetic",
           "storage": "postgresql"
         },
-        "first_measured_bottleneck": "not_reached",
+        "first_measured_bottleneck": "p99_above_5x_p50",
         "measured_components": {
           "average_llm_latency_ms": 0.0,
-          "average_wrapper_overhead_ms": 66.009,
-          "end_to_end_average_ms": 75.257,
+          "average_wrapper_overhead_ms": 99.414,
+          "end_to_end_average_ms": 106.532,
           "pass_latency_ms": [
             {
               "mode": "cold",
-              "p50": 63.362,
-              "p95": 199.509,
-              "p99": 262.84,
-              "throughput_requests_per_second": 40.334
-            },
-            {
-              "mode": "warm",
-              "p50": 57.953,
-              "p95": 72.355,
-              "p99": 73.557,
-              "throughput_requests_per_second": 64.284
-            },
-            {
-              "mode": "cold",
-              "p50": 69.22,
-              "p95": 235.787,
-              "p99": 306.064,
-              "throughput_requests_per_second": 37.968
-            },
-            {
-              "mode": "warm",
-              "p50": 56.916,
-              "p95": 81.719,
-              "p99": 84.315,
-              "throughput_requests_per_second": 69.02
+              "p50": 70.053,
+              "p95": 305.967,
+              "p99": 370.314,
+              "throughput_requests_per_second": 36.143
             }
           ]
         },
         "optimization": "No production optimization selected; wrapper versus synthetic LLM latency is not an actionable bottleneck.",
         "optimization_decision": "none",
         "protocol_id": "ws8-pg-load-v1",
-        "rationale": "Declared ws8-pg-load-v1 workload completed without a stop condition. Synthetic provider latency is 0 ms, so wrapper overhead is not an actionable bottleneck. Repository, embedding, and live-provider spans were not instrumented.",
+        "rationale": "Stop condition p99_above_5x_p50 fired on the declared workload. No optimization is selected from this bounded local run.",
         "result_class": "observation",
         "source_artifact": "artifacts/operations/workstream8-pg-load-v1.json",
         "stop_conditions": {
           "error_rate_limit": 0.1,
           "p99_to_p50_limit": 5.0,
-          "stopped_reason": null,
+          "stopped_reason": "p99_above_5x_p50",
           "timeout_rate_limit": 0.05
         },
         "unavailable_components": [
@@ -241,12 +222,13 @@
         ]
       },
       "concurrency": 4,
-      "limitation": "Bounded local PostgreSQL result for protocol ws8-pg-load-v1. Not a production capacity, SLA, or multi-host guarantee. Absolute cache caps apply to the whole database and may evict unrelated oldest rows.",
+      "limitation": "Bounded local PostgreSQL result for protocol ws8-pg-load-v1. Not a production capacity, SLA, or multi-host guarantee. Cache caps apply only to this run's query hashes, so unrelated rows are not eviction candidates.",
       "limitations": [
         "Bounded local result. Not a production capacity or SLA guarantee.",
-        "Synthetic provider latency is 0 ms. Wrapper overhead is not an actionable bottleneck."
+        "Synthetic provider latency is 0 ms. Wrapper overhead is not an actionable bottleneck.",
+        "Bottleneck summary is taken from the load artifact's bottleneck_analysis when present."
       ],
-      "measured_on": "2026-10-10",
+      "measured_on": "2026-10-15",
       "passes": {
         "exact_cache": [
           {
@@ -254,7 +236,7 @@
             "cache_misses": 15,
             "cache_mode": "exact_cache",
             "concurrency": 4,
-            "elapsed_seconds": 0.793367,
+            "elapsed_seconds": 0.885379,
             "errors": {
               "count": 3,
               "rate": 0.09375,
@@ -263,10 +245,10 @@
             },
             "generated_requests": 12,
             "latency_ms": {
-              "max": 280.8,
-              "p50": 63.362,
-              "p95": 199.509,
-              "p99": 262.84
+              "max": 385.256,
+              "p50": 70.053,
+              "p95": 305.967,
+              "p99": 370.314
             },
             "mode": "cold",
             "reasons": {
@@ -283,188 +265,19 @@
               "generated": 12
             },
             "storage": {
-              "bytes": 1782,
+              "bytes": 6364,
               "bytes_delta": 1782,
-              "canonical_answers": 6,
-              "entries": 6,
+              "canonical_answers": 25,
+              "entries": 21,
               "entries_delta": 6,
-              "evictions": 31,
+              "evictions": 10,
               "evictions_delta": 0,
-              "expirations": 6
+              "expirations": 5
             },
             "synthetic_provider_data": true,
-            "throughput_requests_per_second": 40.334,
+            "throughput_requests_per_second": 36.143,
             "warmup_error_rate": 0.0,
             "warmup_requests": 0,
-            "workload_labels": {
-              "dynamic_query": 3,
-              "embedding_failure": 3,
-              "eviction_candidate": 6,
-              "exact_hit": 8,
-              "generation_failure": 3,
-              "oversized_answer": 3,
-              "semantic_hit": 6
-            }
-          },
-          {
-            "cache_hits": 23,
-            "cache_misses": 9,
-            "cache_mode": "exact_cache",
-            "concurrency": 4,
-            "elapsed_seconds": 0.497794,
-            "errors": {
-              "count": 3,
-              "rate": 0.09375,
-              "timeout_rate": 0.0,
-              "timeouts": 0
-            },
-            "generated_requests": 6,
-            "latency_ms": {
-              "max": 73.579,
-              "p50": 57.953,
-              "p95": 72.355,
-              "p99": 73.557
-            },
-            "mode": "warm",
-            "reasons": {
-              "answer_too_large": 3,
-              "dynamic_entries_disabled": 3,
-              "exact_query_hash_match": 23,
-              "response generation failed": 3
-            },
-            "request_count": 32,
-            "sources": {
-              "cache": 23,
-              "error": 3,
-              "generated": 6
-            },
-            "storage": {
-              "bytes": 1782,
-              "bytes_delta": 0,
-              "canonical_answers": 6,
-              "entries": 6,
-              "entries_delta": 0,
-              "evictions": 31,
-              "evictions_delta": 0,
-              "expirations": 6
-            },
-            "synthetic_provider_data": true,
-            "throughput_requests_per_second": 64.284,
-            "warmup_error_rate": 0.125,
-            "warmup_requests": 8,
-            "workload_labels": {
-              "dynamic_query": 3,
-              "embedding_failure": 3,
-              "eviction_candidate": 6,
-              "exact_hit": 8,
-              "generation_failure": 3,
-              "oversized_answer": 3,
-              "semantic_hit": 6
-            }
-          },
-          {
-            "cache_hits": 17,
-            "cache_misses": 15,
-            "cache_mode": "exact_cache",
-            "concurrency": 4,
-            "elapsed_seconds": 0.842804,
-            "errors": {
-              "count": 3,
-              "rate": 0.09375,
-              "timeout_rate": 0.0,
-              "timeouts": 0
-            },
-            "generated_requests": 12,
-            "latency_ms": {
-              "max": 329.62,
-              "p50": 69.22,
-              "p95": 235.787,
-              "p99": 306.064
-            },
-            "mode": "cold",
-            "reasons": {
-              "answer_too_large": 3,
-              "dynamic_entries_disabled": 3,
-              "exact_query_hash_match": 17,
-              "no candidates were retrieved": 6,
-              "response generation failed": 3
-            },
-            "request_count": 32,
-            "sources": {
-              "cache": 17,
-              "error": 3,
-              "generated": 12
-            },
-            "storage": {
-              "bytes": 1782,
-              "bytes_delta": 1782,
-              "canonical_answers": 6,
-              "entries": 6,
-              "entries_delta": 6,
-              "evictions": 31,
-              "evictions_delta": 0,
-              "expirations": 6
-            },
-            "synthetic_provider_data": true,
-            "throughput_requests_per_second": 37.968,
-            "warmup_error_rate": 0.0,
-            "warmup_requests": 0,
-            "workload_labels": {
-              "dynamic_query": 3,
-              "embedding_failure": 3,
-              "eviction_candidate": 6,
-              "exact_hit": 8,
-              "generation_failure": 3,
-              "oversized_answer": 3,
-              "semantic_hit": 6
-            }
-          },
-          {
-            "cache_hits": 23,
-            "cache_misses": 9,
-            "cache_mode": "exact_cache",
-            "concurrency": 4,
-            "elapsed_seconds": 0.463632,
-            "errors": {
-              "count": 3,
-              "rate": 0.09375,
-              "timeout_rate": 0.0,
-              "timeouts": 0
-            },
-            "generated_requests": 6,
-            "latency_ms": {
-              "max": 84.736,
-              "p50": 56.916,
-              "p95": 81.719,
-              "p99": 84.315
-            },
-            "mode": "warm",
-            "reasons": {
-              "answer_too_large": 3,
-              "dynamic_entries_disabled": 3,
-              "exact_query_hash_match": 23,
-              "response generation failed": 3
-            },
-            "request_count": 32,
-            "sources": {
-              "cache": 23,
-              "error": 3,
-              "generated": 6
-            },
-            "storage": {
-              "bytes": 1782,
-              "bytes_delta": 0,
-              "canonical_answers": 6,
-              "entries": 6,
-              "entries_delta": 0,
-              "evictions": 31,
-              "evictions_delta": 0,
-              "expirations": 6
-            },
-            "synthetic_provider_data": true,
-            "throughput_requests_per_second": 69.02,
-            "warmup_error_rate": 0.125,
-            "warmup_requests": 8,
             "workload_labels": {
               "dynamic_query": 3,
               "embedding_failure": 3,
@@ -480,7 +293,7 @@
       "process_count": 1,
       "request_count": 32,
       "status": "measured",
-      "stopped_reason": null,
+      "stopped_reason": "p99_above_5x_p50",
       "warmup_requests": 8,
       "worker_count": 1
     }

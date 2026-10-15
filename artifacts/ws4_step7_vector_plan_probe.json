@@ -1,0 +1,110 @@
+{
+  "protocol_id": "ws4-vector-plan-v1",
+  "query_source": "PostgresExactCacheRepository.search_by_embedding",
+  "declared": {
+    "tenant_id": "ws4-vector-plan",
+    "namespace_id": "ws4-vector-plan",
+    "embedding_dimension": 2,
+    "embedding_model_filter": null,
+    "top_k": 5,
+    "similarity_threshold": "not applied in SQL (application layer)",
+    "row_counts": [
+      200,
+      2000
+    ],
+    "query_vector": [
+      1.0,
+      0.0
+    ],
+    "fresh_session_note": "The fresh-session plan uses a new connection but does not clear PostgreSQL shared buffers; it is not a cold-cache run."
+  },
+  "environment": {
+    "postgresql_version": "PostgreSQL 16.15 (Debian 16.15-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",
+    "pgvector_version": "0.8.7",
+    "settings": {
+      "shared_buffers": "128MB",
+      "effective_cache_size": "4GB",
+      "work_mem": "4MB",
+      "maintenance_work_mem": "64MB",
+      "random_page_cost": "4"
+    },
+    "host_platform": "Windows-11-10.0.26200-SP0",
+    "python_version": "3.14.5",
+    "process_count": 1,
+    "worker_count": 1,
+    "connection_count_for_probe": 1
+  },
+  "existing_indexes_note": "idx_cache_entries_semantic_scope is (tenant_id, namespace_id, embedding_dimension) WHERE embedding IS NOT NULL; no HNSW/IVFFlat in checked-in migrations.",
+  "runs": [
+    {
+      "row_count_target": 200,
+      "scoped_entry_count": 200,
+      "candidate_count_sql_limit": 5,
+      "fresh_session_not_cold_cache": {
+        "parsed": {
+          "planning_time_ms": 1.151,
+          "execution_time_ms": 0.655,
+          "buffers_summary": "Buffers: shared hit=191",
+          "rows_removed_by_filter": "Rows Removed by Filter: 21",
+          "sort_summary": "->  Sort  (cost=193.48..193.86 rows=151 width=422) (actual time=0.594..0.595 rows=5 loops=1)",
+          "uses_seq_scan_on_cache_entries": true,
+          "uses_idx_cache_entries_semantic_scope": false,
+          "uses_vector_ann_index": false
+        },
+        "plan_text": "Limit  (cost=193.48..193.49 rows=5 width=422) (actual time=0.595..0.597 rows=5 loops=1)\n  Buffers: shared hit=191\n  ->  Sort  (cost=193.48..193.86 rows=151 width=422) (actual time=0.594..0.595 rows=5 loops=1)\n        Sort Key: ((ce.embedding <=> '[1,0]'::vector)), ce.query_hash\n        Sort Method: top-N heapsort  Memory: 29kB\n        Buffers: shared hit=191\n        ->  Hash Left Join  (cost=29.56..190.97 rows=151 width=422) (actual time=0.248..0.511 rows=200 loops=1)\n              Hash Cond: (ce.canonical_answer_hash = ca.answer_hash)\n              Buffers: shared hit=185\n              ->  Seq Scan on cache_entries ce  (cost=0.00..159.87 rows=151 width=419) (actual time=0.006..0.213 rows=200 loops=1)\n                    Filter: ((embedding IS NOT NULL) AND (embedding_dimension = '2'::smallint) AND (tenant_id = 'ws4-vector-plan'::text) AND (namespace_id = 'ws4-vector-plan'::text))\n                    Rows Removed by Filter: 21\n                    Buffers: shared hit=156\n              ->  Hash  (cost=29.25..29.25 rows=25 width=143) (actual time=0.227..0.228 rows=225 loops=1)\n                    Buckets: 1024  Batches: 1  Memory Usage: 34kB\n                    Buffers: shared hit=29\n                    ->  Seq Scan on canonical_answers ca  (cost=0.00..29.25 rows=25 width=143) (actual time=0.006..0.152 rows=225 loops=1)\n                          Buffers: shared hit=29\nPlanning:\n  Buffers: shared hit=425\nPlanning Time: 1.151 ms\nExecution Time: 0.655 ms"
+      },
+      "warm": {
+        "parsed": {
+          "planning_time_ms": 0.387,
+          "execution_time_ms": 0.815,
+          "buffers_summary": "Buffers: shared hit=185",
+          "rows_removed_by_filter": "Rows Removed by Filter: 21",
+          "sort_summary": "->  Sort  (cost=193.48..193.86 rows=151 width=422) (actual time=0.776..0.778 rows=5 loops=1)",
+          "uses_seq_scan_on_cache_entries": true,
+          "uses_idx_cache_entries_semantic_scope": false,
+          "uses_vector_ann_index": false
+        },
+        "plan_text": "Limit  (cost=193.48..193.49 rows=5 width=422) (actual time=0.777..0.780 rows=5 loops=1)\n  Buffers: shared hit=185\n  ->  Sort  (cost=193.48..193.86 rows=151 width=422) (actual time=0.776..0.778 rows=5 loops=1)\n        Sort Key: ((ce.embedding <=> '[1,0]'::vector)), ce.query_hash\n        Sort Method: top-N heapsort  Memory: 29kB\n        Buffers: shared hit=185\n        ->  Hash Left Join  (cost=29.56..190.97 rows=151 width=422) (actual time=0.286..0.572 rows=200 loops=1)\n              Hash Cond: (ce.canonical_answer_hash = ca.answer_hash)\n              Buffers: shared hit=185\n              ->  Seq Scan on cache_entries ce  (cost=0.00..159.87 rows=151 width=419) (actual time=0.011..0.226 rows=200 loops=1)\n                    Filter: ((embedding IS NOT NULL) AND (embedding_dimension = '2'::smallint) AND (tenant_id = 'ws4-vector-plan'::text) AND (namespace_id = 'ws4-vector-plan'::text))\n                    Rows Removed by Filter: 21\n                    Buffers: shared hit=156\n              ->  Hash  (cost=29.25..29.25 rows=25 width=143) (actual time=0.254..0.254 rows=225 loops=1)\n                    Buckets: 1024  Batches: 1  Memory Usage: 34kB\n                    Buffers: shared hit=29\n                    ->  Seq Scan on canonical_answers ca  (cost=0.00..29.25 rows=25 width=143) (actual time=0.006..0.089 rows=225 loops=1)\n                          Buffers: shared hit=29\nPlanning:\n  Buffers: shared hit=12\nPlanning Time: 0.387 ms\nExecution Time: 0.815 ms",
+        "repeats": 2
+      }
+    },
+    {
+      "row_count_target": 2000,
+      "scoped_entry_count": 2000,
+      "candidate_count_sql_limit": 5,
+      "fresh_session_not_cold_cache": {
+        "parsed": {
+          "planning_time_ms": 2.742,
+          "execution_time_ms": 4.254,
+          "buffers_summary": "Buffers: shared hit=192",
+          "rows_removed_by_filter": "Rows Removed by Filter: 21",
+          "sort_summary": "->  Sort  (cost=318.68..323.53 rows=1942 width=422) (actual time=3.960..3.962 rows=5 loops=1)",
+          "uses_seq_scan_on_cache_entries": true,
+          "uses_idx_cache_entries_semantic_scope": false,
+          "uses_vector_ann_index": false
+        },
+        "plan_text": "Limit  (cost=318.68..318.69 rows=5 width=422) (actual time=3.963..3.967 rows=5 loops=1)\n  Buffers: shared hit=192\n  ->  Sort  (cost=318.68..323.53 rows=1942 width=422) (actual time=3.960..3.962 rows=5 loops=1)\n        Sort Key: ((ce.embedding <=> '[1,0]'::vector)), ce.query_hash\n        Sort Method: top-N heapsort  Memory: 28kB\n        Buffers: shared hit=192\n        ->  Hash Left Join  (cost=75.38..286.42 rows=1942 width=422) (actual time=1.011..3.040 rows=2000 loops=1)\n              Hash Cond: (ce.canonical_answer_hash = ca.answer_hash)\n              Buffers: shared hit=186\n              ->  Seq Scan on cache_entries ce  (cost=0.00..191.37 rows=1942 width=419) (actual time=0.015..0.942 rows=2000 loops=1)\n                    Filter: ((embedding IS NOT NULL) AND (embedding_dimension = '2'::smallint) AND (tenant_id = 'ws4-vector-plan'::text) AND (namespace_id = 'ws4-vector-plan'::text))\n                    Rows Removed by Filter: 21\n                    Buffers: shared hit=156\n              ->  Hash  (cost=50.17..50.17 rows=2017 width=77) (actual time=0.939..0.939 rows=2025 loops=1)\n                    Buckets: 2048  Batches: 1  Memory Usage: 233kB\n                    Buffers: shared hit=30\n                    ->  Seq Scan on canonical_answers ca  (cost=0.00..50.17 rows=2017 width=77) (actual time=0.009..0.362 rows=2025 loops=1)\n                          Buffers: shared hit=30\nPlanning:\n  Buffers: shared hit=425\nPlanning Time: 2.742 ms\nExecution Time: 4.254 ms"
+      },
+      "warm": {
+        "parsed": {
+          "planning_time_ms": 0.24,
+          "execution_time_ms": 3.444,
+          "buffers_summary": "Buffers: shared hit=186",
+          "rows_removed_by_filter": "Rows Removed by Filter: 21",
+          "sort_summary": "->  Sort  (cost=318.68..323.53 rows=1942 width=422) (actual time=3.399..3.403 rows=5 loops=1)",
+          "uses_seq_scan_on_cache_entries": true,
+          "uses_idx_cache_entries_semantic_scope": false,
+          "uses_vector_ann_index": false
+        },
+        "plan_text": "Limit  (cost=318.68..318.69 rows=5 width=422) (actual time=3.401..3.407 rows=5 loops=1)\n  Buffers: shared hit=186\n  ->  Sort  (cost=318.68..323.53 rows=1942 width=422) (actual time=3.399..3.403 rows=5 loops=1)\n        Sort Key: ((ce.embedding <=> '[1,0]'::vector)), ce.query_hash\n        Sort Method: top-N heapsort  Memory: 28kB\n        Buffers: shared hit=186\n        ->  Hash Left Join  (cost=75.38..286.42 rows=1942 width=422) (actual time=0.695..2.553 rows=2000 loops=1)\n              Hash Cond: (ce.canonical_answer_hash = ca.answer_hash)\n              Buffers: shared hit=186\n              ->  Seq Scan on cache_entries ce  (cost=0.00..191.37 rows=1942 width=419) (actual time=0.007..0.903 rows=2000 loops=1)\n                    Filter: ((embedding IS NOT NULL) AND (embedding_dimension = '2'::smallint) AND (tenant_id = 'ws4-vector-plan'::text) AND (namespace_id = 'ws4-vector-plan'::text))\n                    Rows Removed by Filter: 21\n                    Buffers: shared hit=156\n              ->  Hash  (cost=50.17..50.17 rows=2017 width=77) (actual time=0.681..0.682 rows=2025 loops=1)\n                    Buckets: 2048  Batches: 1  Memory Usage: 233kB\n                    Buffers: shared hit=30\n                    ->  Seq Scan on canonical_answers ca  (cost=0.00..50.17 rows=2017 width=77) (actual time=0.003..0.213 rows=2025 loops=1)\n                          Buffers: shared hit=30\nPlanning:\n  Buffers: shared hit=12\nPlanning Time: 0.240 ms\nExecution Time: 3.444 ms",
+        "repeats": 2
+      }
+    }
+  ],
+  "index_decision": {
+    "add_hnsw_or_ivfflat": false,
+    "reason": "Measured plans use sequential scan (or btree scope filter) plus sort on cosine distance at N=200 and N=2000 with DIM=2 on a single local host. No recall or build-cost evidence justifies an ANN index for this bounded DIM=2, N<=2000 workload.",
+    "revisit_when": "Re-measure with the deployed embedding dimension, realistic scoped cardinality, top_k, concurrency, and cache conditions before making an ANN decision for production-shaped workloads."
+  },
+  "limitation": "Local single-connection EXPLAIN only; the fresh-session run is not a cold-cache measurement. Not production latency, SLA, or multi-worker capacity."
+}

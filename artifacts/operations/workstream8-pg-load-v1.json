@@ -6,52 +6,30 @@
       "provider_data": "synthetic",
       "storage": "postgresql"
     },
-    "first_measured_bottleneck": "not_reached",
+    "first_measured_bottleneck": "p99_above_5x_p50",
     "measured_components": {
       "average_llm_latency_ms": 0.0,
-      "average_wrapper_overhead_ms": 66.009,
-      "end_to_end_average_ms": 75.257,
+      "average_wrapper_overhead_ms": 99.414,
+      "end_to_end_average_ms": 106.532,
       "pass_latency_ms": [
         {
           "mode": "cold",
-          "p50": 63.362,
-          "p95": 199.509,
-          "p99": 262.84,
-          "throughput_requests_per_second": 40.334
-        },
-        {
-          "mode": "warm",
-          "p50": 57.953,
-          "p95": 72.355,
-          "p99": 73.557,
-          "throughput_requests_per_second": 64.284
-        },
-        {
-          "mode": "cold",
-          "p50": 69.22,
-          "p95": 235.787,
-          "p99": 306.064,
-          "throughput_requests_per_second": 37.968
-        },
-        {
-          "mode": "warm",
-          "p50": 56.916,
-          "p95": 81.719,
-          "p99": 84.315,
-          "throughput_requests_per_second": 69.02
+          "p50": 70.053,
+          "p95": 305.967,
+          "p99": 370.314,
+          "throughput_requests_per_second": 36.143
         }
       ]
     },
     "optimization": "No production optimization selected; wrapper versus synthetic LLM latency is not an actionable bottleneck.",
     "optimization_decision": "none",
     "protocol_id": "ws8-pg-load-v1",
-    "rationale": "Declared ws8-pg-load-v1 workload completed without a stop condition. Synthetic provider latency is 0 ms, so wrapper overhead is not an actionable bottleneck. Repository, embedding, and live-provider spans were not instrumented.",
+    "rationale": "Stop condition p99_above_5x_p50 fired on the declared workload. No optimization is selected from this bounded local run.",
     "result_class": "observation",
-    "source_artifact": "artifacts/operations/workstream8-pg-load-v1.json",
     "stop_conditions": {
       "error_rate_limit": 0.1,
       "p99_to_p50_limit": 5.0,
-      "stopped_reason": null,
+      "stopped_reason": "p99_above_5x_p50",
       "timeout_rate_limit": 0.05
     },
     "unavailable_components": [
@@ -71,7 +49,7 @@
         "cache_misses": 15,
         "cache_mode": "exact_cache",
         "concurrency": 4,
-        "elapsed_seconds": 0.793367,
+        "elapsed_seconds": 0.885379,
         "errors": {
           "count": 3,
           "rate": 0.09375,
@@ -80,10 +58,10 @@
         },
         "generated_requests": 12,
         "latency_ms": {
-          "max": 280.8,
-          "p50": 63.362,
-          "p95": 199.509,
-          "p99": 262.84
+          "max": 385.256,
+          "p50": 70.053,
+          "p95": 305.967,
+          "p99": 370.314
         },
         "mode": "cold",
         "reasons": {
@@ -96,76 +74,76 @@
         "request_count": 32,
         "results": [
           {
-            "api_latency_ms": 188,
+            "api_latency_ms": 133,
             "decision": "SAFE",
             "label": "exact_hit",
-            "latency_ms": 222.865,
+            "latency_ms": 154.05,
             "llm_latency_ms": 0,
             "reason": "exact_query_hash_match",
             "source": "cache",
             "status_code": 200,
-            "wrapper_overhead_ms": 188
+            "wrapper_overhead_ms": 133
           },
           {
-            "api_latency_ms": 149,
+            "api_latency_ms": 97,
             "decision": "UNSAFE",
             "label": "exact_hit",
-            "latency_ms": 180.399,
+            "latency_ms": 122.393,
             "llm_latency_ms": 0,
             "reason": "no candidates were retrieved",
             "source": "generated",
             "status_code": 200,
-            "wrapper_overhead_ms": 149
+            "wrapper_overhead_ms": 97
           },
           {
-            "api_latency_ms": 96,
+            "api_latency_ms": 315,
             "decision": "UNSAFE",
             "label": "semantic_hit",
-            "latency_ms": 125.374,
+            "latency_ms": 337.057,
             "llm_latency_ms": 0,
             "reason": "no candidates were retrieved",
             "source": "generated",
             "status_code": 200,
-            "wrapper_overhead_ms": 96
+            "wrapper_overhead_ms": 315
           },
           {
-            "api_latency_ms": 250,
+            "api_latency_ms": 362,
             "decision": "UNSAFE",
             "label": "semantic_hit",
-            "latency_ms": 280.8,
+            "latency_ms": 385.256,
             "llm_latency_ms": 0,
             "reason": "no candidates were retrieved",
             "source": "generated",
             "status_code": 200,
-            "wrapper_overhead_ms": 250
+            "wrapper_overhead_ms": 362
           },
           {
-            "api_latency_ms": 163,
+            "api_latency_ms": 274,
             "decision": "UNCERTAIN",
             "label": "dynamic_query",
-            "latency_ms": 169.941,
+            "latency_ms": 280.529,
             "llm_latency_ms": 0,
             "reason": "dynamic_entries_disabled",
             "source": "generated",
             "status_code": 200,
-            "wrapper_overhead_ms": 163
+            "wrapper_overhead_ms": 274
           },
           {
-            "api_latency_ms": 122,
+            "api_latency_ms": 259,
             "decision": "UNCERTAIN",
             "label": "oversized_answer",
-            "latency_ms": 129.219,
+            "latency_ms": 265.156,
             "llm_latency_ms": 0,
             "reason": "answer_too_large",
             "source": "generated",
             "status_code": 200,
-            "wrapper_overhead_ms": 122
+            "wrapper_overhead_ms": 259
           },
           {
             "api_latency_ms": 113,
             "decision": "UNSAFE",
             "label": "embedding_failure",
-            "latency_ms": 119.581,
+            "latency_ms": 122.418,
             "llm_latency_ms": 0,
             "reason": "no candidates were retrieved",
             "source": "generated",
@@ -176,7 +154,7 @@
             "api_latency_ms": null,
             "decision": null,
             "label": "generation_failure",
-            "latency_ms": 73.54,
+            "latency_ms": 89.345,
             "llm_latency_ms": null,
             "reason": "response generation failed",
             "source": "error",
@@ -184,1219 +162,43 @@
             "wrapper_overhead_ms": null
           },
           {
-            "api_latency_ms": 91,
+            "api_latency_ms": 125,
             "decision": "UNSAFE",
             "label": "eviction_candidate",
-            "latency_ms": 95.881,
+            "latency_ms": 132.924,
             "llm_latency_ms": 0,
             "reason": "no candidates were retrieved",
             "source": "generated",
             "status_code": 200,
-            "wrapper_overhead_ms": 91
+            "wrapper_overhead_ms": 125
           },
           {
-            "api_latency_ms": 144,
+            "api_latency_ms": 159,
             "decision": "UNSAFE",
             "label": "eviction_candidate",
-            "latency_ms": 149.579,
+            "latency_ms": 166.88,
             "llm_latency_ms": 0,
             "reason": "no candidates were retrieved",
             "source": "generated",
             "status_code": 200,
-            "wrapper_overhead_ms": 144
-          },
-          {
-            "api_latency_ms": 34,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 39.02,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 34
-          },
-          {
-            "api_latency_ms": 56,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 63.121,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 56
-          },
-          {
-            "api_latency_ms": 51,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 57.481,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 51
-          },
-          {
-            "api_latency_ms": 59,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 63.604,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 59
-          },
-          {
-            "api_latency_ms": 53,
-            "decision": "UNCERTAIN",
-            "label": "dynamic_query",
-            "latency_ms": 61.12,
-            "llm_latency_ms": 0,
-            "reason": "dynamic_entries_disabled",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 53
-          },
-          {
-            "api_latency_ms": 53,
-            "decision": "UNCERTAIN",
-            "label": "oversized_answer",
-            "latency_ms": 59.652,
-            "llm_latency_ms": 0,
-            "reason": "answer_too_large",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 53
-          },
-          {
-            "api_latency_ms": 53,
-            "decision": "SAFE",
-            "label": "embedding_failure",
-            "latency_ms": 64.158,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 53
-          },
-          {
-            "api_latency_ms": null,
-            "decision": null,
-            "label": "generation_failure",
-            "latency_ms": 54.743,
-            "llm_latency_ms": null,
-            "reason": "response generation failed",
-            "source": "error",
-            "status_code": 502,
-            "wrapper_overhead_ms": null
-          },
-          {
-            "api_latency_ms": 55,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 61.057,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 55
-          },
-          {
-            "api_latency_ms": 41,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 45.938,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 41
-          },
-          {
-            "api_latency_ms": 39,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 46.403,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 39
-          },
-          {
-            "api_latency_ms": 49,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 56.243,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 49
-          },
-          {
-            "api_latency_ms": 56,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 62.226,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 56
-          },
-          {
-            "api_latency_ms": 37,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 44.396,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 37
-          },
-          {
-            "api_latency_ms": 76,
-            "decision": "UNCERTAIN",
-            "label": "dynamic_query",
-            "latency_ms": 82.281,
-            "llm_latency_ms": 0,
-            "reason": "dynamic_entries_disabled",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 76
-          },
-          {
-            "api_latency_ms": 34,
-            "decision": "UNCERTAIN",
-            "label": "oversized_answer",
-            "latency_ms": 39.767,
-            "llm_latency_ms": 0,
-            "reason": "answer_too_large",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 34
-          },
-          {
-            "api_latency_ms": 38,
-            "decision": "SAFE",
-            "label": "embedding_failure",
-            "latency_ms": 44.175,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 38
-          },
-          {
-            "api_latency_ms": null,
-            "decision": null,
-            "label": "generation_failure",
-            "latency_ms": 76.658,
-            "llm_latency_ms": null,
-            "reason": "response generation failed",
-            "source": "error",
-            "status_code": 502,
-            "wrapper_overhead_ms": null
-          },
-          {
-            "api_latency_ms": 57,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 64.552,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 57
-          },
-          {
-            "api_latency_ms": 38,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 45.385,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 38
-          },
-          {
-            "api_latency_ms": 38,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 42.94,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 38
-          },
-          {
-            "api_latency_ms": 106,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 112.81,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 106
-          }
-        ],
-        "sources": {
-          "cache": 17,
-          "error": 3,
-          "generated": 12
-        },
-        "storage": {
-          "bytes": 1782,
-          "bytes_delta": 1782,
-          "canonical_answers": 6,
-          "entries": 6,
-          "entries_delta": 6,
-          "evictions": 31,
-          "evictions_delta": 0,
-          "expirations": 6
-        },
-        "synthetic_provider_data": true,
-        "throughput_requests_per_second": 40.334,
-        "warmup_error_rate": 0.0,
-        "warmup_requests": 0,
-        "workload_labels": {
-          "dynamic_query": 3,
-          "embedding_failure": 3,
-          "eviction_candidate": 6,
-          "exact_hit": 8,
-          "generation_failure": 3,
-          "oversized_answer": 3,
-          "semantic_hit": 6
-        }
-      },
-      {
-        "cache_hits": 23,
-        "cache_misses": 9,
-        "cache_mode": "exact_cache",
-        "concurrency": 4,
-        "elapsed_seconds": 0.497794,
-        "errors": {
-          "count": 3,
-          "rate": 0.09375,
-          "timeout_rate": 0.0,
-          "timeouts": 0
-        },
-        "generated_requests": 6,
-        "latency_ms": {
-          "max": 73.579,
-          "p50": 57.953,
-          "p95": 72.355,
-          "p99": 73.557
-        },
-        "mode": "warm",
-        "reasons": {
-          "answer_too_large": 3,
-          "dynamic_entries_disabled": 3,
-          "exact_query_hash_match": 23,
-          "response generation failed": 3
-        },
-        "request_count": 32,
-        "results": [
-          {
-            "api_latency_ms": 46,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 62.134,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 46
-          },
-          {
-            "api_latency_ms": 56,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 73.579,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 56
-          },
-          {
-            "api_latency_ms": 42,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 64.154,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 42
-          },
-          {
-            "api_latency_ms": 55,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 73.507,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 55
-          },
-          {
-            "api_latency_ms": 49,
-            "decision": "UNCERTAIN",
-            "label": "dynamic_query",
-            "latency_ms": 58.689,
-            "llm_latency_ms": 0,
-            "reason": "dynamic_entries_disabled",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 49
-          },
-          {
-            "api_latency_ms": 30,
-            "decision": "UNCERTAIN",
-            "label": "oversized_answer",
-            "latency_ms": 38.23,
-            "llm_latency_ms": 0,
-            "reason": "answer_too_large",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 30
-          },
-          {
-            "api_latency_ms": 50,
-            "decision": "SAFE",
-            "label": "embedding_failure",
-            "latency_ms": 57.216,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 50
-          },
-          {
-            "api_latency_ms": null,
-            "decision": null,
-            "label": "generation_failure",
-            "latency_ms": 64.869,
-            "llm_latency_ms": null,
-            "reason": "response generation failed",
-            "source": "error",
-            "status_code": 502,
-            "wrapper_overhead_ms": null
-          },
-          {
-            "api_latency_ms": 41,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 48.184,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 41
-          },
-          {
-            "api_latency_ms": 44,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 50.491,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 44
-          },
-          {
-            "api_latency_ms": 46,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 52.942,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 46
-          },
-          {
-            "api_latency_ms": 44,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 50.562,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 44
-          },
-          {
-            "api_latency_ms": 44,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 50.357,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 44
-          },
-          {
-            "api_latency_ms": 62,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 71.412,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 62
-          },
-          {
-            "api_latency_ms": 37,
-            "decision": "UNCERTAIN",
-            "label": "dynamic_query",
-            "latency_ms": 42.065,
-            "llm_latency_ms": 0,
-            "reason": "dynamic_entries_disabled",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 37
-          },
-          {
-            "api_latency_ms": 60,
-            "decision": "UNCERTAIN",
-            "label": "oversized_answer",
-            "latency_ms": 68.889,
-            "llm_latency_ms": 0,
-            "reason": "answer_too_large",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 60
-          },
-          {
-            "api_latency_ms": 58,
-            "decision": "SAFE",
-            "label": "embedding_failure",
-            "latency_ms": 65.399,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 58
-          },
-          {
-            "api_latency_ms": null,
-            "decision": null,
-            "label": "generation_failure",
-            "latency_ms": 52.276,
-            "llm_latency_ms": null,
-            "reason": "response generation failed",
-            "source": "error",
-            "status_code": 502,
-            "wrapper_overhead_ms": null
-          },
-          {
-            "api_latency_ms": 46,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 52.786,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 46
-          },
-          {
-            "api_latency_ms": 39,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 46.016,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 39
-          },
-          {
-            "api_latency_ms": 37,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 44.188,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 37
-          },
-          {
-            "api_latency_ms": 54,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 60.902,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 54
+            "wrapper_overhead_ms": 159
           },
           {
             "api_latency_ms": 35,
             "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 42.712,
+            "label": "exact_hit",
+            "latency_ms": 42.956,
             "llm_latency_ms": 0,
             "reason": "exact_query_hash_match",
             "source": "cache",
             "status_code": 200,
             "wrapper_overhead_ms": 35
-          },
-          {
-            "api_latency_ms": 58,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 62.928,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 58
-          },
-          {
-            "api_latency_ms": 48,
-            "decision": "UNCERTAIN",
-            "label": "dynamic_query",
-            "latency_ms": 55.967,
-            "llm_latency_ms": 0,
-            "reason": "dynamic_entries_disabled",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 48
-          },
-          {
-            "api_latency_ms": 40,
-            "decision": "UNCERTAIN",
-            "label": "oversized_answer",
-            "latency_ms": 47.598,
-            "llm_latency_ms": 0,
-            "reason": "answer_too_large",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 40
-          },
-          {
-            "api_latency_ms": 35,
-            "decision": "SAFE",
-            "label": "embedding_failure",
-            "latency_ms": 40.744,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 35
-          },
-          {
-            "api_latency_ms": null,
-            "decision": null,
-            "label": "generation_failure",
-            "latency_ms": 59.045,
-            "llm_latency_ms": null,
-            "reason": "response generation failed",
-            "source": "error",
-            "status_code": 502,
-            "wrapper_overhead_ms": null
-          },
-          {
-            "api_latency_ms": 55,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 63.95,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 55
-          },
-          {
-            "api_latency_ms": 58,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 64.286,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 58
-          },
-          {
-            "api_latency_ms": 59,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 63.989,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 59
-          },
-          {
-            "api_latency_ms": 62,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 68.467,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 62
-          }
-        ],
-        "sources": {
-          "cache": 23,
-          "error": 3,
-          "generated": 6
-        },
-        "storage": {
-          "bytes": 1782,
-          "bytes_delta": 0,
-          "canonical_answers": 6,
-          "entries": 6,
-          "entries_delta": 0,
-          "evictions": 31,
-          "evictions_delta": 0,
-          "expirations": 6
-        },
-        "synthetic_provider_data": true,
-        "throughput_requests_per_second": 64.284,
-        "warmup_error_rate": 0.125,
-        "warmup_requests": 8,
-        "workload_labels": {
-          "dynamic_query": 3,
-          "embedding_failure": 3,
-          "eviction_candidate": 6,
-          "exact_hit": 8,
-          "generation_failure": 3,
-          "oversized_answer": 3,
-          "semantic_hit": 6
-        }
-      },
-      {
-        "cache_hits": 17,
-        "cache_misses": 15,
-        "cache_mode": "exact_cache",
-        "concurrency": 4,
-        "elapsed_seconds": 0.842804,
-        "errors": {
-          "count": 3,
-          "rate": 0.09375,
-          "timeout_rate": 0.0,
-          "timeouts": 0
-        },
-        "generated_requests": 12,
-        "latency_ms": {
-          "max": 329.62,
-          "p50": 69.22,
-          "p95": 235.787,
-          "p99": 306.064
-        },
-        "mode": "cold",
-        "reasons": {
-          "answer_too_large": 3,
-          "dynamic_entries_disabled": 3,
-          "exact_query_hash_match": 17,
-          "no candidates were retrieved": 6,
-          "response generation failed": 3
-        },
-        "request_count": 32,
-        "results": [
-          {
-            "api_latency_ms": 179,
-            "decision": "UNSAFE",
-            "label": "exact_hit",
-            "latency_ms": 209.565,
-            "llm_latency_ms": 0,
-            "reason": "no candidates were retrieved",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 179
-          },
-          {
-            "api_latency_ms": 214,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 253.632,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 214
-          },
-          {
-            "api_latency_ms": 294,
-            "decision": "UNSAFE",
-            "label": "semantic_hit",
-            "latency_ms": 329.62,
-            "llm_latency_ms": 0,
-            "reason": "no candidates were retrieved",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 294
-          },
-          {
-            "api_latency_ms": 86,
-            "decision": "UNSAFE",
-            "label": "semantic_hit",
-            "latency_ms": 121.005,
-            "llm_latency_ms": 0,
-            "reason": "no candidates were retrieved",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 86
-          },
-          {
-            "api_latency_ms": 215,
-            "decision": "UNCERTAIN",
-            "label": "dynamic_query",
-            "latency_ms": 221.186,
-            "llm_latency_ms": 0,
-            "reason": "dynamic_entries_disabled",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 215
-          },
-          {
-            "api_latency_ms": 146,
-            "decision": "UNCERTAIN",
-            "label": "oversized_answer",
-            "latency_ms": 151.513,
-            "llm_latency_ms": 0,
-            "reason": "answer_too_large",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 146
-          },
-          {
-            "api_latency_ms": 153,
-            "decision": "UNSAFE",
-            "label": "embedding_failure",
-            "latency_ms": 159.253,
-            "llm_latency_ms": 0,
-            "reason": "no candidates were retrieved",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 153
-          },
-          {
-            "api_latency_ms": null,
-            "decision": null,
-            "label": "generation_failure",
-            "latency_ms": 96.709,
-            "llm_latency_ms": null,
-            "reason": "response generation failed",
-            "source": "error",
-            "status_code": 502,
-            "wrapper_overhead_ms": null
-          },
-          {
-            "api_latency_ms": 114,
-            "decision": "UNSAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 119.884,
-            "llm_latency_ms": 0,
-            "reason": "no candidates were retrieved",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 114
-          },
-          {
-            "api_latency_ms": 141,
-            "decision": "UNSAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 146.566,
-            "llm_latency_ms": 0,
-            "reason": "no candidates were retrieved",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 141
-          },
-          {
-            "api_latency_ms": 33,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 37.756,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 33
-          },
-          {
-            "api_latency_ms": 49,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 56.676,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 49
-          },
-          {
-            "api_latency_ms": 37,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 43.874,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 37
-          },
-          {
-            "api_latency_ms": 42,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 51.201,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 42
-          },
-          {
-            "api_latency_ms": 44,
-            "decision": "UNCERTAIN",
-            "label": "dynamic_query",
-            "latency_ms": 51.072,
-            "llm_latency_ms": 0,
-            "reason": "dynamic_entries_disabled",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 44
-          },
-          {
-            "api_latency_ms": 75,
-            "decision": "UNCERTAIN",
-            "label": "oversized_answer",
-            "latency_ms": 84.568,
-            "llm_latency_ms": 0,
-            "reason": "answer_too_large",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 75
-          },
-          {
-            "api_latency_ms": 40,
-            "decision": "SAFE",
-            "label": "embedding_failure",
-            "latency_ms": 46.865,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 40
-          },
-          {
-            "api_latency_ms": null,
-            "decision": null,
-            "label": "generation_failure",
-            "latency_ms": 87.528,
-            "llm_latency_ms": null,
-            "reason": "response generation failed",
-            "source": "error",
-            "status_code": 502,
-            "wrapper_overhead_ms": null
-          },
-          {
-            "api_latency_ms": 60,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 69.164,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 60
-          },
-          {
-            "api_latency_ms": 39,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 47.316,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 39
-          },
-          {
-            "api_latency_ms": 64,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 69.813,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 64
-          },
-          {
-            "api_latency_ms": 52,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 63.938,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 52
-          },
-          {
-            "api_latency_ms": 45,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 58.593,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 45
-          },
-          {
-            "api_latency_ms": 58,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 69.276,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 58
-          },
-          {
-            "api_latency_ms": 55,
-            "decision": "UNCERTAIN",
-            "label": "dynamic_query",
-            "latency_ms": 64.374,
-            "llm_latency_ms": 0,
-            "reason": "dynamic_entries_disabled",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 55
-          },
-          {
-            "api_latency_ms": 58,
-            "decision": "UNCERTAIN",
-            "label": "oversized_answer",
-            "latency_ms": 67.719,
-            "llm_latency_ms": 0,
-            "reason": "answer_too_large",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 58
-          },
-          {
-            "api_latency_ms": 60,
-            "decision": "SAFE",
-            "label": "embedding_failure",
-            "latency_ms": 68.284,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 60
-          },
-          {
-            "api_latency_ms": null,
-            "decision": null,
-            "label": "generation_failure",
-            "latency_ms": 74.81,
-            "llm_latency_ms": null,
-            "reason": "response generation failed",
-            "source": "error",
-            "status_code": 502,
-            "wrapper_overhead_ms": null
-          },
-          {
-            "api_latency_ms": 48,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 54.321,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 48
-          },
-          {
-            "api_latency_ms": 37,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 43.375,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 37
-          },
-          {
-            "api_latency_ms": 39,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 44.862,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 39
-          },
-          {
-            "api_latency_ms": 82,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 90.085,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 82
-          }
-        ],
-        "sources": {
-          "cache": 17,
-          "error": 3,
-          "generated": 12
-        },
-        "storage": {
-          "bytes": 1782,
-          "bytes_delta": 1782,
-          "canonical_answers": 6,
-          "entries": 6,
-          "entries_delta": 6,
-          "evictions": 31,
-          "evictions_delta": 0,
-          "expirations": 6
-        },
-        "synthetic_provider_data": true,
-        "throughput_requests_per_second": 37.968,
-        "warmup_error_rate": 0.0,
-        "warmup_requests": 0,
-        "workload_labels": {
-          "dynamic_query": 3,
-          "embedding_failure": 3,
-          "eviction_candidate": 6,
-          "exact_hit": 8,
-          "generation_failure": 3,
-          "oversized_answer": 3,
-          "semantic_hit": 6
-        }
-      },
-      {
-        "cache_hits": 23,
-        "cache_misses": 9,
-        "cache_mode": "exact_cache",
-        "concurrency": 4,
-        "elapsed_seconds": 0.463632,
-        "errors": {
-          "count": 3,
-          "rate": 0.09375,
-          "timeout_rate": 0.0,
-          "timeouts": 0
-        },
-        "generated_requests": 6,
-        "latency_ms": {
-          "max": 84.736,
-          "p50": 56.916,
-          "p95": 81.719,
-          "p99": 84.315
-        },
-        "mode": "warm",
-        "reasons": {
-          "answer_too_large": 3,
-          "dynamic_entries_disabled": 3,
-          "exact_query_hash_match": 23,
-          "response generation failed": 3
-        },
-        "request_count": 32,
-        "results": [
-          {
-            "api_latency_ms": 44,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 56.85,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 44
-          },
-          {
-            "api_latency_ms": 46,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 61.008,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 46
-          },
-          {
-            "api_latency_ms": 42,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 54.668,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 42
-          },
-          {
-            "api_latency_ms": 41,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 48.354,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 41
-          },
-          {
-            "api_latency_ms": 66,
-            "decision": "UNCERTAIN",
-            "label": "dynamic_query",
-            "latency_ms": 80.362,
-            "llm_latency_ms": 0,
-            "reason": "dynamic_entries_disabled",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 66
-          },
-          {
-            "api_latency_ms": 47,
-            "decision": "UNCERTAIN",
-            "label": "oversized_answer",
-            "latency_ms": 59.462,
-            "llm_latency_ms": 0,
-            "reason": "answer_too_large",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 47
           },
           {
             "api_latency_ms": 36,
             "decision": "SAFE",
-            "label": "embedding_failure",
-            "latency_ms": 46.125,
+            "label": "exact_hit",
+            "latency_ms": 43.259,
             "llm_latency_ms": 0,
             "reason": "exact_query_hash_match",
             "source": "cache",
@@ -1404,10 +206,65 @@
             "wrapper_overhead_ms": 36
           },
           {
+            "api_latency_ms": 55,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 61.746,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 55
+          },
+          {
+            "api_latency_ms": 69,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 74.448,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 69
+          },
+          {
+            "api_latency_ms": 66,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 74.083,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 66
+          },
+          {
+            "api_latency_ms": 50,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 58.457,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 50
+          },
+          {
+            "api_latency_ms": 40,
+            "decision": "SAFE",
+            "label": "embedding_failure",
+            "latency_ms": 49.373,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 40
+          },
+          {
             "api_latency_ms": null,
             "decision": null,
             "label": "generation_failure",
-            "latency_ms": 84.736,
+            "latency_ms": 69.224,
             "llm_latency_ms": null,
             "reason": "response generation failed",
             "source": "error",
@@ -1415,241 +272,120 @@
             "wrapper_overhead_ms": null
           },
           {
-            "api_latency_ms": 35,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 41.992,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 35
-          },
-          {
-            "api_latency_ms": 53,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 59.424,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 53
-          },
-          {
-            "api_latency_ms": 57,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 63.833,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 57
-          },
-          {
-            "api_latency_ms": 59,
-            "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 65.71,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 59
-          },
-          {
-            "api_latency_ms": 35,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 45.722,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 35
-          },
-          {
-            "api_latency_ms": 41,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 48.5,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 41
-          },
-          {
             "api_latency_ms": 47,
-            "decision": "UNCERTAIN",
-            "label": "dynamic_query",
-            "latency_ms": 55.516,
+            "decision": "SAFE",
+            "label": "eviction_candidate",
+            "latency_ms": 55.737,
             "llm_latency_ms": 0,
-            "reason": "dynamic_entries_disabled",
-            "source": "generated",
+            "reason": "exact_query_hash_match",
+            "source": "cache",
             "status_code": 200,
             "wrapper_overhead_ms": 47
           },
           {
-            "api_latency_ms": 60,
-            "decision": "UNCERTAIN",
-            "label": "oversized_answer",
-            "latency_ms": 71.726,
-            "llm_latency_ms": 0,
-            "reason": "answer_too_large",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 60
-          },
-          {
-            "api_latency_ms": 52,
-            "decision": "SAFE",
-            "label": "embedding_failure",
-            "latency_ms": 60.118,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 52
-          },
-          {
-            "api_latency_ms": null,
-            "decision": null,
-            "label": "generation_failure",
-            "latency_ms": 69.41,
-            "llm_latency_ms": null,
-            "reason": "response generation failed",
-            "source": "error",
-            "status_code": 502,
-            "wrapper_overhead_ms": null
-          },
-          {
-            "api_latency_ms": 32,
+            "api_latency_ms": 45,
             "decision": "SAFE",
             "label": "eviction_candidate",
-            "latency_ms": 36.933,
+            "latency_ms": 53.948,
             "llm_latency_ms": 0,
             "reason": "exact_query_hash_match",
             "source": "cache",
             "status_code": 200,
-            "wrapper_overhead_ms": 32
+            "wrapper_overhead_ms": 45
           },
           {
-            "api_latency_ms": 72,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 83.378,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 72
-          },
-          {
-            "api_latency_ms": 73,
+            "api_latency_ms": 48,
             "decision": "SAFE",
             "label": "exact_hit",
-            "latency_ms": 79.953,
+            "latency_ms": 60.986,
             "llm_latency_ms": 0,
             "reason": "exact_query_hash_match",
             "source": "cache",
             "status_code": 200,
-            "wrapper_overhead_ms": 73
+            "wrapper_overhead_ms": 48
           },
           {
-            "api_latency_ms": 35,
+            "api_latency_ms": 45,
             "decision": "SAFE",
             "label": "exact_hit",
-            "latency_ms": 39.214,
+            "latency_ms": 56.381,
             "llm_latency_ms": 0,
             "reason": "exact_query_hash_match",
             "source": "cache",
             "status_code": 200,
-            "wrapper_overhead_ms": 35
-          },
-          {
-            "api_latency_ms": 38,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 43.131,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 38
-          },
-          {
-            "api_latency_ms": 37,
-            "decision": "SAFE",
-            "label": "semantic_hit",
-            "latency_ms": 41.838,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 37
+            "wrapper_overhead_ms": 45
           },
           {
             "api_latency_ms": 65,
-            "decision": "UNCERTAIN",
-            "label": "dynamic_query",
-            "latency_ms": 72.917,
+            "decision": "SAFE",
+            "label": "semantic_hit",
+            "latency_ms": 78.141,
             "llm_latency_ms": 0,
-            "reason": "dynamic_entries_disabled",
-            "source": "generated",
+            "reason": "exact_query_hash_match",
+            "source": "cache",
             "status_code": 200,
             "wrapper_overhead_ms": 65
           },
           {
-            "api_latency_ms": 35,
-            "decision": "UNCERTAIN",
-            "label": "oversized_answer",
-            "latency_ms": 42.103,
-            "llm_latency_ms": 0,
-            "reason": "answer_too_large",
-            "source": "generated",
-            "status_code": 200,
-            "wrapper_overhead_ms": 35
-          },
-          {
-            "api_latency_ms": 38,
+            "api_latency_ms": 48,
             "decision": "SAFE",
-            "label": "embedding_failure",
-            "latency_ms": 45.291,
+            "label": "semantic_hit",
+            "latency_ms": 56.207,
             "llm_latency_ms": 0,
             "reason": "exact_query_hash_match",
             "source": "cache",
             "status_code": 200,
-            "wrapper_overhead_ms": 38
+            "wrapper_overhead_ms": 48
+          },
+          {
+            "api_latency_ms": 44,
+            "decision": "UNCERTAIN",
+            "label": "dynamic_query",
+            "latency_ms": 59.069,
+            "llm_latency_ms": 0,
+            "reason": "dynamic_entries_disabled",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 44
+          },
+          {
+            "api_latency_ms": 52,
+            "decision": "UNCERTAIN",
+            "label": "oversized_answer",
+            "latency_ms": 60.613,
+            "llm_latency_ms": 0,
+            "reason": "answer_too_large",
+            "source": "generated",
+            "status_code": 200,
+            "wrapper_overhead_ms": 52
+          },
+          {
+            "api_latency_ms": 71,
+            "decision": "SAFE",
+            "label": "embedding_failure",
+            "latency_ms": 76.376,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 71
           },
           {
             "api_latency_ms": null,
             "decision": null,
             "label": "generation_failure",
-            "latency_ms": 56.981,
+            "latency_ms": 53.816,
             "llm_latency_ms": null,
             "reason": "response generation failed",
             "source": "error",
             "status_code": 502,
             "wrapper_overhead_ms": null
-          },
-          {
-            "api_latency_ms": 57,
-            "decision": "SAFE",
-            "label": "eviction_candidate",
-            "latency_ms": 65.277,
-            "llm_latency_ms": 0,
-            "reason": "exact_query_hash_match",
-            "source": "cache",
-            "status_code": 200,
-            "wrapper_overhead_ms": 57
           },
           {
             "api_latency_ms": 53,
             "decision": "SAFE",
             "label": "eviction_candidate",
-            "latency_ms": 60.979,
+            "latency_ms": 61.295,
             "llm_latency_ms": 0,
             "reason": "exact_query_hash_match",
             "source": "cache",
@@ -1657,47 +393,58 @@
             "wrapper_overhead_ms": 53
           },
           {
-            "api_latency_ms": 38,
+            "api_latency_ms": 67,
             "decision": "SAFE",
-            "label": "exact_hit",
-            "latency_ms": 43.546,
+            "label": "eviction_candidate",
+            "latency_ms": 77.113,
             "llm_latency_ms": 0,
             "reason": "exact_query_hash_match",
             "source": "cache",
             "status_code": 200,
-            "wrapper_overhead_ms": 38
+            "wrapper_overhead_ms": 67
           },
           {
-            "api_latency_ms": 35,
+            "api_latency_ms": 49,
             "decision": "SAFE",
             "label": "exact_hit",
-            "latency_ms": 39.939,
+            "latency_ms": 58.895,
             "llm_latency_ms": 0,
             "reason": "exact_query_hash_match",
             "source": "cache",
             "status_code": 200,
-            "wrapper_overhead_ms": 35
+            "wrapper_overhead_ms": 49
+          },
+          {
+            "api_latency_ms": 61,
+            "decision": "SAFE",
+            "label": "exact_hit",
+            "latency_ms": 70.883,
+            "llm_latency_ms": 0,
+            "reason": "exact_query_hash_match",
+            "source": "cache",
+            "status_code": 200,
+            "wrapper_overhead_ms": 61
           }
         ],
         "sources": {
-          "cache": 23,
+          "cache": 17,
           "error": 3,
-          "generated": 6
+          "generated": 12
         },
         "storage": {
-          "bytes": 1782,
-          "bytes_delta": 0,
-          "canonical_answers": 6,
-          "entries": 6,
-          "entries_delta": 0,
-          "evictions": 31,
+          "bytes": 6364,
+          "bytes_delta": 1782,
+          "canonical_answers": 25,
+          "entries": 21,
+          "entries_delta": 6,
+          "evictions": 10,
           "evictions_delta": 0,
-          "expirations": 6
+          "expirations": 5
         },
         "synthetic_provider_data": true,
-        "throughput_requests_per_second": 69.02,
-        "warmup_error_rate": 0.125,
-        "warmup_requests": 8,
+        "throughput_requests_per_second": 36.143,
+        "warmup_error_rate": 0.0,
+        "warmup_requests": 0,
         "workload_labels": {
           "dynamic_query": 3,
           "embedding_failure": 3,
@@ -1714,9 +461,9 @@
   "environment": {
     "cpu_count": 8,
     "database_mode": "postgres",
-    "git_commit": "4997e6670bc6a2609cb9351bdf3bae882d61c01c",
+    "git_commit": "6d579304ca6b9afa00af71a168bf7faedf47c9d3",
     "machine": "AMD64",
-    "measured_at": "2026-10-10T16:31:04.756865+00:00",
+    "measured_at": "2026-10-15T13:54:07.908852+00:00",
     "os": "Windows-11-10.0.26200-SP0",
     "postgresql_version": "16.15 (Debian 16.15-1.pgdg12+2)",
     "process_count": 1,
@@ -1725,12 +472,12 @@
     "python_implementation": "cpython",
     "worker_count": 1
   },
-  "limitation": "Bounded local PostgreSQL result for protocol ws8-pg-load-v1. Not a production capacity, SLA, or multi-host guarantee. Absolute cache caps apply to the whole database and may evict unrelated oldest rows.",
+  "limitation": "Bounded local PostgreSQL result for protocol ws8-pg-load-v1. Not a production capacity, SLA, or multi-host guarantee. Cache caps apply only to this run's query hashes, so unrelated rows are not eviction candidates.",
   "name": "workstream8_pg_load_v1",
   "process_count": 1,
   "protocol_id": "ws8-pg-load-v1",
   "repository": "postgres",
-  "stopped_reason": null,
+  "stopped_reason": "p99_above_5x_p50",
   "strategies": [
     "exact_cache"
   ],
