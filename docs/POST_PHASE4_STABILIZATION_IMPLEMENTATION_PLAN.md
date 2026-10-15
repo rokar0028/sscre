@@ -10,7 +10,9 @@ not add new product features or provider-specific integrations.
 
 ## Status
 
-**Status:** `in progress — R1.1 diagnosis recorded, R1.2 Gate C live measurement deferred; Workstreams 0–1 closed, Workstream 2 in-memory and PostgreSQL Gate B verified (multi-worker deploy deferred), Workstream 3 closed`
+**Status:** `in progress — R1.2 Gate C live measurement deferred; Workstreams 0–1
+and 3 closed, Workstream 2 Gate B verified (multi-worker deploy deferred),
+Workstream 5 fresh held-out gate **pass** (2026-10-15)`
 
 **Evidence:** [`docs/POST_PHASE4_STABILIZATION_EVIDENCE.md`](POST_PHASE4_STABILIZATION_EVIDENCE.md)
 (WS0 freeze plus later pointers);
@@ -18,7 +20,8 @@ not add new product features or provider-specific integrations.
 [`setup/POST_PHASE4_WS2_EVIDENCE.md`](setup/POST_PHASE4_WS2_EVIDENCE.md);
 [`setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md);
 [`setup/POST_PHASE4_R1_STEP11_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP11_EVIDENCE.md);
-[`setup/POST_PHASE4_R1_STEP12_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP12_EVIDENCE.md).
+[`setup/POST_PHASE4_R1_STEP12_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP12_EVIDENCE.md);
+[`setup/POST_PHASE4_WS5_FRESH_HELD_OUT_EVIDENCE.md`](setup/POST_PHASE4_WS5_FRESH_HELD_OUT_EVIDENCE.md).
 
 **Parent:** [`docs/SSCRE_PLAN.md`](SSCRE_PLAN.md), §§20, 23, and 24.
 
@@ -65,8 +68,10 @@ unless it affects the validity or failure safety of the evaluation path.
   dependency executor shuts down on app lifespan teardown. Orphaned callables
   may still run on fixed pool workers; subprocess isolation remains deferred.
   Verification complete; committed `32c99e5`–`0948837` (2026-10-15).
-- The Phase 4 fresh held-out semantic gate is deferred because the existing
-  215-record held-out split has already been used.
+- The legacy 215-record held-out split remains contaminated for headline use;
+  Workstream 5 closed with a **pass** on frozen `fresh_held_out.jsonl` (100
+  pairs, local MiniLM, 2026-10-15;
+  [`POST_PHASE4_WS5_FRESH_HELD_OUT_EVIDENCE.md`](setup/POST_PHASE4_WS5_FRESH_HELD_OUT_EVIDENCE.md)).
 - Human answer-correctness labels are not present.
 - Phase 3/4 artifacts include historical, dirty-worktree, synthetic, and
   unavailable evidence that must remain clearly classified.
@@ -1351,6 +1356,11 @@ valid credentials, bounded quota, and a redaction plan.
 **Purpose:** Verify the actual storage path before making deployment or scale
 claims.
 
+**Status:** `planning-complete` — child implementation plan authored; execution
+not started.
+
+**Child:** [`docs/setup/POST_PHASE4_WS4_POSTGRESQL_READINESS_IMPLEMENTATION_PLAN.md`](setup/POST_PHASE4_WS4_POSTGRESQL_READINESS_IMPLEMENTATION_PLAN.md)
+
 - [ ] Run all PostgreSQL integration, failure-recovery, contention,
       multiprocess, and load markers against a migrated PostgreSQL/pgvector
       instance.
@@ -1390,35 +1400,51 @@ workload is too small to measure, or query plans are not captured.
 **Purpose:** Complete or formally defer the only authorized semantic headline
 evaluation.
 
-- [ ] Construct a fresh, licensed held-out population outside the previously
+**Status:** `closed` — fresh held-out frozen, one local-embedding A/B/C run,
+pre-registered gate **pass** (2026-10-15)
+
+**Child:** [`docs/setup/POST_PHASE4_WS5_FRESH_HELD_OUT_IMPLEMENTATION_PLAN.md`](setup/POST_PHASE4_WS5_FRESH_HELD_OUT_IMPLEMENTATION_PLAN.md)
+
+**Evidence:** [`docs/setup/POST_PHASE4_WS5_FRESH_HELD_OUT_EVIDENCE.md`](setup/POST_PHASE4_WS5_FRESH_HELD_OUT_EVIDENCE.md)
+
+**Card:** [`docs/phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_IMPLEMENTATION_PLAN.md`](phase-4/PHASE4_SEMANTIC_EVALUATION_VALIDITY_IMPLEMENTATION_PLAN.md)
+pre-registered C-versus-A rule (FPR cap 0.0, abstention ≤ 0.5, C coverage
+strictly above A).
+
+**Assisted path:** Unused licensed CacheEval rows → assistant **draft** labels →
+user keep/change/drop → freeze new files only (`fresh_held_out.jsonl`). Do not
+reuse `held_out_test.jsonl`. Final frozen batch: **100** pairs (`pair-0616` …
+`pair-0715`).
+
+- [x] Construct a fresh, licensed held-out population outside the previously
       used 615 records.
-- [ ] Review compatible, incompatible, uncertain, and high-similarity
+- [x] Review compatible, incompatible, uncertain, and high-similarity
       candidate/query relations required for served-candidate attribution.
-- [ ] Assign immutable IDs, source/license metadata, review status, and split
+- [x] Assign immutable IDs, source/license metadata, review status, and split
       membership.
-- [ ] Freeze a dedicated manifest and full SHA-256 before threshold selection.
-- [ ] Extend `src/sscre/evaluate.py` to accept an explicit fresh benchmark and
+- [x] Freeze a dedicated manifest and full SHA-256 before threshold selection.
+- [x] Extend `src/sscre/evaluate.py` to accept an explicit fresh benchmark and
       manifest path while retaining fail-closed contamination checks.
-- [ ] Strengthen `src/sscre/semantic_validity_gate.py` to verify benchmark,
+- [x] Strengthen `src/sscre/semantic_validity_gate.py` to verify benchmark,
       manifest, dataset, config, provider, model, dimension, attribution, and
       artifact hashes independently.
-- [ ] Select thresholds only on development data.
-- [ ] Run local real-embedding A/B/C evaluation once on the authorized fresh
+- [x] Select thresholds only on development data.
+- [x] Run local real-embedding A/B/C evaluation once on the authorized fresh
       held-out population.
-- [ ] Score the pre-registered C-versus-A requirements without changing them
+- [x] Score the pre-registered C-versus-A requirements without changing them
       after inspecting results.
-- [ ] Record `pass`, `fail`, `unavailable`, or `deferred`; never convert an
-      unrun conditional check into pass/fail.
+- [x] Record `pass`, `fail`, `unavailable`, or `deferred`; never convert an
+      unrun conditional check into pass/fail (**pass** recorded).
 
 **Acceptance criteria:**
 
-- [ ] Freshness and lineage are independently verified.
-- [ ] No held-out outcome influences threshold or policy selection.
-- [ ] C strictly improves safe-reuse coverage over A.
-- [ ] C satisfies the FPR cap and abstention ceiling.
-- [ ] Strategy C has zero unlabeled served-candidate reuse for the headline
+- [x] Freshness and lineage are independently verified.
+- [x] No held-out outcome influences threshold or policy selection.
+- [x] C strictly improves safe-reuse coverage over A.
+- [x] C satisfies the FPR cap and abstention ceiling.
+- [x] Strategy C has zero unlabeled served-candidate reuse for the headline
       result.
-- [ ] The final artifact records model, dimension, dataset, manifest, config,
+- [x] The final artifact records model, dimension, dataset, manifest, config,
       commit, worktree state, denominators, and confidence intervals.
 
 **Evidence:** Fresh benchmark, manifest, source/license review, held-out
@@ -1459,6 +1485,11 @@ leave factual correctness explicitly deferred.
 
 **Purpose:** Ensure ordinary CI cannot report green while critical paths are
       silently unverified.
+
+**Status:** `planning-complete` — child implementation plan authored; execution
+not started.
+
+**Child:** [`docs/setup/POST_PHASE4_WS7_CI_REPRODUCIBILITY_IMPLEMENTATION_PLAN.md`](setup/POST_PHASE4_WS7_CI_REPRODUCIBILITY_IMPLEMENTATION_PLAN.md)
 
 - [ ] Keep the fast default unit-test job.
 - [ ] Add a benchmark-validation job using the committed benchmark and
@@ -1540,7 +1571,8 @@ scope.
       provider measurement, or record Gate C as deferred.
       R1.1 diagnosis is recorded. R1.2 live measurement is not run; the Gate C
       unavailable artifact is recorded. This track is not closed.
-5. [ ] Workstream 5 — construct and run the fresh semantic gate.
+5. [x] Workstream 5 — construct and run the fresh semantic gate (pass,
+      2026-10-15).
 6. [ ] Workstream 7 — enforce the verified research paths in CI.
 7. [ ] Workstream 8 — reconcile documentation and release status.
 8. [x] Deferred deployment track — Workstream 2 external API safety boundary
