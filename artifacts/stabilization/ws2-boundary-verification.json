@@ -1,15 +1,14 @@
 {
-  "schema_version": "ws2-boundary-verification-1.0",
+  "schema_version": "ws2-boundary-verification-1.1",
   "workstream": 2,
   "step": "2.8",
-  "recorded_at_utc": "2026-10-14T00:00:00+00:00",
-  "git_head": "c7c376eb87dae507ed73a086b8908683561836e0",
-  "git_status_note": "Verification run includes uncommitted WS2 Step 2.2-2.8 working tree changes when HEAD predates those commits.",
+  "recorded_at_utc": "2026-10-15T10:40:14.729433+00:00",
+  "git_head": "31bda4af828216dbb3c4a998ed2556e0be110c2a",
   "configuration_mode": {
     "trusted_local_default": true,
     "external_requires_client_auth_json": true,
-    "postgres_gate_b": "deferred",
-    "postgres_gate_b_reason": "SSCRE_DATABASE_URL not set in verification environment"
+    "postgres_gate_b": "verified",
+    "postgres_gate_b_reason": null
   },
   "inventory": {
     "referenced_paths_exist": true,
@@ -24,13 +23,82 @@
     ]
   },
   "focused_verification": {
-    "command": "python -m pytest tests/test_ws2_boundary_gate.py tests/test_api_client_auth.py tests/test_api_route_authorization.py tests/test_api_abuse_controls.py tests/test_admin.py tests/test_health.py tests/test_cache_scope.py tests/test_cache_scope_enforcement.py tests/test_postgres_cache_scope.py -q",
-    "result": "45 passed, 5 skipped",
-    "skipped_explanation": "test_postgres_cache_scope.py skipped without SSCRE_DATABASE_URL"
+    "command": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pytest tests/test_ws2_boundary_gate.py tests/test_api_client_auth.py tests/test_api_route_authorization.py tests/test_api_abuse_controls.py tests/test_admin.py tests/test_health.py tests/test_cache_scope.py tests/test_cache_scope_enforcement.py tests/test_postgres_cache_scope.py -q",
+    "exit_code": 0,
+    "passed": 52,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "result": "52 passed, 1 warning in 2.15s"
   },
   "full_suite": {
-    "command": "python -m pytest -q",
-    "result": "856 passed, 20 skipped, 21 deselected"
+    "command": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pytest -q",
+    "exit_code": 0,
+    "passed": 893,
+    "failed": 0,
+    "skipped": 1,
+    "deselected": 21,
+    "result": "893 passed, 1 skipped, 21 deselected, 1 warning in 509.43s (0:08:29)"
+  },
+  "gate_b_postgresql": {
+    "status": "verified",
+    "migrate_command": "sscre-migrate --database-url <redacted>",
+    "scoped_tests": {
+      "command": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pytest tests/test_postgres_cache_scope.py tests/test_postgres_eviction_scope.py tests/test_postgres_integration.py -q",
+      "exit_code": 0,
+      "passed": 24,
+      "failed": 0,
+      "skipped": 0,
+      "deselected": 0,
+      "result": "24 passed, 1 warning in 4.66s"
+    },
+    "contention_tests": {
+      "command": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pytest tests/test_postgres_contention.py -m ws8_postgres_contention -q",
+      "exit_code": 0,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "deselected": 0,
+      "result": "6 passed, 1 warning in 6.78s"
+    },
+    "environment": {
+      "postgresql_version": "PostgreSQL 16.15 (Debian 16.15-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",
+      "pgvector_version": "0.8.7",
+      "migrations_applied": 14,
+      "migration_checksums_on_disk": {
+        "000": "cac8ade0962f91b97c57ab3958d52fff5e7d34b07815db1b12cfc18c7a8449dc",
+        "001": "0f5ebff3ceb8ffea593739c594334a3c184732714340a4d9f136fe2834949141",
+        "002": "31b02165d2159c659cfa62f60200a5977d4415cb1a027e080a511759251e083a",
+        "003": "1bd4bbc0882e73131ee1346de04bcc307c17587ec040dd7d202fcc3514a25160",
+        "004": "21218fb4cad86cffeacc2ec77ae1ffe04445771c43e3016ba7140beb98b025d4",
+        "005": "8b9e7a8d2fb43c55bf884575ba1b2a99b84be5b7d655d8a3177ce9b0a0e23af4",
+        "006": "0aae17a614a356c03e75267a6ab5dc99276706c578416623b04ade342f43d9c7",
+        "007": "4cb6754622aa96da6819df8edfe810778f601bc4da567a0006fb906fe321766d",
+        "008": "ee23e6c56a399df1c71bf0a2f9d323bef8f6eb0cb60042c3eebd2284c243dae0",
+        "009": "37d69bdc0880a684fc13e514dec855e2d71de3ae33bf71261d7057017d4217e0",
+        "010": "ec22fdbd9e4db40b313152525891fe52e18582f8c5040e3a1209f8ebdc0cb1dc",
+        "011": "b51c3ec938af211341b8265b5591a160900b015d6c5011570393ee060dd99bfe",
+        "012": "27f7f0b0d288ddbf83a62d83d267728127a569672531fba7b2813f26665825a8",
+        "013": "12b2d011c1db4de6f36e4b459181d76dc11885ced49c40a0e60b049b34b43a37"
+      },
+      "schema_migrations": {
+        "000": "cac8ade0962f91b97c57ab3958d52fff5e7d34b07815db1b12cfc18c7a8449dc",
+        "001": "0f5ebff3ceb8ffea593739c594334a3c184732714340a4d9f136fe2834949141",
+        "002": "31b02165d2159c659cfa62f60200a5977d4415cb1a027e080a511759251e083a",
+        "003": "1bd4bbc0882e73131ee1346de04bcc307c17587ec040dd7d202fcc3514a25160",
+        "004": "21218fb4cad86cffeacc2ec77ae1ffe04445771c43e3016ba7140beb98b025d4",
+        "005": "8b9e7a8d2fb43c55bf884575ba1b2a99b84be5b7d655d8a3177ce9b0a0e23af4",
+        "006": "0aae17a614a356c03e75267a6ab5dc99276706c578416623b04ade342f43d9c7",
+        "007": "4cb6754622aa96da6819df8edfe810778f601bc4da567a0006fb906fe321766d",
+        "008": "ee23e6c56a399df1c71bf0a2f9d323bef8f6eb0cb60042c3eebd2284c243dae0",
+        "009": "37d69bdc0880a684fc13e514dec855e2d71de3ae33bf71261d7057017d4217e0",
+        "010": "ec22fdbd9e4db40b313152525891fe52e18582f8c5040e3a1209f8ebdc0cb1dc",
+        "011": "b51c3ec938af211341b8265b5591a160900b015d6c5011570393ee060dd99bfe",
+        "012": "27f7f0b0d288ddbf83a62d83d267728127a569672531fba7b2813f26665825a8",
+        "013": "12b2d011c1db4de6f36e4b459181d76dc11885ced49c40a0e60b049b34b43a37"
+      },
+      "role_boundary_note": "Application role: SELECT/INSERT/UPDATE/DELETE on cache_entries and canonical_answers; migration role separate (POST_PHASE4_WS2_STORAGE_ISOLATION.md)."
+    }
   },
   "redaction_audit": {
     "http_error_bodies": "Fixed detail strings only; no SQL, tokens, or cache payloads",
