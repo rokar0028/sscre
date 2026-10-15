@@ -113,6 +113,41 @@ def test_live_measurement_aggregates_without_storing_raw_content() -> None:
     assert "Write Python" not in encoded
 
 
+def test_live_measurement_honors_max_records() -> None:
+    def generate(_query: str) -> LLMResult:
+        return LLMResult(
+            text="ok",
+            input_tokens=1,
+            output_tokens=1,
+            latency_ms=1,
+            provider_name="test-provider",
+            model_name="generation-test",
+            usage_source="provider_reported",
+        )
+
+    def embed(_text: str) -> EmbeddingResult:
+        return EmbeddingResult(
+            vector=(0.1, 0.2, 0.3, 0.4),
+            model_name="embedding-test",
+            input_tokens=1,
+            latency_ms=1,
+            provider_name="test-provider",
+            usage_source="provider_reported",
+        )
+
+    payload = build_live_measurement(
+        benchmark_path=ROOT / "benchmarks" / "development.jsonl",
+        config_path=ROOT / "experiments" / "evaluation_config.json",
+        provider_config=_provider_config(),
+        generate=generate,
+        embed=embed,
+        max_records=3,
+    )
+    assert payload["benchmark"]["record_count"] == 3
+    assert payload["benchmark"]["record_count_total"] > 3
+    assert payload["requests"]["generation"] == 3
+
+
 def test_live_measurement_distinguishes_attempted_and_successful_calls() -> None:
     def fail_embed(_text: str) -> EmbeddingResult:
         raise RuntimeError("provider unavailable")

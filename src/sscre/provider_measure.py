@@ -180,8 +180,9 @@ def build_live_measurement(
     pricing_schedule: PricingSchedule | None = None,
     generate: Callable[[str], LLMResult] | None = None,
     embed: Callable[[str], EmbeddingResult] | None = None,
+    max_records: int | None = None,
 ) -> dict[str, Any]:
-    """Run one embedding and one generation call per benchmark record."""
+    """Run one embedding and one generation call per measured benchmark record."""
     if provider_config.split != "development":
         raise ValueError("live measurement requires the development split")
     evaluation_config = _load_evaluation_config(config_path)
@@ -198,7 +199,13 @@ def build_live_measurement(
     generate_fn = generate or (lambda query: llm_client.generate(query))  # type: ignore[union-attr]
     embed_fn = embed or (lambda text: embedding_client.embed(text))  # type: ignore[union-attr]
 
-    records = load_benchmark_jsonl(benchmark_path)
+    all_records = load_benchmark_jsonl(benchmark_path)
+    if max_records is not None:
+        if max_records <= 0:
+            raise ValueError("max_records must be positive when set")
+        records = all_records[:max_records]
+    else:
+        records = all_records
     failures = _empty_failure_counts()
     usage_sources: Counter[str] = Counter()
     generation_latencies: list[int] = []
@@ -291,6 +298,8 @@ def build_live_measurement(
             "dataset_version": dataset_version,
             "split": provider_config.split,
             "record_count": len(records),
+            "record_count_total": len(all_records),
+            "max_records": max_records,
         },
         "configuration": {
             "path": str(config_path).replace("\\", "/"),
@@ -374,6 +383,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--benchmark", required=True, type=Path)
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument(
+        "--max-records",
+        type=int,
+        default=None,
+        help="Measure only the first N benchmark records (bounded Gate C workload).",
+    )
     args = parser.parse_args(argv)
 
     live_enabled = os.environ.get("SSCRE_REAL_PROVIDER_LIVE", "").lower() == "true"
@@ -391,6 +406,7 @@ def main(argv: list[str] | None = None) -> int:
             config_path=args.config,
             provider_config=provider_config,
             pricing_schedule=_resolve_pricing_schedule(provider_config),
+            max_records=args.max_records,
         )
     else:
         payload = build_unavailable_measurement(
