@@ -12,6 +12,9 @@ from typing import Any, Mapping
 
 HELD_OUT_GATE_READY_STATUS = "fresh-held-out-ready"
 DEFERRED_ARTIFACT_SCHEMA = "semantic-validity-held-out-deferred-1.0"
+CONTAMINATED_HELD_OUT_BENCHMARK = "benchmarks/held_out_test.jsonl"
+FRESH_HELD_OUT_BENCHMARK_NAME = "fresh_held_out.jsonl"
+FRESH_HELD_OUT_MANIFEST_NAME = "fresh_held_out_manifest.json"
 
 
 def _repo_root() -> Path:
@@ -65,13 +68,125 @@ def resolve_held_out_gate_path(
     return root / reference
 
 
-def load_held_out_gate(path: Path) -> dict[str, Any]:
+def _normalize_repo_path(path: str) -> str:
+    return path.replace("\\", "/").lstrip("./")
+
+
+def validate_fresh_held_out_gate_record(
+    gate: Mapping[str, Any],
+    *,
+    repo_root: Path | None = None,
+) -> None:
+    """Fail closed when a ready gate authorizes a contaminated held-out path."""
+    if gate.get("status") != HELD_OUT_GATE_READY_STATUS:
+        return
+    root = repo_root or _repo_root()
+    fresh_benchmark = gate.get("fresh_held_out_benchmark_path")
+    if not isinstance(fresh_benchmark, str) or not fresh_benchmark.strip():
+        raise ValueError(
+            f"{HELD_OUT_GATE_READY_STATUS!r} gate requires "
+            "fresh_held_out_benchmark_path"
+        )
+    normalized_fresh = _normalize_repo_path(fresh_benchmark)
+    if normalized_fresh == CONTAMINATED_HELD_OUT_BENCHMARK:
+        raise ValueError(
+            "fresh-held-out-ready gate cannot point at the contaminated "
+            "215-record held_out_test split"
+        )
+    contaminated = gate.get("existing_held_out_split")
+    if isinstance(contaminated, Mapping):
+        contaminated_path = contaminated.get("path")
+        if isinstance(contaminated_path, str):
+            if normalized_fresh == _normalize_repo_path(contaminated_path):
+                raise ValueError(
+                    "fresh_held_out_benchmark_path must not equal the "
+                    "contaminated existing_held_out_split path"
+                )
+    manifest_path = gate.get("fresh_held_out_manifest_path")
+    manifest_sha = gate.get("fresh_held_out_manifest_sha256")
+    if isinstance(manifest_path, str) and isinstance(manifest_sha, str):
+        manifest_file = root / manifest_path
+        if manifest_file.is_file() and _sha256_file(manifest_file) != manifest_sha:
+            raise ValueError(
+                "fresh_held_out_manifest_sha256 does not match manifest file"
+            )
+    benchmark_file = root / fresh_benchmark
+    if not benchmark_file.is_file():
+        raise ValueError(
+            f"fresh held-out benchmark file missing: {fresh_benchmark}"
+        )
+
+
+def load_held_out_gate(path: Path, *, repo_root: Path | None = None) -> dict[str, Any]:
     if not path.is_file():
         raise ValueError(f"held-out gate record not found: {path}")
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
         raise ValueError("held-out gate record must be a JSON object")
+    root = repo_root
+    if root is None:
+        try:
+            root = path.resolve().parents[1]
+            if not (root / "benchmarks").is_dir():
+                root = _repo_root()
+        except (IndexError, OSError):
+            root = _repo_root()
+    validate_fresh_held_out_gate_record(payload, repo_root=root)
     return payload
+
+
+def validate_fresh_held_out_split_benchmark(
+    benchmark_path: Path,
+    records: list[Any],
+    *,
+    production: bool,
+) -> dict[str, Any]:
+    """Validate WS5 fresh held-out split without the 615-pair split manifest."""
+    from sscre.benchmark_annotation import validate_review_policy
+    from sscre.benchmark_splits import file_sha256
+
+    if benchmark_path.name != FRESH_HELD_OUT_BENCHMARK_NAME:
+        raise ValueError(
+            f"expected benchmark filename {FRESH_HELD_OUT_BENCHMARK_NAME!r}, "
+            f"got {benchmark_path.name!r}"
+        )
+    benchmark_dir = benchmark_path.parent
+    repo_root = benchmark_dir.parent
+    gate_path = benchmark_dir / "semantic-validity-held-out-gate.json"
+    gate = load_held_out_gate(gate_path, repo_root=repo_root)
+    fresh_path = gate.get("fresh_held_out_benchmark_path")
+    if not isinstance(fresh_path, str):
+        raise ValueError("held-out gate missing fresh_held_out_benchmark_path")
+    if benchmark_path.resolve() != (repo_root / fresh_path).resolve():
+        raise ValueError("benchmark path does not match fresh held-out gate record")
+
+    manifest_path = benchmark_dir / FRESH_HELD_OUT_MANIFEST_NAME
+    if not manifest_path.is_file():
+        raise ValueError(f"fresh held-out manifest not found: {manifest_path}")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if not isinstance(manifest, dict):
+        raise ValueError("fresh held-out manifest must be a JSON object")
+    population = manifest.get("source_population")
+    if not isinstance(population, dict):
+        raise ValueError("fresh held-out manifest missing source_population")
+    if population.get("record_count") != len(records):
+        raise ValueError(
+            "fresh held-out record count does not match manifest "
+            f"({population.get('record_count')} vs {len(records)})"
+        )
+    on_disk_sha = file_sha256(benchmark_path)
+    expected_sha = population.get("sha256")
+    if expected_sha != on_disk_sha:
+        raise ValueError(
+            "fresh held-out benchmark sha256 does not match manifest "
+            f"({expected_sha!r} vs {on_disk_sha!r})"
+        )
+    manifest_ids = population.get("record_ids")
+    record_ids = [record.id for record in records]
+    if manifest_ids != record_ids:
+        raise ValueError("fresh held-out pair ids do not match manifest order")
+    validate_review_policy(records, split="held-out")
+    return manifest
 
 
 def validate_p4_held_out_headline_run(

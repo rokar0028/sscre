@@ -35,4 +35,14 @@ python -m sscre.benchmark_build --benchmark-dir benchmarks validate-candidates `
   --candidates benchmarks/candidates/cacheeval_batch_01.jsonl
 ```
 
+Fresh held-out draft (WS5 Step 1; unused rows only, collision drop vs 615-pair corpus):
+
+```powershell
+python benchmarks/candidates/tools/extract_fresh_held_out_draft.py
+python benchmarks/candidates/tools/build_fresh_held_out_review.py
+python benchmarks/candidates/tools/apply_fresh_held_out_review.py --assume-keep-all
+python benchmarks/candidates/tools/topup_fresh_held_out_batch.py --target-total 100
+python benchmarks/candidates/tools/freeze_fresh_held_out.py
+```
+
 Phase 2 plan: [BENCHMARK_500_SCALE_UP_IMPLEMENTATION_PLAN.md](../../../docs/phase-2/BENCHMARK_500_SCALE_UP_IMPLEMENTATION_PLAN.md).

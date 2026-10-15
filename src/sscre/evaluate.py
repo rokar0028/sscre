@@ -44,7 +44,11 @@ from sscre.evaluation_protocol import (
     reuse_attribution_summary,
     validate_semantic_validity_cli_options,
 )
-from sscre.semantic_validity_held_out import validate_p4_held_out_headline_run
+from sscre.semantic_validity_held_out import (
+    FRESH_HELD_OUT_BENCHMARK_NAME,
+    validate_fresh_held_out_split_benchmark,
+    validate_p4_held_out_headline_run,
+)
 from sscre.local_embedding import LocalSentenceTransformerEmbeddingClient
 from sscre.freshness_artifacts import freshness_companion_artifact_references
 from sscre.freshness_evaluation import (
@@ -177,6 +181,13 @@ def _validate_split(
     validate_full_dataset: bool = True,
     production: bool = False,
 ) -> dict[str, Any]:
+    if split == "held-out" and benchmark_path.name == FRESH_HELD_OUT_BENCHMARK_NAME:
+        return validate_fresh_held_out_split_benchmark(
+            benchmark_path,
+            records,
+            production=production,
+        )
+
     expected_filename = _SPLIT_FILENAMES[split]
     if benchmark_path.name != expected_filename:
         raise ValueError(

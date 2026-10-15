@@ -147,15 +147,20 @@ def test_score_gate_pass_on_synthetic_held_out() -> None:
 def test_write_gate_scoring_evidence_deferred(tmp_path: Path) -> None:
     repo = Path(__file__).resolve().parents[1]
     config_path = repo / "experiments/semantic-validity-evaluation-config-v1.json"
+    gate_path = tmp_path / "deferred-gate.json"
+    gate_path.write_text(
+        json.dumps({"status": "held-out-deferred", "reason": "test fixture"}),
+        encoding="utf-8",
+    )
     output_path = tmp_path / "gate.json"
     payload = write_gate_scoring_evidence(
         output_path,
         config_path=config_path,
-        gate_path=repo / "benchmarks/semantic-validity-held-out-gate.json",
-        repo_root=repo,
+        gate_path=gate_path,
+        repo_root=tmp_path,
     )
     assert payload["artifact_schema_version"] == GATE_ARTIFACT_SCHEMA
     assert payload["status"] == "deferred"
     on_disk = json.loads(output_path.read_text(encoding="utf-8"))
     assert on_disk["status"] == "deferred"
-    assert on_disk.get("held_out_deferred_artifact_sha256")
+    assert on_disk["gate_status"] == "held-out-deferred"

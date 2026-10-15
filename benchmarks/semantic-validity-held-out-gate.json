@@ -2,16 +2,16 @@
   "gate_schema_version": "semantic-validity-held-out-gate-1.0",
   "protocol_id": "P4-SEMVALID",
   "config_path": "experiments/semantic-validity-evaluation-config-v1.json",
-  "status": "held-out-deferred",
-  "decided_at": "2026-10-12T00:00:00+00:00",
-  "fresh_held_out_manifest_path": null,
+  "status": "fresh-held-out-ready",
+  "decided_at": "2026-10-15T13:00:30.545584+00:00",
+  "fresh_held_out_manifest_path": "benchmarks/fresh_held_out_manifest.json",
   "existing_split_manifest_sha256": "0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9",
   "existing_held_out_split": {
     "path": "benchmarks/held_out_test.jsonl",
     "record_count": 215,
     "classification": "contaminated_for_headline_gate"
   },
-  "reason": "The 215-record held_out_test split has already been used for Phase 3 final reporting, Workstream 5 held-out comparisons, and related artifacts. No additional licensed, reviewed, leakage-checked held-out population exists in this repository at Step 3 close.",
+  "reason": "Fresh held-out population frozen for P4-SEMVALID headline evaluation; the legacy 215-record split remains contaminated and forbidden.",
   "contamination_evidence": [
     "artifacts/evaluation/phase3-final-held-out-comparison.json",
     "artifacts/evaluation/workstream5-held-out-comparison.json",
@@ -19,21 +19,25 @@
   ],
   "authorized_actions": {
     "development_threshold_selection": "allowed_on_benchmarks_development_jsonl_under_frozen_protocol",
-    "held_out_headline_gate": "deferred_until_fresh_held_out_manifest_exists",
+    "held_out_headline_gate": "allowed_on_fresh_held_out_benchmark_when_gate_status_is_fresh-held-out-ready",
     "relabel_existing_held_out_as_fresh": "forbidden"
   },
-  "next_step_to_resolve": "Obtain or construct a genuinely fresh held-out scoring population from approved licensed sources, assign immutable IDs, review compatibility labels, and freeze benchmarks/semantic-validity-split-manifest.json (parent Steps 3 manifest task / Step 6 held-out run).",
+  "next_step_to_resolve": "Sync WS5 evidence (Step 7) and parent stabilization Workstream 5 checkboxes.",
   "step_6_headline_evaluation": {
-    "status": "deferred",
-    "recorded_at": "2026-10-12T18:00:00+00:00",
-    "deferred_evidence_artifact": "artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json",
-    "evaluate_cli_blocked": "P4-SEMVALID held-out runs fail closed until status is fresh-held-out-ready"
+    "status": "complete",
+    "recorded_at": "2026-10-15T18:35:00+00:00",
+    "headline_artifact": "artifacts/evaluation/phase4-semantic-validity-held-out.json",
+    "benchmark_path": "benchmarks/fresh_held_out.jsonl",
+    "measurement_environment": "local_embedding_replay",
+    "selected_threshold": 0.9
   },
   "step_7_gate_scoring": {
-    "status": "deferred",
-    "recorded_at": "2026-10-12T23:30:00+00:00",
+    "status": "complete",
+    "recorded_at": "2026-10-15T18:35:00+00:00",
     "gate_scoring_artifact": "artifacts/evaluation/phase4-semantic-validity-gate.json",
-    "headline_verdict": "deferred",
-    "reason": "Step 6 held-out replay not executed; C-versus-A pass/fail not scored on contaminated split or development data."
-  }
+    "headline_verdict": "pass",
+    "reason": "Pre-registered C-versus-A rule scored on fresh held-out primary population (100 pairs)."
+  },
+  "fresh_held_out_benchmark_path": "benchmarks/fresh_held_out.jsonl",
+  "fresh_held_out_manifest_sha256": "e3d0556930c357833567323e04184160b39fa60e20e89e7e08056d48b722e8b8"
 }
