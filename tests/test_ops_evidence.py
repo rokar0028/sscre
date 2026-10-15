@@ -30,16 +30,22 @@ def test_package_summarizes_load_without_request_rows() -> None:
     assert payload["configuration"]["process_count"] == 1
     assert payload["configuration"]["worker_count"] == 1
     passes = payload["protocols"]["ws8-pg-load-v1"]["passes"]["exact_cache"]
-    assert [item["mode"] for item in passes] == ["cold", "warm", "cold", "warm"]
+    assert [item["mode"] for item in passes] == ["cold"]
+    assert (
+        payload["protocols"]["ws8-pg-load-v1"]["stopped_reason"]
+        == "p99_above_5x_p50"
+    )
     for item in passes:
         assert "results" not in item
         assert set(item["latency_ms"]) >= {"p50", "p95", "p99"}
         assert "throughput_requests_per_second" in item
         assert "evictions_delta" in item["storage"]
     bottleneck = payload["protocols"]["ws8-pg-load-v1"]["bottleneck"]
-    assert bottleneck["first_measured_bottleneck"] == "not_reached"
+    assert bottleneck["first_measured_bottleneck"] == "p99_above_5x_p50"
+    assert bottleneck["stop_conditions"]["stopped_reason"] == "p99_above_5x_p50"
     assert bottleneck["result_class"] == "observation"
     assert bottleneck["optimization_decision"] == "none"
+    assert len(bottleneck["measured_components"]["pass_latency_ms"]) == 1
 
 
 def test_package_records_protocols_and_limitations() -> None:
@@ -134,5 +140,5 @@ def test_ops_evidence_cli_writes_output(tmp_path: Path) -> None:
     assert saved["kind"] == KIND
     assert saved["protocols"]["ws8-pg-load-v1"]["bottleneck"][
         "first_measured_bottleneck"
-    ] == "not_reached"
+    ] == "p99_above_5x_p50"
     validate_redacted_report_payload(saved)
