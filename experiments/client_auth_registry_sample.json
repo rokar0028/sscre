@@ -1,0 +1,13 @@
+{
+  "schema_version": "sscre-client-auth-registry-1.0",
+  "credentials": [
+    {
+      "principal_id": "sample-client",
+      "token": "replace-with-a-long-client-token",
+      "tenant_id": "sample-tenant",
+      "namespace_id": "default",
+      "scopes": ["query:execute"],
+      "expires_at": "2030-01-01T00:00:00+00:00"
+    }
+  ]
+}

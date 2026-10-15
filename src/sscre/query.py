@@ -1,14 +1,72 @@
 import hashlib
 import re
+from dataclasses import dataclass
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from sscre.metadata import extract_metadata
 from sscre.metrics import RequestMetrics
 from sscre.safety import QueryMetadata
 
 MAX_QUERY_LENGTH = 8000
+CACHE_KEY_VERSION = "v2"
+LEGACY_UNSCOPED_TENANT = "legacy-unscoped"
+LEGACY_UNSCOPED_NAMESPACE = "legacy-unscoped"
+MAX_SCOPE_PART_LENGTH = 128
+
+
+@dataclass(frozen=True)
+class CacheScope:
+    tenant_id: str
+    namespace_id: str
+
+
+class MissingCacheScopeError(ValueError):
+    """Raised when a cache operation requires tenant and namespace predicates."""
+
+
+def resolve_operation_scope(
+    *,
+    tenant_id: str | None,
+    namespace_id: str | None,
+    require_predicates: bool,
+    operation: str,
+) -> CacheScope | None:
+    """Return a normalized scope or None when predicates are optional and absent."""
+    if tenant_id is None and namespace_id is None:
+        if require_predicates:
+            raise MissingCacheScopeError(
+                f"{operation} requires tenant_id and namespace_id"
+            )
+        return None
+    if tenant_id is None or namespace_id is None:
+        raise MissingCacheScopeError(
+            f"{operation} requires both tenant_id and namespace_id"
+        )
+    return CacheScope(
+        normalize_scope_part(tenant_id, "tenant_id"),
+        normalize_scope_part(namespace_id, "namespace_id"),
+    )
+
+
+def entry_matches_scope(
+    tenant_id: str,
+    namespace_id: str,
+    scope: CacheScope,
+) -> bool:
+    return tenant_id == scope.tenant_id and namespace_id == scope.namespace_id
+
+
+def normalize_scope_part(value: str, field_name: str) -> str:
+    normalized = value.strip()
+    if not normalized:
+        raise ValueError(f"{field_name} must not be empty")
+    if len(normalized) > MAX_SCOPE_PART_LENGTH:
+        raise ValueError(f"{field_name} must be at most {MAX_SCOPE_PART_LENGTH} characters")
+    if "\n" in normalized or "\r" in normalized:
+        raise ValueError(f"{field_name} must not contain newlines")
+    return normalized
 
 
 def normalize_query(raw_query: str) -> str:
@@ -20,11 +78,28 @@ def normalize_query(raw_query: str) -> str:
 
 
 def hash_query(normalized_query: str) -> str:
-    """Return the SHA-256 cache key for a normalized query."""
+    """Return the v1 content fingerprint (normalized query only)."""
     return hashlib.sha256(normalized_query.encode("utf-8")).hexdigest()
 
 
+def content_query_hash(normalized_query: str) -> str:
+    """Diagnostic fingerprint for the normalized query text."""
+    return hash_query(normalized_query)
+
+
+def scoped_cache_key(scope: CacheScope, normalized_query: str) -> str:
+    """Return the versioned storage key for exact lookup and insertion."""
+    tenant_id = normalize_scope_part(scope.tenant_id, "tenant_id")
+    namespace_id = normalize_scope_part(scope.namespace_id, "namespace_id")
+    payload = (
+        f"{CACHE_KEY_VERSION}\n{tenant_id}\n{namespace_id}\n{normalized_query}"
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
 class QueryRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     query: str = Field(min_length=1, max_length=MAX_QUERY_LENGTH)
 
     @field_validator("query")
@@ -36,6 +111,9 @@ class QueryRequest(BaseModel):
 class QueryPreprocessResponse(BaseModel):
     normalized_query: str
     query_hash: str
+    content_query_hash: str
+    tenant_id: str
+    namespace_id: str
     metadata: QueryMetadata = QueryMetadata()
 
 
@@ -78,9 +156,40 @@ class QueryResponse(BaseModel):
         return self
 
 
-def preprocess_query(request: QueryRequest) -> QueryPreprocessResponse:
+def trusted_local_scope() -> CacheScope:
+    from sscre.api_auth import DEFAULT_NAMESPACE, TRUSTED_LOCAL_TENANT
+
+    return CacheScope(
+        tenant_id=TRUSTED_LOCAL_TENANT,
+        namespace_id=DEFAULT_NAMESPACE,
+    )
+
+
+def storage_query_hash(
+    normalized_query: str,
+    scope: CacheScope | None = None,
+) -> str:
+    """Return the repository storage key for a normalized query and scope."""
+    resolved = scope or trusted_local_scope()
+    return scoped_cache_key(resolved, normalized_query)
+
+
+def preprocess_query(
+    request: QueryRequest,
+    scope: CacheScope,
+) -> QueryPreprocessResponse:
+    normalized = request.query
+    tenant_id = normalize_scope_part(scope.tenant_id, "tenant_id")
+    namespace_id = normalize_scope_part(scope.namespace_id, "namespace_id")
+    content_hash = content_query_hash(normalized)
     return QueryPreprocessResponse(
-        normalized_query=request.query,
-        query_hash=hash_query(request.query),
-        metadata=extract_metadata(request.query),
+        normalized_query=normalized,
+        query_hash=scoped_cache_key(
+            CacheScope(tenant_id, namespace_id),
+            normalized,
+        ),
+        content_query_hash=content_hash,
+        tenant_id=tenant_id,
+        namespace_id=namespace_id,
+        metadata=extract_metadata(normalized),
     )

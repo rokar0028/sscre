@@ -1,0 +1,24 @@
+﻿{
+  "errors": [],
+  "mode": "development-compose",
+  "schema_version": "sscre-env-validate-1.0",
+  "settings": {
+    "admin_read_token_configured": false,
+    "admin_token_configured": true,
+    "admin_token_expires_at_configured": false,
+    "database_url_configured": true,
+    "embedding_timeout_seconds": 5,
+    "generation_timeout_seconds": 25,
+    "log_level": "INFO",
+    "repository_timeout_seconds": 2,
+    "request_timeout_seconds": 30,
+    "runtime_profile": "development",
+    "semantic_enabled": true,
+    "semantic_similarity_threshold": 0.95,
+    "semantic_strategy": "C",
+    "semantic_top_k": 5
+  },
+  "status": "pass",
+  "validated_at_utc": "2026-10-13T18:23:25.609146+00:00",
+  "warnings": []
+}

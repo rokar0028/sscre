@@ -1,0 +1,197 @@
+{
+  "schema_version": "ws3-step31-timeout-audit-1.1",
+  "workstream": 3,
+  "step": "3.1",
+  "recorded_at_utc": "2026-10-14T10:51:00+00:00",
+  "schema_revision_note": "1.1 clarifies transient retention vs permanent leak and HTTP gaps",
+  "git_head": "2d7323fa31aa5db576e2d11aa9854832a9d0b9f5",
+  "audit_type": "code_inspection_and_probe",
+  "default_timeout_budgets_seconds": {
+    "request_timeout_seconds": 30,
+    "embedding_timeout_seconds": 5,
+    "generation_timeout_seconds": 25,
+    "repository_timeout_seconds": 2,
+    "health_timeout_seconds": 1,
+    "admin_timeout_seconds": 5,
+    "source": "src/sscre/config.py Settings defaults"
+  },
+  "runtime_capacity_snapshot": {
+    "dependency_executor_max_workers": 8,
+    "dependency_slots": 8,
+    "dependency_slot_type": "threading.BoundedSemaphore",
+    "generation_lock": "threading.Lock in-process only",
+    "dependency_executor_thread_name_prefix": "sscre-dependency",
+    "dependency_executor_shutdown_on_app_teardown": false,
+    "local_embedding_per_call_executor": true,
+    "local_embedding_shutdown_wait": false
+  },
+  "run_with_timeout_semantics": {
+    "slot_acquire_before_submit": true,
+    "slot_release_on_future_done_callback": true,
+    "timeout_raises": "DependencyTimeoutError",
+    "on_timeout_future_cancel_called": true,
+    "on_timeout_stops_in_flight_callable": false,
+    "known_gap": "Timed-out callables retain a dependency slot until the worker thread finishes; slots are released after completion (not a permanent leak)."
+  },
+  "pass_rule_ws3": {
+    "statement": "After a client-visible dependency timeout, admission must be reclaimed safely or work must be isolated so background retention cannot deny new admissions beyond the designed bound.",
+    "future_cancel_alone_insufficient": true,
+    "current_thread_pool_meets_pass_rule": false,
+    "failure_mode": "transient_capacity_denial_under_stall_not_unbounded_growth"
+  },
+  "step_31_gate_decision": {
+    "status": "redesign_required_before_verification",
+    "step_32_design": "artifacts/stabilization/ws3-step32-runtime-design.json",
+    "rejected_shortcuts": [
+      "dedicated_worker_pools_without_admission_or_isolation_change",
+      "cooperative_provider_cancellation_only"
+    ],
+    "deferred_capabilities": [
+      "cross_process_generation_lock",
+      "subprocess_isolation_unless_step_33_verification_requires"
+    ]
+  },
+  "run_with_timeout_call_sites": [
+    {
+      "operation_name": "cache access accounting",
+      "approx_line": 322,
+      "timeout_budget": "repository_timeout_seconds",
+      "classification": "best-effort accounting/eviction",
+      "on_timeout": "log warning; response unaffected"
+    },
+    {
+      "operation_name": "cache statistics",
+      "approx_line": 467,
+      "timeout_budget": "admin_timeout_seconds",
+      "classification": "must fail the request",
+      "on_timeout": "HTTP 503 cache statistics unavailable"
+    },
+    {
+      "operation_name": "cache lookup",
+      "approx_line": 911,
+      "timeout_budget": "min(repository_timeout_seconds, remaining request budget)",
+      "classification": "must fail the request",
+      "on_timeout": "HTTP 503 cache unavailable"
+    },
+    {
+      "operation_name": "embedding",
+      "approx_line": 958,
+      "timeout_budget": "min(embedding_timeout_seconds, remaining request budget)",
+      "classification": "may return generated without caching",
+      "on_timeout": "semantic path degraded; may miss cache"
+    },
+    {
+      "operation_name": "semantic cache search",
+      "approx_line": 973,
+      "timeout_budget": "min(repository_timeout_seconds, remaining request budget)",
+      "classification": "may return generated without caching",
+      "on_timeout": "logged semantic_lookup_unavailable; generate path"
+    },
+    {
+      "operation_name": "cache lookup",
+      "approx_line": 1124,
+      "timeout_budget": "min(repository_timeout_seconds, remaining request budget)",
+      "classification": "must fail the request",
+      "on_timeout": "HTTP 503 cache unavailable"
+    },
+    {
+      "operation_name": "generation",
+      "approx_line": 1168,
+      "timeout_budget": "min(generation_timeout_seconds, remaining request budget)",
+      "classification": "must fail the request",
+      "on_timeout": "DependencyTimeoutError caught as Exception; HTTP 502 response generation failed (target 504 Step 3.3)"
+    },
+    {
+      "operation_name": "embedding",
+      "approx_line": 1205,
+      "timeout_budget": "min(embedding_timeout_seconds, remaining request budget)",
+      "classification": "may return generated without caching",
+      "on_timeout": "cache_skip_reason embedding_unavailable"
+    },
+    {
+      "operation_name": "cache insert (insert_and_evict)",
+      "approx_line": 1270,
+      "timeout_budget": "min(repository_timeout_seconds, remaining request budget)",
+      "classification": "may return generated without caching",
+      "on_timeout": "cache_write_unavailable"
+    },
+    {
+      "operation_name": "cache insert",
+      "approx_line": 1284,
+      "timeout_budget": "min(repository_timeout_seconds, remaining request budget)",
+      "classification": "may return generated without caching",
+      "on_timeout": "cache_write_unavailable"
+    },
+    {
+      "operation_name": "cache eviction",
+      "approx_line": 1296,
+      "timeout_budget": "min(repository_timeout_seconds, remaining request budget)",
+      "classification": "best-effort accounting/eviction",
+      "on_timeout": "log warning"
+    },
+    {
+      "operation_name": "cache lookup",
+      "approx_line": 1321,
+      "timeout_budget": "min(repository_timeout_seconds, remaining request budget)",
+      "classification": "must fail the request",
+      "on_timeout": "HTTP 503 cache unavailable"
+    },
+    {
+      "operation_name": "cache delete (replacement)",
+      "approx_line": 1369,
+      "timeout_budget": "min(repository_timeout_seconds, remaining request budget)",
+      "classification": "may return generated without caching",
+      "on_timeout": "cache_write_unavailable"
+    },
+    {
+      "operation_name": "cache insert (replacement insert_and_evict)",
+      "approx_line": 1384,
+      "timeout_budget": "min(repository_timeout_seconds, remaining request budget)",
+      "classification": "may return generated without caching",
+      "on_timeout": "cache_write_unavailable"
+    },
+    {
+      "operation_name": "cache insert (replacement)",
+      "approx_line": 1398,
+      "timeout_budget": "min(repository_timeout_seconds, remaining request budget)",
+      "classification": "may return generated without caching",
+      "on_timeout": "cache_write_unavailable"
+    }
+  ],
+  "additional_timeout_boundaries": [
+    {
+      "name": "generation_guard",
+      "mechanism": "threading.Lock.acquire(timeout=dependency_budget(generation_timeout_seconds))",
+      "on_timeout": "DependencyTimeoutError generation lock timed out",
+      "handled_http_mapping": "unhandled DependencyTimeoutError at query boundary (HTTP 500 via TestClient) — fix planned Step 3.3"
+    },
+    {
+      "name": "generation_run_with_timeout",
+      "mechanism": "run_with_timeout on run_generation inside generation_guard",
+      "on_timeout": "DependencyTimeoutError generation timed out",
+      "handled_http_mapping": "HTTP 502 response generation failed — remap planned Step 3.3"
+    },
+    {
+      "name": "ensure_request_budget",
+      "mechanism": "request wall clock vs request_timeout_seconds",
+      "on_timeout": "HTTP 504 request timed out with X-Request-ID"
+    }
+  ],
+  "http_gap_baseline_tests": {
+    "command": "python -m pytest tests/test_workstream3_timeout_http_gaps.py -q",
+    "result": "2 passed",
+    "purpose": "Regression baseline before Step 3.3 HTTP mapping fixes"
+  },
+  "probe_verification": {
+    "command": "python -m pytest tests/test_workstream3_timeout_capacity_probe.py -q",
+    "result": "2 passed",
+    "probe": {
+      "timed_out": true,
+      "slot_available_immediately_after_timeout": false,
+      "callable_still_running_after_timeout": true,
+      "worker_thread_alive_after_timeout": true,
+      "slot_released_after_callable_completes": true,
+      "slot_retained_until_completion": true
+    }
+  }
+}

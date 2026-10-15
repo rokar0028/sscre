@@ -267,7 +267,12 @@ def test_multiprocess_same_query_distinguishes_generation_from_insert() -> None:
     try:
         for _ in range(RUN_COUNT):
             query = f"Write Python code for ws8 multiprocess {uuid4()}"
-            processed = preprocess_query(QueryRequest(query=query))
+            from sscre.query import trusted_local_scope
+
+            processed = preprocess_query(
+                QueryRequest(query=query),
+                trusted_local_scope(),
+            )
             hashes.append(processed.query_hash)
             outcomes = _run_multiprocess_dup(query)
             assert len(outcomes) == PROCESS_COUNT, (

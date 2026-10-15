@@ -433,7 +433,12 @@ def test_api_http_traces_for_safe_unsafe_uncertain_and_null() -> None:
     from sscre.safety import QueryMetadata
 
     def _hash(query: str) -> str:
-        return preprocess_query(QueryRequest(query=query)).query_hash
+        from sscre.query import trusted_local_scope
+
+        return preprocess_query(
+            QueryRequest(query=query),
+            trusted_local_scope(),
+        ).query_hash
 
     python_meta = QueryMetadata(
         intent="code",

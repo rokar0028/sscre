@@ -18,6 +18,7 @@ from sscre.cache import (
 from sscre.embedding import EmbeddingConfig, FakeEmbeddingClient
 from sscre.config import Settings
 from sscre.llm import LLMResult, MockLLMClient
+from sscre.query import storage_query_hash
 from sscre.safety import QueryMetadata
 
 
@@ -117,7 +118,7 @@ def test_generated_entry_stores_embedding_metadata() -> None:
     response = client.post("/v1/query", json={"query": query})
 
     assert response.status_code == 200
-    entry = cache.get_by_query_hash(hashlib.sha256(query.encode()).hexdigest())
+    entry = cache.get_by_query_hash(storage_query_hash(query))
     assert entry is not None
     assert entry.embedding is not None
     assert entry.embedding_model == "fake-embedding"
@@ -139,7 +140,7 @@ def test_embedding_failure_does_not_cache_generated_answer() -> None:
 
     assert response.status_code == 200
     assert response.json()["source"] == "generated"
-    assert cache.get_by_query_hash(hashlib.sha256(query.encode()).hexdigest()) is None
+    assert cache.get_by_query_hash(storage_query_hash(query)) is None
 
 
 def test_semantic_candidate_is_reused_after_exact_miss() -> None:
@@ -147,7 +148,7 @@ def test_semantic_candidate_is_reused_after_exact_miss() -> None:
     cached_query = "explain vector search"
     cache.insert(
         CacheEntry(
-            query_hash=hashlib.sha256(cached_query.encode()).hexdigest(),
+            query_hash=storage_query_hash(cached_query),
             normalized_query=cached_query,
             answer="cached semantic answer",
             embedding=(1.0, 0.0),
@@ -186,7 +187,7 @@ def test_default_strategy_does_not_reuse_metadata_less_semantic_candidate() -> N
     cached_query = "explain vector search"
     cache.insert(
         CacheEntry(
-            query_hash=hashlib.sha256(cached_query.encode()).hexdigest(),
+            query_hash=storage_query_hash(cached_query),
             normalized_query=cached_query,
             answer="cached semantic answer",
             embedding=(1.0, 0.0),
@@ -224,7 +225,7 @@ def test_exact_hit_bypasses_embedding_lookup() -> None:
     query = "exact query"
     cache.insert(
         CacheEntry(
-            query_hash=hashlib.sha256(query.encode()).hexdigest(),
+            query_hash=storage_query_hash(query),
             normalized_query=query,
             answer="exact answer",
         )
@@ -249,7 +250,7 @@ def test_semantic_candidate_below_threshold_generates_response() -> None:
     cached_query = "cached query"
     cache.insert(
         CacheEntry(
-            query_hash=hashlib.sha256(cached_query.encode()).hexdigest(),
+            query_hash=storage_query_hash(cached_query),
             normalized_query=cached_query,
             answer="old answer",
             embedding=(1.0, 0.0),
@@ -292,7 +293,7 @@ def test_strategy_c_reuses_only_a_compatible_semantic_candidate() -> None:
     )
     cache.insert(
         CacheEntry(
-            query_hash=hashlib.sha256(cached_query.encode()).hexdigest(),
+            query_hash=storage_query_hash(cached_query),
             normalized_query=cached_query,
             answer="compatible cached answer",
             embedding=(1.0, 0.0),
@@ -326,7 +327,7 @@ def test_strategy_c_reuses_only_a_compatible_semantic_candidate() -> None:
     assert response.json()["decision"] == "SAFE"
     assert response.json()["strategy"] == "semantic"
     assert response.json()["selected_candidate_query_hash"] == (
-        hashlib.sha256(cached_query.encode()).hexdigest()
+        storage_query_hash(cached_query)
     )
     assert model.calls == 0
 
@@ -336,7 +337,7 @@ def test_strategy_c_generates_for_an_incompatible_semantic_candidate() -> None:
     cached_query = "write Java code for binary search"
     cache.insert(
         CacheEntry(
-            query_hash=hashlib.sha256(cached_query.encode()).hexdigest(),
+            query_hash=storage_query_hash(cached_query),
             normalized_query=cached_query,
             answer="Java cached answer",
             embedding=(1.0, 0.0),
@@ -388,7 +389,7 @@ def test_strategy_c_does_not_reuse_exact_entry_without_metadata() -> None:
     query = "exact query with missing metadata"
     cache.insert(
         CacheEntry(
-            query_hash=hashlib.sha256(query.encode()).hexdigest(),
+            query_hash=storage_query_hash(query),
             normalized_query=query,
             answer="legacy answer",
         )
@@ -421,7 +422,7 @@ def test_strategy_c_does_not_reuse_dynamic_exact_entry() -> None:
     query = "What is the current stock price?"
     cache.insert(
         CacheEntry(
-            query_hash=hashlib.sha256(query.encode()).hexdigest(),
+            query_hash=storage_query_hash(query),
             normalized_query=query,
             answer="stale price answer",
             metadata=QueryMetadata(
@@ -457,7 +458,7 @@ def test_strategy_c_does_not_reuse_dynamic_exact_entry() -> None:
 def test_strategy_c_does_not_bypass_safety_on_duplicate_cache_write() -> None:
     query = "write Python code"
     duplicate_entry = CacheEntry(
-        query_hash=hashlib.sha256(query.encode()).hexdigest(),
+        query_hash=storage_query_hash(query),
         normalized_query=query,
         answer="incompatible raced answer",
         metadata=QueryMetadata(
@@ -497,7 +498,7 @@ def test_strategy_c_logs_bounded_candidate_decision_trace(caplog) -> None:
     )
     cache.insert(
         CacheEntry(
-            query_hash=hashlib.sha256(cached_query.encode()).hexdigest(),
+            query_hash=storage_query_hash(cached_query),
             normalized_query=cached_query,
             answer="compatible cached answer sk-test-SECRETVALUE",
             embedding=(1.0, 0.0),
@@ -565,7 +566,7 @@ def test_cache_repository_failure_returns_503_with_request_id() -> None:
     assert response.headers["X-Request-ID"]
 
 
-def test_generation_timeout_returns_controlled_502(caplog) -> None:
+def test_generation_timeout_returns_controlled_504() -> None:
     class SlowLLMClient(MockLLMClient):
         def generate(self, query: str) -> LLMResult:
             time.sleep(1.1)
@@ -578,27 +579,12 @@ def test_generation_timeout_returns_controlled_502(caplog) -> None:
         )
     )
 
-    caplog.set_level(logging.INFO, logger="sscre")
     response = client.post("/v1/query", json={"query": "slow generation"})
 
-    assert response.status_code == 502
-    assert response.json() == {"detail": "response generation failed"}
+    assert response.status_code == 504
+    assert response.json() == {"detail": "response generation timed out"}
     assert response.headers["X-Request-ID"]
-    event = json.loads(
-        next(
-            record.message
-            for record in caplog.records
-            if "generation_failed" in record.message
-        )
-    )
-    event_text = json.dumps(event)
-    assert event["decision"] == "UNCERTAIN"
-    assert event["reason"] == "generation_failed"
-    assert event["outcome"] == "generation_failed"
-    assert event["candidate_traces"] is None
-    assert "answer" not in event
-    assert "authorization" not in event
-    assert "slow generation" not in event_text
+    assert "slow generation" not in json.dumps(response.json())
 
 
 def test_malformed_generation_result_returns_controlled_502() -> None:

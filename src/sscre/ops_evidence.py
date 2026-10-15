@@ -73,6 +73,23 @@ def _summarize_pass(item: Mapping[str, Any]) -> dict[str, Any]:
     return {field: item[field] for field in _PASS_FIELDS if field in item}
 
 
+def _bottleneck_for_package(
+    report: Mapping[str, Any],
+    sidecar: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Prefer bottleneck analysis embedded in the load artifact."""
+
+    embedded = report.get("bottleneck_analysis")
+    if isinstance(embedded, Mapping) and embedded.get("protocol_id"):
+        bottleneck = dict(embedded)
+    else:
+        bottleneck = dict(sidecar)
+    bottleneck.setdefault("source_artifact", DEFAULT_LOAD_ARTIFACT.as_posix())
+    if bottleneck.get("protocol_id") != "ws8-pg-load-v1":
+        raise ValueError("bottleneck protocol_id must be ws8-pg-load-v1")
+    return bottleneck
+
+
 def _summarize_load(report: Mapping[str, Any]) -> dict[str, Any]:
     comparison = report.get("comparison") or {}
     if not isinstance(comparison, Mapping):
@@ -161,6 +178,10 @@ def recorded_protocol_results() -> dict[str, Any]:
         },
         "ws8-multiprocess-dup-v1": {
             "status": "measured",
+            "evidence_note": (
+                "Frozen summary from 2026-10-10 WS8 verification; not re-run "
+                "during Post–Phase 4 WS4 close-out."
+            ),
             "measured_on": "2026-10-10",
             "process_count": 2,
             "worker_count": 2,
@@ -182,6 +203,10 @@ def recorded_protocol_results() -> dict[str, Any]:
         },
         "ws8-contention-v1": {
             "status": "measured",
+            "evidence_note": (
+                "Frozen summary from 2026-10-10 WS8 verification; not re-run "
+                "during Post–Phase 4 WS4 close-out."
+            ),
             "measured_on": "2026-10-10",
             "process_count": 1,
             "worker_count": 1,
@@ -322,11 +347,10 @@ def package_operational_verification(
         else bottleneck_path
     )
     report = _load_json(load_file)
-    bottleneck = _load_json(bottleneck_file)
+    sidecar = _load_json(bottleneck_file)
     if report.get("protocol_id") != "ws8-pg-load-v1":
         raise ValueError("load artifact protocol_id must be ws8-pg-load-v1")
-    if bottleneck.get("protocol_id") != "ws8-pg-load-v1":
-        raise ValueError("bottleneck artifact protocol_id must be ws8-pg-load-v1")
+    bottleneck = _bottleneck_for_package(report, sidecar)
     environment = dict(report.get("environment") or {})
     payload = {
         "kind": KIND,
@@ -352,7 +376,7 @@ def package_operational_verification(
             **recorded_protocol_results(),
             "ws8-pg-load-v1": {
                 "status": "measured",
-                "measured_on": "2026-10-10",
+                "measured_on": str(environment.get("measured_at", "")).split("T")[0],
                 "process_count": report.get("process_count"),
                 "worker_count": report.get("worker_count"),
                 "concurrency": 4,
@@ -367,6 +391,8 @@ def package_operational_verification(
                     "guarantee.",
                     "Synthetic provider latency is 0 ms. Wrapper overhead is "
                     "not an actionable bottleneck.",
+                    "Bottleneck summary is taken from the load artifact's "
+                    "bottleneck_analysis when present.",
                 ],
             },
         },

@@ -1,0 +1,16 @@
+---
+description: WS2 external-mode API tests must use validated Settings fixtures
+globs: tests/test_api*.py,tests/test_ws2*.py
+alwaysApply: false
+---
+
+# WS2 external-mode tests
+
+- Do not construct `Settings(api_exposure_mode="external", ...)` without
+  `rate_limit_requests_per_minute` and `tenant_provider_budget_per_minute`
+  unless the test intentionally asserts `Settings` validation failure.
+- Use [`tests/ws2_test_fixtures.py`](../../tests/ws2_test_fixtures.py)
+  `external_test_settings(**overrides)` for `create_app` and TestClient setup.
+- Rate-limit tests that allow a full cache miss with semantic retrieval enabled
+  need `tenant_provider_budget_per_minute` ≥ 2 (embedding + generation) unless
+  `semantic_enabled=False`.

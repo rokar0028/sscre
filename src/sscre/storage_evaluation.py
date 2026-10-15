@@ -12,7 +12,7 @@ from typing import Any, Iterable, Mapping
 
 from sscre.cache import CacheEntry, InMemoryExactCache
 from sscre.metadata import extract_metadata
-from sscre.query import hash_query, normalize_query
+from sscre.query import hash_query, normalize_query, storage_query_hash
 from sscre import __version__
 
 
@@ -247,7 +247,7 @@ def run_storage_control_evaluation(
 
     for item in items:
         normalized_query = normalize_query(item.query)
-        query_hash = hash_query(normalized_query)
+        query_hash = storage_query_hash(normalized_query)
         existing = cache.get_by_query_hash(query_hash)
         if (
             existing is not None

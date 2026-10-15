@@ -54,6 +54,12 @@ class Settings:
     admin_read_token: str | None = None
     admin_token_expires_at: datetime | None = None
     admin_read_token_expires_at: datetime | None = None
+    api_exposure_mode: Literal["trusted_local", "external"] = "trusted_local"
+    client_auth_json: str | None = None
+    max_request_body_bytes: int = 64 * 1024
+    rate_limit_requests_per_minute: int = 0
+    tenant_max_concurrent_queries: int = 32
+    tenant_provider_budget_per_minute: int = 0
 
     def __post_init__(self) -> None:
         if self.runtime_profile not in {"test", "development", "production"}:
@@ -67,6 +73,10 @@ class Settings:
         if self.runtime_profile == "production":
             if not self.database_url:
                 raise ValueError("database_url is required in production")
+            if self.api_exposure_mode != "external":
+                raise ValueError(
+                    "api_exposure_mode must be external in production"
+                )
             if self.admin_token is None:
                 raise ValueError("admin_token is required in production")
             if len(self.admin_token) < 16:
@@ -122,6 +132,31 @@ class Settings:
         ):
             if value is not None and value.tzinfo is None:
                 raise ValueError(f"{name} must include a timezone")
+        if self.api_exposure_mode not in {"trusted_local", "external"}:
+            raise ValueError("api_exposure_mode must be trusted_local or external")
+        if self.api_exposure_mode == "external" and not (
+            self.client_auth_json and self.client_auth_json.strip()
+        ):
+            raise ValueError(
+                "client_auth_json is required when api_exposure_mode is external"
+            )
+        if self.max_request_body_bytes <= 0:
+            raise ValueError("max_request_body_bytes must be positive")
+        if self.tenant_max_concurrent_queries <= 0:
+            raise ValueError("tenant_max_concurrent_queries must be positive")
+        if self.api_exposure_mode == "external":
+            if self.rate_limit_requests_per_minute <= 0:
+                raise ValueError(
+                    "rate_limit_requests_per_minute must be positive in external mode"
+                )
+            if self.tenant_provider_budget_per_minute <= 0:
+                raise ValueError(
+                    "tenant_provider_budget_per_minute must be positive in external mode"
+                )
+
+    def require_scoped_cache_operations(self) -> bool:
+        """External API exposure requires explicit tenant/namespace predicates."""
+        return self.api_exposure_mode == "external"
 
     def cache_control_policy(self) -> CacheControlPolicy:
         return CacheControlPolicy(
@@ -212,5 +247,21 @@ class Settings:
             ),
             admin_read_token_expires_at=_environment_datetime(
                 "SSCRE_ADMIN_READ_TOKEN_EXPIRES_AT"
+            ),
+            api_exposure_mode=os.getenv(
+                "SSCRE_API_EXPOSURE_MODE", "trusted_local"
+            ).strip().lower(),
+            client_auth_json=os.getenv("SSCRE_CLIENT_AUTH_JSON") or None,
+            max_request_body_bytes=int(
+                os.getenv("SSCRE_MAX_REQUEST_BODY_BYTES", str(64 * 1024))
+            ),
+            rate_limit_requests_per_minute=int(
+                os.getenv("SSCRE_RATE_LIMIT_REQUESTS_PER_MINUTE", "0")
+            ),
+            tenant_max_concurrent_queries=int(
+                os.getenv("SSCRE_TENANT_MAX_CONCURRENT_QUERIES", "32")
+            ),
+            tenant_provider_budget_per_minute=int(
+                os.getenv("SSCRE_TENANT_PROVIDER_BUDGET_PER_MINUTE", "0")
             ),
         )

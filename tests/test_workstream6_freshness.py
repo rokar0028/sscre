@@ -288,7 +288,9 @@ def test_replay_clock_sets_insert_ttl_from_policy_not_wall_clock() -> None:
     )
     clock.advance()
     clock.advance()
-    stored = cache.get_by_query_hash(hash_query("cached"))
+    from sscre.query import storage_query_hash
+
+    stored = cache.get_by_query_hash(storage_query_hash("cached"))
     assert stored is not None
     blocked = clock.evaluate_cache_control("stable", stored.ttl_expires_at)
     assert blocked.reusable is True

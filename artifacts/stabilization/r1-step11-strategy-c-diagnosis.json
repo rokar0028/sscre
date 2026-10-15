@@ -1,0 +1,174 @@
+{
+  "schema_version": "r1-step11-strategy-c-diagnosis-1.0",
+  "workstream": "R1",
+  "step": "R1.1",
+  "status": "closed",
+  "headline_population": false,
+  "population_purpose": "development_split_configuration_and_diagnosis_only_not_fresh_headline",
+  "recorded_at_utc": "2026-10-15T11:02:07.373623+00:00",
+  "git_commit": "7878856cb9600ba84d5e78721faaa94ab761bd71",
+  "git_worktree_dirty": true,
+  "protocol": {
+    "safety_evaluation_contract": "1.0.0",
+    "candidate_trace_contract": "1.0.0",
+    "config_version": "semantic-validity-evaluation-config-1.0",
+    "config_sha256": "8b6ff26d05fd4dbeb0d4014c706bc43342d676511f7ba6b09ffa06ea0d34062c",
+    "protocol_id": "P4-SEMVALID"
+  },
+  "population": {
+    "benchmark_path": "benchmarks/development.jsonl",
+    "benchmark_sha256": "14a1d2acd976c2fc891e6d5c3b7c33b729e69e37e66809929d1f74a759f01305",
+    "record_count": 383,
+    "split": "development",
+    "held_out_records_used": false
+  },
+  "model_identity": {
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "embedding_dimension": 384,
+    "threshold_policy": 0.9,
+    "top_k": 5,
+    "embedding_provenance": {
+      "batch_behavior": "single_query_per_embed_call",
+      "device": "cpu",
+      "dimension": 384,
+      "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+      "normalize_embeddings": true,
+      "provider_type": "local_sentence_transformer"
+    }
+  },
+  "source_evaluation_artifact": "artifacts/evaluation/phase4-semantic-validity-development.json",
+  "aggregates": {
+    "trace_decision_counts": {
+      "UNCERTAIN": 133,
+      "UNSAFE": 1770,
+      "SAFE": 2
+    },
+    "trace_reason_counts": {
+      "missing_domain_evidence": 19,
+      "missing_intent_evidence": 102,
+      "similarity_below_threshold": 1737,
+      "missing_output_format_evidence": 2,
+      "cache_control_dynamic_disabled": 22,
+      "dynamic_query_not_reusable": 8,
+      "incomplete_entity_evidence": 10,
+      "entity_mismatch": 2,
+      "intent_mismatch": 1,
+      "compatible_metadata": 2
+    },
+    "trace_reason_category_counts": {
+      "missing_metadata_evidence": 123,
+      "below_threshold": 1737,
+      "other": 30,
+      "metadata_conflict": 13,
+      "compatible": 2
+    },
+    "trace_stage_counts": {
+      "compatibility": 1883,
+      "retrieval": 22
+    },
+    "similarity_band_counts": {
+      "1.0": 22,
+      "[-1,0.8)": 1663,
+      "[0.8,0.9)": 95,
+      "[0.9,0.95)": 51,
+      "[0.95,1.0)": 74
+    },
+    "freshness_outcome_counts": {
+      "stable": 1848,
+      "semi_dynamic": 35,
+      "dynamic": 22
+    },
+    "cache_control_outcome_counts": {
+      "fresh": 5646,
+      "dynamic_entries_disabled": 65
+    },
+    "request_decision_counts": {
+      "SAFE": 2,
+      "UNCERTAIN": 171,
+      "UNSAFE": 593
+    },
+    "candidate_availability": {
+      "observed_pair_sample_count": 383,
+      "requests_with_candidates": 383,
+      "requests_without_candidates": 0,
+      "semantic_miss_failure_category": 1
+    },
+    "candidate_rejection": {
+      "served_safe": 2,
+      "rejected_with_candidates": 381,
+      "no_candidates": 0,
+      "failure_categories": {
+        "all candidates were incompatible": 592,
+        "no candidate had sufficient compatibility evidence": 171,
+        "semantic_miss": 1
+      }
+    },
+    "exact_vs_semantic": {
+      "strategy_c_request_paths": {
+        "exact_hash_trace": 0,
+        "semantic_with_candidates": 383,
+        "no_candidates": 0
+      },
+      "strategy_c_request_outcomes": {
+        "served_safe": 2,
+        "rejected_with_candidates": 381,
+        "no_candidates": 0
+      },
+      "strategy_a_exact_cache": {
+        "cache_hits": 55,
+        "cache_misses": 711,
+        "request_count": 766
+      },
+      "strategy_c_compatibility_cache": {
+        "cache_hits": 2,
+        "cache_misses": 764,
+        "request_count": 766
+      }
+    },
+    "unlabeled_candidate_reuse_hits": 0,
+    "abstention_rate": 0.22323759791122716,
+    "safe_reuse_coverage": 0.0,
+    "hit_rate": 0.0026109660574412533
+  },
+  "dominant_abstention_causes": [
+    {
+      "failure_category_ranking": [
+        {
+          "category": "all candidates were incompatible",
+          "count": 592
+        },
+        {
+          "category": "no candidate had sufficient compatibility evidence",
+          "count": 171
+        },
+        {
+          "category": "semantic_miss",
+          "count": 1
+        }
+      ],
+      "trace_reason_category_ranking": [
+        {
+          "category": "below_threshold",
+          "trace_count": 1737
+        },
+        {
+          "category": "missing_metadata_evidence",
+          "trace_count": 123
+        },
+        {
+          "category": "other",
+          "trace_count": 30
+        },
+        {
+          "category": "metadata_conflict",
+          "trace_count": 13
+        },
+        {
+          "category": "compatible",
+          "trace_count": 2
+        }
+      ]
+    }
+  ],
+  "safety_note": "Diagnostic only; no threshold or compatibility rule changes from this population."
+}

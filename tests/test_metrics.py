@@ -182,7 +182,9 @@ def test_semantic_disabled_does_not_embed_or_store_vectors() -> None:
 
     assert response.status_code == 200
     assert embedding_client.calls == 0
-    entry = cache.get_by_query_hash(hash_query("exact only"))
+    from sscre.query import storage_query_hash
+
+    entry = cache.get_by_query_hash(storage_query_hash("exact only"))
     assert entry is not None
     assert entry.embedding is None
 

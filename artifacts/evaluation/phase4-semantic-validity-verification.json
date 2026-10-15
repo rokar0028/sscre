@@ -1,0 +1,52 @@
+{
+  "checks": [
+    {
+      "command": "python -m pytest -q tests/test_benchmark.py tests/test_evaluation_labels.py",
+      "result": "68 passed",
+      "status": "pass"
+    },
+    {
+      "command": "python -m pytest -q tests/test_workstream3_pure_evaluator.py tests/test_workstream3_serialization.py",
+      "result": "65 passed, 1 warning",
+      "status": "pass"
+    },
+    {
+      "command": "python -m pytest -q",
+      "result": "807 passed, 15 skipped, 21 deselected, 1 warning",
+      "status": "pass"
+    },
+    {
+      "command": "python -m sscre.benchmark_validate --benchmark-dir benchmarks --phase2 --production",
+      "result": "pass; split_manifest_sha256=0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9",
+      "status": "pass"
+    },
+    {
+      "command": "docker compose config (CI sample env)",
+      "note": "SSCRE_SEMANTIC_STRATEGY defaults to B — not the safety-approved path; Strategy C required for compatibility-aware reuse.",
+      "result": "SSCRE_SEMANTIC_STRATEGY: B",
+      "status": "pass"
+    },
+    {
+      "command": "redact_operational_evaluation_report on phase4-semantic-validity-development.json",
+      "result": "no exception",
+      "status": "pass"
+    },
+    {
+      "command": "python -m sscre.semantic_validity_gate",
+      "result": "gate artifact status=deferred",
+      "status": "pass"
+    }
+  ],
+  "environment": {
+    "platform": "Windows",
+    "python_version": "3.14.5",
+    "postgres_markers": "skipped_by_default",
+    "real_provider_markers": "skipped_by_default"
+  },
+  "git_commit": "8c18d3772af3e690fa28af4a330de29cacafb08c",
+  "protocol_id": "P4-SEMVALID",
+  "artifact_regeneration": "2026-10-12 close-out: semantic_validity_held_out + semantic_validity_gate + manifest realigned to gate/config SHA-256",
+  "recorded_at": "2026-10-12T18:45:00+00:00",
+  "schema_version": "phase4-semantic-validity-verification-1.0",
+  "workstream_status": "implementation_and_docs_reconciled_headline_gate_deferred"
+}

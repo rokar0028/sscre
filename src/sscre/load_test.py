@@ -24,6 +24,7 @@ import psycopg
 from fastapi.testclient import TestClient
 
 from sscre.app import create_app
+from sscre.api_auth import DEFAULT_NAMESPACE, TRUSTED_LOCAL_TENANT
 from sscre.benchmark import load_benchmark_jsonl
 from sscre.benchmark_splits import file_sha256
 from sscre.cache import CacheStorageStats, InMemoryExactCache
@@ -38,13 +39,20 @@ from sscre.postgres_cache import (
     ScopedPostgresExactCacheRepository,
     delete_entries_by_query_hashes,
 )
-from sscre.query import hash_query, normalize_query
+from sscre.query import CacheScope, hash_query, normalize_query, scoped_cache_key
 
 
 @dataclass(frozen=True)
 class WorkloadItem:
     query: str
     label: str
+
+
+def _storage_query_hash(query: str) -> str:
+    return scoped_cache_key(
+        CacheScope(TRUSTED_LOCAL_TENANT, DEFAULT_NAMESPACE),
+        normalize_query(query),
+    )
 
 
 class LoadTestEmbeddingClient(FakeEmbeddingClient):
@@ -108,6 +116,9 @@ class DisabledCache:
         embedding: tuple[float, ...],
         top_k: int,
         embedding_model: str | None = None,
+        *,
+        tenant_id: str = "",
+        namespace_id: str = "",
     ) -> tuple[()]:
         return ()
 
@@ -262,6 +273,9 @@ class _TimedRepository:
         embedding: tuple[float, ...],
         top_k: int,
         embedding_model: str | None = None,
+        *,
+        tenant_id: str,
+        namespace_id: str,
     ) -> Any:
         with _component_timer(
             lambda elapsed: self._hub.add_vector(embedding, "vector_search", elapsed)
@@ -270,6 +284,8 @@ class _TimedRepository:
                 embedding,
                 top_k,
                 embedding_model,
+                tenant_id=tenant_id,
+                namespace_id=namespace_id,
             )
 
     def insert_and_evict(self, entry: Any, max_entries: int, max_bytes: int) -> Any:
@@ -544,9 +560,7 @@ def _run_pass(
     isolate_token: str | None = None,
 ) -> dict[str, Any]:
     items = _isolated_items(_items(config), isolate_token)
-    scope_hashes = [
-        hash_query(normalize_query(item.query)) for item in items
-    ]
+    scope_hashes = [_storage_query_hash(item.query) for item in items]
     client, cache = _create_client(
         config,
         mode,
@@ -807,7 +821,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         for repeat in range(cold_passes):
             token = str(uuid4()) if isolate else None
             hashes = [
-                hash_query(normalize_query(item.query))
+                _storage_query_hash(item.query)
                 for item in _isolated_items(_items(config), token)
             ]
             try:
@@ -1035,7 +1049,7 @@ def _measure_ladder_step(
         config,
         "compatibility",
         database_url=database_url,
-        scope_hashes=[hash_query(normalize_query(item.query)) for item in items],
+        scope_hashes=[_storage_query_hash(item.query) for item in items],
         timing_hub=hub,
     )
     for item in items[:warmup]:

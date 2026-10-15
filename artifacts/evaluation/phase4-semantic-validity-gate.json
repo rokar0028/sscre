@@ -1,0 +1,130 @@
+{
+  "artifact_schema_version": "semantic-validity-gate-1.0",
+  "confidence_intervals": {
+    "compatibility-cache": {
+      "decision_rate_uncertain": {
+        "confidence_level": 0.95,
+        "lower": 0.16816538358833255,
+        "method": "wilson",
+        "n": 200,
+        "point": 0.22,
+        "upper": 0.2823879991829367
+      },
+      "false_positive_rate": {
+        "confidence_level": 0.95,
+        "lower": 0.0,
+        "method": "wilson",
+        "n": 1,
+        "point": 0.0,
+        "upper": 1.0
+      },
+      "safe_reuse_coverage": {
+        "confidence_level": 0.95,
+        "lower": 0.001767432064140647,
+        "method": "wilson",
+        "n": 100,
+        "point": 0.01,
+        "upper": 0.05448619617870533
+      }
+    },
+    "exact-cache": {
+      "safe_reuse_coverage": {
+        "confidence_level": 0.95,
+        "lower": 0.0,
+        "method": "wilson",
+        "n": 100,
+        "point": 0.0,
+        "upper": 0.03699349820698569
+      }
+    }
+  },
+  "config_path": "experiments/semantic-validity-evaluation-config-v1.json",
+  "config_sha256": "8b6ff26d05fd4dbeb0d4014c706bc43342d676511f7ba6b09ffa06ea0d34062c",
+  "config_version": "semantic-validity-evaluation-config-1.0",
+  "conservative_stack_retained": false,
+  "denominators": {
+    "primary_headline_population": {
+      "context_required_pair_ids_in_config": [
+        "pair-0036",
+        "pair-0066",
+        "pair-0096",
+        "pair-0141",
+        "pair-0161",
+        "pair-0171",
+        "pair-0196",
+        "pair-0221",
+        "pair-0226",
+        "pair-0236",
+        "pair-0246",
+        "pair-0276",
+        "pair-0296",
+        "pair-0311",
+        "pair-0316",
+        "pair-0356",
+        "pair-0361",
+        "pair-0376",
+        "pair-0431",
+        "pair-0441",
+        "pair-0461",
+        "pair-0481",
+        "pair-0541",
+        "pair-0566",
+        "pair-0586",
+        "pair-0601",
+        "pair-0606"
+      ],
+      "excluded_count": 0,
+      "excluded_pair_ids_applied": [],
+      "input_record_count": 100,
+      "policy": "retain_in_dataset_exclude_from_primary_headline_population_report_in_stratum",
+      "primary_headline_record_count": 100
+    },
+    "strategy_a_labeled_reuse_hits": 20,
+    "strategy_a_reusable_opportunities": 28,
+    "strategy_c_labeled_reuse_hits": 1,
+    "strategy_c_reusable_opportunities": 28
+  },
+  "evaluation_split": "held-out",
+  "gate_path": "benchmarks/semantic-validity-held-out-gate.json",
+  "gate_sha256": "c6030ea0cd27332a7ef96443105d770191b3f894ff3f6168a48c84d35ab36f44",
+  "gate_status": "fresh-held-out-ready",
+  "git_commit": "699861b0c4cc64cf9d3f453a3bb2e7430755efc9",
+  "git_worktree_dirty": true,
+  "headline_held_out_artifact": "artifacts/evaluation/phase4-semantic-validity-held-out.json",
+  "headline_held_out_artifact_sha256": "57011280ef2ae37b8580da37c409decf2140f3dadede59a3125a524fbe70425f",
+  "held_out_deferred_artifact": "artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json",
+  "held_out_deferred_artifact_sha256": "02740978e1f42692806da6207440167330e9fe8237575499108f14fd88b511f7",
+  "limitations": [],
+  "measurement_environment": "local_embedding_replay",
+  "protocol_id": "P4-SEMVALID",
+  "recorded_at": "2026-10-15T13:09:24.810934+00:00",
+  "requirement_checks": [
+    {
+      "requirement": "strategy_c_safe_reuse_coverage_strictly_greater_than_strategy_a",
+      "satisfied": true,
+      "strategy_a_safe_reuse_coverage": 0.0,
+      "strategy_c_safe_reuse_coverage": 0.03571428571428571
+    },
+    {
+      "max_false_positive_rate": 0.0,
+      "requirement": "strategy_c_false_positive_rate_at_or_below_max_false_positive_rate",
+      "satisfied": true,
+      "strategy_c_false_positive_rate": 0.0,
+      "strategy_c_false_positive_rate_unavailable_reason": null
+    },
+    {
+      "max_abstention_rate": 0.5,
+      "requirement": "strategy_c_abstention_rate_at_or_below_max_abstention_rate",
+      "satisfied": true,
+      "strategy_c_abstention_rate": 0.22
+    },
+    {
+      "requirement": "unlabeled_candidate_reuse_does_not_materially_change_comparison",
+      "rule": "any_strategy_c_unlabeled_candidate_reuse_hits_fail_closed",
+      "satisfied": true,
+      "strategy_c_unlabeled_candidate_reuse_hits": 0
+    }
+  ],
+  "semantic_claim_supported": true,
+  "status": "pass"
+}

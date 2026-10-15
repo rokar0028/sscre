@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from sscre.config import Settings
 import pytest
 
@@ -79,13 +81,31 @@ def test_production_requires_database_and_admin_secret() -> None:
         Settings(
             runtime_profile="production",
             database_url="postgresql://localhost/sscre",
+            api_exposure_mode="external",
+            client_auth_json="registry-placeholder.json",
+            rate_limit_requests_per_minute=1,
+            tenant_provider_budget_per_minute=1,
         )
 
     with pytest.raises(ValueError, match="16 characters"):
         Settings(
             runtime_profile="production",
             database_url="postgresql://localhost/sscre",
+            api_exposure_mode="external",
+            client_auth_json="registry-placeholder.json",
+            rate_limit_requests_per_minute=1,
+            tenant_provider_budget_per_minute=1,
             admin_token="too-short",
+        )
+
+
+def test_production_requires_external_api_exposure() -> None:
+    with pytest.raises(ValueError, match="api_exposure_mode"):
+        Settings(
+            runtime_profile="production",
+            database_url="postgresql://localhost/sscre",
+            admin_token="a-production-token",
+            admin_token_expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
         )
 
 

@@ -1,0 +1,700 @@
+{
+  "schema_version": "stabilization-baseline-manifest-1.0",
+  "workstream": 0,
+  "step": "0.5",
+  "captured_at_utc": "2026-10-13T07:53:17.003592+00:00",
+  "operating_system": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "system": "Windows",
+    "release": "11",
+    "version": "10.0.26200",
+    "machine": "AMD64"
+  },
+  "repository": {
+    "absolute_path": "C:\\Users\\Admin\\Desktop\\major",
+    "git_toplevel": "C:/Users/Admin/Desktop/major",
+    "git_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239",
+    "git_branch": "main",
+    "git_status_short": [
+      "?? artifacts/stabilization/",
+      "?? docs/POST_PHASE4_STABILIZATION_EVIDENCE.md",
+      "?? docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md",
+      "?? scripts/stabilization_freeze_baseline.py",
+      "?? scripts/stabilization_reconcile_lineage.py"
+    ]
+  },
+  "python": {
+    "version": "3.14.5 (tags/v3.14.5:5607950, May 10 2026, 10:43:50) [MSC v.1944 64 bit (AMD64)]",
+    "version_info": [
+      3,
+      14,
+      5,
+      "final",
+      0
+    ]
+  },
+  "pip": {
+    "command": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pip --version",
+    "exit_code": 0,
+    "stdout": "pip 26.1.2 from C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\pip (python 3.14)",
+    "stderr": null
+  },
+  "pip_packages": [
+    {
+      "name": "accelerate",
+      "version": "1.14.0"
+    },
+    {
+      "name": "annotated-doc",
+      "version": "0.0.4"
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.7.0"
+    },
+    {
+      "name": "anyio",
+      "version": "4.13.0"
+    },
+    {
+      "name": "blinker",
+      "version": "1.9.0"
+    },
+    {
+      "name": "certifi",
+      "version": "2026.5.20"
+    },
+    {
+      "name": "cffi",
+      "version": "2.0.0"
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.4.7"
+    },
+    {
+      "name": "click",
+      "version": "8.4.1"
+    },
+    {
+      "name": "cloudpickle",
+      "version": "3.1.2"
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6"
+    },
+    {
+      "name": "contourpy",
+      "version": "1.3.3"
+    },
+    {
+      "name": "cryptography",
+      "version": "49.0.0"
+    },
+    {
+      "name": "cycler",
+      "version": "0.12.1"
+    },
+    {
+      "name": "distro",
+      "version": "1.9.0"
+    },
+    {
+      "name": "fastapi",
+      "version": "0.142.2"
+    },
+    {
+      "name": "filelock",
+      "version": "3.29.3"
+    },
+    {
+      "name": "Flask",
+      "version": "3.1.3"
+    },
+    {
+      "name": "fonttools",
+      "version": "4.63.0"
+    },
+    {
+      "name": "fsspec",
+      "version": "2026.4.0"
+    },
+    {
+      "name": "google-auth",
+      "version": "2.54.0"
+    },
+    {
+      "name": "google-genai",
+      "version": "2.8.0"
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0"
+    },
+    {
+      "name": "hf-xet",
+      "version": "1.5.1"
+    },
+    {
+      "name": "httpcore",
+      "version": "1.0.9"
+    },
+    {
+      "name": "httptools",
+      "version": "0.8.0"
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1"
+    },
+    {
+      "name": "huggingface_hub",
+      "version": "1.19.0"
+    },
+    {
+      "name": "idna",
+      "version": "3.18"
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.3.0"
+    },
+    {
+      "name": "itsdangerous",
+      "version": "2.2.0"
+    },
+    {
+      "name": "Jinja2",
+      "version": "3.1.6"
+    },
+    {
+      "name": "joblib",
+      "version": "1.6.0"
+    },
+    {
+      "name": "kiwisolver",
+      "version": "1.5.0"
+    },
+    {
+      "name": "markdown-it-py",
+      "version": "4.2.0"
+    },
+    {
+      "name": "MarkupSafe",
+      "version": "3.0.3"
+    },
+    {
+      "name": "matplotlib",
+      "version": "3.10.9"
+    },
+    {
+      "name": "mdurl",
+      "version": "0.1.2"
+    },
+    {
+      "name": "mpmath",
+      "version": "1.3.0"
+    },
+    {
+      "name": "narwhals",
+      "version": "2.27.1"
+    },
+    {
+      "name": "networkx",
+      "version": "3.6.1"
+    },
+    {
+      "name": "numpy",
+      "version": "2.4.6"
+    },
+    {
+      "name": "opentelemetry-api",
+      "version": "1.45.0"
+    },
+    {
+      "name": "packaging",
+      "version": "26.2"
+    },
+    {
+      "name": "pandas",
+      "version": "3.0.3"
+    },
+    {
+      "name": "pillow",
+      "version": "12.2.0"
+    },
+    {
+      "name": "pip",
+      "version": "26.1.2"
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0"
+    },
+    {
+      "name": "psutil",
+      "version": "7.2.2"
+    },
+    {
+      "name": "psycopg",
+      "version": "3.3.6"
+    },
+    {
+      "name": "psycopg-binary",
+      "version": "3.3.6"
+    },
+    {
+      "name": "pyasn1",
+      "version": "0.6.3"
+    },
+    {
+      "name": "pyasn1_modules",
+      "version": "0.4.2"
+    },
+    {
+      "name": "pycparser",
+      "version": "3.0"
+    },
+    {
+      "name": "pydantic",
+      "version": "2.13.4"
+    },
+    {
+      "name": "pydantic_core",
+      "version": "2.46.4"
+    },
+    {
+      "name": "Pygments",
+      "version": "2.20.0"
+    },
+    {
+      "name": "pyparsing",
+      "version": "3.3.2"
+    },
+    {
+      "name": "pytest",
+      "version": "9.1.1"
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0"
+    },
+    {
+      "name": "python-dotenv",
+      "version": "1.2.2"
+    },
+    {
+      "name": "PyYAML",
+      "version": "6.0.3"
+    },
+    {
+      "name": "regex",
+      "version": "2026.5.9"
+    },
+    {
+      "name": "requests",
+      "version": "2.34.2"
+    },
+    {
+      "name": "rich",
+      "version": "15.0.0"
+    },
+    {
+      "name": "safetensors",
+      "version": "0.8.0"
+    },
+    {
+      "name": "scikit-learn",
+      "version": "1.9.1"
+    },
+    {
+      "name": "scipy",
+      "version": "1.18.1"
+    },
+    {
+      "name": "sentence-transformers",
+      "version": "6.1.0"
+    },
+    {
+      "name": "setuptools",
+      "version": "81.0.0"
+    },
+    {
+      "name": "shellingham",
+      "version": "1.5.4"
+    },
+    {
+      "name": "six",
+      "version": "1.17.0"
+    },
+    {
+      "name": "sniffio",
+      "version": "1.3.1"
+    },
+    {
+      "name": "sscre",
+      "version": "0.1.0"
+    },
+    {
+      "name": "starlette",
+      "version": "1.7.0"
+    },
+    {
+      "name": "sympy",
+      "version": "1.14.0"
+    },
+    {
+      "name": "tenacity",
+      "version": "9.1.4"
+    },
+    {
+      "name": "threadpoolctl",
+      "version": "3.7.0"
+    },
+    {
+      "name": "tokenizers",
+      "version": "0.22.2"
+    },
+    {
+      "name": "torch",
+      "version": "2.12.0+cpu"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.68.2"
+    },
+    {
+      "name": "transformers",
+      "version": "5.11.0"
+    },
+    {
+      "name": "typer",
+      "version": "0.25.1"
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.15.0"
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.2"
+    },
+    {
+      "name": "tzdata",
+      "version": "2026.2"
+    },
+    {
+      "name": "urllib3",
+      "version": "2.7.0"
+    },
+    {
+      "name": "uv",
+      "version": "0.12.10"
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.54.0"
+    },
+    {
+      "name": "watchfiles",
+      "version": "1.3.0"
+    },
+    {
+      "name": "websockets",
+      "version": "16.0"
+    },
+    {
+      "name": "Werkzeug",
+      "version": "3.1.8"
+    }
+  ],
+  "docker": {
+    "command": "docker --version",
+    "exit_code": 0,
+    "stdout": "Docker version 29.8.1, build 4a63305",
+    "stderr": null
+  },
+  "docker_compose": {
+    "command": "docker compose version",
+    "exit_code": 0,
+    "stdout": "Docker Compose version v5.5.1",
+    "stderr": null
+  },
+  "human_readable_evidence": "docs/POST_PHASE4_STABILIZATION_EVIDENCE.md",
+  "notes": [
+    "Workstream 0 closed \u2014 acceptance baseline frozen.",
+    "No .env contents or secrets are included."
+  ],
+  "worktree_boundary": {
+    "recorded_at_utc": "2026-10-13T07:54:50.393876+00:00",
+    "head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239",
+    "head_branch": "main",
+    "tracked_tree_delta": {
+      "modified": [],
+      "deleted": [],
+      "staged_summary": "No staged changes to tracked files."
+    },
+    "untracked_paths": [
+      "artifacts/stabilization/baseline-manifest.json",
+      "docs/POST_PHASE4_STABILIZATION_EVIDENCE.md",
+      "docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md"
+    ],
+    "git_status_short": [
+      "?? artifacts/stabilization/",
+      "?? docs/POST_PHASE4_STABILIZATION_EVIDENCE.md",
+      "?? docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md"
+    ],
+    "path_classifications": [
+      {
+        "path": "docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md",
+        "git_state": "untracked",
+        "classification": "intended stabilization work",
+        "notes": "Stabilization program plan; not present at committed HEAD."
+      },
+      {
+        "path": "docs/POST_PHASE4_STABILIZATION_EVIDENCE.md",
+        "git_state": "untracked",
+        "classification": "intended stabilization work",
+        "notes": "Human-readable stabilization evidence; not present at committed HEAD."
+      },
+      {
+        "path": "artifacts/stabilization/baseline-manifest.json",
+        "git_state": "untracked",
+        "classification": "generated evidence",
+        "notes": "Machine-readable Step 0.1 execution context; not present at committed HEAD."
+      },
+      {
+        "path": "artifacts/stabilization/claim-inventory.json",
+        "git_state": "untracked",
+        "classification": "generated evidence",
+        "notes": "Workstream 0 Step 0.3 claim inventory; not at HEAD."
+      },
+      {
+        "path": "artifacts/stabilization/evidence-lineage-audit.json",
+        "git_state": "untracked",
+        "classification": "generated evidence",
+        "notes": "Step 0.4 path audit."
+      },
+      {
+        "path": "scripts/stabilization_reconcile_lineage.py",
+        "git_state": "untracked",
+        "classification": "intended stabilization work",
+        "notes": "Lineage reconciliation helper."
+      }
+    ],
+    "claim_presence_rule": "Claims backed only by paths in path_classifications or local environment are not present at committed HEAD.",
+    "stabilization_package_blocked": false,
+    "local_environment_gitignored": [
+      {
+        "path": ".env",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      },
+      {
+        "path": ".pytest_cache",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      },
+      {
+        "path": ".venv",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      },
+      {
+        "path": "benchmarks/candidates/tools/__pycache__",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      },
+      {
+        "path": "benchmarks/candidates/upstream/cacheeval_v1_filtered.jsonl",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      },
+      {
+        "path": "build",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      },
+      {
+        "path": "fastapi",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      },
+      {
+        "path": "pytest_full.log",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      },
+      {
+        "path": "src/sscre.egg-info",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      },
+      {
+        "path": "src/sscre/__pycache__",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      },
+      {
+        "path": "tests/__pycache__",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      },
+      {
+        "path": "tests/fixtures/__pycache__",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      },
+      {
+        "path": "tutorial_pydan",
+        "classification": "local environment",
+        "notes": "Listed via git status --ignored; excluded from HEAD vs dirty untracked boundary."
+      }
+    ]
+  },
+  "claim_inventory": {
+    "path": "artifacts/stabilization/claim-inventory.json",
+    "schema_version": "stabilization-claim-inventory-1.1",
+    "step": "0.4",
+    "claim_count": 35,
+    "inventory_at_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239",
+    "summary_by_status": {
+      "implemented": 6,
+      "locally verified": 9,
+      "PostgreSQL verified": 1,
+      "provider verified": 0,
+      "evaluation verified": 7,
+      "deferred": 8,
+      "unavailable": 2,
+      "out of scope": 3
+    }
+  },
+  "evidence_lineage_audit": {
+    "path": "artifacts/stabilization/evidence-lineage-audit.json",
+    "all_references_exist": true,
+    "recorded_at_utc": "2026-10-13T08:00:51.014121+00:00"
+  },
+  "workstream_0_status": "closed",
+  "frozen_at_utc": "2026-10-13T08:06:08.298900+00:00",
+  "acceptance_baseline": {
+    "head_commit": "cbe5e0d1df7534ed28a2df025c55b351fabec239",
+    "head_branch": "main",
+    "worktree_boundary": "No modified tracked files; stabilization package untracked (see worktree_boundary).",
+    "default_semantic_strategy": {
+      "docker_compose_default": "B",
+      "documented_safety_path": "C",
+      "source": "docker-compose.yml SSCRE_SEMANTIC_STRATEGY"
+    },
+    "held_out_semantic_gate": "deferred",
+    "held_out_gate_artifacts": [
+      "artifacts/evaluation/phase4-semantic-validity-gate.json",
+      "artifacts/evaluation/phase4-semantic-validity-held-out-deferred.json"
+    ],
+    "release_limitations": [
+      "no credentialed live-provider validation",
+      "no human factual-correctness labels",
+      "fresh held-out semantic headline evaluation deferred",
+      "POST /v1/query unauthenticated at HEAD",
+      "executor capacity may retain after timeout (WS3)",
+      "clean-checkout replay deferred per Phase 4 manifest"
+    ],
+    "known_unavailable_paths": [
+      "live provider measurement (CLM-009, CLM-030)",
+      "default CI PostgreSQL ws8_postgres_* markers (opt-in)",
+      "fresh held-out benchmark population for Gate D"
+    ],
+    "claims_deferred": [
+      "CLM-003",
+      "CLM-006",
+      "CLM-008",
+      "CLM-024",
+      "CLM-025",
+      "CLM-027",
+      "CLM-035"
+    ],
+    "claims_unavailable": [
+      "CLM-009",
+      "CLM-030"
+    ],
+    "claims_out_of_scope": [
+      "CLM-015",
+      "CLM-017",
+      "CLM-033"
+    ],
+    "open_conflicts_workstream_8": [
+      "XCL-001",
+      "XCL-002",
+      "XCL-003",
+      "XCL-004",
+      "XCL-005"
+    ],
+    "next_authorized_workstream": 1,
+    "next_workstream_prerequisites": [
+      "Workstream 0 acceptance gate satisfied",
+      "No secrets in stabilization artifacts",
+      "User approval to modify .env.example and setup docs (WS1 scope)"
+    ],
+    "what_was_already_changed": [
+      "Untracked stabilization plan, evidence, artifacts/stabilization/, and helper scripts only.",
+      "Committed HEAD application code and phase artifacts unchanged by stabilization package."
+    ],
+    "what_is_verified": "17 claims with locally verified, PostgreSQL verified, or evaluation verified status; see claim-inventory.json and evidence_lineage blocks.",
+    "what_is_still_plan_only": [
+      "Workstreams 1\u20138 implementation steps in POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md",
+      "Untracked stabilization documents until committed"
+    ],
+    "what_next_workstream_may_modify": [
+      ".env.example",
+      "docs/setup/ and environment validation (WS1)",
+      "Not authorized: benchmarks, application safety defaults, or artifact deletion without later WS scope"
+    ]
+  },
+  "pre_change_verification": {
+    "recorded_at_utc": "2026-10-13T08:06:08.298900+00:00",
+    "environment": {
+      "python": [
+        "3.14.5",
+        "(tags/v3.14.5:5607950,"
+      ],
+      "PYTHONPATH": "src"
+    },
+    "commands": [
+      {
+        "command": "PYTHONPATH=src python -m pytest -q",
+        "exit_code": 0,
+        "result_summary": "807 passed, 15 skipped, 21 deselected, 1 warning in 169.25s",
+        "log_path": "artifacts/stabilization/pytest-baseline.log"
+      },
+      {
+        "command": "PYTHONPATH=src python -m sscre.benchmark_validate --benchmark-dir benchmarks --phase2 --production",
+        "exit_code": 0,
+        "result_summary": "benchmark validation passed; split_manifest_sha256=0aca5b8d63621b3118886f40b1b626b13a8bd58a8c1a9c27d0728fb2902e14d9",
+        "log_path": "artifacts/stabilization/benchmark-validate-baseline.log"
+      },
+      {
+        "command": "SSCRE_ADMIN_TOKEN=ci-local-admin-token-123456 docker compose config -q",
+        "exit_code": 0,
+        "result_summary": "compose config valid (CI sample admin token)",
+        "log_path": null
+      }
+    ],
+    "not_run": [
+      {
+        "command": "pytest -m ws8_postgres_*",
+        "reason": "PostgreSQL integration opt-in; Gate B evidence exists historically (CLM-011) but not re-run for this freeze."
+      },
+      {
+        "command": "credentialed provider_measure live run",
+        "reason": "unavailable \u2014 no credentials (CLM-009)."
+      }
+    ]
+  },
+  "stabilization_artifact_hashes": {
+    "artifacts/stabilization/baseline-manifest.json": "ba626280a97708607a9e7db7cfb23daa90589b6998f4d6bb9873693787d73d7f",
+    "artifacts/stabilization/benchmark-validate-baseline.log": "c73f79ace04587d00b1b30dcfb414861a6eb6789c535954494df258ef197fa9a",
+    "artifacts/stabilization/claim-inventory.json": "0e615fe27c67d7480b6bb571c884a659cc45b99cc055134c40f48a56b4437e43",
+    "artifacts/stabilization/evidence-lineage-audit.json": "2d8b9fd3aafa29eab433de3e08294cbfbe164d0170e02c7b3f2ef8d4451d5ebc",
+    "artifacts/stabilization/pytest-baseline.log": "841b35a4f4df07ac9f978c7f5ce2e904cc5282f73b30a4dd2fe025d8898d8ff1"
+  }
+}

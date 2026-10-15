@@ -148,12 +148,17 @@ class PostgresFailureInjectionRepository(PostgresExactCacheRepository):
         embedding: tuple[float, ...],
         top_k: int,
         embedding_model: str | None = None,
+        *,
+        tenant_id: str,
+        namespace_id: str,
     ):
         self._maybe_fail(FailureOperation.SEARCH)
         return super().search_by_embedding(
             embedding,
             top_k,
             embedding_model=embedding_model,
+            tenant_id=tenant_id,
+            namespace_id=namespace_id,
         )
 
 

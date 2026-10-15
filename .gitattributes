@@ -2,5 +2,7 @@
 *.jsonl text eol=lf
 # The manifest file itself is hashed by raw bytes; keep LF on Windows and Linux.
 benchmarks/split_manifest.json text eol=lf
+benchmarks/fresh_held_out_manifest.json text eol=lf
+benchmarks/semantic-validity-held-out-gate.json text eol=lf
 # Migration checksum tests and Linux CI read raw LF bytes.
 migrations/*.sql text eol=lf

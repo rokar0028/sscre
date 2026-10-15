@@ -1,0 +1,26 @@
+﻿{
+  "errors": [],
+  "mode": "unit-test",
+  "schema_version": "sscre-env-validate-1.0",
+  "settings": {
+    "admin_read_token_configured": false,
+    "admin_token_configured": false,
+    "admin_token_expires_at_configured": false,
+    "database_url_configured": true,
+    "embedding_timeout_seconds": 5,
+    "generation_timeout_seconds": 25,
+    "log_level": "INFO",
+    "repository_timeout_seconds": 2,
+    "request_timeout_seconds": 30,
+    "runtime_profile": "development",
+    "semantic_enabled": true,
+    "semantic_similarity_threshold": 0.95,
+    "semantic_strategy": "C",
+    "semantic_top_k": 5
+  },
+  "status": "pass",
+  "validated_at_utc": "2026-10-13T18:23:25.488801+00:00",
+  "warnings": [
+    "unit-test mode does not require these variables; process environment still sets SSCRE_DATABASE_URL, which can make the Settings summary look configured \u2014 clear them for a minimal Gate A profile check"
+  ]
+}

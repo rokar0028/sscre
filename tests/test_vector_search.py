@@ -1,5 +1,6 @@
 import pytest
 
+from sscre.api_auth import DEFAULT_NAMESPACE, TRUSTED_LOCAL_TENANT
 from sscre.cache import CacheEntry, InMemoryExactCache
 
 
@@ -19,7 +20,12 @@ def test_in_memory_search_returns_nearest_candidates_in_order() -> None:
     cache.insert(make_entry("far", (0.0, 1.0)))
     cache.insert(make_entry("near", (1.0, 0.0)))
 
-    candidates = cache.search_by_embedding((1.0, 0.0), top_k=2)
+    candidates = cache.search_by_embedding(
+        (1.0, 0.0),
+        top_k=2,
+        tenant_id=TRUSTED_LOCAL_TENANT,
+        namespace_id=DEFAULT_NAMESPACE,
+    )
 
     assert [candidate.query_hash for candidate in candidates] == ["near", "far"]
     assert candidates[0].similarity == pytest.approx(1.0)
@@ -31,7 +37,12 @@ def test_in_memory_search_breaks_similarity_ties_by_query_hash() -> None:
     cache.insert(make_entry("b", (1.0, 0.0)))
     cache.insert(make_entry("a", (1.0, 0.0)))
 
-    candidates = cache.search_by_embedding((1.0, 0.0), top_k=2)
+    candidates = cache.search_by_embedding(
+        (1.0, 0.0),
+        top_k=2,
+        tenant_id=TRUSTED_LOCAL_TENANT,
+        namespace_id=DEFAULT_NAMESPACE,
+    )
 
     assert [candidate.query_hash for candidate in candidates] == ["a", "b"]
 
@@ -39,7 +50,15 @@ def test_in_memory_search_breaks_similarity_ties_by_query_hash() -> None:
 def test_in_memory_search_returns_empty_for_empty_repository() -> None:
     cache = InMemoryExactCache(embedding_dimension=2)
 
-    assert cache.search_by_embedding((1.0, 0.0), top_k=1) == ()
+    assert (
+        cache.search_by_embedding(
+            (1.0, 0.0),
+            top_k=1,
+            tenant_id=TRUSTED_LOCAL_TENANT,
+            namespace_id=DEFAULT_NAMESPACE,
+        )
+        == ()
+    )
 
 
 @pytest.mark.parametrize("top_k", [0, -1, 3])
@@ -47,11 +66,21 @@ def test_in_memory_search_rejects_invalid_top_k(top_k: int) -> None:
     cache = InMemoryExactCache(max_top_k=2, embedding_dimension=2)
 
     with pytest.raises(ValueError):
-        cache.search_by_embedding((1.0, 0.0), top_k=top_k)
+        cache.search_by_embedding(
+            (1.0, 0.0),
+            top_k=top_k,
+            tenant_id=TRUSTED_LOCAL_TENANT,
+            namespace_id=DEFAULT_NAMESPACE,
+        )
 
 
 def test_in_memory_search_rejects_incompatible_query_dimension() -> None:
     cache = InMemoryExactCache(embedding_dimension=2)
 
     with pytest.raises(ValueError, match="configured dimension"):
-        cache.search_by_embedding((1.0, 0.0, 0.0), top_k=1)
+        cache.search_by_embedding(
+            (1.0, 0.0, 0.0),
+            top_k=1,
+            tenant_id=TRUSTED_LOCAL_TENANT,
+            namespace_id=DEFAULT_NAMESPACE,
+        )

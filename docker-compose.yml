@@ -49,10 +49,16 @@ services:
         postgresql://${POSTGRES_USER:-sscre}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-sscre}
       SSCRE_MIGRATIONS_DIR: /app/migrations
       SSCRE_ADMIN_TOKEN: ${SSCRE_ADMIN_TOKEN:?Set SSCRE_ADMIN_TOKEN in .env}
+      SSCRE_API_EXPOSURE_MODE: ${SSCRE_API_EXPOSURE_MODE:-trusted_local}
+      SSCRE_CLIENT_AUTH_JSON: /app/client_auth_registry.json
+      SSCRE_RATE_LIMIT_REQUESTS_PER_MINUTE: ${SSCRE_RATE_LIMIT_REQUESTS_PER_MINUTE:-120}
+      SSCRE_TENANT_PROVIDER_BUDGET_PER_MINUTE: ${SSCRE_TENANT_PROVIDER_BUDGET_PER_MINUTE:-60}
+      SSCRE_TENANT_MAX_CONCURRENT_QUERIES: ${SSCRE_TENANT_MAX_CONCURRENT_QUERIES:-8}
+      SSCRE_MAX_REQUEST_BODY_BYTES: ${SSCRE_MAX_REQUEST_BODY_BYTES:-65536}
       SSCRE_RUNTIME_PROFILE: ${SSCRE_RUNTIME_PROFILE:-development}
       SSCRE_LOG_LEVEL: ${SSCRE_LOG_LEVEL:-INFO}
       SSCRE_SEMANTIC_ENABLED: ${SSCRE_SEMANTIC_ENABLED:-true}
-      SSCRE_SEMANTIC_STRATEGY: ${SSCRE_SEMANTIC_STRATEGY:-B}
+      SSCRE_SEMANTIC_STRATEGY: ${SSCRE_SEMANTIC_STRATEGY:-C}
       SSCRE_SEMANTIC_TOP_K: ${SSCRE_SEMANTIC_TOP_K:-5}
       SSCRE_SEMANTIC_SIMILARITY_THRESHOLD: ${SSCRE_SEMANTIC_SIMILARITY_THRESHOLD:-0.95}
       SSCRE_CACHE_STABLE_TTL_SECONDS: ${SSCRE_CACHE_STABLE_TTL_SECONDS:-2592000}
@@ -70,6 +76,8 @@ services:
       SSCRE_TIMEOUT_REPOSITORY_SECONDS: ${SSCRE_TIMEOUT_REPOSITORY_SECONDS:-2}
       SSCRE_TIMEOUT_HEALTH_SECONDS: ${SSCRE_TIMEOUT_HEALTH_SECONDS:-1}
       SSCRE_TIMEOUT_ADMIN_SECONDS: ${SSCRE_TIMEOUT_ADMIN_SECONDS:-5}
+    volumes:
+      - ./experiments/client_auth_registry_sample.json:/app/client_auth_registry.json:ro
     ports:
       - "${SSCRE_API_PORT:-8000}:8000"
     healthcheck:
@@ -78,7 +86,7 @@ services:
           "CMD",
           "python",
           "-c",
-          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=1)"
+          "import os, urllib.request; req=urllib.request.Request('http://127.0.0.1:8000/ready'); token=os.environ.get('SSCRE_ADMIN_TOKEN',''); req.add_header('Authorization','Bearer '+token) if token else None; urllib.request.urlopen(req, timeout=1)"
         ]
       interval: 10s
       timeout: 3s

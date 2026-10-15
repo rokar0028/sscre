@@ -1,0 +1,56 @@
+{
+  "fake_embedding_scope": "tests_and_historical_artifacts_only",
+  "git_commit": "ed3e8b52033fa11d68782e7ddec979350b784cd2",
+  "optional_install": {
+    "command": "python -m pip install \".[local-embeddings]\"",
+    "extra": "local-embeddings"
+  },
+  "packages": {
+    "sentence_transformers": {
+      "installed": true,
+      "version": "6.1.0"
+    },
+    "torch": {
+      "installed": true,
+      "version": "2.14.1"
+    }
+  },
+  "phase4_references": {
+    "gate_json": "benchmarks/semantic-validity-local-embedding-gate.json",
+    "smoke_artifact": "artifacts/evaluation/phase4-semantic-validity-local-embedding-smoke.json"
+  },
+  "probe": {
+    "device": "cpu",
+    "expected_dimension": 384,
+    "license": "Apache-2.0",
+    "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "package_installed": true,
+    "provider_type": "local_sentence_transformer",
+    "reason": null,
+    "status": "available"
+  },
+  "reason": "probe and cache inspection only; smoke load not requested",
+  "recorded_at": "2026-10-13T18:26:17.880689+00:00",
+  "schema_version": "ws1-local-embedding-provenance-1.0",
+  "smoke_load": {
+    "performed": false
+  },
+  "status": "probe_only",
+  "validated_identity": {
+    "device_declared": "cpu",
+    "dimension": 384,
+    "dtype": "float32",
+    "license": "Apache-2.0",
+    "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "normalize_embeddings_default": true,
+    "provider_type": "local_sentence_transformer",
+    "short_name": "all-MiniLM-L6-v2"
+  },
+  "weights": {
+    "cached_before_smoke": true,
+    "replayability": "replayable_when_optional_extra_installed",
+    "source": "huggingface_hub_local_cache",
+    "state": "cached_on_disk",
+    "weight_license": "Apache-2.0"
+  }
+}

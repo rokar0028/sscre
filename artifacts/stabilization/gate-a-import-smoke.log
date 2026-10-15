@@ -1,0 +1,34 @@
+﻿{
+  "schema_version": "gate-a-import-smoke-1.0",
+  "checked_at_utc": "2026-10-13T18:23:17.625033+00:00",
+  "python": "3.14.5",
+  "modules": {
+    "sscre.config": "ok",
+    "sscre.app": "ok",
+    "sscre.baseline": "ok",
+    "sscre.evaluate": "ok",
+    "sscre.benchmark_validate": "ok",
+    "sscre.migrate": "ok",
+    "sscre.provider_config": "ok"
+  },
+  "console_scripts": {
+    "sscre-dashboard-export": "sscre.dashboard:main",
+    "sscre-dual-model": "sscre.dual_model:main",
+    "sscre-env-validate": "sscre.env_validate:main",
+    "sscre-evaluate": "sscre.evaluate:main",
+    "sscre-failure-gallery-export": "sscre.failure_gallery_export:main",
+    "sscre-gallery-export": "sscre.gallery_export:main",
+    "sscre-load-test": "sscre.load_test:main",
+    "sscre-migrate": "sscre.migrate:main",
+    "sscre-storage-evaluate": "sscre.storage_evaluation:main"
+  },
+  "local_embeddings": {
+    "available": true,
+    "note": "optional [local-embeddings] extra"
+  },
+  "settings_smoke": {
+    "runtime_profile": "development",
+    "semantic_strategy": "C",
+    "database_url_configured": true
+  }
+}

@@ -20,7 +20,7 @@ from sscre.cache import CacheByteBreakdown, InMemoryExactCache
 from sscre.embedding import FakeEmbeddingClient
 from sscre.llm import MockLLMClient
 from sscre.metadata import extract_metadata
-from sscre.query import hash_query, normalize_query
+from sscre.query import hash_query, normalize_query, storage_query_hash
 from sscre.storage_evaluation import _git_metadata
 
 DEVELOPMENT_BENCHMARK = Path("benchmarks/development.jsonl")
@@ -77,7 +77,7 @@ def replay_development_embedding_storage(
     for record in records:
         for query in (record.query_a, record.query_b):
             normalized_query = normalize_query(query)
-            query_hash = hash_query(normalized_query)
+            query_hash = storage_query_hash(normalized_query)
             requests += 1
             if cache.get_by_query_hash(query_hash) is not None:
                 duplicate_requests += 1

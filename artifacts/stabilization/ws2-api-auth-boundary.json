@@ -1,0 +1,167 @@
+{
+  "schema_version": "ws2-api-auth-boundary-1.0",
+  "workstream": 2,
+  "step": "2.1",
+  "recorded_at_utc": "2026-10-14T00:00:00+00:00",
+  "inventory_head_commit": "c7c376eb87dae507ed73a086b8908683561836e0",
+  "sources": [
+    "src/sscre/app.py",
+    "src/sscre/query.py",
+    "src/sscre/cache.py",
+    "src/sscre/postgres_cache.py",
+    "src/sscre/config.py",
+    "Dockerfile",
+    "docker-compose.yml",
+    "docs/setup/POST_PHASE4_WS2_API_AUTH_BOUNDARY.md"
+  ],
+  "deployment_modes": {
+    "trusted_local": {
+      "status": "supported_baseline",
+      "ingress": "loopback or operator-controlled private network",
+      "multi_user_authorized": false
+    },
+    "external": {
+      "status": "deferred",
+      "reason": "No client-auth adapter, tenant registry, or scoped storage in code at Step 2.1 close",
+      "fail_closed_required": true
+    }
+  },
+  "http_routes": [
+    {
+      "path": "/health",
+      "method": "GET",
+      "auth_baseline": "none",
+      "trusted_local": "allowed",
+      "external_target": "allowed_minimal_body",
+      "handler": "sscre.app.create_app.health"
+    },
+    {
+      "path": "/ready",
+      "method": "GET",
+      "auth_baseline": "none",
+      "trusted_local": "allowed_trusted_ingress",
+      "external_target": "restrict_probe_network",
+      "handler": "sscre.app.create_app.ready"
+    },
+    {
+      "path": "/v1/cache/stats",
+      "method": "GET",
+      "auth_baseline": "bearer_admin_cache_read",
+      "trusted_local": "allowed_with_secret",
+      "external_target": "admin_ingress_only",
+      "handler": "sscre.app.create_app.cache_stats"
+    },
+    {
+      "path": "/v1/query",
+      "method": "POST",
+      "auth_baseline": "none",
+      "trusted_local": "allowed_trusted_ingress_only",
+      "external_target": "client_auth_required_before_cache_or_provider",
+      "handler": "sscre.app.create_app.query"
+    }
+  ],
+  "repository_operations_from_api": {
+    "POST /v1/query": [
+      "get_by_query_hash",
+      "record_hit",
+      "search_by_embedding",
+      "insert_and_evict",
+      "insert",
+      "evict_to_limits",
+      "delete_by_query_hash"
+    ],
+    "GET /ready": ["check_ready"],
+    "GET /v1/cache/stats": ["storage_stats"]
+  },
+  "provider_operations_from_api": {
+    "POST /v1/query": ["EmbeddingClient.embed", "LLMClient.generate"]
+  },
+  "protected_assets": [
+    "cached_answers",
+    "query_text_and_normalized_form",
+    "query_metadata",
+    "embeddings",
+    "canonical_answers",
+    "provider_capacity",
+    "provider_spend",
+    "storage_limits",
+    "request_metrics",
+    "readiness_state",
+    "admin_tokens"
+  ],
+  "threats": [
+    {
+      "id": "T-01",
+      "name": "unauthenticated_cache_read",
+      "baseline": "open"
+    },
+    {
+      "id": "T-02",
+      "name": "cache_poisoning",
+      "baseline": "open"
+    },
+    {
+      "id": "T-03",
+      "name": "cross_tenant_exact_hit",
+      "baseline": "open"
+    },
+    {
+      "id": "T-04",
+      "name": "cross_tenant_vector_selection",
+      "baseline": "open"
+    },
+    {
+      "id": "T-05",
+      "name": "canonical_answer_disclosure",
+      "baseline": "open"
+    },
+    {
+      "id": "T-06",
+      "name": "provider_abuse",
+      "baseline": "partial_timeouts_only"
+    },
+    {
+      "id": "T-07",
+      "name": "oversized_payload_dos",
+      "baseline": "partial_query_char_limit"
+    },
+    {
+      "id": "T-08",
+      "name": "bearer_token_leakage",
+      "baseline": "operational_risk"
+    },
+    {
+      "id": "T-09",
+      "name": "metric_and_log_abuse",
+      "baseline": "low_in_process"
+    },
+    {
+      "id": "T-10",
+      "name": "ready_endpoint_probing",
+      "baseline": "open_on_published_port"
+    },
+    {
+      "id": "T-11",
+      "name": "admin_token_as_client_credential",
+      "baseline": "misconfiguration_risk"
+    },
+    {
+      "id": "T-12",
+      "name": "tenant_existence_oracle",
+      "baseline": "not_applicable_until_client_auth"
+    }
+  ],
+  "open_baseline_gaps": [
+    "post_v1_query_unauthenticated",
+    "global_query_hash_no_tenant_namespace",
+    "docker_bind_0_0_0_0_with_host_port_publish",
+    "external_mode_deferred"
+  ],
+  "external_exposure_evidence_required": [
+    "ws2_client_auth_implementation",
+    "ws2_tenancy_isolation_tests",
+    "ws2_abuse_controls_tests",
+    "ws2_verification_gate_artifacts",
+    "redaction_audit"
+  ]
+}

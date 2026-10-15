@@ -1,0 +1,45 @@
+{
+  "schema_version": "ws2-storage-isolation-1.0",
+  "workstream": 2,
+  "step": "2.4",
+  "migrations": [
+    "migrations/012_cache_tenant_namespace.sql",
+    "migrations/013_cache_scoped_identity.sql"
+  ],
+  "scope_fields": {
+    "tenant_id": {
+      "type": "text",
+      "min_length": 1,
+      "max_length": 128,
+      "case_sensitive": true,
+      "normalization": "trim; reject newlines"
+    },
+    "namespace_id": {
+      "type": "text",
+      "min_length": 1,
+      "max_length": 128,
+      "case_sensitive": true,
+      "normalization": "trim; reject newlines"
+    }
+  },
+  "legacy_backfill": {
+    "tenant_id": "legacy-unscoped",
+    "namespace_id": "legacy-unscoped",
+    "content_query_hash_source": "query_hash at migration 012"
+  },
+  "unique_constraints": [
+    "cache_entries.query_hash",
+    "cache_entries (tenant_id, namespace_id, content_query_hash)"
+  ],
+  "canonical_answer_model": "content_addressed_shared_reference",
+  "eviction_scope": "per_tenant_namespace",
+  "storage_stats": {
+    "admin_default": "global",
+    "tenant_scoped_optional": true
+  },
+  "row_level_security": "not_enabled",
+  "tests": {
+    "unit": "tests/test_cache_scope.py",
+    "postgresql_opt_in": "tests/test_postgres_cache_scope.py"
+  }
+}

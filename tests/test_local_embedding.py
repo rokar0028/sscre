@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import math
+import threading
 import time
 
 import pytest
@@ -18,7 +19,9 @@ from sscre.local_embedding import (
     LocalEmbeddingProbeResult,
     LocalSentenceTransformerEmbeddingClient,
     build_local_embedding_smoke_artifact,
+    build_ws1_local_embedding_provenance_record,
     create_local_embedding_client_from_mapping,
+    hub_model_cache_directory_name,
     probe_local_embedding_environment,
     sentence_transformers_installed,
 )
@@ -73,6 +76,7 @@ def test_local_embedding_success_and_validation() -> None:
     assert len(result.vector) == DEFAULT_LOCAL_MODEL_DIMENSION
     assert result.provider_name == "local_sentence_transformer"
     assert result.usage_source == "estimated"
+    client.close()
 
 
 @pytest.mark.parametrize(
@@ -115,6 +119,41 @@ def test_embed_timeout_is_bounded() -> None:
         client.embed("query")
 
     assert exc_info.value.category == "timeout"
+    client.close()
+
+
+def test_repeated_local_embedding_timeout_keeps_bounded_worker_threads() -> None:
+    from concurrent.futures import ThreadPoolExecutor
+
+    def slow(text: str) -> list[float]:
+        if text != "stall":
+            return _dim_vector(0.1)
+        time.sleep(0.25)
+        return _dim_vector(0.1)
+
+    prefix = "sscre-ws3-embed-probe"
+    executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix=prefix)
+    client = LocalSentenceTransformerEmbeddingClient(
+        model_id=DEFAULT_LOCAL_MODEL_ID,
+        encoder=slow,
+        timeout_seconds=0.05,
+        executor=executor,
+    )
+
+    for _ in range(4):
+        with pytest.raises(LocalEmbeddingError) as exc_info:
+            client.embed("stall")
+        assert exc_info.value.category == "timeout"
+        time.sleep(0.3)
+
+    worker_threads = [
+        thread for thread in threading.enumerate() if thread.name.startswith(prefix)
+    ]
+    assert len(worker_threads) <= 1
+
+    result = client.embed("recover")
+    assert len(result.vector) == DEFAULT_LOCAL_MODEL_DIMENSION
+    executor.shutdown(wait=True)
 
 
 def test_embedding_failure_does_not_cache_with_local_client() -> None:
@@ -166,6 +205,22 @@ def test_create_client_from_frozen_config_mapping(monkeypatch) -> None:
     )
     assert client is not None
     assert client.config.dimension == DEFAULT_LOCAL_MODEL_DIMENSION
+
+
+def test_hub_cache_directory_name_for_registered_model() -> None:
+    assert hub_model_cache_directory_name(DEFAULT_LOCAL_MODEL_ID) == (
+        "models--sentence-transformers--all-MiniLM-L6-v2"
+    )
+
+
+def test_ws1_provenance_record_is_redacted_without_smoke_load() -> None:
+    record = build_ws1_local_embedding_provenance_record(run_smoke_load=False)
+    serialized = str(record)
+    assert "semantic validity smoke probe" not in serialized
+    assert record["fake_embedding_scope"] == "tests_and_historical_artifacts_only"
+    assert record["smoke_load"]["performed"] is False
+    assert "validated_identity" in record
+    assert record["validated_identity"]["dimension"] == DEFAULT_LOCAL_MODEL_DIMENSION
 
 
 def test_smoke_artifact_never_includes_raw_query_text() -> None:

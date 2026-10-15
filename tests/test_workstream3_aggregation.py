@@ -331,6 +331,8 @@ def test_strategy_c_api_selects_first_safe_in_retrieval_order() -> None:
     assert traces[0]["decision"] == "UNSAFE"
     assert traces[0]["reason"] == "constraint_mismatch:language"
     assert traces[1]["decision"] == "SAFE"
-    assert body["selected_candidate_query_hash"] == hashlib.sha256(
-        python_query.encode()
-    ).hexdigest()
+    from sscre.query import storage_query_hash
+
+    assert body["selected_candidate_query_hash"] == storage_query_hash(
+        python_query
+    )

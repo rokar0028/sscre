@@ -23,6 +23,7 @@ except ImportError:  # pragma: no cover
 from sscre.cache import (
     CacheEntry,
     CacheRepositoryError,
+    DuplicateCacheEntryError,
     InMemoryExactCache,
 )
 from sscre.compatibility import evaluate_candidate_boundary
@@ -34,6 +35,33 @@ from sscre.embedding import (
 )
 from sscre.llm import LLMResult, MockLLMClient
 from sscre.safety import CandidateTrace, QueryMetadata
+
+
+_SENSITIVE_MARKERS = (
+    "sk-test-SECRETVALUE",
+    "provider-payload-leak",
+    "raw-query-leak-phrase",
+    "cached-answer-leak",
+    "embedding-vector-leak",
+)
+
+
+def _assert_controlled_error_response(
+    response,
+    *,
+    status_code: int,
+    detail: str,
+    sensitive_query: str | None = None,
+) -> None:
+    assert response.status_code == status_code
+    body = response.json()
+    assert body == {"detail": detail}
+    assert response.headers.get("X-Request-ID")
+    encoded = json.dumps(body)
+    for marker in _SENSITIVE_MARKERS:
+        assert marker not in encoded
+    if sensitive_query is not None:
+        assert sensitive_query not in encoded
 
 
 def _python_meta() -> QueryMetadata:
@@ -106,6 +134,34 @@ class WriteFailCache:
 
     def insert(self, entry: CacheEntry) -> None:
         raise CacheRepositoryError("write unavailable")
+
+
+class SlowInsertCache(InMemoryExactCache):
+    def insert_and_evict(self, entry: CacheEntry, *args, **kwargs) -> None:
+        time.sleep(1.1)
+        super().insert_and_evict(entry, *args, **kwargs)
+
+
+class SlowRecordHitCache(InMemoryExactCache):
+    def record_hit(self, query_hash: str, **kwargs) -> None:
+        time.sleep(1.1)
+        super().record_hit(query_hash, **kwargs)
+
+
+class SlowEmbeddingClient:
+    def __init__(self, delay_seconds: float = 1.1) -> None:
+        self._delay_seconds = delay_seconds
+        self._inner = FakeEmbeddingClient(
+            config=EmbeddingConfig(model_name="test-embedding", dimension=2),
+        )
+
+    @property
+    def config(self) -> EmbeddingConfig:
+        return self._inner.config
+
+    def embed(self, text: str) -> EmbeddingResult:
+        time.sleep(self._delay_seconds)
+        return self._inner.embed(text)
 
 
 def test_embedding_failure_after_exact_miss_generates_without_cache() -> None:
@@ -188,25 +244,166 @@ def test_repository_timeout_on_lookup_returns_503() -> None:
             settings=Settings(repository_timeout_seconds=1),
         )
     )
-    response = client.post("/v1/query", json={"query": "slow lookup"})
-    assert response.status_code == 503
-    assert response.json()["detail"] == "cache unavailable"
+    sensitive_query = "slow lookup raw-query-leak-phrase"
+    response = client.post("/v1/query", json={"query": sensitive_query})
+    _assert_controlled_error_response(
+        response,
+        status_code=503,
+        detail="cache unavailable",
+        sensitive_query=sensitive_query,
+    )
 
 
 def test_repository_timeout_on_semantic_search_does_not_serve_cache() -> None:
+    import hashlib
+
+    cached_answer = "cached-answer-leak semantic neighbor"
+    cache = SlowSearchCache(embedding_dimension=2)
+    neighbor_query = "write Python code for binary search"
+    cache.insert(
+        CacheEntry(
+            query_hash=hashlib.sha256(neighbor_query.encode()).hexdigest(),
+            normalized_query=neighbor_query,
+            answer=cached_answer,
+            embedding=(1.0, 0.0),
+            embedding_model="test-embedding",
+            embedding_dimension=2,
+            metadata=_python_meta(),
+            ttl_expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+        )
+    )
     client = TestClient(
         create_app(
-            repository=SlowSearchCache(embedding_dimension=2),
+            repository=cache,
             embedding_client=FakeEmbeddingClient(
-                config=EmbeddingConfig(model_name="fake-embedding", dimension=2),
+                config=EmbeddingConfig(model_name="test-embedding", dimension=2),
+                vectors={"implement Python binary search": (1.0, 0.0)},
             ),
             settings=Settings(repository_timeout_seconds=1),
             semantic_strategy="C",
+            semantic_similarity_threshold=0.9,
         )
     )
-    response = client.post("/v1/query", json={"query": "slow semantic search"})
+    response = client.post(
+        "/v1/query",
+        json={"query": "implement Python binary search"},
+    )
+    body = response.json()
     assert response.status_code == 200
-    assert response.json()["source"] == "generated"
+    assert body["source"] == "generated"
+    assert body["answer"] != cached_answer
+    assert cached_answer not in json.dumps(body)
+
+
+def test_embedding_timeout_generates_without_cache_entry() -> None:
+    cache = InMemoryExactCache(embedding_dimension=2)
+    client = TestClient(
+        create_app(
+            repository=cache,
+            embedding_client=SlowEmbeddingClient(),
+            settings=Settings(embedding_timeout_seconds=1),
+            semantic_strategy="C",
+        )
+    )
+    response = client.post(
+        "/v1/query",
+        json={"query": "embedding timeout raw-query-leak-phrase"},
+    )
+    body = response.json()
+    assert response.status_code == 200
+    assert body["source"] == "generated"
+    assert body["reason"] == "embedding_unavailable"
+    assert cache.storage_stats().entries == 0
+
+
+def test_cache_insert_timeout_returns_generated_without_false_hit() -> None:
+    client = TestClient(
+        create_app(
+            repository=SlowInsertCache(),
+            settings=Settings(repository_timeout_seconds=1),
+            semantic_enabled=False,
+        )
+    )
+    response = client.post("/v1/query", json={"query": "slow cache insert"})
+    body = response.json()
+    assert response.status_code == 200
+    assert body["source"] == "generated"
+    assert body["reason"] == "cache_write_unavailable"
+    assert body["decision"] == "UNCERTAIN"
+
+
+def test_cache_replacement_timeout_does_not_serve_expired_duplicate() -> None:
+    import hashlib
+
+    query = "write Python code for replacement timeout"
+    query_hash = hashlib.sha256(query.encode()).hexdigest()
+    expired_entry = CacheEntry(
+        query_hash=query_hash,
+        normalized_query=query,
+        answer="expired raced answer cached-answer-leak",
+        metadata=_python_meta(),
+        ttl_expires_at=datetime.now(timezone.utc) - timedelta(minutes=5),
+    )
+
+    class SlowReplacementCache(InMemoryExactCache):
+        def __init__(self) -> None:
+            super().__init__()
+            self._duplicate_raised = False
+
+        def insert_and_evict(self, entry: CacheEntry, *args, **kwargs) -> None:
+            if not self._duplicate_raised:
+                self._duplicate_raised = True
+                raise DuplicateCacheEntryError("concurrent insert")
+            super().insert_and_evict(entry, *args, **kwargs)
+
+        def get_by_query_hash(self, query_hash: str) -> CacheEntry | None:
+            if query_hash == expired_entry.query_hash:
+                return expired_entry
+            return super().get_by_query_hash(query_hash)
+
+        def delete_by_query_hash(self, query_hash: str, **kwargs) -> None:
+            time.sleep(1.1)
+            super().delete_by_query_hash(query_hash, **kwargs)
+
+    client = TestClient(
+        create_app(
+            repository=SlowReplacementCache(),
+            settings=Settings(repository_timeout_seconds=1),
+            semantic_strategy="C",
+            semantic_enabled=False,
+        )
+    )
+    body = client.post("/v1/query", json={"query": query}).json()
+    assert body["source"] == "generated"
+    assert body["answer"] != expired_entry.answer
+    assert body["decision"] == "UNSAFE"
+    assert body["candidate_traces"][0]["reason"] == "cache_control_expired"
+
+
+def test_cache_hit_accounting_timeout_still_serves_validated_entry() -> None:
+    import hashlib
+
+    query = "write Python code for binary search"
+    cache = SlowRecordHitCache()
+    cache.insert(
+        CacheEntry(
+            query_hash=hashlib.sha256(query.encode()).hexdigest(),
+            normalized_query=query,
+            answer="validated exact answer",
+            metadata=_python_meta(),
+            ttl_expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+        )
+    )
+    client = TestClient(
+        create_app(
+            repository=cache,
+            settings=Settings(repository_timeout_seconds=1),
+            semantic_enabled=False,
+        )
+    )
+    body = client.post("/v1/query", json={"query": query}).json()
+    assert body["source"] == "cache"
+    assert body["answer"] == "validated exact answer"
 
 
 def test_evaluator_exception_maps_to_safety_validator_error() -> None:
@@ -311,7 +508,7 @@ def test_oversized_trace_metadata_prevents_cache_reuse() -> None:
     assert response.headers["x-request-id"]
 
 
-def test_generation_failure_after_unsafe_candidate_is_non_reusable(caplog) -> None:
+def test_generation_failure_after_unsafe_candidate_is_non_reusable() -> None:
     import hashlib
 
     class SlowLLM(MockLLMClient):
@@ -338,7 +535,6 @@ def test_generation_failure_after_unsafe_candidate_is_non_reusable(caplog) -> No
             ttl_expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
         )
     )
-    caplog.set_level(logging.INFO, logger="sscre")
     client = TestClient(
         create_app(
             llm_client=SlowLLM(),
@@ -352,21 +548,17 @@ def test_generation_failure_after_unsafe_candidate_is_non_reusable(caplog) -> No
             semantic_similarity_threshold=0.9,
         )
     )
+    sensitive_query = "implement Python binary search raw-query-leak-phrase"
     response = client.post(
         "/v1/query",
-        json={"query": "implement Python binary search"},
+        json={"query": sensitive_query},
     )
-    assert response.status_code == 502
-    event = json.loads(
-        next(
-            record.message
-            for record in caplog.records
-            if "generation_failed" in record.message
-        )
+    _assert_controlled_error_response(
+        response,
+        status_code=504,
+        detail="response generation timed out",
+        sensitive_query=sensitive_query,
     )
-    assert event["decision"] == "UNCERTAIN"
-    assert event["reason"] == "generation_failed"
-    assert event["candidate_traces"] is None
 
 
 def test_cache_write_failure_returns_generated_answer_without_false_hit() -> None:
@@ -382,9 +574,37 @@ def test_repository_recovers_after_transient_lookup_failure() -> None:
     client = TestClient(create_app(repository=cache))
     first = client.post("/v1/query", json={"query": "transient lookup failure"})
     assert first.status_code == 503
+    assert first.headers.get("X-Request-ID")
     second = client.post("/v1/query", json={"query": "transient lookup failure"})
     assert second.status_code == 200
     assert second.json()["source"] == "generated"
+
+
+def test_repository_recovers_after_lookup_timeout() -> None:
+    class TimeoutThenFastLookup(InMemoryExactCache):
+        def __init__(self) -> None:
+            super().__init__()
+            self._slow_remaining = 1
+
+        def get_by_query_hash(self, query_hash: str) -> CacheEntry | None:
+            if self._slow_remaining:
+                self._slow_remaining -= 1
+                time.sleep(1.1)
+            return super().get_by_query_hash(query_hash)
+
+    client = TestClient(
+        create_app(
+            repository=TimeoutThenFastLookup(),
+            settings=Settings(repository_timeout_seconds=1),
+            semantic_enabled=False,
+        )
+    )
+    timed_out = client.post("/v1/query", json={"query": "lookup timeout recovery"})
+    assert timed_out.status_code == 503
+    assert timed_out.headers.get("X-Request-ID")
+    recovered = client.post("/v1/query", json={"query": "lookup timeout recovery"})
+    assert recovered.status_code == 200
+    assert recovered.json()["source"] == "generated"
 
 
 def test_dependency_warning_logs_use_bounded_fields_not_payloads(caplog) -> None:

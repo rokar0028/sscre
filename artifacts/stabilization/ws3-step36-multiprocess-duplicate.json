@@ -1,0 +1,58 @@
+{
+  "schema_version": "ws3-step36-multiprocess-duplicate-1.0",
+  "workstream": 3,
+  "step": "3.6",
+  "status": "verified",
+  "protocol_id": "ws8-multiprocess-dup-v1",
+  "harness": "tests/test_postgres_multiprocess_duplicate.py",
+  "git_commit": "2d7323fa31aa5db576e2d11aa9854832a9d0b9f5",
+  "verification_date": "2026-10-14",
+  "database": {
+    "engine": "postgresql",
+    "image": "pgvector/pgvector:pg16",
+    "server_version": "PostgreSQL 16.15",
+    "migrations_applied_at_run": ["012", "013"],
+    "connection_note": "Host pytest used SSCRE_DATABASE_URL (Docker-published port; localhost loopback on Windows hit wslrelay until DB role password aligned and non-loopback host used)."
+  },
+  "live_run": {
+    "attempted": true,
+    "outcome": "passed",
+    "command": "python -m sscre.migrate --database-url $env:SSCRE_DATABASE_URL --migrations-dir migrations; python -m pytest tests/test_postgres_multiprocess_duplicate.py -m ws8_postgres_multiprocess -q",
+    "pytest_collected": 1,
+    "pytest_passed": 1,
+    "pytest_failed": 0,
+    "pytest_skipped": 0,
+    "elapsed_seconds": 5.14
+  },
+  "protocol_constants": {
+    "process_count": 2,
+    "run_count": 3
+  },
+  "per_run_aggregates_asserted_by_harness": {
+    "provider_generations_total": 2,
+    "insert_success_total": 1,
+    "insert_conflict_total": 1,
+    "insert_error_total": 0,
+    "cache_rows_per_query_hash": 1
+  },
+  "per_process_fields_recorded": [
+    "status_code",
+    "source",
+    "decision",
+    "generations",
+    "insert_success",
+    "insert_conflict",
+    "insert_error",
+    "request_id"
+  ],
+  "cross_process_claims": {
+    "duplicate_rows_prevented_by_db_uniqueness": true,
+    "duplicate_generation_without_distributed_lock": true,
+    "in_process_concurrency_not_substituted": true
+  },
+  "redaction": {
+    "artifact_contains_no_query_text": true,
+    "artifact_contains_no_answers_or_embeddings": true,
+    "artifact_contains_no_credentials": true
+  }
+}
