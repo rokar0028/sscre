@@ -12,7 +12,8 @@ not add new product features or provider-specific integrations.
 
 **Status:** `in progress — R1.2 Gate C live measurement deferred; Workstreams 0–1
 and 3 closed, Workstream 2 Gate B verified (multi-worker deploy deferred),
-Workstream 5 fresh held-out gate **pass** (2026-10-15)`
+Workstream 4 bounded PostgreSQL verification **closed** (2026-10-15; commit bundle
+pending), Workstream 5 fresh held-out gate **pass** (2026-10-15)`
 
 **Evidence:** [`docs/POST_PHASE4_STABILIZATION_EVIDENCE.md`](POST_PHASE4_STABILIZATION_EVIDENCE.md)
 (WS0 freeze plus later pointers);
@@ -21,7 +22,8 @@ Workstream 5 fresh held-out gate **pass** (2026-10-15)`
 [`setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md);
 [`setup/POST_PHASE4_R1_STEP11_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP11_EVIDENCE.md);
 [`setup/POST_PHASE4_R1_STEP12_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP12_EVIDENCE.md);
-[`setup/POST_PHASE4_WS5_FRESH_HELD_OUT_EVIDENCE.md`](setup/POST_PHASE4_WS5_FRESH_HELD_OUT_EVIDENCE.md).
+[`setup/POST_PHASE4_WS5_FRESH_HELD_OUT_EVIDENCE.md`](setup/POST_PHASE4_WS5_FRESH_HELD_OUT_EVIDENCE.md);
+[`setup/POST_PHASE4_WS4_POSTGRESQL_READINESS_EVIDENCE.md`](setup/POST_PHASE4_WS4_POSTGRESQL_READINESS_EVIDENCE.md).
 
 **Parent:** [`docs/SSCRE_PLAN.md`](SSCRE_PLAN.md), §§20, 23, and 24.
 
@@ -33,11 +35,13 @@ available, and either a valid fresh held-out semantic result or an explicit
 documented deferral.
 
 **Deployment exit (separate):** External multi-user readiness remains
-deferred until Workstream 2’s remaining multi-worker abuse/budget store and
-the required Workstream 4 gates pass. Workstream 2 in-memory and PostgreSQL
-Gate B verification are recorded; they do not authorize multi-worker or
-multi-replica exposure. Deployment hardening must not block the research exit
-unless it affects the validity or failure safety of the evaluation path.
+deferred until Workstream 2’s remaining multi-worker abuse/budget store is
+implemented. Workstream 4 bounded local PostgreSQL/pgvector verification is
+recorded (2026-10-15); it is **not** multi-worker, multi-replica,
+managed-cloud, or SLA readiness. Workstream 2 in-memory and PostgreSQL Gate B
+verification are recorded; they do not authorize multi-worker or multi-replica
+exposure. Deployment hardening must not block the research exit unless it
+affects the validity or failure safety of the evaluation path.
 
 ## Current baseline
 
@@ -1356,41 +1360,52 @@ valid credentials, bounded quota, and a redaction plan.
 **Purpose:** Verify the actual storage path before making deployment or scale
 claims.
 
-**Status:** `planning-complete` — child implementation plan authored; execution
-not started.
+**Status:** `closed (bounded local verification — commit bundle pending)` —
+Steps 1–9 recorded 2026-10-15 on `HEAD` `6d579304ca6b9afa00af71a168bf7faedf47c9d3`.
+Does not authorize production SLA, multi-host capacity, or multi-replica deploy.
 
 **Child:** [`docs/setup/POST_PHASE4_WS4_POSTGRESQL_READINESS_IMPLEMENTATION_PLAN.md`](setup/POST_PHASE4_WS4_POSTGRESQL_READINESS_IMPLEMENTATION_PLAN.md)
 
-- [ ] Run all PostgreSQL integration, failure-recovery, contention,
+**Evidence:** [`docs/setup/POST_PHASE4_WS4_POSTGRESQL_READINESS_EVIDENCE.md`](setup/POST_PHASE4_WS4_POSTGRESQL_READINESS_EVIDENCE.md)
+
+- [x] Run all PostgreSQL integration, failure-recovery, contention,
       multiprocess, and load markers against a migrated PostgreSQL/pgvector
-      instance.
-- [ ] Test startup with a least-privilege application role and separate
+      instance (one failure-recovery test **skipped** — live restart opt-in).
+- [x] Test startup with a least-privilege application role and separate
       migration role.
-- [ ] Remove startup DDL requirements or document the required privilege
-      boundary.
-- [ ] Validate canonical-answer integrity on reads and tampered-row behavior.
-- [ ] Filter expired/disallowed candidates in the database query or prove that
-      post-query filtering cannot reduce valid-candidate recall.
-- [ ] Measure vector-search plans with `EXPLAIN (ANALYZE, BUFFERS)` at declared
-      cache sizes.
-- [ ] Decide whether to add and validate HNSW/IVFFlat indexing; do not add an
-      index without measured dimension, workload, and migration evidence.
-- [ ] Verify storage caps, eviction, cleanup, uniqueness, and transaction
-      behavior under concurrent writes.
-- [ ] Record PostgreSQL version, pgvector version, schema migration checksums,
+- [x] Remove startup DDL requirements or document the required privilege
+      boundary (app `read_only` migration validate; superuser extension bootstrap).
+- [x] Validate canonical-answer integrity on reads and tampered-row behavior.
+- [x] Filter expired/disallowed candidates in the database query or prove that
+      post-query filtering cannot reduce valid-candidate recall (SQL scope +
+      measured `top_k` recall limitation; application-served semantic path and
+      cache-control are the serving boundary — repository search may still
+      return ineligible rows).
+- [x] Measure vector-search plans with `EXPLAIN (ANALYZE, BUFFERS)` at the
+      declared workload sizes (`ws4-vector-plan-v1`, N=200/2000), explicitly
+      distinguishing fresh-session observations from warm repeats; no true
+      cold-cache result is claimed.
+- [x] Decide whether to add and validate HNSW/IVFFlat indexing; do not add an
+      index without measured dimension, workload, and migration evidence
+      (**decision: no ANN index** for the bounded DIM=2, N<=2000 workload;
+      production-dimension indexing deferred).
+- [x] Verify storage caps, eviction, cleanup, uniqueness, and transaction
+      behavior under concurrent writes (pytest + bounded `ws8-pg-load-v1`;
+      load protocol stopped under its registered tail-latency rule).
+- [x] Record PostgreSQL version, pgvector version, schema migration checksums,
       hardware, worker count, and workload.
 
 **Acceptance criteria:**
 
-- [ ] All required PostgreSQL tests either pass or have explicit unavailable
+- [x] All required PostgreSQL tests either pass or have explicit unavailable
       evidence.
-- [ ] Application startup can run with least privilege after migrations.
-- [ ] Vector query plans and cap/eviction behavior are documented at the
+- [x] Application startup can run with least privilege after migrations.
+- [x] Vector query plans and cap/eviction behavior are documented at the
       declared test scale.
-- [ ] No PostgreSQL result is described as a universal production SLA.
+- [x] No PostgreSQL result is described as a universal production SLA.
 
-**Evidence:** Migration/privilege report, PostgreSQL test output, query plans,
-and bounded load artifact.
+**Evidence:** Migration/privilege probes, PostgreSQL test matrix, `ws4-vector-plan-v1`
+JSON, and `artifacts/operations/workstream8-pg-load-v1.json` (see child evidence § Step 9).
 
 **Stopping rule:** Stop scale claims if the database is unavailable, the
 workload is too small to measure, or query plans are not captured.
@@ -1580,9 +1595,10 @@ scope.
       ([`POST_PHASE4_WS2_EVIDENCE.md`](setup/POST_PHASE4_WS2_EVIDENCE.md));
       multi-worker / multi-replica abuse enforcement and external deployment
       remain deferred.
-9. [ ] Deferred deployment track — Workstream 4 PostgreSQL and vector behavior,
-      only if external
-      deployment, scale, or PostgreSQL-backed evidence is required.
+9. [x] Deferred deployment track — Workstream 4 bounded local PostgreSQL/pgvector
+      verification closed (2026-10-15;
+      [`POST_PHASE4_WS4_POSTGRESQL_READINESS_EVIDENCE.md`](setup/POST_PHASE4_WS4_POSTGRESQL_READINESS_EVIDENCE.md)).
+      External multi-user / multi-replica deployment remains **not authorized**.
 10. [ ] Optional research extension — Workstream 6 correctness labels, only if
       factual answer-quality claims are required.
 
@@ -1593,9 +1609,10 @@ Workstreams 0, 1, the research-relevant portion of 3, R1, 5, and 7 pass, and
 all remaining limitations are documented.
 
 The project may be called **ready for external multi-user deployment** only
-when Workstream 2’s remaining multi-worker abuse/budget store and the
-required portions of Workstream 4 pass. In-memory and PostgreSQL Gate B
-verification alone do not authorize that claim.
+when Workstream 2’s remaining multi-worker abuse/budget store is implemented.
+Workstream 4 bounded local PostgreSQL verification (2026-10-15) does not
+satisfy that bar by itself. In-memory, Gate B, and WS4 local probes do not
+authorize multi-replica or SLA deployment claims.
 
 The project may claim **semantic safe-reuse superiority** only when Workstream
 5 passes its pre-registered gate.
