@@ -59,3 +59,10 @@ python -m sscre.provider_measure --benchmark benchmarks/development.jsonl `
 
 Opt-in live tests: `pytest -m real_provider` with `SSCRE_REAL_PROVIDER_LIVE=true`
 (see [`LOCAL_ENVIRONMENT_MODES.md`](./LOCAL_ENVIRONMENT_MODES.md)).
+
+Research track R1 Step 1.2 bounded measurement:
+
+```powershell
+$env:PYTHONPATH = "src"
+python scripts/r1_step12_provider_measure.py
+```
