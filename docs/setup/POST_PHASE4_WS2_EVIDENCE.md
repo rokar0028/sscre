@@ -65,27 +65,40 @@
       `sscre-migrate` / `sscre-env-validate` in `pyproject.toml` — recorded in
       [`ws2-boundary-verification.json`](../../artifacts/stabilization/ws2-boundary-verification.json)
 
+### Verification runner
+
+- [x] [`scripts/ws2_step28_verify.py`](../../scripts/ws2_step28_verify.py) — inventory, focused in-memory
+      pytest, optional Gate B when `SSCRE_DATABASE_URL` is set, full default suite, and
+      [`ws2-boundary-verification.json`](../../artifacts/stabilization/ws2-boundary-verification.json).
+
 ### Focused verification (in-memory)
 
-- [x] `python -m pytest tests/test_ws2_boundary_gate.py tests/test_api_client_auth.py tests/test_api_route_authorization.py tests/test_api_abuse_controls.py tests/test_admin.py tests/test_health.py tests/test_cache_scope.py tests/test_cache_scope_enforcement.py tests/test_postgres_cache_scope.py -q`
-      — **45 passed**, **5 skipped** (PostgreSQL scope tests skipped without `SSCRE_DATABASE_URL`)
+- [x] Step 2.8 runner (2026-10-15, HEAD `31bda4a`) — **47 passed**, **5 skipped**
+      (PostgreSQL scope tests skipped without `SSCRE_DATABASE_URL`)
 
 ### Full suite
 
-- [x] `python -m pytest -q` — **856 passed**, 20 skipped, 21 deselected (2026-10-14)
+- [x] Runner full suite (2026-10-15) — **874 passed**, 20 skipped, 21 deselected
+      (see `ws2-boundary-verification.json` `full_suite`).
 
 ### Gate B PostgreSQL
 
-- [ ] Scoped isolation on live PostgreSQL — **deferred** (`SSCRE_DATABASE_URL` not set in verification environment). Not scored as pass or fail.
-
-When Gate B is run locally:
+- [x] Scoped isolation on live PostgreSQL (2026-10-15) — **verified** via Step 2.8 runner
+      against Docker `pgvector/pgvector:pg16` (PostgreSQL **16.15**, pgvector **0.8.7**,
+      14 migrations). Scoped **24 passed**; contention **6 passed** (see
+      `gate_b_postgresql` in `ws2-boundary-verification.json`).
 
 ```powershell
-sscre-migrate --database-url $env:SSCRE_DATABASE_URL
-python -m pytest tests/test_postgres_cache_scope.py tests/test_postgres_eviction_scope.py -q
+$env:PYTHONPATH = "src"
+$env:SSCRE_DATABASE_URL = "<from .env or compose>"
+python scripts/ws2_step28_verify.py
 ```
 
-Record `pg_version`, `pgvector` version, migration checksums, and role notes in this file and refresh `ws2-boundary-verification.json`.
+The runner applies migrations, runs scoped exact/vector/canonical/eviction/cleanup/statistics
+tests (`test_postgres_cache_scope.py`, `test_postgres_eviction_scope.py`,
+`test_postgres_integration.py`), then concurrent isolation
+(`test_postgres_contention.py -m ws8_postgres_contention`), and records `pg_version`,
+pgvector, and migration checksums in `ws2-boundary-verification.json`.
 
 ### Redaction audit (Step 2.8)
 
@@ -99,7 +112,7 @@ Record `pg_version`, `pgvector` version, migration checksums, and role notes in 
 | --- | --- |
 | Authoring (Steps 2.1–2.7) | **Closed** with linked code and docs |
 | Verification (in-memory) | **Pass** at recorded counts above |
-| Verification (PostgreSQL Gate B) | **Deferred** — unavailable in CI for this run |
+| Verification (PostgreSQL Gate B) | **Pass** (2026-10-15 local Docker; artifact `postgres_gate_b`: verified) |
 | External / multi-user deployment | **Not authorized** until Gate B is recorded or explicitly accepted by operator |
 
 **Next:** Workstream 3 — timeout, concurrency, and failure-closed runtime stability.

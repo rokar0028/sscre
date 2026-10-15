@@ -919,9 +919,10 @@ implementation and must be recorded in the evidence manifest.
       requests.
 - [x] Run malformed-input, oversized-body, safe-error, request-ID, and health
       exposure tests.
-- [ ] If PostgreSQL is available, apply migrations with the documented role
+- [x] If PostgreSQL is available, apply migrations with the documented role
       boundary and run the scoped exact, vector, canonical, eviction, cleanup,
-      statistics, and concurrent isolation tests.
+      statistics, and concurrent isolation tests (2026-10-15 Gate B via
+      `scripts/ws2_step28_verify.py`; see `ws2-boundary-verification.json`).
 - [x] Record PostgreSQL version, pgvector version, migration state/checksums,
       role configuration, workload, and skipped tests. If unavailable, record
       `unavailable` or `deferred`; do not call in-memory results PostgreSQL
@@ -932,6 +933,7 @@ implementation and must be recorded in the evidence manifest.
       evidence before marking the verification gate complete.
 
       [`artifacts/stabilization/ws2-boundary-verification.json`](../artifacts/stabilization/ws2-boundary-verification.json);
+      [`scripts/ws2_step28_verify.py`](../scripts/ws2_step28_verify.py);
       [`tests/test_ws2_boundary_gate.py`](../tests/test_ws2_boundary_gate.py);
       [`docs/setup/POST_PHASE4_WS2_EVIDENCE.md`](setup/POST_PHASE4_WS2_EVIDENCE.md).
 

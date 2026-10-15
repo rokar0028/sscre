@@ -66,9 +66,9 @@ observability; they are not tenant quotas.
 - Step 2.5 enforcement: [`tests/test_cache_scope_enforcement.py`](../../tests/test_cache_scope_enforcement.py)
 - PostgreSQL (Gate B, opt-in): [`tests/test_postgres_cache_scope.py`](../../tests/test_postgres_cache_scope.py)
 
-Run migrations before Gate B scope tests:
+Run Step 2.8 verification (migrations + Gate B when `SSCRE_DATABASE_URL` is set):
 
 ```powershell
-sscre-migrate --database-url $env:SSCRE_DATABASE_URL
-python -m pytest tests/test_postgres_cache_scope.py -q
+$env:PYTHONPATH = "src"
+python scripts/ws2_step28_verify.py
 ```
