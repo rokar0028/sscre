@@ -135,6 +135,25 @@ def test_compose_and_env_example_default_strategy_c() -> None:
     assert "SSCRE_SEMANTIC_STRATEGY=C" in example
 
 
+def test_compose_and_env_example_default_trusted_local_exposure() -> None:
+    compose = (Path(__file__).resolve().parents[1] / "docker-compose.yml").read_text(
+        encoding="utf-8"
+    )
+    example = (Path(__file__).resolve().parents[1] / ".env.example").read_text(
+        encoding="utf-8"
+    )
+    assert (
+        "SSCRE_API_EXPOSURE_MODE: ${SSCRE_API_EXPOSURE_MODE:-trusted_local}"
+        in compose
+    )
+    assert "SSCRE_CLIENT_AUTH_JSON: /app/client_auth_registry.json" in compose
+    assert "SSCRE_API_EXPOSURE_MODE=trusted_local" in example
+    assert (
+        "SSCRE_CLIENT_AUTH_JSON=experiments/client_auth_registry_sample.json"
+        in example
+    )
+
+
 def test_report_json_does_not_echo_admin_token(monkeypatch) -> None:
     secret = "super-secret-admin-token-value-12345"
     monkeypatch.setenv("SSCRE_ADMIN_TOKEN", secret)

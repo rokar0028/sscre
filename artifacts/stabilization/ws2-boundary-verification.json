@@ -2,8 +2,8 @@
   "schema_version": "ws2-boundary-verification-1.1",
   "workstream": 2,
   "step": "2.8",
-  "recorded_at_utc": "2026-10-15T10:40:14.729433+00:00",
-  "git_head": "31bda4af828216dbb3c4a998ed2556e0be110c2a",
+  "recorded_at_utc": "2026-10-15T10:51:31.183484+00:00",
+  "git_head": "7878856cb9600ba84d5e78721faaa94ab761bd71",
   "configuration_mode": {
     "trusted_local_default": true,
     "external_requires_client_auth_json": true,
@@ -29,7 +29,7 @@
     "failed": 0,
     "skipped": 0,
     "deselected": 0,
-    "result": "52 passed, 1 warning in 2.15s"
+    "result": "52 passed, 1 warning in 1.86s"
   },
   "full_suite": {
     "command": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pytest -q",
@@ -38,7 +38,7 @@
     "failed": 0,
     "skipped": 1,
     "deselected": 21,
-    "result": "893 passed, 1 skipped, 21 deselected, 1 warning in 509.43s (0:08:29)"
+    "result": "893 passed, 1 skipped, 21 deselected, 1 warning in 461.05s (0:07:41)"
   },
   "gate_b_postgresql": {
     "status": "verified",
@@ -50,7 +50,7 @@
       "failed": 0,
       "skipped": 0,
       "deselected": 0,
-      "result": "24 passed, 1 warning in 4.66s"
+      "result": "24 passed, 1 warning in 4.67s"
     },
     "contention_tests": {
       "command": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pytest tests/test_postgres_contention.py -m ws8_postgres_contention -q",
@@ -59,7 +59,7 @@
       "failed": 0,
       "skipped": 0,
       "deselected": 0,
-      "result": "6 passed, 1 warning in 6.78s"
+      "result": "6 passed, 1 warning in 4.90s"
     },
     "environment": {
       "postgresql_version": "PostgreSQL 16.15 (Debian 16.15-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",

@@ -1,7 +1,7 @@
 # Post–Phase 4 stabilization — Workstream 2 evidence
 
 **Parent:** [`POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md`](../POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md)  
-**Status:** `verification gate passed (in-memory)` — Gate B PostgreSQL **deferred**  
+**Status:** `closed (in-memory and PostgreSQL Gate B verified)` — multi-worker abuse/budget store **deferred**; external multi-user deployment **not authorized**  
 **Machine-readable:** [`../../artifacts/stabilization/ws2-boundary-verification.json`](../../artifacts/stabilization/ws2-boundary-verification.json)
 
 ## Step 2.1 — Threat model and deployment contract
@@ -73,13 +73,20 @@
 
 ### Focused verification (in-memory)
 
-- [x] Step 2.8 runner (2026-10-15, HEAD `31bda4a`) — **47 passed**, **5 skipped**
-      (PostgreSQL scope tests skipped without `SSCRE_DATABASE_URL`)
+Historical snapshot (2026-10-15, HEAD `31bda4a`, before Gate B in the runner):
+**47 passed**, **5 skipped** (PostgreSQL scope tests skipped without
+`SSCRE_DATABASE_URL`).
+
+- [x] Latest Step 2.8 runner record (artifact `git_head` `7878856`,
+      `focused_verification`) — **52 passed**, **0 skipped**
+      (see `ws2-boundary-verification.json`).
 
 ### Full suite
 
-- [x] Runner full suite (2026-10-15) — **874 passed**, 20 skipped, 21 deselected
-      (see `ws2-boundary-verification.json` `full_suite`).
+- [x] Latest runner full suite (artifact `full_suite`, 2026-10-15) —
+      **893 passed**, **1 skipped**, **21 deselected**
+      (see `ws2-boundary-verification.json`). Do not use the earlier **874 /
+      20 skipped** prose count; the JSON is authoritative.
 
 ### Gate B PostgreSQL
 
@@ -113,6 +120,9 @@ pgvector, and migration checksums in `ws2-boundary-verification.json`.
 | Authoring (Steps 2.1–2.7) | **Closed** with linked code and docs |
 | Verification (in-memory) | **Pass** at recorded counts above |
 | Verification (PostgreSQL Gate B) | **Pass** (2026-10-15 local Docker; artifact `postgres_gate_b`: verified) |
-| External / multi-user deployment | **Not authorized** until Gate B is recorded or explicitly accepted by operator |
+| External / multi-user deployment | **Not authorized** — Gate B is recorded; a shared rate-limit and provider-budget store for multi-worker / multi-replica use is not implemented |
 
-**Next:** Workstream 3 — timeout, concurrency, and failure-closed runtime stability.
+**Next (historical at WS2 close):** Workstream 3 — timeout, concurrency, and
+failure-closed runtime stability. Workstream 3 later closed; current research
+next step is Research track R1 (then Workstream 5). See the parent plan
+**Status** and **Recommended execution order**.
