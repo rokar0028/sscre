@@ -294,7 +294,7 @@ Open documentation conflicts **XCL-001**–**XCL-005** remain for Workstream 8.
 
 ## Workstream 3 — close (Steps 3.1–3.7)
 
-**Status:** `closed (verification complete — commit bundle pending)` — see
+**Status:** `closed (verification complete)` — see
 [`setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md).
 
 - [x] Runtime design `admission_release_with_request_epoch` implemented and verified.
@@ -302,4 +302,5 @@ Open documentation conflicts **XCL-001**–**XCL-005** remain for Workstream 8.
 - [x] Cross-process duplicate semantics **verified** (Step 3.6).
 - [x] Machine-readable close record:
       [`artifacts/stabilization/ws3-step37-verification.json`](../artifacts/stabilization/ws3-step37-verification.json).
-- [ ] User-approved commit containing WS3 code, tests, artifacts, and evidence docs.
+- [x] User-approved commit containing WS3 code, tests, artifacts, and evidence docs
+      (`32c99e5`–`0948837`, 2026-10-15).

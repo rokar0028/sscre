@@ -10,7 +10,7 @@ not add new product features or provider-specific integrations.
 
 ## Status
 
-**Status:** `in progress — research-first reprioritization; Workstreams 0–1 closed, Workstream 2 in-memory verification passed (Gate B deferred), Workstream 3 verification complete (commit bundle pending)`
+**Status:** `in progress — research-first reprioritization; Workstreams 0–1 closed, Workstream 2 in-memory verification passed (Gate B deferred), Workstream 3 closed`
 
 **Evidence:** [`docs/POST_PHASE4_STABILIZATION_EVIDENCE.md`](POST_PHASE4_STABILIZATION_EVIDENCE.md) (Workstream 0 closed)
 
@@ -50,7 +50,7 @@ failure safety of the evaluation path.
   `RequestCancellation` blocks cache-visible late completions, and the shared
   dependency executor shuts down on app lifespan teardown. Orphaned callables
   may still run on fixed pool workers; subprocess isolation remains deferred.
-  Verification complete; WS3 commit bundle pending at recorded HEAD.
+  Verification complete; committed `32c99e5`–`0948837` (2026-10-15).
 - The Phase 4 fresh held-out semantic gate is deferred because the existing
   215-record held-out split has already been used.
 - Human answer-correctness labels are not present.
@@ -981,7 +981,7 @@ for multi-worker or multi-replica deployment.
 **Purpose:** Ensure bounded requests do not exhaust workers or produce
 uncontrolled errors.
 
-**Status:** `closed (verification complete — commit bundle pending)`
+**Status:** `closed (verification complete)`
 
 **Evidence:** [`docs/setup/POST_PHASE4_WS3_STEP31_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP31_EVIDENCE.md),
 [`docs/setup/POST_PHASE4_WS3_STEP32_RUNTIME_DESIGN.md`](setup/POST_PHASE4_WS3_STEP32_RUNTIME_DESIGN.md),
@@ -1496,8 +1496,7 @@ scope.
 
 1. [x] Workstream 0 — freeze baseline and claim inventory.
 2. [x] Workstream 1 — establish reproducible local and Compose setup.
-3. [x] Workstream 3 — timeout and concurrency fixes verified (Steps 3.1–3.7);
-      commit bundle pending.
+3. [x] Workstream 3 — timeout and concurrency fixes verified (Steps 3.1–3.7).
 4. [ ] Research track R1 — diagnose Strategy C and run the bounded authorized
       provider measurement, or record Gate C as deferred.
 5. [ ] Workstream 5 — construct and run the fresh semantic gate.
