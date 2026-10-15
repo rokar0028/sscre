@@ -87,6 +87,8 @@ Technical specs and evaluation notes — not milestone checklists.
 | [POST_PHASE4_WS3_STEP37_EVIDENCE.md](./setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md) | WS3 verification close |
 | [POST_PHASE4_R1_STEP11_EVIDENCE.md](./setup/POST_PHASE4_R1_STEP11_EVIDENCE.md) | R1.1 Strategy C diagnosis (non-headline) |
 | [POST_PHASE4_R1_STEP12_EVIDENCE.md](./setup/POST_PHASE4_R1_STEP12_EVIDENCE.md) | R1.2 Gate C measurement (live deferred) |
+| [POST_PHASE4_WS5_FRESH_HELD_OUT_IMPLEMENTATION_PLAN.md](./setup/POST_PHASE4_WS5_FRESH_HELD_OUT_IMPLEMENTATION_PLAN.md) | WS5 assisted fresh held-out plan |
+| [POST_PHASE4_WS5_FRESH_HELD_OUT_EVIDENCE.md](./setup/POST_PHASE4_WS5_FRESH_HELD_OUT_EVIDENCE.md) | WS5 fresh held-out evidence (draft) |
 | [CURSOR_PORTABLE_SETUP.md](./setup/CURSOR_PORTABLE_SETUP.md) | Cursor rules/skills on another machine |
 
 ## Internal (`internal/`)

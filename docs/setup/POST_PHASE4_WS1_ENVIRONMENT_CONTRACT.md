@@ -41,6 +41,12 @@ Classification uses WS1 vocabulary: `required`, `optional with default`,
 | `SSCRE_ADMIN_READ_TOKEN` | optional with default | yes | **no** | none | MIS-002 |
 | `SSCRE_ADMIN_TOKEN_EXPIRES_AT` | production-only | yes (empty) | **no** | none | Required in production profile; MIS-002, MIS-004 |
 | `SSCRE_ADMIN_READ_TOKEN_EXPIRES_AT` | optional with default | yes (empty) | **no** | none | MIS-002 |
+| `SSCRE_API_EXPOSURE_MODE` | optional with default | yes (`trusted_local`) | yes (default `trusted_local`) | `trusted_local` | Set `external` to require client tokens on `/v1/query`. |
+| `SSCRE_CLIENT_AUTH_JSON` | optional with default | yes (sample registry path) | yes (container `/app/client_auth_registry.json`) | none | Required when mode is `external`. Compose mounts the sample file. |
+| `SSCRE_RATE_LIMIT_REQUESTS_PER_MINUTE` | optional with default | yes (`120`) | yes | `0` | Enforced only in `external` mode; process-local. |
+| `SSCRE_TENANT_PROVIDER_BUDGET_PER_MINUTE` | optional with default | yes (`60`) | yes | `0` | Enforced only in `external` mode; process-local. |
+| `SSCRE_TENANT_MAX_CONCURRENT_QUERIES` | optional with default | yes (`8`) | yes | `32` | Enforced only in `external` mode; process-local. |
+| `SSCRE_MAX_REQUEST_BODY_BYTES` | optional with default | yes | yes | `65536` | Request body cap. |
 | `SSCRE_SEMANTIC_ENABLED` | optional with default | yes | yes | `true` | |
 | `SSCRE_SEMANTIC_STRATEGY` | optional with default | yes (`C`) | yes (default `C`) | `C` | MIS-001 resolved WS1.5 |
 | `SSCRE_SEMANTIC_TOP_K` | optional with default | yes | yes | `5` | |
@@ -61,8 +67,11 @@ Classification uses WS1 vocabulary: `required`, `optional with default`,
 | `SSCRE_TIMEOUT_HEALTH_SECONDS` | optional with default | yes | yes | 1 | |
 | `SSCRE_TIMEOUT_ADMIN_SECONDS` | optional with default | yes | yes | 5 | |
 
-All cache and timeout `Settings` keys are forwarded to the Compose `api`
-service. The three admin token expiry / read-token keys are not (see MIS-002).
+All cache, timeout, and WS2 exposure/abuse `Settings` keys are forwarded to
+the Compose `api` service. The three admin token expiry / read-token keys are
+not (see MIS-002). Compose always injects `SSCRE_CLIENT_AUTH_JSON` as
+`/app/client_auth_registry.json` (sample registry volume); do not pass a host
+path into the container.
 
 ## Compose and Postgres (not `Settings`)
 

@@ -1,7 +1,7 @@
 # Post–Phase 4 stabilization — Workstream 3 Step 3.7 evidence
 
 **Parent:** [`POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md`](../POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md)  
-**Status:** `closed` — Workstream 3 verification complete (commit bundle pending)  
+**Status:** `closed` — Workstream 3 verification complete; commit bundle `32c99e5`–`0948837` (2026-10-15)  
 **Machine-readable:** [`../../artifacts/stabilization/ws3-step37-verification.json`](../../artifacts/stabilization/ws3-step37-verification.json)
 
 ## Step 3.7 — Verification and evidence close
@@ -47,4 +47,10 @@
 
 ### Worktree
 
-Modified/untracked WS3 paths remain on disk at HEAD above; user-approved `/commit` still required for remote alignment.
+**Historical snapshot at Step 3.7 close:** modified/untracked WS3 paths remained
+on disk at HEAD `2d7323fa…`; user-approved `/commit` was still required.
+
+**Later:** WS3 code, tests, artifacts, and evidence were committed as
+`32c99e5`–`0948837` (2026-10-15). This file’s verification counts remain the
+Step 3.7 record (**892 passed**); a later WS2 Gate B default suite recorded
+**893 passed**.

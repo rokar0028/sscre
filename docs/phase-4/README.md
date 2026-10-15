@@ -18,6 +18,7 @@ scale/storage profiling, release audit, and semantic-evaluation validity.
 | [PHASE4_STEP5_THRESHOLD_DECISION.md](./PHASE4_STEP5_THRESHOLD_DECISION.md) | Step 5 development threshold decision (`P4-SEMVALID`) |
 | [PHASE4_STEP6_HELD_OUT_EVALUATION_IMPLEMENTATION_PLAN.md](./PHASE4_STEP6_HELD_OUT_EVALUATION_IMPLEMENTATION_PLAN.md) | Step 6 held-out evaluation (`P4-SEMVALID`) — closed deferred |
 | [PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md](./PHASE4_SEMANTIC_EVALUATION_VALIDITY_EVIDENCE.md) | Steps 1–8 evidence (`P4-SEMVALID`) |
+| [POST_PHASE4_WS5_FRESH_HELD_OUT_IMPLEMENTATION_PLAN.md](../setup/POST_PHASE4_WS5_FRESH_HELD_OUT_IMPLEMENTATION_PLAN.md) | Stabilization WS5 assisted fresh held-out (authoring; extract not started) |
 
 **Artifact manifest:**
 [`artifacts/evaluation/phase4-semantic-validity-manifest.json`](../../artifacts/evaluation/phase4-semantic-validity-manifest.json).

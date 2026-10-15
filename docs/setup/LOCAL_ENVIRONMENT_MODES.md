@@ -9,10 +9,25 @@ Database container lifecycle, migration CLI details, and pgvector checks live in
 [`POSTGRESQL_LOCAL_SETUP.md`](./POSTGRESQL_LOCAL_SETUP.md) — link there instead
 of duplicating those steps here.
 
+These are **three independent switches**. Do not treat “external” or a Gemini
+key as one setting. There is **no** `GEMINI_API_KEY` variable.
+
+| Switch | Env / input | Default for R1 / WS5 research |
+| --- | --- | --- |
+| Who may call *this* API | `SSCRE_API_EXPOSURE_MODE` (`trusted_local` vs `external` client tokens) | `trusted_local` |
+| Who generates answers | `SSCRE_REAL_PROVIDER` + `SSCRE_PROVIDER_CREDENTIAL` (OpenAI-compatible; see [`PROVIDER_BOUNDARY.md`](./PROVIDER_BOUNDARY.md)) | off (fake or local MiniLM) |
+| Fresh headline eval | new licensed, human-final labels (Gate D) | not the 215-row `held_out_test.jsonl` |
+
+`SSCRE_API_EXPOSURE_MODE=external` does **not** enable Gemini. A live provider
+does **not** require external API mode. WS5 / Gate D does **not** require either.
+
 ## Decision tree
 
 ```text
-Need external credentials or live provider?
+Need other clients to authenticate to this API?
+  yes → still research-default trusted_local unless the user explicitly wants
+        multi-user exposure; that is WS2, not Gate C, and not WS5
+Need a live remote model (OpenAI-compatible HTTP)?
   yes → Production/provider mode (Gate C) — stop if not explicitly authorized
   no  → Need PostgreSQL integration or WS8 harness markers?
           yes → PostgreSQL verification mode (Gate B)
@@ -70,6 +85,7 @@ Compose services.
 | Image | `pgvector/pgvector:pg16` |
 | Strategy safety | Default **C** in `docker-compose.yml` and `.env.example`; set **B** only for embedding-only experiments |
 | Admin | `SSCRE_ADMIN_TOKEN` required for Compose (`:?` interpolation) |
+| API exposure | Default **trusted_local** (anonymous `/v1/query`). Set `SSCRE_API_EXPOSURE_MODE=external` to require a client Bearer token from the sample registry. |
 | Provider | Not required; do not enable `SSCRE_REAL_PROVIDER` without Gate C |
 
 **Minimal sequence** (details: [`POSTGRESQL_LOCAL_SETUP.md`](./POSTGRESQL_LOCAL_SETUP.md)):
@@ -88,6 +104,24 @@ $env:POSTGRES_PASSWORD = 'ci-local-password'
 $env:SSCRE_ADMIN_TOKEN = 'ci-local-admin-token-123456'
 docker compose config -q
 ```
+
+**Opt-in external API** (single-process only; not multi-worker deployment):
+
+```powershell
+# In .env
+SSCRE_API_EXPOSURE_MODE=external
+```
+
+```powershell
+# Query with the sample registry token (replace in any shared environment)
+Invoke-RestMethod -Method POST -Uri http://127.0.0.1:8000/v1/query `
+  -Headers @{ Authorization = "Bearer replace-with-a-long-client-token" } `
+  -ContentType "application/json" `
+  -Body '{"query":"hello"}'
+```
+
+Rate, budget, and concurrency limits are process-local. External multi-user /
+multi-replica deployment remains unauthorized until a shared store exists.
 
 **Evidence rule:** Compose bring-up proves **development** configuration only.
 It is not external deployment readiness (Workstream 2) or production capacity.
