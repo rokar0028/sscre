@@ -1,0 +1,136 @@
+{
+  "schema_version": "r1-step12-provider-measurement-1.0",
+  "workstream": "R1",
+  "step": "R1.2",
+  "headline_population": false,
+  "population_purpose": "development_split_bounded_provider_measurement_not_fresh_headline",
+  "recorded_at_utc": "2026-10-15T11:04:39.963122+00:00",
+  "gate_c_approval": {
+    "schema_version": "r1-step12-gate-c-approval-1.0",
+    "status": "deferred",
+    "approval_recorded": false,
+    "reason": "Explicit operator Gate C approval and live credentials were not configured for this workspace run.",
+    "quota_note": null,
+    "pricing_schedule_path": "experiments/real_provider_pricing.json",
+    "endpoint_approval": "OpenAI-compatible boundary per docs/setup/PROVIDER_BOUNDARY.md",
+    "recorded_at_utc": "2026-10-15T00:00:00+00:00"
+  },
+  "measurement_protocol": {
+    "inner_schema": "real-provider-measurement-1.0",
+    "benchmark_path": "benchmarks/development.jsonl",
+    "config_path": "experiments/semantic-validity-evaluation-config-v1.json",
+    "population_record_count": 383,
+    "max_records": 5,
+    "live_requires": [
+      "SSCRE_REAL_PROVIDER_LIVE=true",
+      "SSCRE_REAL_PROVIDER=true",
+      "SSCRE_PROVIDER_CREDENTIAL",
+      "SSCRE_R1_GATE_C_APPROVED=true or gate_c approval file status approved"
+    ]
+  },
+  "provider_measurement": {
+    "schema_version": "real-provider-measurement-1.0",
+    "status": "unavailable",
+    "measurement_environment": "real_provider",
+    "provider_available": false,
+    "unavailable_reason": "live_opt_in_missing",
+    "execution_timestamp": "2026-10-15T11:04:39.909766+00:00",
+    "git_commit": "7878856cb9600ba84d5e78721faaa94ab761bd71",
+    "runtime_versions": {
+      "python": "3.14.5",
+      "sscre": "0.1.0",
+      "fastapi": "0.142.2",
+      "pytest": "9.1.1",
+      "provider_sdk": null,
+      "provider_api": "openai-compatible-http-v1"
+    },
+    "benchmark": {
+      "path": "C:/Users/Admin/Desktop/major/benchmarks/development.jsonl",
+      "dataset_version": "reviewed-query-pairs-2.0",
+      "split": "development",
+      "record_count": 400
+    },
+    "configuration": {
+      "path": "C:/Users/Admin/Desktop/major/experiments/semantic-validity-evaluation-config-v1.json",
+      "config_version": "semantic-validity-evaluation-config-1.0",
+      "pricing_schedule_id": null
+    },
+    "provider": null,
+    "requests": {
+      "count": 0,
+      "generation": 0,
+      "embedding": 0,
+      "retries": 0
+    },
+    "failures": [
+      {
+        "category": "authentication",
+        "count": 0
+      },
+      {
+        "category": "authorization",
+        "count": 0
+      },
+      {
+        "category": "malformed_response",
+        "count": 0
+      },
+      {
+        "category": "permanent_provider",
+        "count": 0
+      },
+      {
+        "category": "rate_limited",
+        "count": 0
+      },
+      {
+        "category": "timeout",
+        "count": 0
+      },
+      {
+        "category": "transient_provider",
+        "count": 0
+      },
+      {
+        "category": "validation",
+        "count": 0
+      }
+    ],
+    "tokens": {
+      "generation_input": null,
+      "generation_output": null,
+      "embedding_input": null,
+      "usage_sources": {}
+    },
+    "latency_ms": {
+      "generation": null,
+      "embedding": null,
+      "wrapper": null,
+      "total": null
+    },
+    "cost_usd": {
+      "generation": null,
+      "embedding": null,
+      "retry": null,
+      "wrapper": null,
+      "total_estimated": null,
+      "source": "unavailable"
+    },
+    "redaction": {
+      "raw_prompts": false,
+      "raw_answers": false,
+      "credentials": false,
+      "provider_payloads": false
+    },
+    "limitations": [
+      "No credentialed real-provider request was made.",
+      "Synthetic measurements were not substituted.",
+      "Quality, latency, token, and cost conclusions remain unavailable."
+    ],
+    "gate_c_status": "deferred"
+  },
+  "fresh_evaluation_gate": {
+    "workstream_5_headline_authorized": false,
+    "note": "Provider results are not semantic headline evidence until WS5 passes."
+  }
+}

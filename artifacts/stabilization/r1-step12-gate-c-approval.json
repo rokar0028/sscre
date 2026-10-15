@@ -1,0 +1,10 @@
+{
+  "schema_version": "r1-step12-gate-c-approval-1.0",
+  "status": "deferred",
+  "approval_recorded": false,
+  "reason": "Explicit operator Gate C approval and live credentials were not configured for this workspace run.",
+  "quota_note": null,
+  "pricing_schedule_path": "experiments/real_provider_pricing.json",
+  "endpoint_approval": "OpenAI-compatible boundary per docs/setup/PROVIDER_BOUNDARY.md",
+  "recorded_at_utc": "2026-10-15T00:00:00+00:00"
+}
