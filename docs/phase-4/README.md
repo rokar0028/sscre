@@ -22,5 +22,8 @@ scale/storage profiling, release audit, and semantic-evaluation validity.
 **Artifact manifest:**
 [`artifacts/evaluation/phase4-semantic-validity-manifest.json`](../../artifacts/evaluation/phase4-semantic-validity-manifest.json).
 
-Parent tracker: [`docs/SSCRE_PLAN.md`](../SSCRE_PLAN.md). Internal Phase 4
-setup notes may also appear under [`docs/internal/PHASE4_IMPLEMENTATION_PLAN.md`](../internal/PHASE4_IMPLEMENTATION_PLAN.md).
+Parent tracker: [`docs/SSCRE_PLAN.md`](../SSCRE_PLAN.md). Post–Phase 4
+stabilization (runtime, evidence, research-first R1/WS5):
+[`docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md`](../POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md).
+Internal Phase 4 setup notes may also appear under
+[`docs/internal/PHASE4_IMPLEMENTATION_PLAN.md`](../internal/PHASE4_IMPLEMENTATION_PLAN.md).

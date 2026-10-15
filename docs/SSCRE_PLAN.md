@@ -823,6 +823,13 @@ validity) closed in repo with a **deferred** headline gate (2026-10-12); evidenc
 - [x] Change Docker Compose default from Strategy **B** to **C** (WS1 Step 1.5;
   `docker-compose.yml` and `.env.example` default `SSCRE_SEMANTIC_STRATEGY: C`).
 
+Post–Phase 4 stabilization (not a headline semantic result):
+[`docs/POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md`](POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md).
+Workstreams 0–3 closed locally; WS2 PostgreSQL Gate B verified; Research
+track R1.1 diagnosis recorded; R1.2 Gate C live measurement is deferred;
+fresh held-out (Workstream 5) remains open. Full claim reconciliation stays
+Workstream 8.
+
 Artifact index:
 [`artifacts/evaluation/phase4-semantic-validity-manifest.json`](../artifacts/evaluation/phase4-semantic-validity-manifest.json).
 

@@ -32,6 +32,8 @@ docs/
 ├── SSCRE_PROJECT_ANALYSIS.md
 ├── SSCRE_LEARNING_AND_EXECUTION_GUIDE.md
 ├── SSCRE_SYSTEM_DESIGN.md
+├── POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md
+├── POST_PHASE4_STABILIZATION_EVIDENCE.md
 ├── reference/                         ← formats, flows, limits, production contract
 ├── setup/                             ← PostgreSQL and Cursor portable setup
 ├── internal/                          ← release prep, Phase 0 decisions, transition brief (see internal/README.md)
@@ -49,6 +51,8 @@ docs/
 | [SSCRE_LEARNING_AND_EXECUTION_GUIDE.md](./SSCRE_LEARNING_AND_EXECUTION_GUIDE.md) | Active implementation checklist |
 | [SSCRE_PLAN.md](./SSCRE_PLAN.md) | Phases, experiments, success criteria |
 | [SSCRE_SYSTEM_DESIGN.md](./SSCRE_SYSTEM_DESIGN.md) | Components, APIs, schema, deployment |
+| [POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md](./POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md) | Post–Phase 4 stabilization plan (research-first) |
+| [POST_PHASE4_STABILIZATION_EVIDENCE.md](./POST_PHASE4_STABILIZATION_EVIDENCE.md) | WS0 freeze snapshot and later workstream pointers |
 
 ## Reference (`reference/`)
 
@@ -77,6 +81,12 @@ Technical specs and evaluation notes — not milestone checklists.
 | [POST_PHASE4_WS2_API_AUTH_BOUNDARY.md](./setup/POST_PHASE4_WS2_API_AUTH_BOUNDARY.md) | Stabilization WS2 threat model and API/auth contract |
 | [POST_PHASE4_WS2_EVIDENCE.md](./setup/POST_PHASE4_WS2_EVIDENCE.md) | Stabilization WS2 verification evidence |
 | [POST_PHASE4_WS2_STORAGE_ISOLATION.md](./setup/POST_PHASE4_WS2_STORAGE_ISOLATION.md) | WS2 tenant/namespace storage isolation |
+| [POST_PHASE4_WS3_STEP31_EVIDENCE.md](./setup/POST_PHASE4_WS3_STEP31_EVIDENCE.md) | WS3 timeout/capacity audit |
+| [POST_PHASE4_WS3_STEP32_RUNTIME_DESIGN.md](./setup/POST_PHASE4_WS3_STEP32_RUNTIME_DESIGN.md) | WS3 runtime design (`admission_release_with_request_epoch`) |
+| [POST_PHASE4_WS3_STEP36_MULTIPROCESS_EVIDENCE.md](./setup/POST_PHASE4_WS3_STEP36_MULTIPROCESS_EVIDENCE.md) | WS3 cross-process duplicate semantics |
+| [POST_PHASE4_WS3_STEP37_EVIDENCE.md](./setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md) | WS3 verification close |
+| [POST_PHASE4_R1_STEP11_EVIDENCE.md](./setup/POST_PHASE4_R1_STEP11_EVIDENCE.md) | R1.1 Strategy C diagnosis (non-headline) |
+| [POST_PHASE4_R1_STEP12_EVIDENCE.md](./setup/POST_PHASE4_R1_STEP12_EVIDENCE.md) | R1.2 Gate C measurement (live deferred) |
 | [CURSOR_PORTABLE_SETUP.md](./setup/CURSOR_PORTABLE_SETUP.md) | Cursor rules/skills on another machine |
 
 ## Internal (`internal/`)
@@ -102,8 +112,10 @@ See [SSCRE_PUBLIC_READINESS.md](./internal/SSCRE_PUBLIC_READINESS.md).
 
 ## Authoritative sources
 
-- **Active planning:** [SSCRE_PLAN.md](./SSCRE_PLAN.md) and
-  [SSCRE_LEARNING_AND_EXECUTION_GUIDE.md](./SSCRE_LEARNING_AND_EXECUTION_GUIDE.md)
+- **Active planning:** [SSCRE_PLAN.md](./SSCRE_PLAN.md),
+  [SSCRE_LEARNING_AND_EXECUTION_GUIDE.md](./SSCRE_LEARNING_AND_EXECUTION_GUIDE.md),
+  and [POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md](./POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md)
+  for post–Phase 4 research/runtime close-out.
 - **Original brief (read-only):**
   [internal/safe_semantic_llm_response_reuse_major_project.md](./internal/safe_semantic_llm_response_reuse_major_project.md)
   overlaps the plan; do not maintain two competing checklists.

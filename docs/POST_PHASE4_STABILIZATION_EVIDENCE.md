@@ -1,8 +1,10 @@
 # Post–Phase 4 stabilization evidence
 
 **Parent:** [`POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md`](POST_PHASE4_STABILIZATION_IMPLEMENTATION_PLAN.md)  
-**Status:** `closed (Workstream 0)`; **Workstream 1 closed (Gate A)** — see
-[`setup/POST_PHASE4_WS1_EVIDENCE.md`](setup/POST_PHASE4_WS1_EVIDENCE.md)
+**Status:** `closed (Workstream 0)` — Step 0.x sections below are the freeze
+snapshot. Later workstreams: WS1 Gate A closed; WS2 in-memory and PostgreSQL
+Gate B verified (multi-worker deploy deferred); WS3 closed; R1.1 diagnosis
+recorded; R1.2 Gate C live deferred. See the parent plan **Status**.
 
 ## Workstream 0 — Step 0.1 execution context
 
@@ -193,6 +195,9 @@ Frozen in
 
 ### Baseline facts (mutable only by later workstreams)
 
+**Historical freeze at Step 0.5** (2026-10-13). Compose default **B** below is
+the freeze value; Workstream 1 later set Compose and `.env.example` to **C**.
+
 | Fact | Frozen value |
 | --- | --- |
 | `HEAD` / branch | `cbe5e0d1df7534ed28a2df025c55b351fabec239` / `main` |
@@ -217,6 +222,10 @@ provider measurement (unavailable).
 | out of scope | CLM-015, CLM-017, CLM-033 |
 
 ### Gate answers (before Workstream 1)
+
+**Historical snapshot at Step 0.5 close** (2026-10-13). Later workstreams
+closed or advanced; do not read these answers as the current repository
+state.
 
 1. **What was already changed?** Only the untracked stabilization package
    (plan, evidence, `artifacts/stabilization/`, helper scripts). `HEAD` code
@@ -243,7 +252,8 @@ Compose config. Live provider **deferred**; PostgreSQL integration **deferred**
 
 ### Approved next workstream
 
-**Workstream 2** — public API safety, authentication, and tenancy boundary.
+**Historical at Workstream 0 close:** **Workstream 2** — public API safety,
+authentication, and tenancy boundary.
 
 Open documentation conflicts **XCL-001**–**XCL-005** remain for Workstream 8.
 
@@ -304,3 +314,39 @@ Open documentation conflicts **XCL-001**–**XCL-005** remain for Workstream 8.
       [`artifacts/stabilization/ws3-step37-verification.json`](../artifacts/stabilization/ws3-step37-verification.json).
 - [x] User-approved commit containing WS3 code, tests, artifacts, and evidence docs
       (`32c99e5`–`0948837`, 2026-10-15).
+
+## Research track R1 — Step 1.1 Strategy C diagnosis
+
+**Status:** diagnosis recorded (non-headline).
+
+**Evidence:**
+[`setup/POST_PHASE4_R1_STEP11_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP11_EVIDENCE.md).
+
+- [x] Development-split diagnosis export (non-headline):
+      [`artifacts/stabilization/r1-step11-strategy-c-diagnosis.json`](../artifacts/stabilization/r1-step11-strategy-c-diagnosis.json).
+- [x] `python -m pytest tests/test_r1_strategy_c_diagnosis.py -q` → **4 passed**.
+
+## Research track R1 — Step 1.2 bounded Gate C provider measurement
+
+**Status:** Gate C live measurement **deferred** (unavailable artifact recorded).
+Live-run tasks in the parent plan remain unchecked.
+
+**Evidence:**
+[`setup/POST_PHASE4_R1_STEP12_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP12_EVIDENCE.md).
+
+- [x] Gate C **deferred** — unavailable measurement (no fake-provider substitute):
+      [`artifacts/stabilization/r1-step12-provider-measurement.json`](../artifacts/stabilization/r1-step12-provider-measurement.json).
+- [ ] Live bounded provider measurement (not run; 0 requests).
+- [x] `python -m pytest tests/test_r1_provider_run.py tests/test_provider_measure.py -q` → **7 passed** (2026-10-15).
+
+## Current position (after later workstreams)
+
+Not part of the Step 0.5 freeze. Matches the parent plan **Status**:
+
+- Workstreams 0–1 closed; Workstream 2 in-memory and PostgreSQL Gate B
+  verified; multi-worker external deploy still not authorized.
+- Workstream 3 closed (`32c99e5`–`0948837`).
+- Research track R1 in progress (R1.1 recorded; R1.2 Gate C live deferred;
+  `0020143`–`37109ca`).
+- Next research step: Workstream 5 (fresh held-out data or keep deferred),
+  then Workstream 7 (CI).

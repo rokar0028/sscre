@@ -10,9 +10,15 @@ not add new product features or provider-specific integrations.
 
 ## Status
 
-**Status:** `in progress — research-first reprioritization; Workstreams 0–1 closed, Workstream 2 in-memory verification passed (Gate B deferred), Workstream 3 closed`
+**Status:** `in progress — R1.1 diagnosis recorded, R1.2 Gate C live measurement deferred; Workstreams 0–1 closed, Workstream 2 in-memory and PostgreSQL Gate B verified (multi-worker deploy deferred), Workstream 3 closed`
 
-**Evidence:** [`docs/POST_PHASE4_STABILIZATION_EVIDENCE.md`](POST_PHASE4_STABILIZATION_EVIDENCE.md) (Workstream 0 closed)
+**Evidence:** [`docs/POST_PHASE4_STABILIZATION_EVIDENCE.md`](POST_PHASE4_STABILIZATION_EVIDENCE.md)
+(WS0 freeze plus later pointers);
+[`setup/POST_PHASE4_WS1_EVIDENCE.md`](setup/POST_PHASE4_WS1_EVIDENCE.md);
+[`setup/POST_PHASE4_WS2_EVIDENCE.md`](setup/POST_PHASE4_WS2_EVIDENCE.md);
+[`setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md`](setup/POST_PHASE4_WS3_STEP37_EVIDENCE.md);
+[`setup/POST_PHASE4_R1_STEP11_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP11_EVIDENCE.md);
+[`setup/POST_PHASE4_R1_STEP12_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP12_EVIDENCE.md).
 
 **Parent:** [`docs/SSCRE_PLAN.md`](SSCRE_PLAN.md), §§20, 23, and 24.
 
@@ -24,26 +30,34 @@ available, and either a valid fresh held-out semantic result or an explicit
 documented deferral.
 
 **Deployment exit (separate):** External multi-user readiness remains
-deferred until Workstreams 2 and 4 pass their applicable gates. Deployment
-hardening must not block the research exit unless it affects the validity or
-failure safety of the evaluation path.
+deferred until Workstream 2’s remaining multi-worker abuse/budget store and
+the required Workstream 4 gates pass. Workstream 2 in-memory and PostgreSQL
+Gate B verification are recorded; they do not authorize multi-worker or
+multi-replica exposure. Deployment hardening must not block the research exit
+unless it affects the validity or failure safety of the evaluation path.
 
 ## Current baseline
 
 - The current working tree is on local branch `main`, tracking
-  `origin/phase4/p4-semvalid-close`; stabilization changes are not yet
-  committed at this plan revision.
+  `origin/phase4/p4-semvalid-close`. Workstreams 0–3 and WS2 Gate B evidence
+  are committed through `7878856`. Research track R1 is committed
+  `0020143`–`37109ca` (diagnosis recorded; Gate C live deferred). Compose /
+  `.env.example` external-API forwarding may still be dirty after this bundle.
 - The earlier Gate A package recorded **835** pytest tests (with optional
   `local-embeddings` installed), Compose config, import smoke, and env
-  validation. The latest full-suite run records **892 passed, 1 skipped, and
-  21 deselected** (Workstream 3 close, 2026-10-14); these counts must not be
-  conflated with the older Gate A artifact (**835** tests).
+  validation. Workstream 3 close recorded **892 passed, 1 skipped, and 21
+  deselected** (2026-10-14). The latest default-suite record is **893 passed,
+  1 skipped, and 21 deselected** (WS2 Step 2.8 / Gate B, 2026-10-15,
+  `ws2-boundary-verification.json`). Do not conflate these counts with Gate A
+  (**835**).
 - PostgreSQL integration markers and live-provider tests remain opt-in
-  (Gate B / Gate C); WS1 recorded DB readiness only where Docker was available.
+  (Gate B / Gate C). Gate B isolation for WS2 is recorded as **verified**;
+  live Gate C measurement is **deferred**.
 - `docker-compose.yml` and `.env.example` default to Strategy **C**.
-- Workstream 2 now supplies client authentication and tenant/namespace
-  boundaries in the in-memory path; PostgreSQL Gate B and multi-worker abuse
-  enforcement remain deferred.
+- Workstream 2 supplies client authentication and tenant/namespace boundaries
+  in memory and on PostgreSQL (Gate B verified 2026-10-15). Multi-worker /
+  multi-replica abuse and provider-budget enforcement remain deferred;
+  external multi-user deployment is **not authorized**.
 - Workstream 3 (Steps 3.1–3.7) implements bounded dependency execution in
   [`src/sscre/dependency_runtime.py`](../src/sscre/dependency_runtime.py):
   admission slots release on client-visible timeout, per-request
@@ -672,7 +686,7 @@ exposure. This workstream defines the boundary and enforcement required for
 external deployment; it does not add a dashboard, account-management product,
 or provider-specific identity system.
 
-**Status:** `closed (in-memory verification)` — PostgreSQL Gate B **deferred**; external deployment **not authorized** until Gate B is recorded
+**Status:** `closed (in-memory and PostgreSQL Gate B verified)` — multi-worker abuse/budget store **deferred**; external multi-user deployment **not authorized**
 
 **Evidence:** [`docs/setup/POST_PHASE4_WS2_EVIDENCE.md`](setup/POST_PHASE4_WS2_EVIDENCE.md)
 
@@ -968,15 +982,22 @@ available (or are explicitly recorded as unavailable/deferred), the full
 allowed suite passes, and all evidence is redacted and tied to the current
 commit/worktree. A conditional test that was not run is not pass or fail.
 
+**Verification close (2026-10-15):** In-memory and PostgreSQL Gate B isolation
+are recorded in
+[`ws2-boundary-verification.json`](../artifacts/stabilization/ws2-boundary-verification.json)
+(`postgres_gate_b`: verified; default suite **893 passed**, 1 skipped, 21
+deselected). Passing this gate does not authorize external multi-user
+deployment.
+
 **Stopping rule:** No external or multi-user deployment is authorized until
-the verification gate passes. Stop immediately if tenant identity can be
-caller-supplied, if any repository path can omit scope in external mode, if
-canonical answers remain globally readable, if rate/quota enforcement can be
-bypassed on dependency failure, or if the selected auth/storage boundary
-cannot be tested in the actual PostgreSQL path. External mode must also run
-with one application process unless a shared rate-limit and provider-budget
-store is implemented and verified; process-local controls are not sufficient
-for multi-worker or multi-replica deployment.
+the verification gate passes **and** a shared rate-limit and provider-budget
+store is implemented and verified for more than one application process.
+Stop immediately if tenant identity can be caller-supplied, if any repository
+path can omit scope in external mode, if canonical answers remain globally
+readable, if rate/quota enforcement can be bypassed on dependency failure, or
+if the selected auth/storage boundary cannot be tested in the actual
+PostgreSQL path. Process-local controls are not sufficient for multi-worker
+or multi-replica deployment.
 
 ## Workstream 3 — Timeout, concurrency, and failure-closed runtime stability
 
@@ -1254,45 +1275,59 @@ evaluation. This track uses existing cache, trace, evaluation, and provider
 interfaces; it does not add a second cache layer, a new rate-limit module, or a
 provider-specific SDK.
 
+**Status:** `in progress — R1.1 diagnosis recorded; R1.2 Gate C live measurement deferred (unavailable artifact recorded)` — committed `0020143`–`37109ca` (2026-10-15)
+
+**Evidence:** [`docs/setup/POST_PHASE4_R1_STEP11_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP11_EVIDENCE.md);
+[`docs/setup/POST_PHASE4_R1_STEP12_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP12_EVIDENCE.md).
+
 ### Step R1.1 — Diagnose Strategy C before changing policy
 
-- [ ] Select a reproducible diagnostic population that is not used for the
-      fresh headline result.
-- [ ] Export decision-trace counts by exact versus semantic path, decision,
+- [x] Select a reproducible diagnostic population that is not used for the
+      fresh headline result (`benchmarks/development.jsonl`, 383 filtered pairs).
+- [x] Export decision-trace counts by exact versus semantic path, decision,
       reason, stage, similarity band, freshness outcome, missing/conflicting
       metadata, and unlabeled-candidate reuse.
-- [ ] Compare candidate availability with candidate rejection so low reuse is
+- [x] Compare candidate availability with candidate rejection so low reuse is
       not attributed to the threshold without evidence.
-- [ ] Record the denominators, configuration, model/dimension identity,
+- [x] Record the denominators, configuration, model/dimension identity,
       protocol version, commit, and worktree state.
-- [ ] Do not retune thresholds or compatibility rules from this diagnostic
+- [x] Do not retune thresholds or compatibility rules from this diagnostic
       population unless the protocol explicitly permits development-only
       tuning.
 
 **Acceptance criteria:**
 
-- [ ] The dominant causes of Strategy C abstention are identified or recorded
+- [x] The dominant causes of Strategy C abstention are identified or recorded
       as unavailable.
-- [ ] The diagnostic report is clearly non-headline and cannot be mistaken for
+- [x] The diagnostic report is clearly non-headline and cannot be mistaken for
       fresh held-out evidence.
-- [ ] No safety rule is weakened to increase reuse during diagnosis.
+- [x] No safety rule is weakened to increase reuse during diagnosis.
 
-**Evidence:** One redacted Strategy C diagnosis report and the command or
-fixture needed to reproduce it.
+**Evidence:** [`docs/setup/POST_PHASE4_R1_STEP11_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP11_EVIDENCE.md);
+[`artifacts/stabilization/r1-step11-strategy-c-diagnosis.json`](../artifacts/stabilization/r1-step11-strategy-c-diagnosis.json);
+[`scripts/r1_step11_strategy_c_diagnosis.py`](../scripts/r1_step11_strategy_c_diagnosis.py);
+[`src/sscre/strategy_c_diagnosis.py`](../src/sscre/strategy_c_diagnosis.py).
+Do not treat the research track as closed: Gate C live measurement is still deferred.
 
 ### Step R1.2 — Run a bounded real-provider measurement when authorized
 
 - [ ] Obtain explicit provider approval, credentials, quota, pricing, and
       endpoint/model approval under Gate C.
 - [ ] Run the smallest authorized provider measurement over the existing
-      development/tuning population (currently 400 records) before any fresh
-      held-out run.
+      development/tuning population (default **5** records / 383 filtered;
+      `--full-development` for explicit full bound) before any fresh held-out run.
 - [ ] Record provider, model, embedding dimension, request count, retries,
-      failures, estimated cost, rate-limit behavior, and redacted outputs.
-- [ ] Keep provider results separate from synthetic, fake-provider, historical,
-      and fresh-held-out evidence.
-- [ ] If approval or credentials are unavailable, record Gate C as deferred;
-      do not substitute fake-provider numbers.
+      failures, estimated cost, rate-limit behavior, and redacted outputs (via
+      [`provider_measure`](../src/sscre/provider_measure.py) envelope).
+- [x] Keep provider results separate from synthetic, fake-provider, historical,
+      and fresh-held-out evidence (`headline_population: false` in R1.2 artifact).
+- [x] If approval or credentials are unavailable, record Gate C as deferred;
+      do not substitute fake-provider numbers (`live_opt_in_missing` unavailable).
+
+**R1.2 note (2026-10-15):** Live Gate C was not authorized in this workspace.
+The unavailable envelope is
+[`r1-step12-provider-measurement.json`](../artifacts/stabilization/r1-step12-provider-measurement.json)
+(0 requests; no fake-provider substitute). Live-run tasks stay unchecked.
 
 **Acceptance criteria:**
 
@@ -1300,11 +1335,13 @@ fixture needed to reproduce it.
       description, with secrets supplied out of band.
 - [ ] Provider and cost evidence are complete enough to decide whether the
       fresh evaluation can proceed.
-- [ ] No live-provider result is presented as a semantic headline result until
+- [x] No live-provider result is presented as a semantic headline result until
       Workstream 5 passes its fresh-data gate.
 
-**Evidence:** Redacted provider-run manifest, cost/usage summary, failure
-summary, and unavailable/deferred explanation when applicable.
+**Evidence:** [`docs/setup/POST_PHASE4_R1_STEP12_EVIDENCE.md`](setup/POST_PHASE4_R1_STEP12_EVIDENCE.md);
+[`artifacts/stabilization/r1-step12-provider-measurement.json`](../artifacts/stabilization/r1-step12-provider-measurement.json);
+[`scripts/r1_step12_provider_measure.py`](../scripts/r1_step12_provider_measure.py);
+[`src/sscre/r1_provider_run.py`](../src/sscre/r1_provider_run.py).
 
 **Stopping rule:** Stop before provider execution without explicit approval,
 valid credentials, bounded quota, and a redaction plan.
@@ -1501,13 +1538,16 @@ scope.
 3. [x] Workstream 3 — timeout and concurrency fixes verified (Steps 3.1–3.7).
 4. [ ] Research track R1 — diagnose Strategy C and run the bounded authorized
       provider measurement, or record Gate C as deferred.
+      R1.1 diagnosis is recorded. R1.2 live measurement is not run; the Gate C
+      unavailable artifact is recorded. This track is not closed.
 5. [ ] Workstream 5 — construct and run the fresh semantic gate.
 6. [ ] Workstream 7 — enforce the verified research paths in CI.
 7. [ ] Workstream 8 — reconcile documentation and release status.
 8. [x] Deferred deployment track — Workstream 2 external API safety boundary
-      implemented; in-memory
-      verification gate passed ([`POST_PHASE4_WS2_EVIDENCE.md`](setup/POST_PHASE4_WS2_EVIDENCE.md));
-      PostgreSQL Gate B and multi-worker deployment remain deferred.
+      implemented; in-memory and PostgreSQL Gate B verification passed
+      ([`POST_PHASE4_WS2_EVIDENCE.md`](setup/POST_PHASE4_WS2_EVIDENCE.md));
+      multi-worker / multi-replica abuse enforcement and external deployment
+      remain deferred.
 9. [ ] Deferred deployment track — Workstream 4 PostgreSQL and vector behavior,
       only if external
       deployment, scale, or PostgreSQL-backed evidence is required.
@@ -1521,7 +1561,9 @@ Workstreams 0, 1, the research-relevant portion of 3, R1, 5, and 7 pass, and
 all remaining limitations are documented.
 
 The project may be called **ready for external multi-user deployment** only
-when Workstream 2 and the required portions of Workstream 4 pass.
+when Workstream 2’s remaining multi-worker abuse/budget store and the
+required portions of Workstream 4 pass. In-memory and PostgreSQL Gate B
+verification alone do not authorize that claim.
 
 The project may claim **semantic safe-reuse superiority** only when Workstream
 5 passes its pre-registered gate.
