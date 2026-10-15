@@ -97,21 +97,24 @@ def test_embedding_round_trip(
 def test_top_k_embedding_search_returns_ranked_candidates(
     repository: PostgresExactCacheRepository,
 ) -> None:
+    near_query = f"vector near {uuid4()}"
+    far_query = f"vector far {uuid4()}"
+    model_name = f"integration-vector-{uuid4()}"
     entries = [
         CacheEntry(
-            query_hash=hashlib.sha256(b"vector near").hexdigest(),
-            normalized_query="vector near",
+            query_hash=hashlib.sha256(near_query.encode()).hexdigest(),
+            normalized_query=near_query,
             answer="near answer",
             embedding=(1.0, 0.0),
-            embedding_model="test-embedding",
+            embedding_model=model_name,
             embedding_dimension=2,
         ),
         CacheEntry(
-            query_hash=hashlib.sha256(b"vector far").hexdigest(),
-            normalized_query="vector far",
+            query_hash=hashlib.sha256(far_query.encode()).hexdigest(),
+            normalized_query=far_query,
             answer="far answer",
             embedding=(0.0, 1.0),
-            embedding_model="test-embedding",
+            embedding_model=model_name,
             embedding_dimension=2,
         ),
     ]
@@ -124,6 +127,7 @@ def test_top_k_embedding_search_returns_ranked_candidates(
         candidates = repository.search_by_embedding(
             (1.0, 0.0),
             top_k=1,
+            embedding_model=model_name,
             tenant_id=TRUSTED_LOCAL_TENANT,
             namespace_id=DEFAULT_NAMESPACE,
         )
@@ -401,3 +405,158 @@ def test_insert_and_evict_enforces_postgres_entry_cap(
         assert foreign_hashes <= _cache_query_hashes()
     finally:
         _cleanup_query_hashes(scope)
+
+
+def test_postgres_canonical_read_ignores_stale_denormalized_column(
+    repository: PostgresExactCacheRepository,
+) -> None:
+    query = f"canonical column probe {uuid4()}"
+    entry = CacheEntry(
+        query_hash=hashlib.sha256(query.encode()).hexdigest(),
+        normalized_query=query,
+        answer="trusted canonical body",
+    )
+    assert DATABASE_URL is not None
+    try:
+        repository.insert(entry)
+        with psycopg.connect(DATABASE_URL) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE cache_entries
+                    SET answer = %s
+                    WHERE query_hash = %s
+                    """,
+                    ("stale denormalized column", entry.query_hash),
+                )
+            connection.commit()
+
+        loaded = repository.get_by_query_hash(entry.query_hash)
+        assert loaded is not None
+        assert loaded.answer == "trusted canonical body"
+    finally:
+        _cleanup_query_hashes([entry.query_hash])
+
+
+def test_postgres_tampered_canonical_answer_fails_closed_on_lookup(
+    repository: PostgresExactCacheRepository,
+) -> None:
+    query = f"tamper canonical probe {uuid4()}"
+    entry = CacheEntry(
+        query_hash=hashlib.sha256(query.encode()).hexdigest(),
+        normalized_query=query,
+        answer="integrity-checked answer",
+    )
+    assert DATABASE_URL is not None
+    try:
+        repository.insert(entry)
+        with psycopg.connect(DATABASE_URL) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE canonical_answers
+                    SET answer = %s
+                    WHERE answer_hash = %s
+                    """,
+                    ("tampered canonical body", entry.answer_hash),
+                )
+            connection.commit()
+
+        with pytest.raises(CacheRepositoryError, match="integrity check failed"):
+            repository.get_by_query_hash(entry.query_hash)
+    finally:
+        _cleanup_query_hashes([entry.query_hash])
+
+
+def test_postgres_tampered_canonical_answer_fails_closed_on_vector_search(
+    repository: PostgresExactCacheRepository,
+) -> None:
+    query = f"tamper vector probe {uuid4()}"
+    entry = CacheEntry(
+        query_hash=hashlib.sha256(query.encode()).hexdigest(),
+        normalized_query=query,
+        answer="vector integrity answer",
+        embedding=(1.0, 0.0),
+        embedding_model="test-embedding",
+        embedding_dimension=2,
+    )
+    assert DATABASE_URL is not None
+    from sscre.api_auth import DEFAULT_NAMESPACE, TRUSTED_LOCAL_TENANT
+
+    try:
+        repository.insert(entry)
+        with psycopg.connect(DATABASE_URL) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE canonical_answers
+                    SET answer = %s
+                    WHERE answer_hash = %s
+                    """,
+                    ("tampered vector canonical", entry.answer_hash),
+                )
+            connection.commit()
+
+        with pytest.raises(CacheRepositoryError, match="integrity check failed"):
+            repository.search_by_embedding(
+                (1.0, 0.0),
+                top_k=5,
+                embedding_model="test-embedding",
+                tenant_id=TRUSTED_LOCAL_TENANT,
+                namespace_id=DEFAULT_NAMESPACE,
+            )
+    finally:
+        _cleanup_query_hashes([entry.query_hash])
+
+
+def test_postgres_cache_entry_rejects_mismatched_canonical_hash() -> None:
+    query = f"mismatched hash probe {uuid4()}"
+    with pytest.raises(ValueError, match="canonical_answer_hash does not match"):
+        CacheEntry(
+            query_hash=hashlib.sha256(query.encode()).hexdigest(),
+            normalized_query=query,
+            answer="consistent body",
+            canonical_answer_hash=("a" * 64),
+        )
+
+
+def test_postgres_delete_removes_unreferenced_canonical_answer(
+    repository: PostgresExactCacheRepository,
+) -> None:
+    queries = [
+        f"canonical cleanup probe {uuid4()}-{index}" for index in range(2)
+    ]
+    entries = [
+        CacheEntry(
+            query_hash=hashlib.sha256(query.encode()).hexdigest(),
+            normalized_query=query,
+            answer="shared canonical cleanup answer",
+        )
+        for query in queries
+    ]
+    assert DATABASE_URL is not None
+    answer_hash = entries[0].answer_hash
+    try:
+        for entry in entries:
+            repository.insert(entry)
+        with psycopg.connect(DATABASE_URL) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT 1 FROM canonical_answers WHERE answer_hash = %s",
+                    (answer_hash,),
+                )
+                assert cursor.fetchone() is not None
+
+        delete_entries_by_query_hashes(
+            DATABASE_URL,
+            [entry.query_hash for entry in entries],
+        )
+        with psycopg.connect(DATABASE_URL) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT 1 FROM canonical_answers WHERE answer_hash = %s",
+                    (answer_hash,),
+                )
+                assert cursor.fetchone() is None
+    finally:
+        _cleanup_query_hashes([entry.query_hash for entry in entries])

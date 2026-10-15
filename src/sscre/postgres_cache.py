@@ -14,6 +14,7 @@ from sscre.cache import (
     _validate_scoped_insert_entry,
     validate_vector_search,
 )
+from sscre.canonical import hash_answer
 from sscre.query import resolve_operation_scope
 from sscre.config import Settings
 from sscre.safety import QueryMetadata
@@ -88,6 +89,24 @@ def delete_entries_by_query_hashes(
                 _delete_unreferenced_canonical(cursor, row[0])
 
 
+def _assert_canonical_integrity(
+    answer: str,
+    canonical_answer_hash: str | None,
+) -> None:
+    if canonical_answer_hash is None:
+        return
+    try:
+        content_hash = hash_answer(answer)
+    except ValueError:
+        raise CacheRepositoryError(
+            "canonical answer integrity check failed"
+        ) from None
+    if content_hash != canonical_answer_hash:
+        raise CacheRepositoryError(
+            "canonical answer integrity check failed"
+        )
+
+
 def _parse_metadata(value: object) -> QueryMetadata | None:
     if value is None:
         return None
@@ -153,6 +172,7 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                 self._database_url,
                 default_migrations_dir(),
                 connect_timeout=5,
+                read_only=True,
             )
         except (OSError, RuntimeError, psycopg.Error) as exc:
             raise CacheRepositoryError(
@@ -233,6 +253,7 @@ class PostgresExactCacheRepository(ExactCacheRepository):
 
         if row is None:
             return None
+        _assert_canonical_integrity(row[2], row[11])
         return CacheEntry(
             query_hash=row[0],
             normalized_query=row[1],
@@ -838,20 +859,23 @@ class PostgresExactCacheRepository(ExactCacheRepository):
                 "failed to search PostgreSQL cache embeddings"
             ) from exc
 
-        return tuple(
-            CacheCandidate(
-                query_hash=row[0],
-                normalized_query=row[1],
-                answer=row[2],
-                embedding_model=row[3],
-                embedding_dimension=row[4],
-                metadata=_parse_metadata(row[5]),
-                ttl_expires_at=row[6],
-                canonical_answer_hash=row[7],
-                similarity=float(row[8]),
+        candidates: list[CacheCandidate] = []
+        for row in rows:
+            _assert_canonical_integrity(row[2], row[7])
+            candidates.append(
+                CacheCandidate(
+                    query_hash=row[0],
+                    normalized_query=row[1],
+                    answer=row[2],
+                    embedding_model=row[3],
+                    embedding_dimension=row[4],
+                    metadata=_parse_metadata(row[5]),
+                    ttl_expires_at=row[6],
+                    canonical_answer_hash=row[7],
+                    similarity=float(row[8]),
+                )
             )
-            for row in rows
-        )
+        return tuple(candidates)
 
 
 class ScopedPostgresExactCacheRepository(PostgresExactCacheRepository):
