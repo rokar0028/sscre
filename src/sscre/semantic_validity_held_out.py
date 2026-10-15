@@ -52,7 +52,7 @@ def _git_worktree_dirty(repo_root: Path) -> bool | None:
 
 def _sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
-    digest.update(path.read_bytes())
+    digest.update(path.read_bytes().replace(b"\r\n", b"\n"))
     return digest.hexdigest()
 
 
